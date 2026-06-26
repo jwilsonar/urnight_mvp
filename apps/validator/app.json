@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "UrNight Validador",
+    "slug": "urnight-validator",
+    "scheme": "urnight-validator",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "UrNight necesita la cámara para escanear códigos QR en puerta."
+        }
+      ],
+      "expo-status-bar",
+      "expo-sqlite"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "pe.urnight.validator"
+    },
+    "android": {
+      "package": "pe.urnight.validator",
+      "edgeToEdgeEnabled": true
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

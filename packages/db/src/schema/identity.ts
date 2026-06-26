@@ -1,0 +1,192 @@
+import { sql } from 'drizzle-orm';
+import {
+  boolean,
+  check,
+  date,
+  index,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+  varchar,
+} from 'drizzle-orm/pg-core';
+import { id, timestamps } from '../helpers';
+
+/**
+ * Dominio 1 — Identity, Access & Legal (§4.1).
+ * Convenciones §2.3: tabla snake_case singular, UUID PK (gen_random_uuid),
+ * varchar + CHECK en lugar de pg_enum, índices `idx_<tabla>_<col>`.
+ *
+ * Nota multi-tenant: user_role.company_id/local_id quedan como uuid SIN FK
+ * porque COMPANY/LOCAL pertenecen al módulo 3 (aún no creado). La FK se añade
+ * en la migración de Companies & Locals.
+ */
+export const user = pgTable(
+  'user',
+  {
+    id: id(),
+    fullName: varchar('full_name', { length: 120 }).notNull(),
+    email: varchar('email', { length: 160 }).notNull(),
+    passwordHash: varchar('password_hash', { length: 100 }), // null cuando OAuth only
+    authProvider: varchar('auth_provider', { length: 10 }).notNull().default('email'),
+    googleSub: varchar('google_sub', { length: 255 }), // OAuth subject, nullable
+    documentType: varchar('document_type', { length: 10 }), // dni|ce|passport, nullable hasta onboarding
+    documentNumber: varchar('document_number', { length: 20 }), // UK, locked tras 1ª compra (Checkout)
+    birthDate: date('birth_date'), // 18+ validado en dominio/contracts (no DB: current_date no es IMMUTABLE)
+    phone: varchar('phone', { length: 20 }),
+    avatarUrl: varchar('avatar_url', { length: 512 }),
+    emailVerified: boolean('email_verified').notNull().default(false),
+    isActive: boolean('is_active').notNull().default(true),
+    lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
+    ...timestamps(),
+  },
+  (t) => [
+    uniqueIndex('idx_user_email').on(t.email),
+    uniqueIndex('idx_user_google_sub').on(t.googleSub),
+    uniqueIndex('idx_user_document_number').on(t.documentNumber),
+    check('user_auth_provider_check', sql`${t.authProvider} in ('email','google')`),
+    check(
+      'user_document_type_check',
+      sql`${t.documentType} is null or ${t.documentType} in ('dni','ce','passport')`,
+    ),
+  ],
+);
+
+export const role = pgTable(
+  'role',
+  {
+    id: id(),
+    code: varchar('code', { length: 20 }).notNull(),
+    name: varchar('name', { length: 80 }).notNull(),
+    description: varchar('description', { length: 255 }),
+    permissions: jsonb('permissions').notNull().default(sql`'{}'::jsonb`),
+  },
+  (t) => [
+    uniqueIndex('idx_role_code').on(t.code),
+    check(
+      'role_code_check',
+      sql`${t.code} in ('user','admin_local','promoter','validator','super_admin')`,
+    ),
+  ],
+);
+
+export const userRole = pgTable(
+  'user_role',
+  {
+    id: id(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    roleId: uuid('role_id')
+      .notNull()
+      .references(() => role.id, { onDelete: 'restrict' }),
+    companyId: uuid('company_id'), // FK → company (módulo 3), scope multi-tenant nullable
+    localId: uuid('local_id'), // FK → local (módulo 3), scope nullable
+    isActive: boolean('is_active').notNull().default(true),
+    grantedAt: timestamp('granted_at', { withTimezone: true }).notNull().defaultNow(),
+    grantedBy: uuid('granted_by').references(() => user.id, { onDelete: 'set null' }),
+  },
+  (t) => [index('idx_user_role_user').on(t.userId)],
+);
+
+export const userPreference = pgTable(
+  'user_preference',
+  {
+    id: id(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    onboardingCompleted: boolean('onboarding_completed').notNull().default(false),
+    acceptsMarketing: boolean('accepts_marketing').notNull().default(false),
+    acceptsReminders: boolean('accepts_reminders').notNull().default(true),
+    preferredLocale: varchar('preferred_locale', { length: 10 }).notNull().default('es-PE'),
+    ...timestamps(),
+  },
+  (t) => [uniqueIndex('idx_user_preference_user').on(t.userId)],
+);
+
+export const legalDocument = pgTable(
+  'legal_document',
+  {
+    id: id(),
+    docType: varchar('doc_type', { length: 20 }).notNull(),
+    version: varchar('version', { length: 20 }).notNull(),
+    contentUrl: text('content_url').notNull(),
+    isCurrent: boolean('is_current').notNull().default(false),
+    publishedAt: timestamp('published_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('idx_legal_document_type_version').on(t.docType, t.version),
+    // Solo un documento "current" por tipo (invariante de negocio en DB).
+    uniqueIndex('idx_legal_document_current')
+      .on(t.docType)
+      .where(sql`${t.isCurrent}`),
+    check(
+      'legal_document_doc_type_check',
+      sql`${t.docType} in ('terms','privacy','refund_policy')`,
+    ),
+  ],
+);
+
+export const legalAcceptance = pgTable(
+  'legal_acceptance',
+  {
+    id: id(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    legalDocumentId: uuid('legal_document_id')
+      .notNull()
+      .references(() => legalDocument.id, { onDelete: 'restrict' }),
+    versionAccepted: varchar('version_accepted', { length: 20 }).notNull(), // denormalizado p/ auditoría
+    ipAddress: varchar('ip_address', { length: 45 }),
+    acceptedAt: timestamp('accepted_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex('idx_legal_acceptance_user_doc').on(t.userId, t.legalDocumentId)],
+);
+
+/**
+ * Favorito polimórfico (§4.3: "exactamente uno de local_id/event_id").
+ * local_id/event_id son uuid SIN FK por la misma razón que user_role
+ * (COMPANY/LOCAL/EVENT viven en otros módulos; FK forward-reference evitada).
+ * Doble índice único parcial → no se puede marcar dos veces el mismo target.
+ */
+export const userFavorite = pgTable(
+  'user_favorite',
+  {
+    id: id(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    targetType: varchar('target_type', { length: 8 }).notNull(),
+    localId: uuid('local_id'), // FK → local (módulo 3), polimórfico
+    eventId: uuid('event_id'), // FK → event (módulo 4), polimórfico
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('idx_user_favorite_user').on(t.userId),
+    uniqueIndex('idx_user_favorite_user_local')
+      .on(t.userId, t.localId)
+      .where(sql`${t.localId} is not null`),
+    uniqueIndex('idx_user_favorite_user_event')
+      .on(t.userId, t.eventId)
+      .where(sql`${t.eventId} is not null`),
+    check('user_favorite_target_type_check', sql`${t.targetType} in ('local','event')`),
+    check(
+      'user_favorite_target_one_of_check',
+      sql`(${t.localId} is not null and ${t.eventId} is null) or (${t.localId} is null and ${t.eventId} is not null)`,
+    ),
+  ],
+);
+
+export type User = typeof user.$inferSelect;
+export type NewUser = typeof user.$inferInsert;
+export type Role = typeof role.$inferSelect;
+export type UserRole = typeof userRole.$inferSelect;
+export type UserPreference = typeof userPreference.$inferSelect;
+export type LegalDocument = typeof legalDocument.$inferSelect;
+export type LegalAcceptance = typeof legalAcceptance.$inferSelect;
+export type UserFavorite = typeof userFavorite.$inferSelect;
+export type NewUserFavorite = typeof userFavorite.$inferInsert;

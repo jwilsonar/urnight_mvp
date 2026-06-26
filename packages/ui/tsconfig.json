@@ -1,0 +1,9 @@
+{
+  "extends": "@urnight/config/tsconfig.next.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": ["react"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}

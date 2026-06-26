@@ -1,0 +1,89 @@
+'use client';
+
+import { ArrowSquareOut, Gauge, GearSix, SignOut, Ticket } from '@phosphor-icons/react';
+import Link from 'next/link';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@urnight/ui';
+import { signOutAction } from '@/lib/auth-actions';
+import { ROLE_PANEL_LABEL, primaryRole, roleHomePath } from '@/lib/utils/rbac';
+
+function initials(name?: string | null): string {
+  if (!name) return 'U';
+  return name
+    .split(' ')
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join('');
+}
+
+interface ProfileMenuUser {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  roles?: readonly string[];
+}
+
+/** Avatar + menú de cuenta del panel (ir al panel, ajustes, ver sitio, salir). */
+export function ProfileMenu({ user }: { user: ProfileMenuUser }) {
+  const panelHref = roleHomePath(user.roles);
+  const panelLabel = ROLE_PANEL_LABEL[primaryRole(user.roles)];
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="rounded-full" aria-label="Menú de cuenta">
+          <Avatar className="h-9 w-9">
+            {user.image ? <AvatarImage src={user.image} alt="" /> : null}
+            <AvatarFallback>{initials(user.name)}</AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-60">
+        <DropdownMenuLabel className="flex flex-col">
+          <span className="truncate">{user.name}</span>
+          <span className="truncate text-xs font-normal text-muted-foreground">{user.email}</span>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href={panelHref}>
+            <Gauge className="h-4 w-4" /> {panelLabel}
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/account">
+            <GearSix className="h-4 w-4" /> Ajustes de cuenta
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/account/tickets">
+            <Ticket className="h-4 w-4" /> Mis entradas
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/">
+            <ArrowSquareOut className="h-4 w-4" /> Ver sitio
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onSelect={(event) => {
+            event.preventDefault();
+            void signOutAction();
+          }}
+        >
+          <SignOut className="h-4 w-4" /> Cerrar sesión
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}

@@ -1,0 +1,1 @@
+ALTER TABLE "event" ADD COLUMN "custom_tags" jsonb DEFAULT '[]'::jsonb NOT NULL;

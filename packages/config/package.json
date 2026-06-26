@@ -1,0 +1,19 @@
+{
+  "name": "@urnight/config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tsconfig.nest.json": "./tsconfig.nest.json",
+    "./tsconfig.next.json": "./tsconfig.next.json",
+    "./tsconfig.expo.json": "./tsconfig.expo.json",
+    "./eslint": "./eslint.config.mjs",
+    "./prettier": "./prettier.config.mjs"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.17.0",
+    "eslint": "catalog:",
+    "typescript-eslint": "catalog:"
+  }
+}

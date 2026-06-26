@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: urnight_postgres
+    environment:
+      POSTGRES_USER: urnight
+      POSTGRES_PASSWORD: urnight
+      POSTGRES_DB: urnight_dev
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U urnight -d urnight_dev']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  redis:
+    image: redis:7-alpine
+    container_name: urnight_redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Object Storage S3-compatible para dev local (§1.4 / §5: imágenes, flyers, PDFs).
+  # Simula AWS S3 sin coste; el bucket se crea solo vía init script (ready.d).
+  localstack:
+    image: localstack/localstack:3
+    container_name: urnight_localstack
+    ports:
+      - '4566:4566'
+    environment:
+      SERVICES: s3
+      DEFAULT_REGION: us-east-1
+      PERSISTENCE: '1'
+      S3_BUCKET: urnight-local # leído por el init script para crear el bucket
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - ./docker/localstack/init/ready.d:/etc/localstack/init/ready.d
+    healthcheck:
+      test: ['CMD-SHELL', 'awslocal s3 ls || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  postgres_data:
+  redis_data:
+  localstack_data:

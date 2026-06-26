@@ -1,0 +1,31 @@
+{
+  "name": "urnight",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.34.4",
+  "engines": {
+    "node": ">=22.11"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "dev:api": "pnpm --filter @urnight/api start:dev",
+    "dev:worker": "pnpm --filter @urnight/worker start:dev",
+    "dev:web": "pnpm --filter @urnight/web dev",
+    "dev:mobile": "pnpm --filter @urnight/mobile start",
+    "dev:validator": "pnpm --filter @urnight/validator start",
+    "db:generate": "pnpm --filter @urnight/db db:generate",
+    "db:migrate": "pnpm --filter @urnight/db db:migrate",
+    "db:studio": "pnpm --filter @urnight/db db:studio",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
+  },
+  "devDependencies": {
+    "@urnight/config": "workspace:*",
+    "prettier": "catalog:",
+    "typescript": "catalog:"
+  }
+}

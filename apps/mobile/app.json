@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "UrNight",
+    "slug": "urnight-mobile",
+    "scheme": "urnight",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-sqlite"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "pe.urnight.mobile"
+    },
+    "android": {
+      "package": "pe.urnight.mobile",
+      "edgeToEdgeEnabled": true
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

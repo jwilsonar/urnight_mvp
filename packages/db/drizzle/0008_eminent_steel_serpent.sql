@@ -1,0 +1,1 @@
+ALTER TABLE "ticket" ADD COLUMN "qr_image_key" varchar(512);

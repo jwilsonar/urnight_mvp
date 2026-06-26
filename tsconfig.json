@@ -1,0 +1,8 @@
+{
+  "//": "Raíz del monorepo. Cada app/package tiene su propio tsconfig que extiende @urnight/config.",
+  "files": [],
+  "references": [
+    { "path": "./packages/contracts" },
+    { "path": "./packages/db" }
+  ]
+}
