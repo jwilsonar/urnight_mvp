@@ -9,6 +9,10 @@ build/
 out/
 *.tsbuildinfo
 
+# storybook
+storybook-static/
+*storybook.log
+
 # env / secrets
 .env
 .env.*
