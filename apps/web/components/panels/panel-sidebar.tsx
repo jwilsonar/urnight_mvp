@@ -24,9 +24,7 @@ export function PanelSidebar({
 
   return (
     <nav className={cn('flex flex-col gap-1', className)} aria-label="Navegación del panel">
-      <p className="px-3 pb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        {SECTION_LABEL[section]}
-      </p>
+      <p className="un-eyebrow px-3 pb-1">{SECTION_LABEL[section]}</p>
       {items.map((item) => {
         const Icon = item.icon;
         const active = isActive(pathname, item.href, item.exact);
@@ -38,9 +36,10 @@ export function PanelSidebar({
             aria-current={active ? 'page' : undefined}
             className={cn(
               'inline-flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+              // Item activo DS: tinte amatista + texto lavanda.
               active
-                ? 'bg-primary/10 text-primary'
-                : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                ? 'bg-accent text-lavender'
+                : 'text-muted-foreground hover:bg-white/5 hover:text-foreground',
             )}
           >
             <Icon className="h-4 w-4" weight={active ? 'fill' : 'regular'} />

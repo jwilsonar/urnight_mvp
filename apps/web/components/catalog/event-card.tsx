@@ -1,4 +1,3 @@
-import { CalendarBlank } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 import type { EventResponse } from '@urnight/contracts';
 import { Badge, type BadgeProps, Card, CardContent } from '@urnight/ui';
@@ -22,8 +21,9 @@ export function EventCard({ event }: { event: EventResponse }) {
       href={`/events/${event.slug}`}
       className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <Card className="h-full overflow-hidden transition-colors group-hover:border-primary">
-        <div className="relative aspect-video bg-muted">
+      {/* Card clickeable DS: lift 2px + borde amatista + sombra al hover. */}
+      <Card className="h-full overflow-hidden group-hover:-translate-y-0.5 group-hover:border-accent-border group-hover:shadow-float">
+        <div className="relative aspect-video">
           {event.flyerUrl ? (
             <StorageImage
               src={event.flyerUrl}
@@ -33,8 +33,8 @@ export function EventCard({ event }: { event: EventResponse }) {
               className="object-cover"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-muted-foreground">
-              <CalendarBlank className="h-10 w-10" weight="duotone" />
+            <div className="un-img-ph absolute inset-0">
+              <span>Flyer del evento</span>
             </div>
           )}
           <Badge variant={soldOut ? 'destructive' : status.variant} className="absolute right-2 top-2">
@@ -42,8 +42,8 @@ export function EventCard({ event }: { event: EventResponse }) {
           </Badge>
         </div>
         <CardContent className="space-y-1 p-4">
-          <p className="text-xs font-medium text-primary">{formatDate(event.startsAt)}</p>
-          <h3 className="line-clamp-2 font-heading font-semibold leading-tight">{event.name}</h3>
+          <p className="un-eyebrow">{formatDate(event.startsAt)}</p>
+          <h3 className="line-clamp-2 font-heading text-[17px] font-bold leading-tight">{event.name}</h3>
           {event.minAgeNote ? <p className="text-xs text-muted-foreground">{event.minAgeNote}</p> : null}
         </CardContent>
       </Card>

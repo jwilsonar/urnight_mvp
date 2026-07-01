@@ -41,12 +41,16 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <section className="flex flex-col items-center gap-6 py-20 text-center">
-        <span className="rounded-full border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
+      {/* Hero DS: wash amatista de atmósfera, eyebrow lavanda y titular en Sora
+          (font-display, reservada a titulares hero) con glow en la palabra clave. */}
+      <section className="un-hero-glow mt-6 flex flex-col items-center gap-6 rounded-2xl px-4 py-20 text-center">
+        <span className="un-eyebrow rounded-full border border-accent-border bg-accent px-4 py-1.5">
           Vida nocturna en Perú
         </span>
-        <h1 className="max-w-3xl font-heading text-4xl font-bold tracking-tight sm:text-6xl">
-          Descubre los mejores <span className="text-primary">locales y eventos</span> de la noche
+        <h1 className="max-w-3xl font-display text-4xl font-bold tracking-tight sm:text-6xl">
+          Descubre los mejores{' '}
+          <span className="text-primary [text-shadow:var(--glow-text)]">locales y eventos</span> de
+          la noche
         </h1>
         <p className="max-w-2xl text-lg text-muted-foreground">
           Explora discotecas y fiestas, compra tus entradas y guarda tus favoritos. Todo en un solo
