@@ -28,7 +28,8 @@ export function Providers({ session, children }: { session?: Session | null; chi
 
   return (
     <SessionProvider session={session}>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      {/* DS UrNight es dark-first y no define tema claro: se fuerza dark. */}
+      <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" disableTransitionOnChange>
         <QueryClientProvider client={queryClient}>
           <StorageProvider>{children}</StorageProvider>
           <Toaster richColors position="top-right" />
