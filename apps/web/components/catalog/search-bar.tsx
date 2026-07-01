@@ -39,7 +39,7 @@ export function SearchBar({ placeholder, target }: { placeholder?: string; targe
         value={value}
         onChange={(event) => setValue(event.target.value)}
         placeholder={placeholder ?? 'Buscar…'}
-        className="pl-9"
+        className="h-10 pl-9"
         aria-label="Buscar"
       />
     </form>
