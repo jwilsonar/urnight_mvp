@@ -1,7 +1,9 @@
+import { ArrowLeft } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { AuthCard } from '@/components/auth/auth-card';
+import { Button } from '@urnight/ui';
+import { AuthShell } from '@/components/auth/auth-shell';
 import { GoogleButton } from '@/components/auth/google-button';
 import { RegisterForm } from '@/components/auth/register-form';
 import { getSession } from '@/lib/auth-helpers';
@@ -31,29 +33,57 @@ export default async function RegisterPage({
   const googleEnabled = Boolean(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET);
 
   return (
-    <AuthCard
-      title="Crea tu cuenta"
-      description="Descubre la mejor vida nocturna del Perú."
-      footer={
-        <>
-          ¿Ya tienes cuenta?{' '}
-          <Link className="font-medium text-primary hover:underline" href={loginHref}>
-            Ingresar
-          </Link>
-        </>
+    <AuthShell
+      heroLabel="Registro · Night life"
+      hero={
+        <div>
+          <p className="font-heading text-3xl font-extrabold leading-tight">
+            Únete a la noche limeña.
+          </p>
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+            Crea tu cuenta gratis, guarda tus locales favoritos y compra entradas en segundos.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2.5">
+            <span className="un-chip">🎟️ Entradas al toque</span>
+            <span className="un-chip">❤️ Guarda favoritos</span>
+            <span className="un-chip">+18</span>
+          </div>
+        </div>
       }
     >
-      <RegisterForm callbackUrl={target} />
-      {googleEnabled ? (
-        <>
-          <div className="flex items-center gap-3 text-xs uppercase text-muted-foreground">
-            <span className="h-px flex-1 bg-border" />
-            o
-            <span className="h-px flex-1 bg-border" />
-          </div>
-          <GoogleButton callbackUrl={target} />
-        </>
-      ) : null}
-    </AuthCard>
+      <div className="mb-8 flex items-center justify-between gap-3">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" /> Volver
+        </Link>
+        <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+          <span className="hidden sm:inline">¿Ya tienes cuenta?</span>
+          <Button size="sm" variant="outline" asChild>
+            <Link href={loginHref}>Ingresar</Link>
+          </Button>
+        </div>
+      </div>
+
+      <h1 className="font-heading text-3xl font-extrabold tracking-tight">Crea tu cuenta</h1>
+      <p className="mb-7 mt-1.5 text-muted-foreground">
+        Descubre la mejor vida nocturna del Perú.
+      </p>
+
+      <div className="space-y-4">
+        <RegisterForm callbackUrl={target} />
+        {googleEnabled ? (
+          <>
+            <div className="flex items-center gap-3 text-xs uppercase text-muted-foreground">
+              <span className="h-px flex-1 bg-border" />
+              o continuar con
+              <span className="h-px flex-1 bg-border" />
+            </div>
+            <GoogleButton callbackUrl={target} />
+          </>
+        ) : null}
+      </div>
+    </AuthShell>
   );
 }
