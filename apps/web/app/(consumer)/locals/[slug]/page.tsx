@@ -6,6 +6,7 @@ import {
   WhatsappLogo,
 } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Badge, Button, Card, CardContent } from '@urnight/ui';
 import { EventCard } from '@/components/catalog/event-card';
@@ -154,12 +155,14 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ sl
                   </a>
                 </Button>
               ) : null}
-              {/* Reservas de mesa: aún sin backend — visible pero deshabilitado. */}
-              <Button variant="secondary" className="mt-2 w-full" disabled>
-                <WhatsappLogo className="size-4" weight="duotone" /> Reservar mesa
+              {/* Reservas de mesa: flujo demo del prototipo (sin backend aún). */}
+              <Button variant="secondary" className="mt-2 w-full" asChild>
+                <Link href="/reserva">
+                  <WhatsappLogo className="size-4" weight="duotone" /> Reservar mesa
+                </Link>
               </Button>
               <div className="mt-2 text-center">
-                <Badge variant="info">Próximamente</Badge>
+                <Badge variant="info">Demo</Badge>
               </div>
             </CardContent>
           </Card>

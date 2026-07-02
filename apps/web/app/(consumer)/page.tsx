@@ -204,11 +204,11 @@ export default async function HomePage() {
                       <Button asChild>
                         <Link href={`/locals/${partner.slug}`}>Ver local</Link>
                       </Button>
-                      {/* Reserva de mesa: aún sin backend — se muestra como próximamente. */}
-                      <Button variant="ghost" disabled>
-                        Reservar mesa
+                      {/* Reserva de mesa: flujo demo del prototipo (sin backend aún). */}
+                      <Button variant="ghost" asChild>
+                        <Link href="/reserva">Reservar mesa</Link>
                       </Button>
-                      <Badge variant="info">Próximamente</Badge>
+                      <Badge variant="info">Demo</Badge>
                     </div>
                   </div>
                   <div className="un-img-ph relative hidden min-h-[240px] lg:block">
