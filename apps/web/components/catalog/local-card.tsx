@@ -1,4 +1,4 @@
-import { SealCheck } from '@phosphor-icons/react/dist/ssr';
+import { MapPin, SealCheck } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 import type { LocalResponse } from '@urnight/contracts';
 import { Badge, Card, CardContent } from '@urnight/ui';
@@ -12,7 +12,7 @@ export function LocalCard({ local }: { local: LocalResponse }) {
     >
       {/* Card clickeable DS: lift 2px + borde amatista + sombra al hover. */}
       <Card className="h-full overflow-hidden group-hover:-translate-y-0.5 group-hover:border-accent-border group-hover:shadow-float">
-        <div className="relative aspect-[4/3]">
+        <div className="un-zoom-img relative aspect-[4/3] overflow-hidden">
           {local.mainImageUrl ? (
             <StorageImage
               src={local.mainImageUrl}
@@ -26,15 +26,26 @@ export function LocalCard({ local }: { local: LocalResponse }) {
               <span>Fachada del local</span>
             </div>
           )}
+          {/* Pill de estado arriba-izquierda, como la venue card del prototipo. */}
           {local.isVerified ? (
-            <Badge variant="success" className="absolute right-2 top-2 gap-1">
+            <Badge variant="success" className="absolute left-2 top-2 gap-1">
               <SealCheck className="h-3 w-3" weight="fill" /> Verificado
             </Badge>
           ) : null}
         </div>
-        <CardContent className="space-y-1 p-4">
+        <CardContent className="space-y-1.5 p-4">
           <h3 className="line-clamp-1 font-heading text-[17px] font-bold leading-tight">{local.name}</h3>
-          {local.address ? <p className="line-clamp-1 text-sm text-muted-foreground">{local.address}</p> : null}
+          {local.address ? (
+            <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <MapPin className="size-3.5 shrink-0" weight="duotone" />
+              <span className="line-clamp-1">{local.address}</span>
+            </p>
+          ) : null}
+          {local.description ? (
+            <p className="line-clamp-2 text-[13px] leading-relaxed text-muted-foreground/80">
+              {local.description}
+            </p>
+          ) : null}
         </CardContent>
       </Card>
     </Link>

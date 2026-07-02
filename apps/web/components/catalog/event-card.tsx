@@ -1,8 +1,8 @@
+import { CalendarBlank } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 import type { EventResponse } from '@urnight/contracts';
 import { Badge, type BadgeProps, Card, CardContent } from '@urnight/ui';
 import { StorageImage } from '@/lib/storage/storage-context';
-import { formatDate } from '@/lib/utils';
 
 const STATUS_LABEL: Record<EventResponse['status'], { label: string; variant: BadgeProps['variant'] }> = {
   draft: { label: 'Borrador', variant: 'outline' },
@@ -12,18 +12,29 @@ const STATUS_LABEL: Record<EventResponse['status'], { label: string; variant: Ba
   finished: { label: 'Finalizado', variant: 'outline' },
 };
 
+/* Fecha corta estilo prototipo ("SÁB 19 ABR"); la hora va aparte en el rango. */
+const DATE = new Intl.DateTimeFormat('es-PE', { weekday: 'short', day: 'numeric', month: 'short' });
+const TIME = new Intl.DateTimeFormat('es-PE', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+function timeRange(startsAt: string, endsAt: string | null): string {
+  const start = TIME.format(new Date(startsAt));
+  return endsAt ? `${start} – ${TIME.format(new Date(endsAt))}` : start;
+}
+
 export function EventCard({ event }: { event: EventResponse }) {
   const status = STATUS_LABEL[event.status];
+  const pct = event.totalCapacity > 0 ? event.ticketsSold / event.totalCapacity : 0;
   const soldOut = event.totalCapacity > 0 && event.ticketsSold >= event.totalCapacity;
+  const almostFull = !soldOut && pct >= 0.8;
 
   return (
     <Link
       href={`/events/${event.slug}`}
-      className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group block h-full rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       {/* Card clickeable DS: lift 2px + borde amatista + sombra al hover. */}
-      <Card className="h-full overflow-hidden group-hover:-translate-y-0.5 group-hover:border-accent-border group-hover:shadow-float">
-        <div className="relative aspect-video">
+      <Card className="flex h-full flex-col overflow-hidden group-hover:-translate-y-0.5 group-hover:border-accent-border group-hover:shadow-float">
+        <div className="un-zoom-img relative aspect-video overflow-hidden">
           {event.flyerUrl ? (
             <StorageImage
               src={event.flyerUrl}
@@ -40,11 +51,42 @@ export function EventCard({ event }: { event: EventResponse }) {
           <Badge variant={soldOut ? 'destructive' : status.variant} className="absolute right-2 top-2">
             {soldOut ? 'Agotado' : status.label}
           </Badge>
+          {/* Heat del prototipo, calculado con aforo real (ticketsSold/totalCapacity). */}
+          {almostFull ? (
+            <Badge variant="warning" className="absolute bottom-2 left-2">
+              🔥 Casi lleno
+            </Badge>
+          ) : null}
         </div>
-        <CardContent className="space-y-1 p-4">
-          <p className="un-eyebrow">{formatDate(event.startsAt)}</p>
-          <h3 className="line-clamp-2 font-heading text-[17px] font-bold leading-tight">{event.name}</h3>
-          {event.minAgeNote ? <p className="text-xs text-muted-foreground">{event.minAgeNote}</p> : null}
+        <CardContent className="flex flex-1 flex-col p-4">
+          <p className="un-eyebrow flex items-center gap-1.5">
+            <CalendarBlank className="size-3.5" weight="duotone" />
+            {DATE.format(new Date(event.startsAt))} · {timeRange(event.startsAt, event.endsAt)}
+          </p>
+          <h3 className="mt-2 line-clamp-2 font-heading text-[17px] font-bold leading-tight">
+            {event.name}
+          </h3>
+          {/* Pills a la altura del prototipo: +18 + tags del evento */}
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {event.minAgeNote ? <Badge variant="destructive">{event.minAgeNote}</Badge> : null}
+            {event.customTags.slice(0, 3).map((tag) => (
+              <Badge key={tag} variant="secondary">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+          <div className="mt-auto flex items-center justify-between border-t pt-3.5">
+            <span className="text-xs text-muted-foreground">
+              {soldOut
+                ? 'Sin cupos'
+                : event.totalCapacity > 0
+                  ? `${Math.max(event.totalCapacity - event.ticketsSold, 0)} cupos`
+                  : 'Cupos disponibles'}
+            </span>
+            <span className="inline-flex h-[34px] items-center rounded-sm bg-primary px-3.5 text-[13px] font-semibold text-primary-foreground shadow-glow transition-transform group-hover:scale-[1.03]">
+              Ver evento
+            </span>
+          </div>
         </CardContent>
       </Card>
     </Link>

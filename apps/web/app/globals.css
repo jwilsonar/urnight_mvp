@@ -327,4 +327,104 @@
   .un-hero-glow {
     background: var(--glow-hero);
   }
+
+  /* Chip de filtro del prototipo: pill oscura con hairline; activa = tinte amatista */
+  .un-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease,
+      color 160ms ease,
+      transform 160ms ease;
+  }
+  .un-chip:hover {
+    border-color: var(--accent-border);
+    color: var(--color-foreground);
+    transform: translateY(-1px);
+  }
+  .un-chip[data-active='true'] {
+    background: var(--accent-soft-strong);
+    border-color: var(--accent-border-strong);
+    color: #fff;
+  }
+
+  /* Carrusel horizontal con snap (categorías, rails de cards) */
+  .un-hscroll {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+  }
+  .un-hscroll > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  /* Reveal on-scroll: estado oculto → visible con fade-up (JS agrega .is-visible) */
+  .un-reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .un-reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Glow respirando para heros (atmósfera lenta, no estroboscópica) */
+  .un-breathe {
+    animation: un-breathe 7s ease-in-out infinite;
+  }
+
+  /* Zoom suave de imagen dentro de cards clickeables */
+  .un-zoom-img img {
+    transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .un-zoom-img:hover img {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes un-breathe {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+/* Accesibilidad: sin movimiento para quien lo pide */
+@media (prefers-reduced-motion: reduce) {
+  .un-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .un-breathe {
+    animation: none;
+  }
+  .un-zoom-img img {
+    transition: none;
+  }
 }
