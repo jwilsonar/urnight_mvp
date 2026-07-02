@@ -1,0 +1,22 @@
+# Contexto de build Docker: sólo código fuente. Se reinstala/compila dentro de la imagen.
+**/node_modules
+**/dist
+**/.next
+**/.expo
+**/.turbo
+**/coverage
+**/*.tsbuildinfo
+
+.git
+.github
+.vscode
+**/.DS_Store
+
+# Env y secretos: nunca al contexto de build.
+.env
+**/.env
+!.env.example
+
+# Docs / infra local no necesaria en runtime.
+docs
+docker/localstack
