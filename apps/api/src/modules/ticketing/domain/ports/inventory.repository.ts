@@ -7,6 +7,8 @@ export interface SaleEvent {
   id: string;
   status: string;
   localId: string;
+  /** Empresa dueña del local (C1: control multi-tenant derivado del evento). */
+  companyId: string;
   isOnSale: boolean;
 }
 
@@ -23,7 +25,8 @@ export interface SaleTicketType {
 
 export interface InventoryPort {
   getEvent(eventId: string): Promise<SaleEvent | null>;
-  getTicketType(id: string): Promise<SaleTicketType | null>;
+  /** Lee un tipo de entrada. `tx`: dentro de la Tx de checkout (re-verificación M2). */
+  getTicketType(id: string, tx?: unknown): Promise<SaleTicketType | null>;
   /** Incrementa sold; la CHECK (sold<=stock) revierte la Tx si hay sobreventa. */
   incrementSold(ticketTypeId: string, qty: number, tx: unknown): Promise<void>;
   incrementEventTicketsSold(eventId: string, qty: number, tx: unknown): Promise<void>;

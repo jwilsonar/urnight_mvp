@@ -1,5 +1,6 @@
 import { CalendarBlank } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { EventCard } from '@/components/catalog/event-card';
 import { SearchBar } from '@/components/catalog/search-bar';
 import { EmptyState } from '@/components/shared/empty-state';
@@ -30,9 +31,9 @@ export default async function EventsPage({
         </div>
         <div className="flex items-center gap-3">
           <SearchBar placeholder="Buscar eventos o DJs…" />
-          <a href="/events/calendar" className="text-sm text-primary hover:underline">
+          <Link href="/events/calendar" className="text-sm text-primary hover:underline">
             Calendario
-          </a>
+          </Link>
         </div>
       </div>
 

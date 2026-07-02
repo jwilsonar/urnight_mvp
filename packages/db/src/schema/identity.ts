@@ -13,15 +13,21 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 import { id, timestamps } from '../helpers';
+// FK multi-tenant (M13): company/local viven en el módulo 3, event en el 4.
+// Las referencias usan la forma perezosa `() => tabla.id`, por lo que el import
+// circular identity ↔ companies/events es seguro (ninguna tabla se accede en
+// tiempo de evaluación del módulo, solo dentro del callback de Drizzle).
+import { company, local } from './companies';
+import { event } from './events';
 
 /**
  * Dominio 1 — Identity, Access & Legal (§4.1).
  * Convenciones §2.3: tabla snake_case singular, UUID PK (gen_random_uuid),
  * varchar + CHECK en lugar de pg_enum, índices `idx_<tabla>_<col>`.
  *
- * Nota multi-tenant: user_role.company_id/local_id quedan como uuid SIN FK
- * porque COMPANY/LOCAL pertenecen al módulo 3 (aún no creado). La FK se añade
- * en la migración de Companies & Locals.
+ * Multi-tenant (M13): user_role.company_id/local_id referencian COMPANY/LOCAL
+ * (módulo 3) con FK real. Se cierra la integridad referencial de scope que las
+ * migraciones 0002-0009 dejaron pendiente (antes eran uuid sueltos).
  */
 export const user = pgTable(
   'user',
@@ -82,8 +88,10 @@ export const userRole = pgTable(
     roleId: uuid('role_id')
       .notNull()
       .references(() => role.id, { onDelete: 'restrict' }),
-    companyId: uuid('company_id'), // FK → company (módulo 3), scope multi-tenant nullable
-    localId: uuid('local_id'), // FK → local (módulo 3), scope nullable
+    // Scope multi-tenant (nullable): grant a nivel empresa/local. FK con cascade:
+    // al borrar el tenant se retira el grant scoped (M13).
+    companyId: uuid('company_id').references(() => company.id, { onDelete: 'cascade' }),
+    localId: uuid('local_id').references(() => local.id, { onDelete: 'cascade' }),
     isActive: boolean('is_active').notNull().default(true),
     grantedAt: timestamp('granted_at', { withTimezone: true }).notNull().defaultNow(),
     grantedBy: uuid('granted_by').references(() => user.id, { onDelete: 'set null' }),
@@ -149,8 +157,8 @@ export const legalAcceptance = pgTable(
 
 /**
  * Favorito polimórfico (§4.3: "exactamente uno de local_id/event_id").
- * local_id/event_id son uuid SIN FK por la misma razón que user_role
- * (COMPANY/LOCAL/EVENT viven en otros módulos; FK forward-reference evitada).
+ * local_id/event_id referencian LOCAL (módulo 3) y EVENT (módulo 4) con FK real
+ * (M13): al borrar el target se elimina el favorito (cascade).
  * Doble índice único parcial → no se puede marcar dos veces el mismo target.
  */
 export const userFavorite = pgTable(
@@ -161,8 +169,8 @@ export const userFavorite = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
     targetType: varchar('target_type', { length: 8 }).notNull(),
-    localId: uuid('local_id'), // FK → local (módulo 3), polimórfico
-    eventId: uuid('event_id'), // FK → event (módulo 4), polimórfico
+    localId: uuid('local_id').references(() => local.id, { onDelete: 'cascade' }), // FK → local (módulo 3), polimórfico
+    eventId: uuid('event_id').references(() => event.id, { onDelete: 'cascade' }), // FK → event (módulo 4), polimórfico
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [

@@ -5,6 +5,9 @@ export const validateQrSchema = z.object({
   qrCode: z.string().min(8).max(64),
   localId: z.string().uuid().optional(),
   deviceInfo: z.string().max(255).optional(),
+  // Hora real del escaneo (ISO 8601). Lo propaga el sync offline del validador
+  // para preservar el instante de puerta cuando la validación se difiere.
+  scannedAt: z.string().datetime().optional(),
 });
 export type ValidateQrDto = z.infer<typeof validateQrSchema>;
 

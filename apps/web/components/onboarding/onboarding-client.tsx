@@ -17,6 +17,7 @@ import {
 import { getErrorMessage } from '@/lib/api/error-messages';
 import { completeOnboarding, updatePreferences } from '@/lib/api/identity';
 import { SESSION_EXPIRED } from '@/lib/constants';
+import { isSafeInternalPath } from '@/lib/utils/paths';
 
 interface OnboardingClientProps {
   callbackUrl: string;
@@ -59,7 +60,8 @@ export function OnboardingClient({ callbackUrl, userName }: OnboardingClientProp
         // servidor lee el JWT viejo (onboardingCompleted=false) y rebota a
         // /onboarding. El full reload garantiza una request fresca con la cookie
         // ya actualizada.
-        window.location.assign(callbackUrl);
+        // Defensa en profundidad: nunca redirigir a un destino externo (M10).
+        window.location.assign(isSafeInternalPath(callbackUrl) ? callbackUrl : '/');
       } catch (error) {
         toast.error(getErrorMessage(error));
       }

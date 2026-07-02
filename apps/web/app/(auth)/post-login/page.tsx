@@ -1,14 +1,10 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth-helpers';
+import { isSafeInternalPath } from '@/lib/utils/paths';
 import { roleHomePath } from '@/lib/utils/rbac';
 
 export const metadata: Metadata = { title: 'Redirigiendo…' };
-
-/** Solo permitimos rutas internas para evitar open-redirect vía callbackUrl. */
-function isSafeInternalPath(path: string | undefined): path is string {
-  return !!path && path.startsWith('/') && !path.startsWith('//');
-}
 
 /**
  * Resolutor de aterrizaje tras el login (server-side). Cuando se llega aquí la

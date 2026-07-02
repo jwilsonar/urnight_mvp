@@ -6,6 +6,7 @@ import { CreateLocalDialog } from '@/components/admin/create-local-dialog';
 import { LocalStatusBadge } from '@/components/admin/status-badges';
 import { PanelPageHeader } from '@/components/panels/panel-page-header';
 import { EmptyState } from '@/components/shared/empty-state';
+import { ErrorState } from '@/components/shared/error-state';
 import { getLocalStats, listMyLocals } from '@/lib/api/admin';
 import { requireAccessToken } from '@/lib/auth-helpers';
 
@@ -23,7 +24,21 @@ const ZERO: Totals = { eventsCount: 0, publishedCount: 0, ticketsSold: 0, checki
 /** Dashboard del panel de local: KPIs agregados de todos los locales del actor. */
 export default async function AdminDashboardPage() {
   const { token } = await requireAccessToken('/panel/admin');
-  const locals = await listMyLocals(token).catch(() => []);
+
+  // Distingue "sin locales" (vacío) de un fallo del API (error): un catch→[] mostraría
+  // el estado vacío aunque el backend estuviese caído. Los stats por local sí son
+  // best-effort (catch→null) porque no deben tumbar todo el dashboard.
+  let locals: Awaited<ReturnType<typeof listMyLocals>>;
+  try {
+    locals = await listMyLocals(token);
+  } catch {
+    return (
+      <ErrorState
+        title="No pudimos cargar tu panel"
+        description="Inténtalo de nuevo en unos minutos."
+      />
+    );
+  }
 
   // KPIs por local (getLocalStats es por local) → suma agregada para el panel.
   const statsList = await Promise.all(

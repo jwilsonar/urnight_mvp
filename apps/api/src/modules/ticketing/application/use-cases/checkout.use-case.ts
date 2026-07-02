@@ -2,14 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { randomBytes, randomUUID } from 'node:crypto';
 import type { CreateOrderDto } from '@urnight/contracts';
 import { createLogger } from '../../../../shared/logging/logger';
-import {
-  STORAGE_PORT,
-  type StoragePort,
-} from '../../../../shared/adapters/storage/storage.port';
 import { EventBus } from '../../../../shared/event-bus/event-bus';
 import { LockPort, LockUnavailableError } from '../../../../shared/locking/lock.port';
 import { OutboxPort } from '../../../../shared/outbox/outbox.port';
-import { QR_IMAGE_PORT, type QrImagePort } from '../../domain/ports/qr-image.port';
 import { PromoRedemptionPort } from '../../../../shared/ports/promo-redemption.port';
 import { UnitOfWork } from '../../../../shared/unit-of-work/unit-of-work';
 import { Attendee } from '../../domain/entities/attendee.entity';
@@ -26,6 +21,7 @@ import {
   TicketTypeUnavailableError,
 } from '../../domain/errors/checkout.errors';
 import { OrderPaidEvent, TicketIssuedEvent } from '../../domain/events/checkout.events';
+import { IDEMPOTENCY_STORE, type IdempotencyStore } from '../../domain/ports/idempotency.port';
 import { INVENTORY_PORT, type InventoryPort } from '../../domain/ports/inventory.repository';
 import { ORDER_REPOSITORY, type OrderRepository } from '../../domain/ports/order.repository';
 import { PAYMENT_REPOSITORY, type PaymentRepository } from '../../domain/ports/payment.repository';
@@ -79,14 +75,67 @@ export class CheckoutUseCase {
     private readonly events: EventBus,
     private readonly outbox: OutboxPort,
     private readonly promo: PromoRedemptionPort,
-    @Inject(STORAGE_PORT) private readonly storage: StoragePort,
-    @Inject(QR_IMAGE_PORT) private readonly qrImage: QrImagePort,
+    @Inject(IDEMPOTENCY_STORE) private readonly idempotency: IdempotencyStore,
   ) {}
 
-  async execute(input: { userId: string; dto: CreateOrderDto }): Promise<CheckoutResult> {
-    const { dto } = input;
+  async execute(input: {
+    userId: string;
+    dto: CreateOrderDto;
+    idempotencyKey?: string;
+  }): Promise<CheckoutResult> {
+    // M3: idempotencia — misma key + mismo usuario ⇒ devuelve la orden ya creada
+    // (no crea otra ni cobra dos veces).
+    if (input.idempotencyKey) {
+      return this.executeIdempotent(input.userId, input.dto, input.idempotencyKey);
+    }
+    return this.runCheckout(input.userId, input.dto);
+  }
+
+  /** M3: envuelve el checkout con dedupe por `Idempotency-Key` (lock + store Redis). */
+  private async executeIdempotent(
+    userId: string,
+    dto: CreateOrderDto,
+    key: string,
+  ): Promise<CheckoutResult> {
+    const existing = await this.idempotency.recall(userId, key);
+    if (existing) return this.replay(userId, existing);
+
+    try {
+      return await this.lock.withLock(`idempotency:checkout:${userId}:${key}`, LOCK_TTL_MS, async () => {
+        // Doble comprobación dentro del lock (otro request pudo terminar antes).
+        const again = await this.idempotency.recall(userId, key);
+        if (again) return this.replay(userId, again);
+
+        const result = await this.runCheckout(userId, dto);
+        await this.idempotency.remember(userId, key, result.order.id);
+        return result;
+      });
+    } catch (err) {
+      if (err instanceof LockUnavailableError) {
+        // Otro request con la misma key está en curso: pedir reintento (evita el
+        // doble cobro). Límite conocido: dedupe best-effort sobre Redis (M3).
+        this.log.warn({ userId }, 'ticketing.checkout.idempotency_in_flight');
+        throw new StockLockedError();
+      }
+      throw err;
+    }
+  }
+
+  /** M3: reconstruye el resultado (orden + entradas) de una orden ya creada. */
+  private async replay(userId: string, orderId: string): Promise<CheckoutResult> {
+    const order = await this.orders.findById(orderId);
+    if (!order) {
+      // La clave apuntaba a una orden inexistente (TTL/estado raro): recomputar.
+      throw new StockLockedError();
+    }
+    const tickets = await this.tickets.listByOrder(orderId);
+    this.log.info({ userId, orderId }, 'ticketing.checkout.idempotent_replay');
+    return { order, tickets };
+  }
+
+  private async runCheckout(userId: string, dto: CreateOrderDto): Promise<CheckoutResult> {
     this.log.debug(
-      { userId: input.userId, eventId: dto.eventId, items: dto.items.length },
+      { userId, eventId: dto.eventId, items: dto.items.length },
       'ticketing.checkout.started',
     );
     const ev = await this.inventory.getEvent(dto.eventId);
@@ -106,36 +155,17 @@ export class CheckoutUseCase {
     const currency = specs[0]?.currency ?? 'PEN';
 
     try {
-      const result = await this.lock.withLock(`event:${dto.eventId}`, LOCK_TTL_MS, () =>
-        this.process(input.userId, dto, specs, currency),
+      // El rendering del PNG del QR + subida a S3 ya NO vive aquí (A8): lo hace el
+      // QrImageSubscriber al reaccionar a TicketIssuedEvent (SRP).
+      return await this.lock.withLock(`event:${dto.eventId}`, LOCK_TTL_MS, () =>
+        this.process(userId, dto, specs, currency),
       );
-      // QR de cada entrada: PNG → S3 → key (fuera del lock/Tx). Best-effort: si
-      // falla, la entrada sigue válida (el token `qrCode` es la fuente de verdad
-      // en puerta) y el cliente puede renderizar el QR desde el token.
-      await this.generateQrImages(result.tickets);
-      return result;
     } catch (err) {
       if (err instanceof LockUnavailableError) {
-        this.log.warn({ userId: input.userId, eventId: dto.eventId }, 'ticketing.checkout.stock_locked');
+        this.log.warn({ userId, eventId: dto.eventId }, 'ticketing.checkout.stock_locked');
         throw new StockLockedError();
       }
       throw err;
-    }
-  }
-
-  /** Genera y persiste el PNG del QR de cada entrada emitida (no bloquea el pago). */
-  private async generateQrImages(issued: IssuedTicket[]): Promise<void> {
-    for (const { ticket } of issued) {
-      try {
-        const png = await this.qrImage.render(ticket.qrCode);
-        const key = `tickets/${ticket.id}/qr.png`;
-        await this.storage.putObject(key, png, 'image/png');
-        await this.tickets.attachQrImage(ticket.id, key);
-        ticket.attachQrImage(key);
-        this.log.debug({ ticketId: ticket.id, key }, 'ticketing.qr.image_stored');
-      } catch (err) {
-        this.log.warn({ ticketId: ticket.id, err }, 'ticketing.qr.image_failed');
-      }
     }
   }
 
@@ -188,8 +218,9 @@ export class CheckoutUseCase {
 
     await this.uow.run(async (tx) => {
       // Reserva atómica de stock (CHECK sold<=stock revierte si hay sobreventa).
+      // M2: la re-verificación lee CON la conexión transaccional (`tx`), no el pool.
       for (const s of specs) {
-        const fresh = await this.inventory.getTicketType(s.item.ticketTypeId);
+        const fresh = await this.inventory.getTicketType(s.item.ticketTypeId, tx);
         if (!fresh) throw new TicketTypeNotFoundError();
         if (fresh.stock - fresh.sold < s.qty) throw new InsufficientStockError();
         await this.inventory.incrementSold(s.item.ticketTypeId, s.qty, tx);
@@ -209,6 +240,11 @@ export class CheckoutUseCase {
           { orderId, userId, reason: charge.failureReason ?? null },
           'ticketing.checkout.payment_rejected',
         );
+        // TODO(M3): persistir el PAYMENT rechazado para trazabilidad. Hoy el
+        // rollback de la Tx lo descarta. Con pasarela real, mover el cobro FUERA
+        // de la Tx (charge→persist con compensación) y escribir el intento
+        // rechazado en una conexión propia antes de abortar. Fuera de alcance
+        // sin tocar el patrón transaccional / adaptadores de pago reales.
         throw new PaymentRejectedError(charge.failureReason);
       }
       payment.approve(charge.reference ?? 'mock');
@@ -282,7 +318,12 @@ export class CheckoutUseCase {
     );
     for (const t of issued) {
       await this.events.publish(
-        new TicketIssuedEvent({ ticketId: t.ticket.id, eventId: dto.eventId, userId }),
+        new TicketIssuedEvent({
+          ticketId: t.ticket.id,
+          eventId: dto.eventId,
+          userId,
+          qrCode: t.ticket.qrCode,
+        }),
       );
     }
     this.log.info(

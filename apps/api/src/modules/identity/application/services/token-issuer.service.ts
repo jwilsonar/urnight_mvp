@@ -1,13 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { createLogger } from '../../../../shared/logging/logger';
 import type { RoleCode } from '../../domain/entities/role.entity';
 import type { User } from '../../domain/entities/user.entity';
-import {
-  ROLE_ASSIGNMENT_REPOSITORY,
-  type RoleAssignmentRepository,
-} from '../../domain/ports/role-assignment.repository';
-import { ROLE_REPOSITORY, type RoleRepository } from '../../domain/ports/role.repository';
+import { RefreshTokenStore } from '../../domain/ports/refresh-token-store.port';
 import { TokenService, type IssuedToken } from '../../domain/ports/token.port';
+import { RoleResolver } from './role-resolver.service';
 
 /** Resultado de un flujo de autenticación: usuario + roles + par de tokens. */
 export interface AuthResult {
@@ -19,28 +17,25 @@ export interface AuthResult {
 
 /**
  * Servicio de aplicación: resuelve los roles activos del usuario (con su scope
- * multi-tenant) y firma el par access+refresh. Reutilizado por register/login/google.
+ * multi-tenant) y firma el par access+refresh. El refresh lleva un `jti` único que
+ * se persiste en el RefreshTokenStore → rotación + revocación server-side (A2).
+ * Reutilizado por register/login/google/refresh.
  */
 @Injectable()
 export class TokenIssuer {
   private readonly log = createLogger(TokenIssuer.name);
 
   constructor(
-    @Inject(ROLE_ASSIGNMENT_REPOSITORY)
-    private readonly assignments: RoleAssignmentRepository,
-    @Inject(ROLE_REPOSITORY) private readonly roles: RoleRepository,
+    private readonly roleResolver: RoleResolver,
     private readonly tokens: TokenService,
+    private readonly refreshStore: RefreshTokenStore,
   ) {}
 
   async issueFor(user: User): Promise<AuthResult> {
-    const active = await this.assignments.findActiveByUser(user.id);
-    const codeById = new Map((await this.roles.listAll()).map((r) => [r.id, r.code]));
-    const roleCodes = active
-      .map((a) => codeById.get(a.roleId))
-      .filter((c): c is RoleCode => c !== undefined);
+    const { assignments, roleCodes } = await this.roleResolver.resolveActive(user.id);
 
     // Scope multi-tenant: primera asignación con company/local (MVP: scope único por token).
-    const scoped = active.find((a) => a.companyId !== null || a.localId !== null);
+    const scoped = assignments.find((a) => a.companyId !== null || a.localId !== null);
 
     const access = await this.tokens.signAccess({
       sub: user.id,
@@ -49,7 +44,11 @@ export class TokenIssuer {
       companyId: scoped?.companyId ?? null,
       localId: scoped?.localId ?? null,
     });
-    const refresh = await this.tokens.signRefresh(user.id);
+
+    // Refresh con jti único → se registra en el store para rotación/revocación (A2).
+    const jti = randomUUID();
+    const refresh = await this.tokens.signRefresh(user.id, jti);
+    await this.refreshStore.store(user.id, jti, refresh.expiresIn);
 
     this.log.debug({ userId: user.id }, 'identity.tokens.issued');
     return { user, roleCodes, access, refresh };

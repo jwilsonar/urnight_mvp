@@ -30,6 +30,11 @@ export class Attendee {
     return new Attendee({ ...input, fullName: input.fullName.trim() });
   }
 
+  /** Reconstruye desde persistencia (sin revalidar 18+: ya se validó al crear). */
+  static fromPersistence(props: AttendeeProps): Attendee {
+    return new Attendee(props);
+  }
+
   private static isAdult(birthDate: Date, now: Date = new Date()): boolean {
     let age = now.getFullYear() - birthDate.getFullYear();
     const m = now.getMonth() - birthDate.getMonth();

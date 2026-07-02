@@ -11,7 +11,7 @@ export interface SaleAttributionProps {
   attributedAt: Date;
 }
 
-/** Atribución de venta a un promotor (§4.1, ventana 7 días). */
+/** Atribución de venta a un promotor (§4.1). Sin ventana temporal (ADR 0003). */
 export class SaleAttribution {
   private constructor(private readonly props: SaleAttributionProps) {}
 

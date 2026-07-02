@@ -11,7 +11,9 @@ interface OrderPaidShape {
 
 /**
  * Suscriptor de OrderPaid (§3.2). Desacoplado de Checkout: reacciona al evento
- * por nombre y atribuye la venta al promotor del referral code (best-effort).
+ * por nombre y atribuye la venta al promotor del `referralCode` (best-effort).
+ * Sin ventana de 7 días (ADR 0003): el gatillo está inerte mientras ningún
+ * cliente informe `referralCode` (el corte de abajo lo cortocircuita).
  */
 @Injectable()
 export class OrderPaidSubscriber implements OnModuleInit {

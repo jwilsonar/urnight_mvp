@@ -1,3 +1,8 @@
+import {
+  AssociationForbiddenError,
+  AssociationNotPendingError,
+} from '../errors/promoters.errors';
+
 export type PromoterStatus = 'active' | 'inactive' | 'suspended' | 'pending';
 
 export interface PromoterProps {
@@ -88,6 +93,18 @@ export class Promoter {
       return this.props.invitedEmail === email.trim().toLowerCase();
     }
     return false;
+  }
+
+  /**
+   * Aserción DRY (#9): la invitación sigue `pending` y el actor es el invitado.
+   * Compartida por confirmar/rechazar asociación (regla: consentimiento del
+   * promotor). Lanza errores de dominio (409/403) que el ProblemJsonFilter mapea.
+   */
+  assertPendingInvitation(actorUserId: string, actorEmail: string | null): void {
+    if (!this.isPending()) throw new AssociationNotPendingError();
+    if (!this.belongsToInvited(actorUserId, actorEmail)) {
+      throw new AssociationForbiddenError();
+    }
   }
 
   /** La persona acepta: se liga su userId y el promotor pasa a activo. */

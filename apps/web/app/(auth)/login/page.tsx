@@ -5,6 +5,7 @@ import { AuthCard } from '@/components/auth/auth-card';
 import { GoogleButton } from '@/components/auth/google-button';
 import { LoginForm } from '@/components/auth/login-form';
 import { getSession } from '@/lib/auth-helpers';
+import { isSafeInternalPath } from '@/lib/utils/paths';
 import { roleHomePath } from '@/lib/utils/rbac';
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export default async function LoginPage({
   searchParams: Promise<{ callbackUrl?: string }>;
 }) {
   const { callbackUrl } = await searchParams;
-  const safeCallback = callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//') ? callbackUrl : undefined;
+  const safeCallback = isSafeInternalPath(callbackUrl) ? callbackUrl : undefined;
 
   // Si ya hay sesión, manda a cada rol a su panel (o respeta el deep-link).
   const session = await getSession();

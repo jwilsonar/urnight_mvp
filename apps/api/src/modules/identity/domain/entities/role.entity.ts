@@ -1,4 +1,9 @@
-export type RoleCode = 'user' | 'admin_local' | 'promoter' | 'validator' | 'super_admin';
+// Fuente única del tipo: el catálogo canónico vive en @urnight/contracts
+// (roleCodeSchema/ROLE_CODES). El dominio reexporta ese tipo para evitar drift
+// (antes había una unión literal duplicada aquí). §5 RBAC.
+import type { RoleCode } from '@urnight/contracts';
+
+export type { RoleCode };
 
 export interface RoleProps {
   id: string;

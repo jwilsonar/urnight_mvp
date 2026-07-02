@@ -44,7 +44,10 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const claims = await this.jwt.verifyAsync<AccessClaims>(header.slice(7));
+      // Allowlist de algoritmos (B): solo HS256; evita ataques de confusión de algoritmo.
+      const claims = await this.jwt.verifyAsync<AccessClaims>(header.slice(7), {
+        algorithms: ['HS256'],
+      });
       req.user = {
         id: claims.sub,
         email: claims.email ?? undefined,

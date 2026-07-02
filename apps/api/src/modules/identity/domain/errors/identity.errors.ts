@@ -132,3 +132,16 @@ export class InvalidTokenError extends DomainError {
     super('Token inválido o expirado.');
   }
 }
+
+/**
+ * Login Google con email no verificado por el IdP (M4). Se rechaza antes de
+ * enlazar/crear cuenta para evitar account-takeover / pre-hijacking al vincular
+ * a una cuenta email+password preexistente.
+ */
+export class GoogleEmailNotVerifiedError extends DomainError {
+  readonly status = 403;
+  readonly code = IDENTITY_ERROR_CODES.GOOGLE_EMAIL_NOT_VERIFIED;
+  constructor() {
+    super('El email de la cuenta de Google no está verificado.');
+  }
+}

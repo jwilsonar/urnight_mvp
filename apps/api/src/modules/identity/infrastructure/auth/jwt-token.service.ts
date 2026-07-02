@@ -13,7 +13,7 @@ import {
 /** TTL del token de verificación de email (24h, en segundos). */
 const EMAIL_VERIFY_TTL = 60 * 60 * 24;
 
-type RawClaims = { sub?: string; type?: string; purpose?: string };
+type RawClaims = { sub?: string; type?: string; purpose?: string; jti?: string };
 
 /**
  * Adapter @nestjs/jwt del puerto TokenService (ACL). El access usa el secreto +
@@ -50,19 +50,23 @@ export class JwtTokenService extends TokenService {
     return { token, expiresIn: this.accessTtl };
   }
 
-  async signRefresh(userId: string): Promise<IssuedToken> {
+  async signRefresh(userId: string, jti?: string): Promise<IssuedToken> {
+    // `jwtid` fija el claim `jti` del JWT → clave de rotación/revocación (A2).
     const token = await this.jwt.signAsync(
       { type: 'refresh' },
-      { subject: userId, secret: this.refreshSecret, expiresIn: this.refreshTtl },
+      { subject: userId, secret: this.refreshSecret, expiresIn: this.refreshTtl, jwtid: jti },
     );
     return { token, expiresIn: this.refreshTtl };
   }
 
-  async verifyRefresh(token: string): Promise<{ sub: string }> {
+  async verifyRefresh(token: string): Promise<{ sub: string; jti?: string }> {
     try {
       const claims = await this.jwt.verifyAsync<RawClaims>(token, { secret: this.refreshSecret });
-      if (claims.type !== 'refresh' || !claims.sub) throw new Error('claims inválidos');
-      return { sub: claims.sub };
+      // Sin `jti` no hay sesión rastreable → se trata como inválido (tokens legados).
+      if (claims.type !== 'refresh' || !claims.sub || !claims.jti) {
+        throw new Error('claims inválidos');
+      }
+      return { sub: claims.sub, jti: claims.jti };
     } catch {
       this.log.warn({}, 'token.refresh.invalid');
       throw new InvalidTokenError();

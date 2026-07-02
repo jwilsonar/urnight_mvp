@@ -49,6 +49,24 @@ export class PromoCodeCodeTakenError extends DomainError {
   }
 }
 
+/** Cupo del código agotado (carrera de concurrencia): el UPDATE condicional no tocó fila (M1). */
+export class PromoCodeQuotaExhaustedError extends DomainError {
+  readonly status = 409;
+  readonly code = PROMOTERS_ERROR_CODES.PROMO_CODE_QUOTA_EXHAUSTED;
+  constructor() {
+    super('Cupo del código agotado.');
+  }
+}
+
+/** Un mismo usuario intenta canjear el mismo código más de lo permitido (M1). */
+export class PromoCodeAlreadyRedeemedError extends DomainError {
+  readonly status = 409;
+  readonly code = PROMOTERS_ERROR_CODES.PROMO_CODE_ALREADY_REDEEMED;
+  constructor() {
+    super('Ya canjeaste este código.');
+  }
+}
+
 export class AssociationNotPendingError extends DomainError {
   readonly status = 409;
   readonly code = PROMOTERS_ERROR_CODES.ASSOCIATION_NOT_PENDING;

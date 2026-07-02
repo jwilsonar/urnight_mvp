@@ -6,10 +6,11 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import type { FavoriteResponse, FavoriteTargetType } from '@urnight/contracts';
 import { Badge, Card } from '@urnight/ui';
+import { ErrorState } from '@/components/shared/error-state';
 import { listFavorites } from '@/lib/api/favorites';
 import { queryKeys } from '@/lib/api/query-keys';
 import { StorageImage } from '@/lib/storage/storage-context';
-import { formatDate } from '@/lib/utils';
+import { formatDate, formatDateOnly } from '@/lib/utils';
 
 /**
  * Lista los favoritos del usuario en /account/guardados, enriquecidos con el
@@ -24,7 +25,7 @@ export function FavoritesList({ filter }: { filter?: FavoriteTargetType } = {}) 
   const { data: session } = useSession();
   const token = session?.accessToken ?? '';
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.favorites,
     queryFn: () => listFavorites(token),
     enabled: Boolean(token),
@@ -34,6 +35,16 @@ export function FavoritesList({ filter }: { filter?: FavoriteTargetType } = {}) 
 
   if (isLoading) {
     return <p className="text-sm text-muted-foreground">Cargando favoritos…</p>;
+  }
+  // Distingue error de vacío (M9): un fallo del API no es "aún no tienes favoritos".
+  if (isError) {
+    return (
+      <ErrorState
+        title="No pudimos cargar tus favoritos"
+        description="Inténtalo de nuevo en unos minutos."
+        onRetry={() => void refetch()}
+      />
+    );
   }
   if (!favorites || favorites.length === 0) {
     return <p className="text-sm text-muted-foreground">Aún no tienes favoritos.</p>;
@@ -54,7 +65,7 @@ function FavoriteCard({ favorite }: { favorite: FavoriteResponse }) {
   const isLocal = favorite.targetType === 'local';
   const { target } = favorite;
   const Icon = isLocal ? MapPin : CalendarBlank;
-  const savedAt = `Guardado el ${new Date(favorite.createdAt).toLocaleDateString('es-PE')}`;
+  const savedAt = `Guardado el ${formatDateOnly(favorite.createdAt)}`;
   const subtitle = !isLocal && target?.startsAt ? formatDate(target.startsAt) : savedAt;
 
   const card = (

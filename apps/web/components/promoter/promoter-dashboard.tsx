@@ -18,6 +18,7 @@ import {
 } from '@urnight/ui';
 import { getMyPromoter } from '@/lib/api/promoters';
 import { queryKeys } from '@/lib/api/query-keys';
+import { ErrorState } from '@/components/shared/error-state';
 import { ApplyPromoterForm } from './apply-promoter-form';
 import { AssignedEventsTable } from './assigned-events-table';
 import { PromoCodeValidator } from './promo-code-validator';
@@ -61,6 +62,14 @@ export function PromoterDashboard() {
           <Skeleton className="h-24 w-full rounded-md" />
           <Skeleton className="h-48 w-full rounded-md" />
         </div>
+      ) : meQuery.isError ? (
+        // Un fallo del API NO debe leerse como "no eres promotor" (M9): distinguimos
+        // error de vacío para no mostrar la postulación a un promotor activo.
+        <ErrorState
+          title="No pudimos cargar tu panel"
+          description="Inténtalo de nuevo en unos minutos."
+          onRetry={() => void meQuery.refetch()}
+        />
       ) : promoter ? (
         <div className="space-y-8">
           {promoter.referralLink ? <ReferralLinkCard link={promoter.referralLink} /> : null}

@@ -2,12 +2,14 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/commo
 import {
   googleLoginSchema,
   loginSchema,
+  logoutSchema,
   refreshSchema,
   registerSchema,
   verifyEmailSchema,
   type AuthTokensResponse,
   type GoogleLoginDto,
   type LoginDto,
+  type LogoutDto,
   type RefreshDto,
   type RegisterDto,
   type UserProfileResponse,
@@ -19,6 +21,7 @@ import { ZodValidationPipe } from '../../../../edge/pipes/zod-validation.pipe';
 import { GoogleLoginUseCase } from '../../application/use-cases/google-login.use-case';
 import { GetMeUseCase, type GetMeResult } from '../../application/use-cases/get-me.use-case';
 import { LoginUseCase } from '../../application/use-cases/login.use-case';
+import { LogoutUseCase } from '../../application/use-cases/logout.use-case';
 import { RefreshTokenUseCase } from '../../application/use-cases/refresh-token.use-case';
 import { RegisterUseCase } from '../../application/use-cases/register.use-case';
 import { VerifyEmailUseCase } from '../../application/use-cases/verify-email.use-case';
@@ -32,6 +35,7 @@ export class AuthController {
     private readonly login: LoginUseCase,
     private readonly googleLogin: GoogleLoginUseCase,
     private readonly refresh: RefreshTokenUseCase,
+    private readonly logoutUser: LogoutUseCase,
     private readonly verifyEmail: VerifyEmailUseCase,
     private readonly getMe: GetMeUseCase,
   ) {}
@@ -70,6 +74,15 @@ export class AuthController {
     @Body(new ZodValidationPipe(refreshSchema)) dto: RefreshDto,
   ): Promise<AuthTokensResponse> {
     return toTokens(await this.refresh.execute(dto));
+  }
+
+  @Public()
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(
+    @Body(new ZodValidationPipe(logoutSchema)) dto: LogoutDto,
+  ): Promise<void> {
+    await this.logoutUser.execute(dto);
   }
 
   @Public()

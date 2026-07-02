@@ -5,6 +5,7 @@ import { AuthCard } from '@/components/auth/auth-card';
 import { GoogleButton } from '@/components/auth/google-button';
 import { RegisterForm } from '@/components/auth/register-form';
 import { getSession } from '@/lib/auth-helpers';
+import { isSafeInternalPath } from '@/lib/utils/paths';
 import { roleHomePath } from '@/lib/utils/rbac';
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export default async function RegisterPage({
   searchParams: Promise<{ callbackUrl?: string }>;
 }) {
   const { callbackUrl } = await searchParams;
-  const safeCallback = callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//') ? callbackUrl : undefined;
+  const safeCallback = isSafeInternalPath(callbackUrl) ? callbackUrl : undefined;
 
   const session = await getSession();
   if (session?.user) {

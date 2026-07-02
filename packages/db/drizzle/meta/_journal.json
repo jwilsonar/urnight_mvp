@@ -71,6 +71,13 @@
       "when": 1782167609500,
       "tag": "0009_mushy_bedlam",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1783017714608,
+      "tag": "0010_confused_chamber",
+      "breakpoints": true
     }
   ]
 }

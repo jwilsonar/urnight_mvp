@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { createLogger } from '../../../../shared/logging/logger';
+import { PROMOTER_COMMISSION_RATE } from '../config/commission';
 import { SaleAttribution } from '../../domain/entities/sale-attribution.entity';
 import {
   PROMOTER_REPOSITORY,
@@ -15,12 +16,15 @@ import {
   type SaleAttributionRepository,
 } from '../../domain/ports/sale-attribution.repository';
 
-/** Comisión por defecto del promotor (snapshot). */
-const PROMOTER_COMMISSION_RATE = 0.05;
-
 /**
- * Caso de uso: atribuir una venta a un promotor a partir de su referral code
- * (gatillado por OrderPaid, ventana 7 días). Best-effort: no rompe el pago.
+ * Caso de uso: atribuir una venta a un promotor a partir de un `referralCode`
+ * (gatillado por OrderPaid). Best-effort: no rompe el pago.
+ *
+ * NOTA (ADR 0003): NO hay ventana temporal de 7 días (§4.3 quedó superado). La
+ * atribución de comisiones del modelo vivo ocurre por canje de promo/redemption
+ * codes (`promo_code_redemption` → `promo_code.promoter_id`). Este gatillo por
+ * `referralCode` está inerte hasta que un cliente informe ese campo; se conserva
+ * (lo cubre el e2e del módulo) a la espera del re-cableado descrito en el ADR.
  */
 @Injectable()
 export class AttributeSaleUseCase {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Order } from './order.entity';
+import { OrderNotPayableError } from '../errors/checkout.errors';
 
 describe('Order (aggregate)', () => {
   const base = {
@@ -29,6 +30,12 @@ describe('Order (aggregate)', () => {
     order.confirmPayment(new Date('2026-06-19T00:00:00Z'));
     expect(order.status).toBe('paid');
     expect(order.paidAt).not.toBeNull();
+  });
+
+  it('confirmPayment lanza OrderNotPayableError si la orden ya no es pagable (M17)', () => {
+    const order = Order.create(base);
+    order.confirmPayment();
+    expect(() => order.confirmPayment()).toThrow(OrderNotPayableError);
   });
 
   it('aplica descuento al total', () => {

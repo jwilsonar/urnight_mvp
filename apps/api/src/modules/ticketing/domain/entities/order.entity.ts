@@ -1,3 +1,5 @@
+import { OrderNotPayableError } from '../errors/checkout.errors';
+
 export type OrderStatus = 'pending' | 'paid' | 'failed' | 'cancelled' | 'refunded';
 
 const round2 = (n: number): number => Math.round(n * 100) / 100;
@@ -107,7 +109,12 @@ export class Order {
     return this.props.status === 'pending';
   }
 
+  /**
+   * Confirma el pago (M17): invariante — solo una orden `isPayable()` (pending)
+   * puede pasar a `paid`. Evita reconfirmar/mutar órdenes ya pagadas o fallidas.
+   */
   confirmPayment(at: Date = new Date()): void {
+    if (!this.isPayable()) throw new OrderNotPayableError();
     this.props.status = 'paid';
     this.props.paidAt = at;
   }

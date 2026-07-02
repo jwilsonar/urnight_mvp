@@ -49,6 +49,12 @@ export const refreshSchema = z.object({
 });
 export type RefreshDto = z.infer<typeof refreshSchema>;
 
+/** Cierre de sesión: revoca (rota fuera de circulación) el refresh token actual. */
+export const logoutSchema = z.object({
+  refreshToken: z.string().min(10),
+});
+export type LogoutDto = z.infer<typeof logoutSchema>;
+
 /** Verificación de email vía token firmado. */
 export const verifyEmailSchema = z.object({
   token: z.string().min(10),

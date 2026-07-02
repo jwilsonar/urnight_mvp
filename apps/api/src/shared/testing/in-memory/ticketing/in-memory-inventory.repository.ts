@@ -48,7 +48,7 @@ export class InMemoryInventoryRepository implements InventoryPort {
     return this.events.get(eventId) ?? null;
   }
 
-  async getTicketType(id: string): Promise<SaleTicketType | null> {
+  async getTicketType(id: string, _tx?: unknown): Promise<SaleTicketType | null> {
     const tt = this.ticketTypes.get(id);
     return tt ? { ...tt } : null;
   }

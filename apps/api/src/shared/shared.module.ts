@@ -6,6 +6,7 @@ import { DrizzleOutboxAdapter } from './outbox/drizzle-outbox.adapter';
 import { OutboxPort } from './outbox/outbox.port';
 import { DrizzleResourceTenantResolver } from './tenant/drizzle-resource-tenant.adapter';
 import { RESOURCE_TENANT_RESOLVER } from './tenant/resource-tenant.port';
+import { DrizzleUnitOfWork } from './unit-of-work/drizzle-unit-of-work';
 import { UnitOfWork } from './unit-of-work/unit-of-work';
 
 /**
@@ -15,7 +16,7 @@ import { UnitOfWork } from './unit-of-work/unit-of-work';
 @Global()
 @Module({
   providers: [
-    UnitOfWork,
+    { provide: UnitOfWork, useClass: DrizzleUnitOfWork },
     EventBus,
     { provide: OutboxPort, useClass: DrizzleOutboxAdapter },
     { provide: LockPort, useClass: RedisLockAdapter },

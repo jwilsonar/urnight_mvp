@@ -5,6 +5,8 @@ export const PROMOTERS_ERROR_CODES = {
   PROMO_CODE_NOT_FOUND: 'promoters/promo-code-not-found',
   PROMO_CODE_CODE_TAKEN: 'promoters/promo-code-code-taken',
   PROMO_CODE_INVALID: 'promoters/promo-code-invalid',
+  PROMO_CODE_QUOTA_EXHAUSTED: 'promoters/promo-code-quota-exhausted',
+  PROMO_CODE_ALREADY_REDEEMED: 'promoters/promo-code-already-redeemed',
   REFERRAL_CODE_TAKEN: 'promoters/referral-code-taken',
   ASSOCIATION_NOT_PENDING: 'promoters/association-not-pending',
   ASSOCIATION_FORBIDDEN: 'promoters/association-forbidden',

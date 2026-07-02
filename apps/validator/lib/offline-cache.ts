@@ -1,3 +1,4 @@
+import type { QrValidationResponse } from '@urnight/contracts';
 import * as SQLite from 'expo-sqlite';
 import { createLogger } from './logger';
 
@@ -19,21 +20,38 @@ async function getDb(): Promise<SQLite.SQLiteDatabase> {
           synced INTEGER NOT NULL DEFAULT 0
         );
       `);
+      // Dedupe (M20): un QR no puede encolarse dos veces. Sin esto, A→B→A
+      // insertaba A dos veces y disparaba un falso `already_used` al sincronizar.
+      // En su propio try/catch para no romper la init si un DB antiguo ya tenía
+      // duplicados (escenario de scaffold, sin datos reales).
+      try {
+        await db.execAsync(
+          'CREATE UNIQUE INDEX IF NOT EXISTS idx_pending_checkin_qr ON pending_checkin(qr_code);',
+        );
+      } catch (err) {
+        log.warn({ err: (err as Error).message }, 'validator.cache.unique_index_skipped');
+      }
       return db;
     });
   }
   return dbPromise;
 }
 
-/** Encola un check-in offline. NUNCA logueamos el contenido del QR (§6). */
-export async function queueCheckin(qrCode: string): Promise<void> {
+/**
+ * Encola un check-in offline. `INSERT OR IGNORE` + UNIQUE(qr_code) deduplican
+ * (M20): un QR ya encolado no se vuelve a insertar. NUNCA logueamos el
+ * contenido del QR (§6). `scannedAt` guarda la hora real del escaneo para uso
+ * futuro (M20/scannedAt) — hoy no viaja al backend porque ValidateQrDto en
+ * contracts no lo acepta.
+ */
+export async function queueCheckin(qrCode: string, scannedAt?: string): Promise<void> {
   const db = await getDb();
-  await db.runAsync('INSERT INTO pending_checkin (qr_code, scanned_at) VALUES (?, ?)', [
+  const res = await db.runAsync('INSERT OR IGNORE INTO pending_checkin (qr_code, scanned_at) VALUES (?, ?)', [
     qrCode,
-    new Date().toISOString(),
+    scannedAt ?? new Date().toISOString(),
   ]);
   const pending = await countPending();
-  log.info({ pending }, 'validator.checkin.queued');
+  log.info({ pending, deduped: res.changes === 0 }, 'validator.checkin.queued');
 }
 
 /** Cuenta check-ins pendientes de sincronizar. */
@@ -67,17 +85,22 @@ export async function markSynced(id: number): Promise<void> {
 
 /**
  * Sincroniza los check-ins pendientes al recuperar red (§5). `sync` postea cada
- * QR al backend; ante el primer fallo de red se detiene y reintenta más tarde.
+ * QR al backend (recibe también la hora del escaneo, `scannedAt`, para uso
+ * futuro) y devuelve el veredicto, que logueamos por trazabilidad — antes se
+ * descartaba. Ante el primer fallo de red se detiene y reintenta más tarde.
  * Devuelve cuántos se sincronizaron.
  */
-export async function syncPending(sync: (qrCode: string) => Promise<void>): Promise<number> {
+export async function syncPending(
+  sync: (qrCode: string, scannedAt: string) => Promise<QrValidationResponse>,
+): Promise<number> {
   const pending = await listPending();
   let synced = 0;
   for (const item of pending) {
     try {
-      await sync(item.qr_code);
+      const res = await sync(item.qr_code, item.scanned_at);
       await markSynced(item.id);
       synced += 1;
+      log.info({ id: item.id, result: res.result }, 'validator.sync.item_done');
     } catch (err) {
       log.warn({ id: item.id, err: (err as Error).message }, 'validator.sync.item_failed');
       break;

@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { attendee, event, local, order, orderItem, ticket, ticketType } from '@urnight/db';
 import { DRIZZLE, type DrizzleDb } from '../../../../shared/database/drizzle.constants';
 import type { Tx } from '../../../../shared/unit-of-work/unit-of-work';
+import { Attendee, type DocumentType } from '../../domain/entities/attendee.entity';
 import { Ticket, type TicketStatus } from '../../domain/entities/ticket.entity';
 import type {
   IssuedTicket,
@@ -84,11 +85,51 @@ export class DrizzleTicketRepository implements TicketRepository {
     }));
   }
 
+  async listByOrder(orderId: string): Promise<IssuedTicket[]> {
+    const rows = await this.db
+      .select({ t: ticket, a: attendee })
+      .from(ticket)
+      .innerJoin(orderItem, eq(orderItem.id, ticket.orderItemId))
+      .leftJoin(attendee, eq(attendee.ticketId, ticket.id))
+      .where(eq(orderItem.orderId, orderId));
+    const out: IssuedTicket[] = [];
+    for (const r of rows) {
+      if (!r.a) continue;
+      out.push({
+        ticket: this.toDomain(r.t),
+        attendee: Attendee.fromPersistence({
+          id: r.a.id,
+          ticketId: r.a.ticketId,
+          fullName: r.a.fullName,
+          documentType: r.a.documentType as DocumentType,
+          documentNumber: r.a.documentNumber,
+          birthDate: new Date(r.a.birthDate),
+          isBuyer: r.a.isBuyer,
+        }),
+      });
+    }
+    return out;
+  }
+
   async update(entity: Ticket, tx?: unknown): Promise<void> {
     await this.exec(tx)
       .update(ticket)
       .set({ status: entity.status, usedAt: entity.status === 'used' ? new Date() : null })
       .where(eq(ticket.id, entity.id));
+  }
+
+  /**
+   * Marca usada de forma ATÓMICA (C2): condiciona el UPDATE a `status='valid'` y
+   * usa RETURNING para saber si tocó una fila. `rowCount 0` ⇒ ya estaba
+   * usada/inválida (carrera perdida) ⇒ el caso de uso responde `already_used`.
+   */
+  async markUsedIfValid(ticketId: string, tx?: unknown): Promise<boolean> {
+    const rows = await this.exec(tx)
+      .update(ticket)
+      .set({ status: 'used', usedAt: new Date() })
+      .where(and(eq(ticket.id, ticketId), eq(ticket.status, 'valid')))
+      .returning({ id: ticket.id });
+    return rows.length > 0;
   }
 
   async attachQrImage(ticketId: string, key: string): Promise<void> {

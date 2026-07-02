@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  FakeTokenService,
   InMemoryRoleAssignmentRepository,
   InMemoryRoleRepository,
   InMemoryUserRepository,
@@ -8,45 +7,111 @@ import {
   UserBuilder,
 } from '../../../../shared/testing';
 import { AccountDisabledError, InvalidTokenError } from '../../domain/errors/identity.errors';
+import {
+  TokenService,
+  type AccessTokenClaims,
+  type IssuedToken,
+} from '../../domain/ports/token.port';
+import { InMemoryRefreshTokenStore } from '../services/__testing__/in-memory-refresh-token-store';
+import { RoleResolver } from '../services/role-resolver.service';
 import { TokenIssuer } from '../services/token-issuer.service';
 import { RefreshTokenUseCase } from './refresh-token.use-case';
 
+/**
+ * TokenService que hace round-trip del `jti`: `signRefresh(sub, jti)` lo codifica
+ * en el token (`refresh:<sub>:<jti>`) y `verifyRefresh` lo recupera. Permite probar
+ * rotación/revocación real contra el store (el FakeTokenService compartido no lleva jti).
+ */
+class JtiTokenService extends TokenService {
+  failVerify = false;
+
+  async signAccess(claims: AccessTokenClaims): Promise<IssuedToken> {
+    return { token: `access:${claims.sub}`, expiresIn: 900 };
+  }
+  async signRefresh(userId: string, jti = 'no-jti'): Promise<IssuedToken> {
+    return { token: `refresh:${userId}:${jti}`, expiresIn: 604800 };
+  }
+  async verifyRefresh(token: string): Promise<{ sub: string; jti?: string }> {
+    if (this.failVerify) throw new Error('refresh inválido');
+    const parts = token.split(':');
+    return { sub: parts[1] ?? '', jti: parts[2] };
+  }
+  async signEmailVerification(userId: string): Promise<string> {
+    return `verify:${userId}`;
+  }
+  async verifyEmailVerification(token: string): Promise<{ sub: string }> {
+    return { sub: token.split(':')[1] ?? '' };
+  }
+}
+
 function build() {
   const users = new InMemoryUserRepository();
-  const tokens = new FakeTokenService();
+  const tokens = new JtiTokenService();
   const assignments = new InMemoryRoleAssignmentRepository();
   const roles = new InMemoryRoleRepository().seed(RoleMother.user());
-  const issuer = new TokenIssuer(assignments, roles, tokens);
-  const useCase = new RefreshTokenUseCase(users, tokens, issuer);
-  return { users, tokens, assignments, roles, useCase };
+  const store = new InMemoryRefreshTokenStore();
+  const issuer = new TokenIssuer(new RoleResolver(assignments, roles), tokens, store);
+  const useCase = new RefreshTokenUseCase(users, tokens, issuer, store);
+  return { users, tokens, assignments, roles, store, issuer, useCase };
 }
 
 describe('RefreshTokenUseCase', () => {
-  it('renueva el par de tokens para un usuario activo', async () => {
-    const { users, tokens, useCase } = build();
+  it('rota el refresh: emite un par nuevo y revoca (invalida) el jti viejo', async () => {
+    const { users, issuer, store, useCase } = build();
     const user = new UserBuilder().withId('u1').build();
     await users.create(user);
-    const refreshToken = (await tokens.signRefresh(user.id)).token;
+    const first = await issuer.issueFor(user);
+    expect(store.countFor('u1')).toBe(1);
 
-    const result = await useCase.execute({ refreshToken });
+    const result = await useCase.execute({ refreshToken: first.refresh.token });
 
     expect(result.user.id).toBe('u1');
-    expect(result.access.token).toBe('access:u1');
-    expect(result.refresh.token).toBe('refresh:u1');
+    // Rotación: el jti viejo se revocó y se registró uno nuevo → sigue habiendo 1.
+    expect(store.countFor('u1')).toBe(1);
+    expect(result.refresh.token).not.toBe(first.refresh.token);
+  });
+
+  it('rechaza reutilizar un refresh ya rotado y revoca toda la familia (posible robo)', async () => {
+    const { users, issuer, store, useCase } = build();
+    const user = new UserBuilder().withId('u1').build();
+    await users.create(user);
+    const first = await issuer.issueFor(user);
+
+    const rotated = await useCase.execute({ refreshToken: first.refresh.token }); // rota
+    // El token viejo ya no vale: su jti fue revocado.
+    await expect(useCase.execute({ refreshToken: first.refresh.token })).rejects.toBeInstanceOf(
+      InvalidTokenError,
+    );
+    // El reuso disparó revocación total: ni siquiera el refresh rotado sigue vivo.
+    expect(store.countFor('u1')).toBe(0);
+    await expect(useCase.execute({ refreshToken: rotated.refresh.token })).rejects.toBeInstanceOf(
+      InvalidTokenError,
+    );
+  });
+
+  it('rechaza un refresh cuyo jti no está en el store (nunca emitido / revocado)', async () => {
+    const { users, useCase } = build();
+    const user = new UserBuilder().withId('u2').build();
+    await users.create(user);
+    await expect(
+      useCase.execute({ refreshToken: 'refresh:u2:jti-fantasma' }),
+    ).rejects.toBeInstanceOf(InvalidTokenError);
   });
 
   it('refresh válido pero usuario inexistente → InvalidTokenError', async () => {
-    const { tokens, useCase } = build();
-    const refreshToken = (await tokens.signRefresh('ghost')).token;
-    await expect(useCase.execute({ refreshToken })).rejects.toBeInstanceOf(InvalidTokenError);
+    const { useCase } = build();
+    await expect(
+      useCase.execute({ refreshToken: 'refresh:ghost:jti-x' }),
+    ).rejects.toBeInstanceOf(InvalidTokenError);
   });
 
   it('cuenta deshabilitada → AccountDisabledError', async () => {
-    const { users, tokens, useCase } = build();
+    const { users, useCase } = build();
     const user = new UserBuilder().withId('u3').asInactive().build();
     await users.create(user);
-    const refreshToken = (await tokens.signRefresh(user.id)).token;
-    await expect(useCase.execute({ refreshToken })).rejects.toBeInstanceOf(AccountDisabledError);
+    await expect(
+      useCase.execute({ refreshToken: 'refresh:u3:jti-x' }),
+    ).rejects.toBeInstanceOf(AccountDisabledError);
   });
 
   it('token criptográficamente inválido propaga el fallo de verificación', async () => {

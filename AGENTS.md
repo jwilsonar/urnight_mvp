@@ -27,7 +27,7 @@ All commands are run from the workspace root via pnpm.
 
 **Development Servers**:
 
-- API: `pnpm dev:api` (:3001)
+- API: `pnpm dev:api` (:3101, ver ADR 0001)
 - Web: `pnpm dev:web` (:3000)
 - Others: `pnpm dev:worker` / `pnpm dev:mobile` / `pnpm dev:validator`
 

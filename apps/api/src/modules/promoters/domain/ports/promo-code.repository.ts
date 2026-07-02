@@ -78,6 +78,12 @@ export interface PromoCodeRepository {
   recordRedemption(record: PromoRedemptionRecord, tx?: unknown): Promise<void>;
   listRedemptionsByCode(promoCodeId: string): Promise<PromoRedemptionRecord[]>;
   listRedemptionsByUser(userId: string): Promise<PromoRedemptionRecord[]>;
+  /**
+   * companyId dueño del código para aislamiento tenant (M5): event→local.company_id,
+   * local directo o el promotor del código. Opcional: los adapters que no lo
+   * implementan hacen que el use-case falle CERRADO (deniega a no-super_admin).
+   */
+  ownerCompanyId?(promoCodeId: string): Promise<string | null>;
 }
 
 export const PROMO_CODE_REPOSITORY = Symbol('PROMO_CODE_REPOSITORY');

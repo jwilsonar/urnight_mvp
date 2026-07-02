@@ -12,16 +12,25 @@ import {
   TableHeader,
   TableRow,
 } from '@urnight/ui';
+import type { CompanyResponse } from '@urnight/contracts';
+import { ErrorState } from '@/components/shared/error-state';
 import { activateCompany, listCompanies, suspendCompany } from '@/lib/api/companies';
 import { queryKeys } from '@/lib/api/query-keys';
 import { useApiMutation } from '@/lib/api/use-api-mutation';
+
+/** Etiquetas es-PE del estado de empresa (evita mostrar el enum crudo en inglés). */
+const COMPANY_STATUS_LABEL: Record<CompanyResponse['status'], string> = {
+  draft: 'Borrador',
+  active: 'Activa',
+  suspended: 'Suspendida',
+};
 
 /** Lista de empresas con suspender/activar (#16). super_admin. */
 export function CompaniesManager() {
   const { data: session } = useSession();
   const token = session?.accessToken ?? '';
 
-  const { data: companies, isLoading } = useQuery({
+  const { data: companies, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.companies,
     queryFn: () => listCompanies(token),
     enabled: Boolean(token),
@@ -39,6 +48,16 @@ export function CompaniesManager() {
   });
 
   if (isLoading) return <p className="text-sm text-muted-foreground">Cargando empresas…</p>;
+  // Distingue error de vacío (M9): un fallo del API no es "no hay empresas".
+  if (isError) {
+    return (
+      <ErrorState
+        title="No pudimos cargar las empresas"
+        description="Inténtalo de nuevo en unos minutos."
+        onRetry={() => void refetch()}
+      />
+    );
+  }
   if (!companies || companies.length === 0) {
     return <p className="text-sm text-muted-foreground">No hay empresas registradas.</p>;
   }
@@ -60,7 +79,7 @@ export function CompaniesManager() {
             <TableCell className="text-muted-foreground">{company.ruc}</TableCell>
             <TableCell>
               <Badge variant={company.status === 'active' ? 'secondary' : 'outline'}>
-                {company.status}
+                {COMPANY_STATUS_LABEL[company.status] ?? company.status}
               </Badge>
             </TableCell>
             <TableCell className="text-right">

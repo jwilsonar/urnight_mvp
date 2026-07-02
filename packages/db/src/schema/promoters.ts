@@ -169,7 +169,12 @@ export const promoCodeRedemption = pgTable(
     discountApplied: numeric('discount_applied', { precision: 10, scale: 2 }).notNull(),
     redeemedAt: timestamp('redeemed_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('idx_promo_code_redemption_code').on(t.promoCodeId)],
+  (t) => [
+    index('idx_promo_code_redemption_code').on(t.promoCodeId),
+    // Límite de canje por usuario (M1): un mismo código no se canjea dos veces por
+    // el mismo usuario. Barrera en DB; el chequeo de app lo añade el módulo promoters.
+    uniqueIndex('idx_promo_code_redemption_code_user').on(t.promoCodeId, t.userId),
+  ],
 );
 
 /**

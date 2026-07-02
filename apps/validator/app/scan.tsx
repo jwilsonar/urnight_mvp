@@ -1,18 +1,80 @@
+import type { QrValidationResponse } from '@urnight/contracts';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
-import { queueCheckin } from '../lib/offline-cache';
+import { ApiError, NetworkError, validateQr } from '../lib/api-client';
+import { useAuth } from '../lib/auth-context';
 import { createLogger } from '../lib/logger';
+import { queueCheckin } from '../lib/offline-cache';
 
 const log = createLogger('scan');
 
+type Verdict = QrValidationResponse['result'] | 'offline' | 'error';
+
+interface ScanOutcome {
+  verdict: Verdict;
+  message: string;
+}
+
+const PALETTE: Record<Verdict, { bg: string; label: string }> = {
+  valid: { bg: '#16a34a', label: 'Acceso permitido' },
+  already_used: { bg: '#dc2626', label: 'Ya usada' },
+  cancelled: { bg: '#dc2626', label: 'Cancelada' },
+  invalid: { bg: '#dc2626', label: 'Inválida' },
+  offline: { bg: '#d97706', label: 'Guardado offline' },
+  error: { bg: '#dc2626', label: 'Error' },
+};
+
 /**
- * Escaneo de QR en puerta (expo-camera; expo-barcode-scanner fue eliminado en
- * SDK 52). El check-in se encola offline y se sincroniza al recuperar red.
+ * Escaneo de QR en puerta (§5). Online-first: valida contra la API y muestra el
+ * veredicto; sólo ante fallo de RED encola offline para sincronizar al recuperar
+ * conexión. El contenido del QR nunca se pinta ni se loguea (§6).
  */
 export default function ScanScreen() {
+  const { token, signOut } = useAuth();
+  const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
   const [lastCode, setLastCode] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [outcome, setOutcome] = useState<ScanOutcome | null>(null);
+
+  async function handleScan(data: string) {
+    if (busy || data === lastCode || !token) return;
+    setBusy(true);
+    setLastCode(data);
+    // Solo metadatos: el contenido del QR nunca se loguea (§6).
+    log.info({ length: data.length }, 'validator.qr.scanned');
+    const scannedAt = new Date().toISOString();
+    try {
+      const res = await validateQr(data, token);
+      log.info({ result: res.result }, 'validator.qr.validated');
+      setOutcome({ verdict: res.result, message: res.message });
+    } catch (err) {
+      if (err instanceof NetworkError) {
+        // Sin red: encolar offline y sincronizar al recuperar conexión (§5).
+        await queueCheckin(data, scannedAt).catch((e) =>
+          log.error({ err: (e as Error).message }, 'validator.checkin.queue_failed'),
+        );
+        setOutcome({ verdict: 'offline', message: 'Sin conexión. Se sincronizará al recuperar red.' });
+      } else if (err instanceof ApiError && err.status === 401) {
+        // Token inválido/expirado: cerrar sesión y volver a login.
+        log.warn({}, 'validator.qr.unauthorized');
+        await signOut();
+        router.replace('/login');
+      } else {
+        log.error({ err: (err as Error).message }, 'validator.qr.validate_failed');
+        setOutcome({ verdict: 'error', message: 'No se pudo validar. Inténtalo de nuevo.' });
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function reset() {
+    setLastCode(null);
+    setOutcome(null);
+  }
 
   if (!permission) {
     return <View style={styles.center} />;
@@ -27,22 +89,27 @@ export default function ScanScreen() {
     );
   }
 
+  const palette = outcome ? PALETTE[outcome.verdict] : null;
+
   return (
     <View style={styles.container}>
       <CameraView
         style={styles.camera}
         barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
-        onBarcodeScanned={({ data }) => {
-          if (data === lastCode) return;
-          setLastCode(data);
-          // Solo metadatos: el contenido del QR nunca se loguea (§6).
-          log.info({ length: data.length }, 'validator.qr.scanned');
-          void queueCheckin(data).catch((err) =>
-            log.error({ err: (err as Error).message }, 'validator.checkin.queue_failed'),
-          );
-        }}
+        onBarcodeScanned={({ data }) => void handleScan(data)}
       />
-      <Text style={styles.result}>{lastCode ? `Último QR: ${lastCode}` : 'Apunta a un QR…'}</Text>
+      {palette ? (
+        <View style={[styles.banner, { backgroundColor: palette.bg }]}>
+          <Text style={styles.bannerLabel}>{palette.label}</Text>
+          {outcome ? <Text style={styles.bannerMsg}>{outcome.message}</Text> : null}
+          {lastCode ? <Text style={styles.bannerRef}>Ref ····{lastCode.slice(-4)}</Text> : null}
+          <View style={styles.bannerBtn}>
+            <Button title="Escanear otro" color="#ffffff" onPress={reset} disabled={busy} />
+          </View>
+        </View>
+      ) : (
+        <Text style={styles.result}>{busy ? 'Validando…' : 'Apunta a un QR…'}</Text>
+      )}
     </View>
   );
 }
@@ -53,4 +120,9 @@ const styles = StyleSheet.create({
   camera: { flex: 1 },
   msg: { textAlign: 'center' },
   result: { padding: 16, textAlign: 'center' },
+  banner: { padding: 20, alignItems: 'center', gap: 6 },
+  bannerLabel: { color: '#ffffff', fontSize: 22, fontWeight: '700' },
+  bannerMsg: { color: '#ffffff', textAlign: 'center' },
+  bannerRef: { color: '#ffffff', opacity: 0.85, fontSize: 12 },
+  bannerBtn: { marginTop: 8 },
 });

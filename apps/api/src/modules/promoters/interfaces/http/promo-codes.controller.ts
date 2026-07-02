@@ -40,9 +40,12 @@ export class PromoCodesController {
   @Roles('admin_local')
   @Get(':id/redemptions')
   async redemptions(
+    @CurrentUser() actor: AuthUser,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<PromoRedemptionResponse[]> {
-    return (await this.listRedemptions.execute({ promoCodeId: id })).map(toRedemptionResponse);
+    return (
+      await this.listRedemptions.execute({ promoCodeId: id, scope: tenantScopeOf(actor) })
+    ).map(toRedemptionResponse);
   }
 
   @Roles('admin_local')

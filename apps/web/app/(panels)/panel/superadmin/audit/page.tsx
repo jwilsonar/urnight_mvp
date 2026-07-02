@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@urnight/ui';
 import { listAuditLogs } from '@/lib/api/ops';
 import { requireAccessToken } from '@/lib/auth-helpers';
+import { formatDate } from '@/lib/utils';
 
 export const metadata: Metadata = { title: 'Auditoría y logs' };
 
@@ -34,7 +35,7 @@ export default async function AuditPage() {
             {logs.map((log) => (
               <TableRow key={log.id}>
                 <TableCell className="whitespace-nowrap text-muted-foreground">
-                  {new Date(log.createdAt).toLocaleString('es-PE')}
+                  {formatDate(log.createdAt)}
                 </TableCell>
                 <TableCell className="font-medium">{log.action}</TableCell>
                 <TableCell>

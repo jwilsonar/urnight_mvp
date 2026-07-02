@@ -83,6 +83,30 @@ export class ProblemJsonFilter implements ExceptionFilter {
       };
     }
 
+    // Violaciones de constraint de Postgres (postgres.js) → Problem+JSON de dominio (B1).
+    // Mensajes genéricos y seguros: no se filtran constraint/tabla/columna internos.
+    const pgCode = pgErrorCode(exception);
+    if (pgCode === '23505') {
+      return {
+        type: 'about:blank',
+        title: 'Conflict',
+        status: 409,
+        detail: 'El recurso ya existe o viola una restricción de unicidad.',
+        instance,
+        code: 'persistence/unique_violation',
+      };
+    }
+    if (pgCode === '23514') {
+      return {
+        type: 'about:blank',
+        title: 'Unprocessable Entity',
+        status: 422,
+        detail: 'La operación viola una regla de negocio.',
+        instance,
+        code: 'persistence/check_violation',
+      };
+    }
+
     return {
       type: 'about:blank',
       title: 'Internal Server Error',
@@ -91,4 +115,18 @@ export class ProblemJsonFilter implements ExceptionFilter {
       instance,
     };
   }
+}
+
+/**
+ * Extrae el SQLSTATE (p.ej. '23505') de un error de postgres.js, recorriendo la
+ * cadena `cause` por si drizzle lo envuelve. `null` si no es un error PG.
+ */
+function pgErrorCode(exception: unknown): string | null {
+  let current: unknown = exception;
+  for (let depth = 0; depth < 5 && current != null; depth += 1) {
+    const code = (current as { code?: unknown }).code;
+    if (typeof code === 'string' && /^[0-9A-Z]{5}$/.test(code)) return code;
+    current = (current as { cause?: unknown }).cause;
+  }
+  return null;
 }

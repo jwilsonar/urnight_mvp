@@ -153,6 +153,10 @@ interface EditEventDialogProps {
  * Editar un evento desde el panel admin: datos + flyer. El flyer se sube a
  * staging (S3) y se envía como `flyerKey`; el backend lo promueve y reemplaza
  * la imagen actual. Reutilizable controlado (menú) o con trigger propio.
+ *
+ * TODO(DRY): este formulario usa useState manual + validación ad-hoc en `onSubmit`,
+ * a diferencia del resto de la app (RHF + zodResolver). Migrar a react-hook-form
+ * con `updateEventSchema` de @urnight/contracts para unificar validación y errores.
  */
 export function EditEventDialog({
   event,
