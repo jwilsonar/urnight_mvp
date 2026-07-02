@@ -1,9 +1,12 @@
-import { MapPin } from '@phosphor-icons/react/dist/ssr';
+import { MapPin, ShieldCheck } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { Button } from '@urnight/ui';
 import { LocalCard } from '@/components/catalog/local-card';
 import { SearchBar } from '@/components/catalog/search-bar';
 import { ZoneFilter } from '@/components/catalog/zone-filter';
 import { EmptyState } from '@/components/shared/empty-state';
+import { Reveal } from '@/components/shared/reveal';
 import { getLocals, getZones } from '@/lib/api/catalog';
 
 export const revalidate = 60;
@@ -52,11 +55,34 @@ export default async function LocalsPage({
         />
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {locals.map((local) => (
-            <LocalCard key={local.id} local={local} />
+          {locals.map((local, i) => (
+            <Reveal key={local.id} delay={(i % 3) * 80}>
+              <LocalCard local={local} />
+            </Reveal>
           ))}
         </div>
       )}
+
+      {/* Bloque de afiliación del prototipo (cierra el listado de locales) */}
+      <section className="pt-16">
+        <Reveal>
+          <div className="flex flex-col items-center gap-4 rounded-2xl border border-accent-border bg-[linear-gradient(180deg,var(--accent-soft),transparent)] px-6 py-14 text-center">
+            <span className="flex size-16 items-center justify-center rounded-xl border border-accent-border bg-accent">
+              <ShieldCheck className="size-7 text-lavender" weight="duotone" />
+            </span>
+            <h2 className="font-heading text-2xl font-extrabold tracking-tight sm:text-3xl">
+              ¿Tienes un local?
+            </h2>
+            <p className="max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
+              Únete a UrNight, publica tus eventos, gestiona tu aforo y llega a miles de personas
+              que buscan dónde ir esta noche.
+            </p>
+            <Button size="lg" className="mt-2" asChild>
+              <Link href="/afiliar">Afiliar mi local</Link>
+            </Button>
+          </div>
+        </Reveal>
+      </section>
     </div>
   );
 }

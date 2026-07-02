@@ -1,11 +1,19 @@
-import { CalendarBlank, MapPin, SealCheck } from '@phosphor-icons/react/dist/ssr';
+import {
+  CalendarBlank,
+  Compass,
+  MapPin,
+  SealCheck,
+  WhatsappLogo,
+} from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Badge, Button, Card, CardContent } from '@urnight/ui';
 import { EventCard } from '@/components/catalog/event-card';
 import { FavoriteButton } from '@/components/favorites/favorite-button';
 import { LocalGallery } from '@/components/locals/local-gallery';
 import { LocalMap } from '@/components/locals/local-map';
 import { EmptyState } from '@/components/shared/empty-state';
+import { Reveal } from '@/components/shared/reveal';
 import { ReportDialog } from '@/components/trust/report-dialog';
 import { ReviewList } from '@/components/trust/review-list';
 import { ApiError } from '@/lib/api/client';
@@ -44,54 +52,119 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ sl
     getLocalImages(local.id).catch(() => []),
   ]);
 
+  const hasCoords = local.latitude !== null && local.longitude !== null;
+  const mapsUrl = hasCoords
+    ? `https://www.google.com/maps/dir/?api=1&destination=${local.latitude},${local.longitude}`
+    : null;
+
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <LocalGallery images={images} localName={local.name} fallbackImageUrl={local.mainImageUrl} />
 
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <h1 className="font-heading text-3xl font-bold tracking-tight">{local.name}</h1>
-            {local.isVerified ? <SealCheck className="h-6 w-6 text-primary" weight="fill" /> : null}
-          </div>
-          {local.address ? (
-            <p className="flex items-center gap-1 text-muted-foreground">
-              <MapPin className="h-4 w-4" /> {local.address}
-            </p>
+      <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+        <div>
+          {/* Cabecera del prototipo: chips + título display + zona */}
+          <Reveal>
+            <div className="flex flex-wrap items-center gap-2">
+              {local.isVerified ? (
+                <Badge variant="success" className="gap-1">
+                  <SealCheck className="size-3" weight="fill" /> Verificado
+                </Badge>
+              ) : null}
+              <Badge variant="secondary">Discoteca · Bar</Badge>
+            </div>
+            <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
+              <h1 className="font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
+                {local.name}
+              </h1>
+              <div className="flex items-center gap-2">
+                <FavoriteButton targetType="local" targetId={local.id} />
+                <ReportDialog targetType="local" targetId={local.id} />
+              </div>
+            </div>
+            {local.address ? (
+              <p className="mt-2 flex items-center gap-1.5 text-muted-foreground">
+                <MapPin className="size-4 shrink-0" weight="duotone" /> {local.address}
+              </p>
+            ) : null}
+          </Reveal>
+
+          {local.description ? (
+            <Reveal delay={60}>
+              <p className="mt-6 max-w-2xl whitespace-pre-line leading-relaxed text-muted-foreground">
+                {local.description}
+              </p>
+            </Reveal>
           ) : null}
+
+          <Reveal>
+            <section className="mt-10">
+              <h2 className="mb-4 font-heading text-xl font-extrabold">
+                Próximos eventos {events.length > 0 ? `(${events.length})` : ''}
+              </h2>
+              {events.length === 0 ? (
+                <EmptyState
+                  icon={<CalendarBlank className="h-8 w-8" weight="duotone" />}
+                  title="Sin eventos próximos"
+                  description="Este local aún no publica sus siguientes fechas."
+                />
+              ) : (
+                <div className="grid gap-5 sm:grid-cols-2">
+                  {events.map((event, i) => (
+                    <Reveal key={event.id} delay={(i % 2) * 80}>
+                      <EventCard event={event} />
+                    </Reveal>
+                  ))}
+                </div>
+              )}
+            </section>
+          </Reveal>
+
+          <Reveal>
+            <section className="mt-10 pb-4">
+              <h2 className="mb-4 font-heading text-xl font-extrabold">
+                Reseñas {reviews.length > 0 ? `(${reviews.length})` : ''}
+              </h2>
+              <ReviewList reviews={reviews} />
+            </section>
+          </Reveal>
         </div>
-        <div className="flex items-center gap-2">
-          <FavoriteButton targetType="local" targetId={local.id} />
-          <ReportDialog targetType="local" targetId={local.id} />
-        </div>
+
+        {/* Sidebar sticky del prototipo: mapa + cómo llegar + reservas */}
+        <aside className="lg:sticky lg:top-24 lg:self-start">
+          <Card>
+            <CardContent className="p-6">
+              <p className="un-eyebrow mb-3">Para ir a {local.name}</p>
+              {hasCoords ? (
+                <div className="mb-4 overflow-hidden rounded-md">
+                  <LocalMap latitude={local.latitude!} longitude={local.longitude!} name={local.name} />
+                </div>
+              ) : (
+                <div className="un-img-ph mb-4 h-40 rounded-md">
+                  <span>Mapa · Ubicación</span>
+                </div>
+              )}
+              {local.address ? (
+                <p className="mb-4 text-sm text-muted-foreground">{local.address}</p>
+              ) : null}
+              {mapsUrl ? (
+                <Button className="w-full" asChild>
+                  <a href={mapsUrl} target="_blank" rel="noopener noreferrer">
+                    <Compass className="size-4" weight="duotone" /> Cómo llegar
+                  </a>
+                </Button>
+              ) : null}
+              {/* Reservas de mesa: aún sin backend — visible pero deshabilitado. */}
+              <Button variant="secondary" className="mt-2 w-full" disabled>
+                <WhatsappLogo className="size-4" weight="duotone" /> Reservar mesa
+              </Button>
+              <div className="mt-2 text-center">
+                <Badge variant="info">Próximamente</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </aside>
       </div>
-
-      {local.description ? <p className="mb-8 whitespace-pre-line text-muted-foreground">{local.description}</p> : null}
-
-      {local.latitude !== null && local.longitude !== null ? (
-        <section className="mb-8">
-          <h2 className="mb-3 font-heading text-xl font-semibold">Ubicación</h2>
-          <LocalMap latitude={local.latitude} longitude={local.longitude} name={local.name} />
-        </section>
-      ) : null}
-
-      <section className="mb-8">
-        <h2 className="mb-3 font-heading text-xl font-semibold">Próximos eventos</h2>
-        {events.length === 0 ? (
-          <EmptyState icon={<CalendarBlank className="h-8 w-8" weight="duotone" />} title="Sin eventos próximos" />
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {events.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section>
-        <h2 className="mb-3 font-heading text-xl font-semibold">Reseñas</h2>
-        <ReviewList reviews={reviews} />
-      </section>
     </div>
   );
 }
