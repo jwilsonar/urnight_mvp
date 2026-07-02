@@ -13,12 +13,15 @@ export function Logo({ className, href = '/' }: { className?: string; href?: str
       className={cn('inline-flex items-center gap-2.5', className)}
       aria-label="UrNight — inicio"
     >
+      {/* unoptimized: asset de marca diminuto y estático; evita depender del
+          optimizador de imágenes (sharp) para pintar el logo. */}
       <Image
         src="/brand/urnight-mark.png"
         alt=""
         width={22}
         height={36}
         priority
+        unoptimized
         className="h-9 w-auto"
       />
       <span className="font-heading text-[19px] font-extrabold tracking-tight text-foreground">
