@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { Badge, Button } from '@urnight/ui';
 import { EventCard } from '@/components/catalog/event-card';
 import { LocalCard } from '@/components/catalog/local-card';
+import { Parallax } from '@/components/motion/parallax';
 import { Reveal } from '@/components/shared/reveal';
 import { Hero3D } from '@/components/three/hero-3d';
 import { getLocals, getMusicGenres, getTrendingEvents, getUpcomingEvents } from '@/lib/api/catalog';
@@ -74,10 +75,16 @@ export default async function HomePage() {
       {/* ===== Hero del prototipo: gradiente amatista→midnight, glow respirando,
           titular Sora con la marca en glow y strip de stats ===== */}
       <section className="relative overflow-hidden bg-[linear-gradient(180deg,var(--surface-3)_0%,var(--bg-root)_85%)]">
-        <div
-          aria-hidden
-          className="un-breathe pointer-events-none absolute -right-52 -top-24 size-[700px] rounded-full bg-[radial-gradient(circle,var(--accent-soft-strong),transparent_60%)]"
-        />
+        {/* Glow de fondo con parallax lento (capa profunda) */}
+        <Parallax
+          speed={0.4}
+          className="pointer-events-none absolute -right-52 -top-24"
+        >
+          <div
+            aria-hidden
+            className="un-breathe size-[700px] rounded-full bg-[radial-gradient(circle,var(--accent-soft-strong),transparent_60%)]"
+          />
+        </Parallax>
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 pb-16 pt-20 sm:px-6 lg:grid-cols-[1fr_420px] lg:items-center lg:px-8">
           <div>
           <Reveal>
@@ -129,8 +136,11 @@ export default async function HomePage() {
           </Reveal>
           </div>
 
-          {/* Centerpiece 3D: copa amatista (lazy; solo lg+ para cuidar GPU en móvil) */}
-          <Hero3D className="hidden h-[420px] w-full lg:block" />
+          {/* Centerpiece 3D: copa amatista (lazy; solo lg+ para cuidar GPU en móvil).
+              Parallax en frente para dar profundidad respecto al texto al hacer scroll. */}
+          <Parallax speed={-0.22} className="hidden lg:block">
+            <Hero3D className="h-[420px] w-full" />
+          </Parallax>
         </div>
       </section>
 

@@ -2,6 +2,7 @@ import { MapPin, SealCheck } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 import type { LocalResponse } from '@urnight/contracts';
 import { Badge, Card, CardContent } from '@urnight/ui';
+import { Tilt } from '@/components/motion/tilt';
 import { StorageImage } from '@/lib/storage/storage-context';
 
 export function LocalCard({ local }: { local: LocalResponse }) {
@@ -10,8 +11,9 @@ export function LocalCard({ local }: { local: LocalResponse }) {
       href={`/locals/${local.slug}`}
       className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      {/* Card clickeable DS: lift 2px + borde amatista + sombra al hover. */}
-      <Card className="h-full overflow-hidden group-hover:-translate-y-0.5 group-hover:border-accent-border group-hover:shadow-float">
+      {/* Card clickeable con tilt 3D siguiendo el puntero + borde/sombra al hover. */}
+      <Tilt className="h-full rounded-lg">
+      <Card className="h-full overflow-hidden group-hover:border-accent-border group-hover:shadow-float">
         <div className="un-zoom-img relative aspect-[4/3] overflow-hidden">
           {local.mainImageUrl ? (
             <StorageImage
@@ -48,6 +50,7 @@ export function LocalCard({ local }: { local: LocalResponse }) {
           ) : null}
         </CardContent>
       </Card>
+      </Tilt>
     </Link>
   );
 }

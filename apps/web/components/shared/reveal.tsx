@@ -11,10 +11,13 @@ import { cn } from '@urnight/ui';
 export function Reveal({
   children,
   delay = 0,
+  depth = false,
   className,
 }: {
   children: ReactNode;
   delay?: number;
+  /** Entra con rotación en X (profundidad 3D) en vez del fade-up plano. */
+  depth?: boolean;
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -40,7 +43,7 @@ export function Reveal({
   return (
     <div
       ref={ref}
-      className={cn('un-reveal', className)}
+      className={cn(depth ? 'un-reveal-3d' : 'un-reveal', className)}
       style={delay ? ({ '--reveal-delay': `${delay}ms` } as React.CSSProperties) : undefined}
     >
       {children}

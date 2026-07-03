@@ -44,7 +44,8 @@ function GobletFallback() {
 export function Hero3D({ className }: { className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
-  const [inView, setInView] = useState(false);
+  // Arranca en true (el hero está sobre el pliegue); el IO lo corrige al salir.
+  const [inView, setInView] = useState(true);
   const [reduced, setReduced] = useState(true);
 
   useEffect(() => {
@@ -53,24 +54,28 @@ export function Hero3D({ className }: { className?: string }) {
     const onChange = () => setReduced(mq.matches);
     mq.addEventListener('change', onChange);
 
+    // Montaje robusto: el hero está siempre sobre el pliegue, así que cargamos
+    // la escena tras el paint (requestIdleCallback → fallback a timeout) sin
+    // depender de que el IntersectionObserver dispare. Sigue siendo lazy: el
+    // chunk de three.js se descarga después del primer render.
+    const ric =
+      window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 200));
+    const cic = window.cancelIdleCallback ?? window.clearTimeout;
+    const idle = ric(() => setMounted(true));
+
+    // El IntersectionObserver solo controla la pausa (inView) cuando el hero
+    // sale de vista al hacer scroll; ya no gobierna el montaje.
     const node = ref.current;
     let io: IntersectionObserver | undefined;
     if (node) {
-      io = new IntersectionObserver(
-        ([entry]) => {
-          if (entry?.isIntersecting) {
-            setInView(true);
-            setMounted(true); // una vez montado, se queda; solo se pausa
-          } else {
-            setInView(false);
-          }
-        },
-        { threshold: 0.15 },
-      );
+      io = new IntersectionObserver(([entry]) => setInView(Boolean(entry?.isIntersecting)), {
+        threshold: 0.15,
+      });
       io.observe(node);
     }
     return () => {
       mq.removeEventListener('change', onChange);
+      cic(idle as number);
       io?.disconnect();
     };
   }, []);

@@ -2,6 +2,7 @@ import { CalendarBlank } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 import type { EventResponse } from '@urnight/contracts';
 import { Badge, type BadgeProps, Card, CardContent } from '@urnight/ui';
+import { Tilt } from '@/components/motion/tilt';
 import { StorageImage } from '@/lib/storage/storage-context';
 
 const STATUS_LABEL: Record<EventResponse['status'], { label: string; variant: BadgeProps['variant'] }> = {
@@ -32,8 +33,9 @@ export function EventCard({ event }: { event: EventResponse }) {
       href={`/events/${event.slug}`}
       className="group block h-full rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      {/* Card clickeable DS: lift 2px + borde amatista + sombra al hover. */}
-      <Card className="flex h-full flex-col overflow-hidden group-hover:-translate-y-0.5 group-hover:border-accent-border group-hover:shadow-float">
+      {/* Card clickeable con tilt 3D siguiendo el puntero + borde/sombra al hover. */}
+      <Tilt className="h-full rounded-lg">
+      <Card className="flex h-full flex-col overflow-hidden group-hover:border-accent-border group-hover:shadow-float">
         <div className="un-zoom-img relative aspect-video overflow-hidden">
           {event.flyerUrl ? (
             <StorageImage
@@ -89,6 +91,7 @@ export function EventCard({ event }: { event: EventResponse }) {
           </div>
         </CardContent>
       </Card>
+      </Tilt>
     </Link>
   );
 }
