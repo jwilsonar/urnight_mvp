@@ -16,6 +16,8 @@ export function SiteFooter() {
           <Link href="/categorias" className="hover:text-foreground">Categorías</Link>
           <Link href="/afiliar" className="hover:text-foreground">Afilia tu local</Link>
           <Link href="/promotor/postular" className="hover:text-foreground">Sé promotor</Link>
+          <Link href="/nosotros" className="hover:text-foreground">Nosotros</Link>
+          <Link href="/faq" className="hover:text-foreground">Preguntas frecuentes</Link>
           <Link href="/legal/terms" className="hover:text-foreground">Términos</Link>
           <Link href="/legal/privacy" className="hover:text-foreground">Privacidad</Link>
         </nav>
