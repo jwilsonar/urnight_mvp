@@ -15,6 +15,7 @@ import { Badge, Button } from '@urnight/ui';
 import { EventCard } from '@/components/catalog/event-card';
 import { LocalCard } from '@/components/catalog/local-card';
 import { Reveal } from '@/components/shared/reveal';
+import { Hero3D } from '@/components/three/hero-3d';
 import { getLocals, getMusicGenres, getTrendingEvents, getUpcomingEvents } from '@/lib/api/catalog';
 
 export const revalidate = 60;
@@ -77,7 +78,8 @@ export default async function HomePage() {
           aria-hidden
           className="un-breathe pointer-events-none absolute -right-52 -top-24 size-[700px] rounded-full bg-[radial-gradient(circle,var(--accent-soft-strong),transparent_60%)]"
         />
-        <div className="mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 pb-16 pt-20 sm:px-6 lg:grid-cols-[1fr_420px] lg:items-center lg:px-8">
+          <div>
           <Reveal>
             <span className="un-eyebrow inline-flex items-center gap-2 rounded-full border border-accent-border bg-accent px-4 py-2">
               🔥 Esta temporada en Lima
@@ -125,6 +127,10 @@ export default async function HomePage() {
               </div>
             </dl>
           </Reveal>
+          </div>
+
+          {/* Centerpiece 3D: copa amatista (lazy; solo lg+ para cuidar GPU en móvil) */}
+          <Hero3D className="hidden h-[420px] w-full lg:block" />
         </div>
       </section>
 
