@@ -16,7 +16,6 @@ import { EventCard } from '@/components/catalog/event-card';
 import { LocalCard } from '@/components/catalog/local-card';
 import { Parallax } from '@/components/motion/parallax';
 import { Reveal } from '@/components/shared/reveal';
-import { Hero3D } from '@/components/three/hero-3d';
 import { getLocals, getMusicGenres, getTrendingEvents, getUpcomingEvents } from '@/lib/api/catalog';
 
 export const revalidate = 60;
@@ -85,14 +84,13 @@ export default async function HomePage() {
             className="un-breathe size-[700px] rounded-full bg-[radial-gradient(circle,var(--accent-soft-strong),transparent_60%)]"
           />
         </Parallax>
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 pb-16 pt-20 sm:px-6 lg:grid-cols-[1fr_420px] lg:items-center lg:px-8">
-          <div>
-          <Reveal>
+        <div className="mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 lg:px-8">
+          <Reveal depth>
             <span className="un-eyebrow inline-flex items-center gap-2 rounded-full border border-accent-border bg-accent px-4 py-2">
               🔥 Esta temporada en Lima
             </span>
           </Reveal>
-          <Reveal delay={80}>
+          <Reveal delay={80} depth>
             <h1 className="mt-6 max-w-3xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
               Tu próxima noche
               <br />
@@ -100,7 +98,7 @@ export default async function HomePage() {
               <span className="text-primary [text-shadow:var(--glow-text)]">UrNight</span>
             </h1>
           </Reveal>
-          <Reveal delay={160}>
+          <Reveal delay={160} depth>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               Cientos de eventos y locales verificados. Encuentra dónde ir esta noche, compra tu
               entrada y arma el plan con tus amigos.
@@ -134,13 +132,6 @@ export default async function HomePage() {
               </div>
             </dl>
           </Reveal>
-          </div>
-
-          {/* Centerpiece 3D: copa amatista (lazy; solo lg+ para cuidar GPU en móvil).
-              Parallax en frente para dar profundidad respecto al texto al hacer scroll. */}
-          <Parallax speed={-0.22} className="hidden lg:block">
-            <Hero3D className="h-[420px] w-full" />
-          </Parallax>
         </div>
       </section>
 
