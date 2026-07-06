@@ -79,7 +79,7 @@ const GRUPOS: Grupo[] = [
   },
   {
     titulo: '4 · Mi cuenta (inicia sesión: user@urnight.pe)',
-    descripcion: 'Password del seed: Urnight2026!',
+    descripcion: 'La contraseña de prueba está en el seed del repo (packages/db).',
     pantallas: [
       { ruta: '/account', nombre: 'Perfil', estado: 'real' },
       { ruta: '/account/tickets', nombre: 'Mis entradas (QR)', estado: 'real' },
@@ -110,8 +110,9 @@ const GRUPOS: Grupo[] = [
     ],
   },
   {
-    titulo: '6 · Paneles por rol (password: Urnight2026!)',
-    descripcion: 'Cierra sesión y entra con el correo indicado para ver cada panel.',
+    titulo: '6 · Paneles por rol',
+    descripcion:
+      'Cierra sesión y entra con el correo indicado (contraseña de prueba: en el seed del repo, packages/db).',
     pantallas: [
       { ruta: '/panel', nombre: 'Selector de paneles', estado: 'real', nota: 'Cualquier rol staff' },
       { ruta: '/panel/admin', nombre: 'Panel de local (admin)', estado: 'real', nota: 'owner.nocturna@urnight.pe' },
