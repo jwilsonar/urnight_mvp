@@ -8,6 +8,7 @@ const LINKS = [
   { href: '/account', label: 'Perfil' },
   { href: '/account/tickets', label: 'Mis entradas' },
   { href: '/account/guardados', label: 'Guardados' },
+  { href: '/account/reservas', label: 'Reservas' },
   { href: '/account/wallet', label: 'Wallet' },
   { href: '/account/niveles', label: 'Niveles' },
   { href: '/account/referidos', label: 'Referidos' },

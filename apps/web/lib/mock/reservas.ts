@@ -53,3 +53,52 @@ export const EVENTO_DEMO = {
 };
 
 export const LLEGADAS_DEMO = ['10:30 PM', '11:00 PM', '11:30 PM', '12:00 AM', '12:30 AM', '01:00 AM'];
+
+/** Mis reservas (pantalla R6 del prototipo). Demo hasta tener backend. */
+export interface ReservaHechaDemo {
+  id: string;
+  codigo: string;
+  evento: string;
+  venue: string;
+  fecha: string;
+  mesa: string;
+  pax: number;
+  deposito: number;
+  estado: 'confirmada' | 'pendiente' | 'completada';
+}
+
+export const MIS_RESERVAS_DEMO: ReservaHechaDemo[] = [
+  {
+    id: 'r1',
+    codigo: 'UR-8F4K21',
+    evento: 'Noche de Amatista',
+    venue: 'Nocturna Club · Miraflores',
+    fecha: 'Sáb 19 Abr · 11:00 PM',
+    mesa: 'Box VIP 01',
+    pax: 6,
+    deposito: 400,
+    estado: 'confirmada',
+  },
+  {
+    id: 'r2',
+    codigo: 'UR-2M9X07',
+    evento: 'Deep House Session',
+    venue: 'Barranco Beats · Barranco',
+    fecha: 'Sáb 26 Abr · 11:30 PM',
+    mesa: 'Mesa 07 · Pista',
+    pax: 4,
+    deposito: 200,
+    estado: 'pendiente',
+  },
+  {
+    id: 'r3',
+    codigo: 'UR-7Q1B44',
+    evento: 'Reggaetón Night',
+    venue: 'Nocturna Club · Miraflores',
+    fecha: 'Vie 21 Mar · 10:30 PM',
+    mesa: 'Lounge Premium',
+    pax: 10,
+    deposito: 800,
+    estado: 'completada',
+  },
+];
