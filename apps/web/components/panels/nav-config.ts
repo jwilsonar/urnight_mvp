@@ -1,4 +1,5 @@
 import {
+  Armchair,
   Bell,
   Buildings,
   ChartLineUp,
@@ -9,10 +10,13 @@ import {
   Lifebuoy,
   LinkSimple,
   Megaphone,
+  Money,
   type Icon,
+  Pulse,
   QrCode,
   Scroll,
   SealCheck,
+  ShieldWarning,
   Tag,
   Ticket,
   UserCircle,
@@ -42,11 +46,14 @@ export const PANEL_NAV: Record<PanelSection, PanelNavItem[]> = {
     { href: '/panel/admin', label: 'Dashboard', icon: House, exact: true },
     { href: '/panel/admin/locals', label: 'Locales', icon: Buildings },
     { href: '/panel/admin/promoters', label: 'Promotores', icon: Megaphone },
+    { href: '/panel/admin/mesas', label: 'Mesas y planta', icon: Armchair },
+    { href: '/panel/admin/checkin', label: 'Check-in en vivo', icon: QrCode },
   ],
   promoter: [
     { href: '/panel/promoter', label: 'Resumen', icon: ChartLineUp, exact: true },
     { href: '/panel/promoter/links', label: 'Mis links', icon: LinkSimple },
     { href: '/panel/promoter/ventas', label: 'Ventas', icon: Ticket },
+    { href: '/panel/promoter/liquidaciones', label: 'Liquidaciones', icon: Money },
     { href: '/panel/promoter/perfil', label: 'Perfil', icon: UserCircle },
   ],
   superadmin: [
@@ -60,6 +67,8 @@ export const PANEL_NAV: Record<PanelSection, PanelNavItem[]> = {
     { href: '/panel/superadmin/companies', label: 'Empresas', icon: Buildings },
     { href: '/panel/superadmin/audit', label: 'Auditoría', icon: ClockCounterClockwise },
     { href: '/panel/superadmin/taxonomy', label: 'Taxonomía', icon: Tag },
+    { href: '/panel/superadmin/antifraude', label: 'Antifraude', icon: ShieldWarning },
+    { href: '/panel/superadmin/salud', label: 'Salud del producto', icon: Pulse },
   ],
   validator: [{ href: '/panel/validator', label: 'Inicio', icon: QrCode, exact: true }],
 };

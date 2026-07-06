@@ -117,14 +117,19 @@ const GRUPOS: Grupo[] = [
       { ruta: '/panel/admin', nombre: 'Panel de local (admin)', estado: 'real', nota: 'owner.nocturna@urnight.pe' },
       { ruta: '/panel/admin/locals', nombre: 'PL · Mis locales', estado: 'real' },
       { ruta: '/panel/admin/promoters', nombre: 'PL · Promotores', estado: 'real' },
+      { ruta: '/panel/admin/mesas', nombre: 'PL · Mesas y planta', estado: 'demo', nota: 'Plano del local + reservas del día' },
+      { ruta: '/panel/admin/checkin', nombre: 'PL · Check-in en vivo', estado: 'demo', nota: 'Aforo + validaciones de puerta' },
       { ruta: '/panel/superadmin', nombre: 'Super Admin', estado: 'real', nota: 'admin@urnight.pe' },
       { ruta: '/panel/superadmin/companies', nombre: 'SA · Empresas', estado: 'real' },
       { ruta: '/panel/superadmin/affiliations', nombre: 'SA · Afiliaciones', estado: 'real' },
       { ruta: '/panel/superadmin/reviews', nombre: 'SA · Reseñas y reportes', estado: 'real' },
       { ruta: '/panel/superadmin/audit', nombre: 'SA · Auditoría', estado: 'real' },
+      { ruta: '/panel/superadmin/antifraude', nombre: 'SA · Antifraude', estado: 'demo', nota: 'Señales de reventa y abuso' },
+      { ruta: '/panel/superadmin/salud', nombre: 'SA · Salud del producto', estado: 'demo', nota: 'Métricas y estado de servicios' },
       { ruta: '/panel/promoter', nombre: 'Panel RRPP (KPIs)', estado: 'real', nota: 'promoter@urnight.pe' },
       { ruta: '/panel/promoter/links', nombre: 'RRPP · Mis links', estado: 'real' },
       { ruta: '/panel/promoter/ventas', nombre: 'RRPP · Ventas', estado: 'real' },
+      { ruta: '/panel/promoter/liquidaciones', nombre: 'RRPP · Liquidaciones', estado: 'demo', nota: 'Comisiones por quincena' },
       { ruta: '/panel/validator', nombre: 'Panel validador', estado: 'real', nota: 'validator@urnight.pe' },
     ],
   },
@@ -194,6 +199,12 @@ export default function PantallasPage() {
           Storybook (componentes del design system): corre{' '}
           <code className="font-mono">pnpm --filter @urnight/web storybook</code> y abre
           localhost:6006.
+        </p>
+        <p className="mt-3 rounded-md border px-4 py-3 text-sm leading-relaxed text-muted-foreground">
+          <strong className="text-foreground">En diseño (aún no construidas):</strong> crowd-meter
+          del local, split bill, amigos / perfil social, historial y canje de puntos, y el wizard de
+          crear evento en 4 pasos del panel de local. Se priorizarán cuando su backend esté
+          definido.
         </p>
       </Reveal>
     </div>
