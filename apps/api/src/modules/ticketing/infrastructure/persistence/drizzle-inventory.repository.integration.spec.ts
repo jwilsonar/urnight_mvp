@@ -28,6 +28,8 @@ afterAll(async () => {
 interface SeedInventory {
   eventId: string;
   ticketTypeId: string;
+  companyId: string;
+  localId: string;
 }
 
 /** Siembra company→local→event→ticket_type con stock/sold configurables. */
@@ -70,18 +72,21 @@ async function seedInventory(opts: {
     stock: opts.stock ?? 100,
     sold: opts.sold ?? 0,
   });
-  return { eventId, ticketTypeId };
+  return { eventId, ticketTypeId, companyId, localId };
 }
 
 describe('DrizzleInventoryRepository (integration)', () => {
   it('round-trip: getEvent / getTicketType leen el estado de venta', async () => {
-    const { eventId, ticketTypeId } = await seedInventory({ stock: 80, sold: 5 });
+    const { eventId, ticketTypeId, companyId, localId } = await seedInventory({ stock: 80, sold: 5 });
 
     const saleEvent = await repo.getEvent(eventId);
     expect(saleEvent).not.toBeNull();
     expect(saleEvent?.id).toBe(eventId);
     expect(saleEvent?.status).toBe('published');
     expect(saleEvent?.isOnSale).toBe(true);
+    // C1: getEvent deriva local/empresa (JOIN a local) para el control multi-tenant.
+    expect(saleEvent?.localId).toBe(localId);
+    expect(saleEvent?.companyId).toBe(companyId);
 
     const tt = await repo.getTicketType(ticketTypeId);
     expect(tt).not.toBeNull();

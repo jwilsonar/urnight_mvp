@@ -1,13 +1,23 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, count, desc, eq, sql } from 'drizzle-orm';
-import { event, promoCode, promoCodeRedemption, promoter, ticketType } from '@urnight/db';
+import { alias } from 'drizzle-orm/pg-core';
+import { event, local, promoCode, promoCodeRedemption, promoter, ticketType } from '@urnight/db';
 import { DRIZZLE, type DrizzleDb } from '../../../../shared/database/drizzle.constants';
 import type { Tx } from '../../../../shared/unit-of-work/unit-of-work';
+import {
+  PromoCodeAlreadyRedeemedError,
+  PromoCodeQuotaExhaustedError,
+} from '../../domain/errors/promoters.errors';
 import {
   PromoCode,
   type DiscountType,
   type PromoScope,
 } from '../../domain/entities/promo-code.entity';
+
+/** ¿El error de la BD es una violación de UNIQUE/PK (Postgres 23505)? */
+function isUniqueViolation(err: unknown): boolean {
+  return typeof err === 'object' && err !== null && (err as { code?: string }).code === '23505';
+}
 import type {
   GeneratedRedemptionCodeInput,
   PromoCodeRepository,
@@ -211,23 +221,68 @@ export class DrizzlePromoCodeRepository implements PromoCodeRepository {
     };
   }
 
+  /**
+   * Incremento ATÓMICO y CONDICIONAL del cupo (M1): sólo suma si aún queda cupo
+   * (`usage_quota IS NULL` = ilimitado, o `used_count < usage_quota`). Cierra la
+   * sobreventa bajo concurrencia sin depender del CHECK de la BD: dos canjes
+   * simultáneos compiten por el mismo UPDATE y el perdedor no toca fila →
+   * `PromoCodeQuotaExhaustedError` (409), que revierte la Tx del checkout.
+   */
   async incrementUsedCount(id: string, tx?: unknown): Promise<void> {
     const exec = (tx as Tx | undefined) ?? this.db;
-    await exec
+    const rows = await exec
       .update(promoCode)
       .set({ usedCount: sql`${promoCode.usedCount} + 1` })
-      .where(eq(promoCode.id, id));
+      .where(
+        and(
+          eq(promoCode.id, id),
+          sql`(${promoCode.usageQuota} is null or ${promoCode.usedCount} < ${promoCode.usageQuota})`,
+        ),
+      )
+      .returning({ id: promoCode.id });
+    if (rows.length === 0) throw new PromoCodeQuotaExhaustedError();
   }
 
   async recordRedemption(record: PromoRedemptionRecord, tx?: unknown): Promise<void> {
     const exec = (tx as Tx | undefined) ?? this.db;
-    await exec.insert(promoCodeRedemption).values({
-      id: record.id,
-      promoCodeId: record.promoCodeId,
-      orderId: record.orderId,
-      userId: record.userId,
-      discountApplied: record.discountApplied.toFixed(2),
-    });
+    try {
+      await exec.insert(promoCodeRedemption).values({
+        id: record.id,
+        promoCodeId: record.promoCodeId,
+        orderId: record.orderId,
+        userId: record.userId,
+        discountApplied: record.discountApplied.toFixed(2),
+      });
+    } catch (err) {
+      // Límite por usuario (M1): el UNIQUE (promo_code_id, user_id) que añade el
+      // esquema convierte un segundo canje del mismo usuario en 23505 → 409.
+      if (isUniqueViolation(err)) throw new PromoCodeAlreadyRedeemedError();
+      throw err;
+    }
+  }
+
+  /**
+   * companyId dueño del código para aislamiento tenant (M5): vía event→local, o
+   * localId directo, o el promotor del código. `null` si no se puede acotar a una
+   * empresa (fail-closed: el use-case lo trata como acceso denegado a no-super).
+   */
+  async ownerCompanyId(promoCodeId: string): Promise<string | null> {
+    const eventLocal = alias(local, 'promo_event_local');
+    const [row] = await this.db
+      .select({
+        viaEvent: eventLocal.companyId,
+        viaLocal: local.companyId,
+        viaPromoter: promoter.companyId,
+      })
+      .from(promoCode)
+      .leftJoin(event, eq(event.id, promoCode.eventId))
+      .leftJoin(eventLocal, eq(eventLocal.id, event.localId))
+      .leftJoin(local, eq(local.id, promoCode.localId))
+      .leftJoin(promoter, eq(promoter.id, promoCode.promoterId))
+      .where(eq(promoCode.id, promoCodeId))
+      .limit(1);
+    if (!row) return null;
+    return row.viaEvent ?? row.viaLocal ?? row.viaPromoter ?? null;
   }
 
   async listRedemptionsByCode(promoCodeId: string): Promise<PromoRedemptionRecord[]> {

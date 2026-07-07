@@ -17,6 +17,16 @@ export class ValidationController {
     @CurrentUser() validator: AuthUser,
     @Body(new ZodValidationPipe(validateQrSchema)) dto: ValidateQrDto,
   ): Promise<QrValidationResponse> {
-    return this.validateQr.execute({ dto, validatorId: validator.id });
+    // C1: el scope multi-tenant se toma del JWT firmado (roles + company/local),
+    // nunca del body del cliente. El use-case lo contrasta con el evento del ticket.
+    return this.validateQr.execute({
+      dto,
+      validator: {
+        id: validator.id,
+        isSuperAdmin: validator.roles.includes('super_admin'),
+        companyId: validator.companyId ?? null,
+        localId: validator.localId ?? null,
+      },
+    });
   }
 }

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { eq, sql } from 'drizzle-orm';
-import { event, ticketType } from '@urnight/db';
+import { event, local, ticketType } from '@urnight/db';
 import { DRIZZLE, type DrizzleDb } from '../../../../shared/database/drizzle.constants';
 import type { Tx } from '../../../../shared/unit-of-work/unit-of-work';
 import type {
@@ -19,17 +19,30 @@ export class DrizzleInventoryRepository implements InventoryPort {
   }
 
   async getEvent(eventId: string): Promise<SaleEvent | null> {
+    // JOIN a local para derivar la empresa dueña (C1: scope multi-tenant).
     const [row] = await this.db
-      .select({ id: event.id, status: event.status, localId: event.localId })
+      .select({
+        id: event.id,
+        status: event.status,
+        localId: event.localId,
+        companyId: local.companyId,
+      })
       .from(event)
+      .innerJoin(local, eq(local.id, event.localId))
       .where(eq(event.id, eventId))
       .limit(1);
     if (!row) return null;
-    return { id: row.id, status: row.status, localId: row.localId, isOnSale: row.status === 'published' };
+    return {
+      id: row.id,
+      status: row.status,
+      localId: row.localId,
+      companyId: row.companyId,
+      isOnSale: row.status === 'published',
+    };
   }
 
-  async getTicketType(id: string): Promise<SaleTicketType | null> {
-    const [row] = await this.db.select().from(ticketType).where(eq(ticketType.id, id)).limit(1);
+  async getTicketType(id: string, tx?: unknown): Promise<SaleTicketType | null> {
+    const [row] = await this.exec(tx).select().from(ticketType).where(eq(ticketType.id, id)).limit(1);
     if (!row) return null;
     return {
       id: row.id,

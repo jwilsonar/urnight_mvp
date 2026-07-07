@@ -1,0 +1,6 @@
+ALTER TABLE "user_favorite" ADD CONSTRAINT "user_favorite_local_id_local_id_fk" FOREIGN KEY ("local_id") REFERENCES "public"."local"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_favorite" ADD CONSTRAINT "user_favorite_event_id_event_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."event"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_role" ADD CONSTRAINT "user_role_company_id_company_id_fk" FOREIGN KEY ("company_id") REFERENCES "public"."company"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_role" ADD CONSTRAINT "user_role_local_id_local_id_fk" FOREIGN KEY ("local_id") REFERENCES "public"."local"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE UNIQUE INDEX "idx_promo_code_redemption_code_user" ON "promo_code_redemption" USING btree ("promo_code_id","user_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "idx_review_user_ticket" ON "review" USING btree ("user_id","ticket_id");

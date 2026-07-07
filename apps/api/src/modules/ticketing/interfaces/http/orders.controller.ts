@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
 import {
   createOrderSchema,
   type CreateOrderDto,
@@ -31,8 +41,14 @@ export class OrdersController {
   async checkoutOrder(
     @CurrentUser() user: AuthUser,
     @Body(new ZodValidationPipe(createOrderSchema)) dto: CreateOrderDto,
+    // M3: idempotencia — reintentos con la misma key devuelven la orden ya creada.
+    @Headers('idempotency-key') idempotencyKey?: string,
   ): Promise<CheckoutHttpResponse> {
-    const result = await this.checkout.execute({ userId: user.id, dto });
+    const result = await this.checkout.execute({
+      userId: user.id,
+      dto,
+      idempotencyKey: idempotencyKey?.trim() || undefined,
+    });
     return {
       order: toOrderResponse(result.order),
       tickets: result.tickets.map((t) => toTicketResponse(t.ticket, t.attendee.fullName)),

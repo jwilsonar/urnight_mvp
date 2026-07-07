@@ -8,7 +8,7 @@ Fuente de verdad: [`../der_class/PROJECT_SPECS.md`](../der_class/PROJECT_SPECS.m
 ```
 apps/
   api/        NestJS — API Backend (monolito modular hexagonal, 8 bounded contexts)
-  worker/     NestJS standalone — consumidor BullMQ (email, PDF, push, atribución)
+  worker/     NestJS standalone — consumidor BullMQ (email, PDF, push)
   web/        Next.js — canal principal (consumidor + paneles por rol)
   mobile/     Expo / React Native — app del asistente (billetera QR, push)
   validator/  Expo / React Native — app de puerta (escaneo QR, cache offline)
@@ -32,7 +32,7 @@ pnpm install
 cp .env.example .env            # editar credenciales
 pnpm docker:up                  # Postgres 16 + Redis 7
 pnpm db:generate && pnpm db:migrate
-pnpm dev:api                    # API en :3001
+pnpm dev:api                    # API en :3101 (ADR 0001; NO 3001)
 ```
 
 | Script | Acción |

@@ -23,8 +23,7 @@ import {
   REFERRAL_LINK_REPOSITORY,
   type ReferralLinkRepository,
 } from '../../domain/ports/referral-link.repository';
-
-const REFERRAL_BASE = 'https://urnight.pe/r';
+import { referralUrlFor } from '../config/web-url';
 
 /** Caso de uso: revisar postulación. Aprobar crea promotor+link (Tx). */
 @Injectable()
@@ -86,7 +85,7 @@ export class ReviewPromoterApplicationUseCase {
       id: randomUUID(),
       promoterId: promoter.id,
       code,
-      url: `${REFERRAL_BASE}/${code}`,
+      url: referralUrlFor(code),
     });
     application.approve(input.reviewerId, promoter.id);
 

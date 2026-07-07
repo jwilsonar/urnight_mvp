@@ -5,7 +5,11 @@ import {
   PromoApplication,
   PromoRedemptionPort,
 } from '../../../../shared/ports/promo-redemption.port';
-import { PromoCodeInvalidError, PromoCodeNotFoundError } from '../../domain/errors/promoters.errors';
+import {
+  PromoCodeAlreadyRedeemedError,
+  PromoCodeInvalidError,
+  PromoCodeNotFoundError,
+} from '../../domain/errors/promoters.errors';
 import {
   PROMO_CODE_REPOSITORY,
   type PromoCodeRepository,
@@ -35,6 +39,13 @@ export class PromoRedemptionService extends PromoRedemptionPort {
     };
     const check = promo.isValid(promoCtx);
     if (!check.valid) throw new PromoCodeInvalidError(check.reason ?? 'Código inválido');
+    // Límite por usuario (M1, fail-fast antes de cobrar): un mismo usuario no
+    // canjea dos veces el mismo código. La barrera dura es el UNIQUE
+    // (promo_code_id, user_id) del esquema, aplicada en `redeem` dentro de la Tx.
+    const previous = await this.promoCodes.listRedemptionsByUser(ctx.userId);
+    if (previous.some((r) => r.promoCodeId === promo.id)) {
+      throw new PromoCodeAlreadyRedeemedError();
+    }
     return { promoCodeId: promo.id, discount: promo.computeDiscount(promoCtx) };
   }
 

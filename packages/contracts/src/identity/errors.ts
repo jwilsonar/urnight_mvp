@@ -19,6 +19,7 @@ export const IDENTITY_ERROR_CODES = {
   FAVORITE_ALREADY_EXISTS: 'identity/favorite-already-exists',
   FAVORITE_NOT_FOUND: 'identity/favorite-not-found',
   GOOGLE_TOKEN_INVALID: 'identity/google-token-invalid',
+  GOOGLE_EMAIL_NOT_VERIFIED: 'identity/google-email-not-verified',
   INVALID_TOKEN: 'identity/invalid-token',
 } as const;
 

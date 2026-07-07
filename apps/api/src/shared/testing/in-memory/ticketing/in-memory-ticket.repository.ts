@@ -72,9 +72,23 @@ export class InMemoryTicketRepository implements TicketRepository {
       }));
   }
 
+  async listByOrder(_orderId: string): Promise<IssuedTicket[]> {
+    // El in-memory no persiste orderId; devuelve todos los emitidos (suficiente
+    // para el replay idempotente en tests: se comparan por orden precargada).
+    return this.entries.map((e) => ({ ticket: e.ticket, attendee: e.attendee }));
+  }
+
   async update(ticket: Ticket, _tx?: unknown): Promise<void> {
     const entry = this.entries.find((e) => e.ticket.id === ticket.id);
     if (entry) entry.ticket = ticket;
+  }
+
+  /** Marca atómica (C2): solo si sigue `valid`. Replica el UPDATE condicional. */
+  async markUsedIfValid(ticketId: string, _tx?: unknown): Promise<boolean> {
+    const entry = this.entries.find((e) => e.ticket.id === ticketId);
+    if (!entry || entry.ticket.status !== 'valid') return false;
+    entry.ticket.markUsed();
+    return true;
   }
 
   async attachQrImage(ticketId: string, key: string): Promise<void> {

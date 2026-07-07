@@ -83,11 +83,19 @@ export function listAuditLogs(token?: string) {
 
 /* ----------------------------------------------------------------- Legal -- */
 
-/** Documento legal vigente para un tipo (GET /legal-documents/current?docType=). Público. */
-export function getCurrentLegalDocument(docType: LegalDocType, token?: string) {
+/**
+ * Documento legal vigente para un tipo (GET /legal-documents/current?docType=). Público.
+ * `revalidate` habilita ISR de Next (la página legal pública lo cachea por horas).
+ */
+export function getCurrentLegalDocument(
+  docType: LegalDocType,
+  token?: string,
+  opts?: { revalidate?: number | false },
+) {
   return apiFetch<LegalDocumentResponse>('/legal-documents/current', {
     query: { docType },
     token,
+    ...(opts?.revalidate !== undefined ? { next: { revalidate: opts.revalidate } } : {}),
   });
 }
 

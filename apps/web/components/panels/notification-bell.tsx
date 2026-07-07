@@ -42,6 +42,7 @@ export function NotificationBell() {
     queryFn: () => getMyNotifications(token),
     enabled: status === 'authenticated' && Boolean(token),
   });
+  // Un fallo del API no debe leerse como "sin notificaciones" (M9): sin badge ni lista vacía.
 
   const notifications = query.data ?? [];
   const unread = notifications.filter((n) => n.status === 'queued').length;
@@ -64,6 +65,13 @@ export function NotificationBell() {
         <DropdownMenuSeparator />
         {query.isPending ? (
           <p className="px-2 py-6 text-center text-sm text-muted-foreground">Cargando…</p>
+        ) : query.isError ? (
+          <div className="flex flex-col items-center gap-2 px-2 py-6 text-center">
+            <p className="text-sm text-muted-foreground">No pudimos cargar tus notificaciones.</p>
+            <Button variant="outline" size="sm" onClick={() => void query.refetch()}>
+              Reintentar
+            </Button>
+          </div>
         ) : recent.length === 0 ? (
           <p className="px-2 py-6 text-center text-sm text-muted-foreground">Sin notificaciones</p>
         ) : (

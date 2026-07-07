@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { createOrderSchema } from '@urnight/contracts';
 import { EventBus } from '../../../../shared/event-bus/event-bus';
 import {
   captureEvents,
@@ -31,24 +32,22 @@ import {
   TicketTypeUnavailableError,
 } from '../../domain/errors/checkout.errors';
 import { AttendeeUnderageError } from '../../domain/errors/checkout.errors';
-import type { StoragePort } from '../../../../shared/adapters/storage/storage.port';
-import type { QrImagePort } from '../../domain/ports/qr-image.port';
+import type { IdempotencyStore } from '../../domain/ports/idempotency.port';
 import { CheckoutUseCase } from './checkout.use-case';
 
-/** Storage en memoria: registra las keys subidas; el resto son no-ops. */
-const fakeStorage = (): StoragePort =>
-  ({
-    putObject: async () => undefined,
-    getUploadUrl: async () => '',
-    getDownloadUrl: async () => '',
-    headObject: async () => ({ sizeBytes: 0, contentType: 'image/png' }),
-    copyObject: async () => undefined,
-    deleteObject: async () => undefined,
-    resolveUrl: (ref: string) => ref,
-    toKey: (ref: string) => ref,
-  }) satisfies StoragePort;
-
-const fakeQrImage = (): QrImagePort => ({ render: async () => Buffer.from('png') });
+/** Store de idempotencia en memoria (M3): mapea (userId,key) → orderId. */
+class FakeIdempotencyStore implements IdempotencyStore {
+  private readonly map = new Map<string, string>();
+  private keyOf(userId: string, key: string): string {
+    return `${userId}:${key}`;
+  }
+  async recall(userId: string, key: string): Promise<string | null> {
+    return this.map.get(this.keyOf(userId, key)) ?? null;
+  }
+  async remember(userId: string, key: string, orderId: string): Promise<void> {
+    if (!this.map.has(this.keyOf(userId, key))) this.map.set(this.keyOf(userId, key), orderId);
+  }
+}
 
 const EVENT_ID = '11111111-1111-1111-1111-111111111111';
 const TT_ID = '22222222-2222-2222-2222-222222222222';
@@ -64,6 +63,7 @@ function build(options: { lock?: FakeLockPort; payment?: FakePaymentPort } = {})
   const events = new EventBus();
   const outbox = new RecordingOutbox();
   const promo = new FakePromoRedemption();
+  const idempotency = new FakeIdempotencyStore();
 
   inventory.seedEvent(new SaleEventBuilder().withId(EVENT_ID).build());
   inventory.seedTicketType(
@@ -81,10 +81,9 @@ function build(options: { lock?: FakeLockPort; payment?: FakePaymentPort } = {})
     events,
     outbox,
     promo,
-    fakeStorage(),
-    fakeQrImage(),
+    idempotency,
   );
-  return { useCase, orders, tickets, payments, inventory, paymentPort, lock, events, outbox };
+  return { useCase, orders, tickets, payments, inventory, paymentPort, lock, events, outbox, idempotency };
 }
 
 const dto = () =>
@@ -236,5 +235,63 @@ describe('CheckoutUseCase', () => {
     await expect(useCase.execute({ userId: 'u', dto: dto() })).rejects.toBeInstanceOf(
       StockLockedError,
     );
+  });
+
+  it('M3: idempotencia — misma key + mismo usuario devuelve la orden ya creada (no cobra dos veces)', async () => {
+    const { useCase, orders, payments, inventory } = build();
+
+    const first = await useCase.execute({ userId: 'user-1', dto: dto(), idempotencyKey: 'idem-1' });
+    const second = await useCase.execute({ userId: 'user-1', dto: dto(), idempotencyKey: 'idem-1' });
+
+    expect(second.order.id).toBe(first.order.id);
+    expect(orders.all).toHaveLength(1); // no se creó una segunda orden
+    expect(payments.all).toHaveLength(1); // no se cobró dos veces
+    expect(inventory.soldOf(TT_ID)).toBe(2); // stock reservado una sola vez
+    expect(second.tickets).toHaveLength(first.tickets.length);
+  });
+
+  it('M3: keys distintas del mismo usuario crean órdenes distintas', async () => {
+    const { useCase, orders } = build();
+    await useCase.execute({ userId: 'user-1', dto: dto(), idempotencyKey: 'idem-A' });
+    await useCase.execute({ userId: 'user-1', dto: dto(), idempotencyKey: 'idem-B' });
+    expect(orders.all).toHaveLength(2);
+  });
+});
+
+describe('createOrderSchema (M2: items duplicados)', () => {
+  const attendee = {
+    fullName: 'Grace Hopper',
+    documentType: 'dni' as const,
+    documentNumber: '12345678',
+    birthDate: '1990-01-01',
+    isBuyer: true,
+  };
+  const TT = '22222222-2222-2222-2222-222222222222';
+
+  it('rechaza dos líneas con el mismo ticketTypeId', () => {
+    const res = createOrderSchema.safeParse({
+      eventId: '11111111-1111-1111-1111-111111111111',
+      method: 'card',
+      items: [
+        { ticketTypeId: TT, attendees: [attendee] },
+        { ticketTypeId: TT, attendees: [{ ...attendee, documentNumber: '87654321' }] },
+      ],
+    });
+    expect(res.success).toBe(false);
+    if (!res.success) {
+      expect(res.error.issues.some((i) => i.path.join('.').includes('ticketTypeId'))).toBe(true);
+    }
+  });
+
+  it('acepta líneas con ticketTypeId distintos', () => {
+    const res = createOrderSchema.safeParse({
+      eventId: '11111111-1111-1111-1111-111111111111',
+      method: 'card',
+      items: [
+        { ticketTypeId: TT, attendees: [attendee] },
+        { ticketTypeId: '33333333-3333-3333-3333-333333333333', attendees: [attendee] },
+      ],
+    });
+    expect(res.success).toBe(true);
   });
 });

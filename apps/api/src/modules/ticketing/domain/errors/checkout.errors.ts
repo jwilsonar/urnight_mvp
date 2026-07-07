@@ -80,3 +80,15 @@ export class StockLockedError extends DomainError {
     super('Compra en proceso para este evento, intenta de nuevo.');
   }
 }
+
+/**
+ * C1: el validador intenta validar una entrada de un local/empresa fuera de su
+ * scope multi-tenant (§4.3 "multi-tenant aislado"). 403 Forbidden.
+ */
+export class ValidatorScopeError extends DomainError {
+  readonly status = 403;
+  readonly code = CHECKOUT_ERROR_CODES.QR_VALIDATION_FORBIDDEN;
+  constructor() {
+    super('No tienes permiso para validar entradas de este local.');
+  }
+}

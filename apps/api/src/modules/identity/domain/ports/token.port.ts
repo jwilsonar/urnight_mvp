@@ -21,8 +21,14 @@ export interface IssuedToken {
  */
 export abstract class TokenService {
   abstract signAccess(claims: AccessTokenClaims): Promise<IssuedToken>;
-  abstract signRefresh(userId: string): Promise<IssuedToken>;
-  abstract verifyRefresh(token: string): Promise<{ sub: string }>;
+  /**
+   * Firma un refresh token portando `jti` (id único de sesión) para permitir
+   * rotación y revocación server-side (A2). El caller genera el `jti` y lo
+   * persiste en el {@link RefreshTokenStore}.
+   */
+  abstract signRefresh(userId: string, jti?: string): Promise<IssuedToken>;
+  /** Verifica el refresh y devuelve el `sub` + el `jti` de la sesión (A2). */
+  abstract verifyRefresh(token: string): Promise<{ sub: string; jti?: string }>;
   abstract signEmailVerification(userId: string): Promise<string>;
   abstract verifyEmailVerification(token: string): Promise<{ sub: string }>;
 }

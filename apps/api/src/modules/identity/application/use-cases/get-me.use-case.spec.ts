@@ -10,6 +10,7 @@ import {
   UserPreferenceBuilder,
 } from '../../../../shared/testing';
 import { UserNotFoundError } from '../../domain/errors/identity.errors';
+import { RoleResolver } from '../services/role-resolver.service';
 import { GetMeUseCase } from './get-me.use-case';
 
 function build() {
@@ -17,7 +18,7 @@ function build() {
   const assignments = new InMemoryRoleAssignmentRepository();
   const roles = new InMemoryRoleRepository();
   const preferences = new InMemoryUserPreferenceRepository();
-  const useCase = new GetMeUseCase(users, assignments, roles, preferences);
+  const useCase = new GetMeUseCase(users, new RoleResolver(assignments, roles), preferences);
   return { users, assignments, roles, preferences, useCase };
 }
 

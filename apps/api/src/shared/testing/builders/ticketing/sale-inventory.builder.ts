@@ -8,6 +8,7 @@ export class SaleEventBuilder {
   private id = 'event-1';
   private status = 'published';
   private localId = 'local-1';
+  private companyId = 'company-1';
   private isOnSale = true;
 
   withId(id: string): this {
@@ -25,13 +26,24 @@ export class SaleEventBuilder {
     return this;
   }
 
+  withCompany(companyId: string): this {
+    this.companyId = companyId;
+    return this;
+  }
+
   notOnSale(): this {
     this.isOnSale = false;
     return this;
   }
 
   build(): SaleEvent {
-    return { id: this.id, status: this.status, localId: this.localId, isOnSale: this.isOnSale };
+    return {
+      id: this.id,
+      status: this.status,
+      localId: this.localId,
+      companyId: this.companyId,
+      isOnSale: this.isOnSale,
+    };
   }
 }
 

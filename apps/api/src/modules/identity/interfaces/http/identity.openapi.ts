@@ -6,6 +6,7 @@ import {
   legalDocTypeSchema,
   legalDocumentResponseSchema,
   loginSchema,
+  logoutSchema,
   preferenceResponseSchema,
   publishLegalDocumentSchema,
   refreshSchema,
@@ -28,6 +29,7 @@ export function registerIdentityDocs(): void {
   const LoginDto = registry.register('LoginDto', loginSchema);
   const GoogleLoginDto = registry.register('GoogleLoginDto', googleLoginSchema);
   const RefreshDto = registry.register('RefreshDto', refreshSchema);
+  const LogoutDto = registry.register('LogoutDto', logoutSchema);
   const VerifyEmailDto = registry.register('VerifyEmailDto', verifyEmailSchema);
   const AuthTokens = registry.register('AuthTokensResponse', authTokensResponseSchema);
   const UserProfile = registry.register('UserProfileResponse', userProfileResponseSchema);
@@ -74,6 +76,7 @@ export function registerIdentityDocs(): void {
     responses: {
       200: { description: 'Tokens emitidos', ...json(AuthTokens) },
       401: problem('Token de Google inválido'),
+      403: problem('Email de Google no verificado'),
     },
   });
 
@@ -86,6 +89,17 @@ export function registerIdentityDocs(): void {
     responses: {
       200: { description: 'Nuevo par de tokens', ...json(AuthTokens) },
       401: problem('Refresh inválido o expirado'),
+    },
+  });
+
+  registry.registerPath({
+    method: 'post',
+    path: '/auth/logout',
+    tags: ['Auth'],
+    summary: 'Cerrar sesión: revoca el refresh token actual',
+    request: { body: json(LogoutDto) },
+    responses: {
+      204: { description: 'Sesión cerrada (idempotente)' },
     },
   });
 

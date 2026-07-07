@@ -3,6 +3,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import type { DbClient } from '@urnight/db';
 import { PromoCodeBuilder } from '../../../../shared/testing/builders/promoters';
 import { createTestDb, truncateAll } from '../../../../shared/testing/integration/test-db';
+import { PromoCodeQuotaExhaustedError } from '../../domain/errors/promoters.errors';
 import { DrizzlePromoCodeRepository } from './drizzle-promo-code.repository';
 
 let client: DbClient;
@@ -62,5 +63,33 @@ describe('DrizzlePromoCodeRepository (integration)', () => {
     await expect(
       repo.create(new PromoCodeBuilder().withId(randomUUID()).withCode('DUPCODE').build()),
     ).rejects.toThrow();
+  });
+
+  it('incrementUsedCount es atómico y condicional: no excede el cupo bajo concurrencia (M1)', async () => {
+    const id = randomUUID();
+    await repo.create(
+      new PromoCodeBuilder().withId(id).withCode('CUPO0001').withUsageQuota(1).withUsedCount(0).build(),
+    );
+
+    // Dos canjes simultáneos compiten por el único cupo: uno gana, el otro falla.
+    const results = await Promise.allSettled([repo.incrementUsedCount(id), repo.incrementUsedCount(id)]);
+    const rejected = results.filter((r) => r.status === 'rejected');
+
+    expect(rejected).toHaveLength(1);
+    expect((rejected[0] as PromiseRejectedResult).reason).toBeInstanceOf(PromoCodeQuotaExhaustedError);
+    // El contador nunca supera el cupo.
+    expect((await repo.findByCode('CUPO0001'))?.usedCount).toBe(1);
+  });
+
+  it('incrementUsedCount con cupo ilimitado (usage_quota null) siempre suma', async () => {
+    const id = randomUUID();
+    await repo.create(
+      new PromoCodeBuilder().withId(id).withCode('ILIMIT01').withUsageQuota(null).build(),
+    );
+
+    await repo.incrementUsedCount(id);
+    await repo.incrementUsedCount(id);
+
+    expect((await repo.findByCode('ILIMIT01'))?.usedCount).toBe(2);
   });
 });

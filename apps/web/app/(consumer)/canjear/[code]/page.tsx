@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@urnight/ui';
 import { EmptyState } from '@/components/shared/empty-state';
 import { registerRedemptionClick, resolveRedemptionCode } from '@/lib/api/promoters';
-import { formatPEN } from '@/lib/utils';
+import { formatDate, formatPEN } from '@/lib/utils';
 
 export const metadata: Metadata = { title: 'Canjear código' };
 
@@ -61,9 +61,7 @@ export default async function CanjearPage({ params }: { params: Promise<{ code: 
           {data.event ? (
             <div className="space-y-1 rounded-lg border p-4">
               <p className="font-medium">{data.event.name}</p>
-              <p className="text-sm text-muted-foreground">
-                {new Date(data.event.startsAt).toLocaleString('es-PE')}
-              </p>
+              <p className="text-sm text-muted-foreground">{formatDate(data.event.startsAt)}</p>
               {data.ticketType ? (
                 <Badge variant="secondary" className="mt-1">
                   {data.ticketType.name} · {formatPEN(data.ticketType.price)}

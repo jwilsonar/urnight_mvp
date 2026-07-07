@@ -15,10 +15,14 @@ import {
 } from '../../../../shared/testing';
 import {
   AccountDisabledError,
+  GoogleEmailNotVerifiedError,
   GoogleTokenInvalidError,
 } from '../../domain/errors/identity.errors';
 import type { GoogleProfile } from '../../domain/ports/google-verifier.port';
+import { InMemoryRefreshTokenStore } from '../services/__testing__/in-memory-refresh-token-store';
+import { RoleResolver } from '../services/role-resolver.service';
 import { TokenIssuer } from '../services/token-issuer.service';
+import { UserProvisioningService } from '../services/user-provisioning.service';
 import { GoogleLoginUseCase } from './google-login.use-case';
 
 const profile: GoogleProfile = {
@@ -36,20 +40,23 @@ function build(googleProfile: GoogleProfile | null = profile) {
   const roles = new InMemoryRoleRepository().seed(RoleMother.user());
   const google = new FakeGoogleVerifier(googleProfile);
   const tokens = new FakeTokenService();
-  const issuer = new TokenIssuer(assignments, roles, tokens);
   const events = new EventBus();
   const outbox = new RecordingOutbox();
-  const useCase = new GoogleLoginUseCase(
+  const provisioning = new UserProvisioningService(
     users,
     preferences,
     roles,
     assignments,
-    google,
-    issuer,
     fakeUnitOfWork(),
     events,
     outbox,
   );
+  const issuer = new TokenIssuer(
+    new RoleResolver(assignments, roles),
+    tokens,
+    new InMemoryRefreshTokenStore(),
+  );
+  const useCase = new GoogleLoginUseCase(users, google, issuer, provisioning);
   return { users, preferences, assignments, roles, events, outbox, useCase };
 }
 
@@ -117,5 +124,25 @@ describe('GoogleLoginUseCase', () => {
     await expect(useCase.execute({ idToken: 'bad' })).rejects.toBeInstanceOf(
       GoogleTokenInvalidError,
     );
+  });
+
+  it('email_verified=false → GoogleEmailNotVerifiedError sin crear cuenta (M4)', async () => {
+    const { users, useCase } = build({ ...profile, emailVerified: false });
+
+    await expect(useCase.execute({ idToken: 'valid-token' })).rejects.toBeInstanceOf(
+      GoogleEmailNotVerifiedError,
+    );
+    expect(users.size).toBe(0);
+  });
+
+  it('email_verified=false NO vincula a una cuenta email+password preexistente (M4, pre-hijacking)', async () => {
+    const { users, useCase } = build({ ...profile, emailVerified: false });
+    const existing = new UserBuilder().withId('u9').withEmail('grace@example.com').build();
+    await users.create(existing);
+
+    await expect(useCase.execute({ idToken: 'valid-token' })).rejects.toBeInstanceOf(
+      GoogleEmailNotVerifiedError,
+    );
+    expect((await users.findById('u9'))?.googleSub).toBeNull();
   });
 });

@@ -8,14 +8,17 @@ import {
   UserBuilder,
 } from '../../../../shared/testing';
 import type { AccessTokenClaims } from '../../domain/ports/token.port';
+import { InMemoryRefreshTokenStore } from './__testing__/in-memory-refresh-token-store';
+import { RoleResolver } from './role-resolver.service';
 import { TokenIssuer } from './token-issuer.service';
 
 function build() {
   const assignments = new InMemoryRoleAssignmentRepository();
   const roles = new InMemoryRoleRepository();
   const tokens = new FakeTokenService();
-  const issuer = new TokenIssuer(assignments, roles, tokens);
-  return { assignments, roles, tokens, issuer };
+  const refreshStore = new InMemoryRefreshTokenStore();
+  const issuer = new TokenIssuer(new RoleResolver(assignments, roles), tokens, refreshStore);
+  return { assignments, roles, tokens, refreshStore, issuer };
 }
 
 describe('TokenIssuer', () => {
@@ -76,5 +79,14 @@ describe('TokenIssuer', () => {
     const result = await issuer.issueFor(user);
 
     expect(result.roleCodes).toHaveLength(0);
+  });
+
+  it('registra el jti del refresh en el store (rotación/revocación, A2)', async () => {
+    const { issuer, refreshStore } = build();
+    const user = new UserBuilder().withId('u4').build();
+
+    await issuer.issueFor(user);
+
+    expect(refreshStore.countFor('u4')).toBe(1);
   });
 });

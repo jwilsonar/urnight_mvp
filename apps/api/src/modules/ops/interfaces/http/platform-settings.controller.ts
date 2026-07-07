@@ -11,8 +11,23 @@ import { ZodValidationPipe } from '../../../../edge/pipes/zod-validation.pipe';
 import { GetPlatformSettingUseCase } from '../../application/use-cases/get-platform-setting.use-case';
 import { UpsertPlatformSettingUseCase } from '../../application/use-cases/upsert-platform-setting.use-case';
 import type { PlatformSetting } from '../../domain/entities/platform-setting.entity';
+import { SettingNotFoundError } from '../../domain/errors/ops.errors';
 
-/** Ajustes de plataforma. /api/v1/platform-settings. Lectura pública; escritura super_admin. */
+/**
+ * Claves que pueden leerse sin autenticación (config de cliente).
+ * El resto de ajustes (comisiones, TTL de lock, ventana de atribución, etc.) son
+ * internos y solo se sirven a super_admin — evita fuga de política de negocio (B4/§6).
+ */
+const PUBLIC_SETTING_KEYS: ReadonlySet<string> = new Set([
+  'currency',
+  'min_age',
+  'maintenance_mode',
+  'support_email',
+  'terms_current_version',
+  'feature_flags',
+]);
+
+/** Ajustes de plataforma. /api/v1/platform-settings. Lectura pública SOLO de claves en allowlist; escritura super_admin. */
 @Controller('platform-settings')
 export class PlatformSettingsController {
   constructor(
@@ -23,6 +38,8 @@ export class PlatformSettingsController {
   @Public()
   @Get(':key')
   async get(@Param('key') key: string): Promise<PlatformSettingResponse> {
+    // Clave no pública ⇒ 404 (no revela existencia de ajustes internos a anónimos).
+    if (!PUBLIC_SETTING_KEYS.has(key)) throw new SettingNotFoundError();
     return toResponse(await this.getSetting.execute(key));
   }
 

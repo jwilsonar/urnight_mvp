@@ -17,6 +17,7 @@ import {
 } from '@urnight/ui';
 import { getMyPromoter } from '@/lib/api/promoters';
 import { queryKeys } from '@/lib/api/query-keys';
+import { ErrorState } from '@/components/shared/error-state';
 
 /**
  * Resuelve el promotor del usuario (`GET /promoters/me`) una sola vez y comparte
@@ -35,6 +36,17 @@ export function PromoterGate({ children }: { children: (promoter: PromoterRespon
 
   if (status === 'loading' || meQuery.isPending) {
     return <Skeleton className="h-48 w-full rounded-md" />;
+  }
+
+  // Un 500 en /promoters/me NO es "aún no eres promotor" (M9): mostramos error+retry.
+  if (meQuery.isError) {
+    return (
+      <ErrorState
+        title="No pudimos cargar tu perfil de promotor"
+        description="Inténtalo de nuevo en unos minutos."
+        onRetry={() => void meQuery.refetch()}
+      />
+    );
   }
 
   const promoter = meQuery.data ?? null;

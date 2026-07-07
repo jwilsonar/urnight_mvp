@@ -16,7 +16,8 @@ export function GoogleButton({ callbackUrl = '/' }: { callbackUrl?: string }) {
       disabled={loading}
       onClick={() => {
         setLoading(true);
-        void signIn('google', { callbackUrl });
+        // Auth.js v5 renombró `callbackUrl` → `redirectTo`.
+        void signIn('google', { redirectTo: callbackUrl });
       }}
     >
       <GoogleLogo className="h-4 w-4" weight="bold" />

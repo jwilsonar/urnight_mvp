@@ -1,0 +1,68 @@
+#!/bin/bash
+# Cloud-init del host UrNight (AL2023 arm64). Idempotente: puede re-ejecutarse
+# al reemplazar la instancia; los datos viven en el volumen EBS aparte.
+# Vars de plantilla (Terraform): region, artifacts_bucket, compose_version,
+# data_volume_id. Todo `$${...}` es bash escapado, no interpolación TF.
+set -euxo pipefail
+
+# ── Docker + compose plugin + cron ───────────────────────────────────────────
+dnf install -y docker cronie
+systemctl enable --now docker crond
+
+mkdir -p /usr/local/lib/docker/cli-plugins
+if [ ! -x /usr/local/lib/docker/cli-plugins/docker-compose ]; then
+  curl -fsSL "https://github.com/docker/compose/releases/download/${compose_version}/docker-compose-linux-aarch64" \
+    -o /usr/local/lib/docker/cli-plugins/docker-compose
+  chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+fi
+
+# ── Volumen de datos (Postgres/Redis/Caddy) en /data ─────────────────────────
+# Device determinista por volume-id (Nitro renombra /dev/sdf a nvme*).
+VOL_ID="${data_volume_id}"
+DEV="/dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_$${VOL_ID/-/}"
+tries=0
+until [ -e "$$DEV" ] || [ "$$tries" -ge 60 ]; do sleep 2; tries=$((tries + 1)); done
+[ -e "$$DEV" ] || { echo "data volume no aparece: $$DEV" >&2; exit 1; }
+
+if ! blkid "$$DEV" >/dev/null 2>&1; then
+  mkfs.xfs "$$DEV" # solo primer arranque del volumen; nunca re-formatear
+fi
+mkdir -p /data
+UUID=$(blkid -s UUID -o value "$$DEV")
+if ! grep -q "$$UUID" /etc/fstab; then
+  echo "UUID=$$UUID /data xfs defaults,nofail 0 2" >> /etc/fstab
+fi
+mountpoint -q /data || mount /data
+mkdir -p /data/postgres /data/redis /data/caddy
+
+# ── Swap 2G (t4g.small = 2GB RAM; absorbe picos, no estado estable) ──────────
+if [ ! -f /swapfile ]; then
+  dd if=/dev/zero of=/swapfile bs=1M count=2048
+  chmod 600 /swapfile
+  mkswap /swapfile
+fi
+swapon -a || swapon /swapfile || true
+grep -q '/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+sysctl -w vm.swappiness=10
+echo 'vm.swappiness=10' > /etc/sysctl.d/99-urnight.conf
+
+# ── Bundle de host (compose, Caddyfile, scripts) ─────────────────────────────
+mkdir -p /opt/urnight/bin /opt/urnight/infra /opt/urnight/staging /opt/urnight/prod
+aws s3 sync "s3://${artifacts_bucket}/host/latest/" /opt/urnight/ --region "${region}" || true
+chmod +x /opt/urnight/bin/*.sh 2>/dev/null || true
+
+# ── Redes compartidas entre stacks ───────────────────────────────────────────
+docker network inspect urnight_edge >/dev/null 2>&1 || docker network create urnight_edge
+docker network inspect urnight_data >/dev/null 2>&1 || docker network create urnight_data
+
+# ── Stack de infraestructura (Caddy/Postgres/Redis) si el bundle ya existe ───
+if [ -f /opt/urnight/compose.infra.yml ] && [ -x /opt/urnight/bin/render-env.sh ]; then
+  /opt/urnight/bin/render-env.sh infra || true
+  docker compose -p urnight-infra --env-file /opt/urnight/infra/.env \
+    -f /opt/urnight/compose.infra.yml up -d || true
+fi
+
+# ── Backup nocturno (07:15 UTC ≈ 02:15 America/Lima) ─────────────────────────
+cat > /etc/cron.d/urnight-backup <<'CRON'
+15 7 * * * root /opt/urnight/bin/backup.sh >> /var/log/urnight-backup.log 2>&1
+CRON

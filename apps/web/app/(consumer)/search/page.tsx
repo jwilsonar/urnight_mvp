@@ -4,6 +4,7 @@ import { EventCard } from '@/components/catalog/event-card';
 import { LocalCard } from '@/components/catalog/local-card';
 import { SearchBar } from '@/components/catalog/search-bar';
 import { EmptyState } from '@/components/shared/empty-state';
+import { ErrorState } from '@/components/shared/error-state';
 import { getEvents, getLocals } from '@/lib/api/catalog';
 
 export const revalidate = 60;
@@ -25,13 +26,18 @@ export default async function SearchPage({
   const { q } = await searchParams;
   const term = q?.trim() ?? '';
 
-  const [events, locals] = term
+  // catch→null (no []) para distinguir "sin resultados" de un fallo del API: si ambas
+  // fuentes caen mostramos error, no un vacío engañoso.
+  const [eventsRes, localsRes] = term
     ? await Promise.all([
-        getEvents({ q: term }).catch(() => []),
-        getLocals({ q: term }).catch(() => []),
+        getEvents({ q: term }).catch(() => null),
+        getLocals({ q: term }).catch(() => null),
       ])
     : [[], []];
 
+  const failed = Boolean(term) && eventsRes === null && localsRes === null;
+  const events = eventsRes ?? [];
+  const locals = localsRes ?? [];
   const hasResults = events.length > 0 || locals.length > 0;
 
   return (
@@ -46,6 +52,11 @@ export default async function SearchPage({
           icon={<MagnifyingGlass className="h-10 w-10" weight="duotone" />}
           title="¿Qué quieres encontrar?"
           description="Escribe el nombre de un evento, local o DJ para empezar."
+        />
+      ) : failed ? (
+        <ErrorState
+          title="No pudimos completar la búsqueda"
+          description="Inténtalo de nuevo en unos minutos."
         />
       ) : !hasResults ? (
         <EmptyState

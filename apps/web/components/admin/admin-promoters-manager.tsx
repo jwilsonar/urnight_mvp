@@ -24,6 +24,7 @@ import {
 import { CreatePromoterForm } from '@/components/promoter/create-promoter-form';
 import { PromoCodeForm } from '@/components/promoter/promo-code-form';
 import { EmptyState } from '@/components/shared/empty-state';
+import { ErrorState } from '@/components/shared/error-state';
 import { listMyPromoters } from '@/lib/api/promoters';
 import { queryKeys } from '@/lib/api/query-keys';
 import { AssignEventDialog } from './assign-event-dialog';
@@ -114,6 +115,13 @@ export function AdminPromotersManager() {
                 <Skeleton key={i} className="h-12 w-full rounded-md" />
               ))}
             </div>
+          ) : promotersQuery.isError ? (
+            // Distingue error de "sin promotores" (M9): no ocultes un 500 como vacío.
+            <ErrorState
+              title="No pudimos cargar tus promotores"
+              description="Inténtalo de nuevo en unos minutos."
+              onRetry={() => void promotersQuery.refetch()}
+            />
           ) : promoters.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Aún no tienes promotores. Invita al primero arriba.

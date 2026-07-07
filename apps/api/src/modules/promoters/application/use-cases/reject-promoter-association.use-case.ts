@@ -1,10 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Promoter } from '../../domain/entities/promoter.entity';
-import {
-  AssociationForbiddenError,
-  AssociationNotPendingError,
-  PromoterNotFoundError,
-} from '../../domain/errors/promoters.errors';
+import { PromoterNotFoundError } from '../../domain/errors/promoters.errors';
 import {
   PROMOTER_REPOSITORY,
   type PromoterRepository,
@@ -27,10 +23,7 @@ export class RejectPromoterAssociationUseCase {
   async execute(input: RejectAssociationInput): Promise<Promoter> {
     const promoter = await this.promoters.findById(input.promoterId);
     if (!promoter) throw new PromoterNotFoundError();
-    if (!promoter.isPending()) throw new AssociationNotPendingError();
-    if (!promoter.belongsToInvited(input.actorUserId, input.actorEmail)) {
-      throw new AssociationForbiddenError();
-    }
+    promoter.assertPendingInvitation(input.actorUserId, input.actorEmail);
     promoter.reject();
     await this.promoters.update(promoter);
     return promoter;

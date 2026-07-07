@@ -17,10 +17,12 @@ import {
   Label,
   Skeleton,
 } from '@urnight/ui';
+import { ErrorState } from '@/components/shared/error-state';
 import { listTicketTypes } from '@/lib/api/admin';
 import { assignEventToPromoter } from '@/lib/api/promoters';
 import { queryKeys } from '@/lib/api/query-keys';
 import { useApiMutation } from '@/lib/api/use-api-mutation';
+import { formatPEN } from '@/lib/utils';
 
 /**
  * Segundo paso de la asignación: define cupo + descuento por tipo de entrada.
@@ -116,6 +118,13 @@ export function TicketAllocationDialog({
               <Skeleton key={i} className="h-14 w-full rounded-md" />
             ))}
           </div>
+        ) : ttQuery.isError ? (
+          // Distingue error de "sin tipos de entrada" (M9).
+          <ErrorState
+            title="No pudimos cargar los tipos de entrada"
+            description="Inténtalo de nuevo en unos minutos."
+            onRetry={() => void ttQuery.refetch()}
+          />
         ) : ticketTypes.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             Este evento aún no tiene tipos de entrada. Créalos antes de asignarlo.
@@ -133,7 +142,7 @@ export function TicketAllocationDialog({
                   <div className="min-w-0 pt-1">
                     <p className="truncate text-sm font-medium">{tt.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      Disponible: {tt.remaining} de {tt.stock} · {tt.currency} {tt.price.toFixed(2)}
+                      Disponible: {tt.remaining} de {tt.stock} · {formatPEN(tt.price)}
                     </p>
                   </div>
                   <div className="space-y-1">

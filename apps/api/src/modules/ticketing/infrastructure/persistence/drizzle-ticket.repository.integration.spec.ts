@@ -145,4 +145,28 @@ describe('DrizzleTicketRepository (integration)', () => {
     const found = await repo.findByQr('QR-USED');
     expect(found?.status).toBe('used');
   });
+
+  it('markUsedIfValid: primer intento marca (true), segundo no toca fila (false) — C2 anti doble check-in', async () => {
+    const seed = await seedOrder();
+    const issued = buildIssued(seed, 'QR-ATOMIC');
+    await repo.issueMany([issued], undefined);
+
+    // Primera validación: era 'valid' → marca usada y devuelve true.
+    expect(await repo.markUsedIfValid(issued.ticket.id)).toBe(true);
+    expect((await repo.findByQr('QR-ATOMIC'))?.status).toBe('used');
+
+    // Segunda validación concurrente: ya no es 'valid' → no toca fila (false).
+    expect(await repo.markUsedIfValid(issued.ticket.id)).toBe(false);
+  });
+
+  it('listByOrder reconstruye las entradas emitidas de una orden (replay idempotente)', async () => {
+    const seed = await seedOrder();
+    await repo.issueMany([buildIssued(seed, 'QR-BYORDER')], undefined);
+
+    const order = await orders.findByUser(seed.userId);
+    const list = await repo.listByOrder(order[0]!.id);
+    expect(list).toHaveLength(1);
+    expect(list[0]?.ticket.qrCode).toBe('QR-BYORDER');
+    expect(list[0]?.attendee.fullName).toBe('Grace Hopper');
+  });
 });

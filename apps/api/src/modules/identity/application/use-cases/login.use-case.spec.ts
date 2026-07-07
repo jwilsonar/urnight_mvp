@@ -9,6 +9,8 @@ import type { RoleAssignmentRepository } from '../../domain/ports/role-assignmen
 import type { RoleRepository } from '../../domain/ports/role.repository';
 import type { TokenService } from '../../domain/ports/token.port';
 import type { UserRepository } from '../../domain/ports/user.repository';
+import { InMemoryRefreshTokenStore } from '../services/__testing__/in-memory-refresh-token-store';
+import { RoleResolver } from '../services/role-resolver.service';
 import { TokenIssuer } from '../services/token-issuer.service';
 import { LoginUseCase } from './login.use-case';
 
@@ -65,7 +67,11 @@ const roles: RoleRepository = {
   ],
 };
 
-const useCase = new LoginUseCase(users, hasher, new TokenIssuer(assignments, roles, tokens));
+const useCase = new LoginUseCase(
+  users,
+  hasher,
+  new TokenIssuer(new RoleResolver(assignments, roles), tokens, new InMemoryRefreshTokenStore()),
+);
 
 describe('LoginUseCase', () => {
   it('autentica con credenciales válidas y emite tokens', async () => {

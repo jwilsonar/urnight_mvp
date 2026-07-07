@@ -9,8 +9,8 @@
     "newArchEnabled": true,
     "plugins": [
       "expo-router",
-      "expo-status-bar",
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-notifications"
     ],
     "ios": {
       "supportsTablet": true,

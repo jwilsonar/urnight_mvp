@@ -9,6 +9,7 @@ export const CHECKOUT_ERROR_CODES = {
   PAYMENT_REJECTED: 'checkout/payment-rejected',
   ATTENDEE_UNDERAGE: 'checkout/attendee-underage',
   STOCK_LOCKED: 'checkout/stock-locked',
+  QR_VALIDATION_FORBIDDEN: 'checkout/qr-validation-forbidden',
 } as const;
 
 export type CheckoutErrorCode = (typeof CHECKOUT_ERROR_CODES)[keyof typeof CHECKOUT_ERROR_CODES];

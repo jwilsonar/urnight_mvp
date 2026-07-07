@@ -2,37 +2,23 @@ import { Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type { RegisterDto } from '@urnight/contracts';
 import { createLogger } from '../../../../shared/logging/logger';
-import { EventBus } from '../../../../shared/event-bus/event-bus';
-import { OutboxPort } from '../../../../shared/outbox/outbox.port';
-import { UnitOfWork } from '../../../../shared/unit-of-work/unit-of-work';
-import { RoleAssignment } from '../../domain/entities/role-assignment.entity';
 import { User } from '../../domain/entities/user.entity';
-import { UserPreference } from '../../domain/entities/user-preference.entity';
 import {
   DocumentAlreadyRegisteredError,
   EmailAlreadyRegisteredError,
-  RoleNotFoundError,
 } from '../../domain/errors/identity.errors';
-import { UserRegisteredEvent } from '../../domain/events/identity.events';
 import { PersonalId } from '../../domain/value-objects/personal-id.value-object';
-import {
-  ROLE_ASSIGNMENT_REPOSITORY,
-  type RoleAssignmentRepository,
-} from '../../domain/ports/role-assignment.repository';
-import { ROLE_REPOSITORY, type RoleRepository } from '../../domain/ports/role.repository';
 import { TokenService } from '../../domain/ports/token.port';
-import {
-  USER_PREFERENCE_REPOSITORY,
-  type UserPreferenceRepository,
-} from '../../domain/ports/user-preference.repository';
 import { USER_REPOSITORY, type UserRepository } from '../../domain/ports/user.repository';
 import { PasswordHasher } from '../../domain/ports/password-hasher.port';
 import { TokenIssuer, type AuthResult } from '../services/token-issuer.service';
+import { UserProvisioningService } from '../services/user-provisioning.service';
 
 /**
- * Caso de uso: registro con email + contraseña. Atómico (UoW): crea usuario +
- * preferencias + rol por defecto en una Tx. Invariantes: email/documento únicos,
- * 18+ (vía PersonalId). Emite UserRegistered y encola el email de verificación.
+ * Caso de uso: registro con email + contraseña. Atómico (UoW, vía
+ * UserProvisioningService): crea usuario + preferencias + rol por defecto y encola
+ * el email de verificación en una sola Tx. Invariantes: email/documento únicos,
+ * 18+ (vía PersonalId). Emite UserRegistered.
  */
 @Injectable()
 export class RegisterUseCase {
@@ -40,17 +26,10 @@ export class RegisterUseCase {
 
   constructor(
     @Inject(USER_REPOSITORY) private readonly users: UserRepository,
-    @Inject(USER_PREFERENCE_REPOSITORY)
-    private readonly preferences: UserPreferenceRepository,
-    @Inject(ROLE_REPOSITORY) private readonly roles: RoleRepository,
-    @Inject(ROLE_ASSIGNMENT_REPOSITORY)
-    private readonly assignments: RoleAssignmentRepository,
     private readonly hasher: PasswordHasher,
     private readonly tokens: TokenService,
     private readonly issuer: TokenIssuer,
-    private readonly uow: UnitOfWork,
-    private readonly events: EventBus,
-    private readonly outbox: OutboxPort,
+    private readonly provisioning: UserProvisioningService,
   ) {}
 
   async execute(dto: RegisterDto): Promise<AuthResult> {
@@ -62,9 +41,6 @@ export class RegisterUseCase {
     if (await this.users.findByDocumentNumber(dto.documentNumber)) {
       throw new DocumentAlreadyRegisteredError();
     }
-
-    const defaultRole = await this.roles.findByCode('user');
-    if (!defaultRole) throw new RoleNotFoundError();
 
     const identity = PersonalId.create({
       documentType: dto.documentType,
@@ -81,35 +57,17 @@ export class RegisterUseCase {
       identity,
       phone: dto.phone ?? null,
     });
-    const preference = UserPreference.createDefault({
-      id: randomUUID(),
-      userId: user.id,
-      acceptsMarketing: dto.acceptsMarketing,
-    });
-    const assignment = RoleAssignment.grant({
-      id: randomUUID(),
-      userId: user.id,
-      roleId: defaultRole.id,
-    });
 
-    await this.uow.run(async (tx) => {
-      await this.users.create(user, tx);
-      await this.preferences.create(preference, tx);
-      await this.assignments.create(assignment, tx);
-    });
-
-    await this.events.publish(
-      new UserRegisteredEvent({
-        userId: user.id,
-        email: user.email,
-        authProvider: user.authProvider,
-      }),
-    );
+    // Token de verificación firmado antes de la Tx; el enqueue va DENTRO de ella (M8).
     const verificationToken = await this.tokens.signEmailVerification(user.id);
-    await this.outbox.enqueue({
-      queue: 'notifications',
-      name: 'send-verification-email',
-      data: { userId: user.id, email: user.email, token: verificationToken },
+    await this.provisioning.provision({
+      user,
+      acceptsMarketing: dto.acceptsMarketing,
+      emailJob: {
+        queue: 'notifications',
+        name: 'send-verification-email',
+        data: { userId: user.id, email: user.email, token: verificationToken },
+      },
     });
 
     this.log.info({ userId: user.id }, 'identity.register.created');

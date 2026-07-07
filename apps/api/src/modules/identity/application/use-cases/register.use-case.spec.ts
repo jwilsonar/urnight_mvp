@@ -21,7 +21,10 @@ import type { RoleRepository } from '../../domain/ports/role.repository';
 import type { UserPreferenceRepository } from '../../domain/ports/user-preference.repository';
 import type { UserRepository } from '../../domain/ports/user.repository';
 import type { AccessTokenClaims, IssuedToken, TokenService } from '../../domain/ports/token.port';
+import { InMemoryRefreshTokenStore } from '../services/__testing__/in-memory-refresh-token-store';
+import { RoleResolver } from '../services/role-resolver.service';
 import { TokenIssuer } from '../services/token-issuer.service';
+import { UserProvisioningService } from '../services/user-provisioning.service';
 import { RegisterUseCase } from './register.use-case';
 
 class InMemoryUsers implements UserRepository {
@@ -137,19 +140,21 @@ function build() {
   const assignments = new InMemoryAssignments();
   const outbox = new FakeOutbox();
   const events = new EventBus();
-  const issuer = new TokenIssuer(assignments, roles, tokens);
-  const useCase = new RegisterUseCase(
+  const provisioning = new UserProvisioningService(
     users,
     preferences,
     roles,
     assignments,
-    hasher,
-    tokens,
-    issuer,
     uow,
     events,
     outbox,
   );
+  const issuer = new TokenIssuer(
+    new RoleResolver(assignments, roles),
+    tokens,
+    new InMemoryRefreshTokenStore(),
+  );
+  const useCase = new RegisterUseCase(users, hasher, tokens, issuer, provisioning);
   return { useCase, users, preferences, assignments, outbox, events };
 }
 

@@ -75,6 +75,8 @@ interface SeededInventory {
   userId: string;
   eventId: string;
   ticketTypeId: string;
+  localId: string;
+  companyId: string;
 }
 
 /**
@@ -132,7 +134,7 @@ async function seedInventory(
     status: opts.ticketTypeStatus ?? 'active',
   });
 
-  return { userId, eventId, ticketTypeId };
+  return { userId, eventId, ticketTypeId, localId, companyId };
 }
 
 /** Asistente válido (18+) para el body del checkout. */
@@ -215,9 +217,12 @@ async function seedIssuedTicket(
 
 /**
  * Siembra un usuario validador real y devuelve su token. El id debe existir en
- * `user` porque qr_validation.validated_by tiene FK → user.id.
+ * `user` porque qr_validation.validated_by tiene FK → user.id. C1: el token lleva
+ * el scope multi-tenant (local/empresa) que el use-case exige para validar.
  */
-async function seedValidatorToken(): Promise<string> {
+async function seedValidatorToken(
+  scope: { companyId?: string | null; localId?: string | null } = {},
+): Promise<string> {
   const validatorId = randomUUID();
   await client.db.insert(userTable).values({
     id: validatorId,
@@ -226,7 +231,7 @@ async function seedValidatorToken(): Promise<string> {
     documentType: 'dni',
     documentNumber: randomUUID().replace(/\D/g, '').slice(0, 8).padEnd(8, '0'),
   });
-  return signAccessToken(app, validatorId, ['validator']);
+  return signAccessToken(app, validatorId, ['validator'], scope);
 }
 
 describe('Ticketing HTTP (e2e)', () => {
@@ -425,7 +430,7 @@ describe('Ticketing HTTP (e2e)', () => {
     it('→ 200 result=valid con QR de una entrada emitida', async () => {
       const seed = await seedInventory();
       const { ticketId } = await seedIssuedTicket(seed, 'QR-VALID-001');
-      const validatorToken = await seedValidatorToken();
+      const validatorToken = await seedValidatorToken({ localId: seed.localId });
 
       const res = await http()
         .post('/api/v1/validations/scan')
@@ -440,7 +445,7 @@ describe('Ticketing HTTP (e2e)', () => {
     it('→ 200 result=already_used si la entrada ya fue usada', async () => {
       const seed = await seedInventory();
       await seedIssuedTicket(seed, 'QR-USED-001', 'used');
-      const validatorToken = await seedValidatorToken();
+      const validatorToken = await seedValidatorToken({ localId: seed.localId });
 
       const res = await http()
         .post('/api/v1/validations/scan')

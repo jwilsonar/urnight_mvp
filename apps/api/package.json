@@ -31,6 +31,7 @@
     "bcryptjs": "^3.0.2",
     "drizzle-orm": "catalog:",
     "google-auth-library": "^9.15.0",
+    "helmet": "^8.2.0",
     "ioredis": "catalog:",
     "nestjs-pino": "^4.1.0",
     "pino": "catalog:",

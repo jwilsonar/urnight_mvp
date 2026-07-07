@@ -8,6 +8,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
@@ -46,6 +47,10 @@ export const review = pgTable(
   (t) => [
     index('idx_review_local').on(t.localId),
     index('idx_review_event').on(t.eventId),
+    // Anti-spam: una sola reseña por (usuario, entrada). ticket_id nullable →
+    // Postgres trata NULLs como distintos, así que solo restringe reseñas ligadas
+    // a un ticket (las reseñas sin ticket no colisionan entre sí).
+    uniqueIndex('idx_review_user_ticket').on(t.userId, t.ticketId),
     check('review_target_type_check', sql`${t.targetType} in ('local','event')`),
     check('review_rating_check', sql`${t.rating} between 1 and 5`),
     check('review_status_check', sql`${t.status} in ('published','hidden')`),

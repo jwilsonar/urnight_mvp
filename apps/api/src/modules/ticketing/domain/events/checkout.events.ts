@@ -17,10 +17,17 @@ export class OrderPaidEvent implements DomainEvent<OrderPaidPayload> {
   constructor(readonly payload: OrderPaidPayload) {}
 }
 
-export class TicketIssuedEvent
-  implements DomainEvent<{ ticketId: string; eventId: string; userId: string }>
-{
+/** Emitido al emitir una entrada → genera el PNG del QR (subscriber, fuera del use-case A8). */
+export interface TicketIssuedPayload {
+  ticketId: string;
+  eventId: string;
+  userId: string;
+  /** Token del QR: la fuente para renderizar el PNG (A8: rendering fuera del checkout). */
+  qrCode: string;
+}
+
+export class TicketIssuedEvent implements DomainEvent<TicketIssuedPayload> {
   readonly name = 'checkout.ticket_issued';
   readonly occurredAt = new Date();
-  constructor(readonly payload: { ticketId: string; eventId: string; userId: string }) {}
+  constructor(readonly payload: TicketIssuedPayload) {}
 }

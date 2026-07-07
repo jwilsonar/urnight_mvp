@@ -4,11 +4,7 @@ import { EventBus } from '../../../../shared/event-bus/event-bus';
 import { UnitOfWork } from '../../../../shared/unit-of-work/unit-of-work';
 import { Promoter } from '../../domain/entities/promoter.entity';
 import { ReferralLink } from '../../domain/entities/referral-link.entity';
-import {
-  AssociationForbiddenError,
-  AssociationNotPendingError,
-  PromoterNotFoundError,
-} from '../../domain/errors/promoters.errors';
+import { PromoterNotFoundError } from '../../domain/errors/promoters.errors';
 import { PromoterAssociationConfirmedEvent } from '../../domain/events/promoters.events';
 import {
   PROMOTER_REPOSITORY,
@@ -18,8 +14,7 @@ import {
   REFERRAL_LINK_REPOSITORY,
   type ReferralLinkRepository,
 } from '../../domain/ports/referral-link.repository';
-
-const REFERRAL_BASE = 'https://urnight.pe/r';
+import { referralUrlFor } from '../config/web-url';
 
 export interface ConfirmAssociationInput {
   promoterId: string;
@@ -50,17 +45,14 @@ export class ConfirmPromoterAssociationUseCase {
   async execute(input: ConfirmAssociationInput): Promise<ConfirmAssociationResult> {
     const promoter = await this.promoters.findById(input.promoterId);
     if (!promoter) throw new PromoterNotFoundError();
-    if (!promoter.isPending()) throw new AssociationNotPendingError();
-    if (!promoter.belongsToInvited(input.actorUserId, input.actorEmail)) {
-      throw new AssociationForbiddenError();
-    }
+    promoter.assertPendingInvitation(input.actorUserId, input.actorEmail);
 
     const code = await this.uniqueCode();
     const link = ReferralLink.create({
       id: randomUUID(),
       promoterId: promoter.id,
       code,
-      url: `${REFERRAL_BASE}/${code}`,
+      url: referralUrlFor(code),
     });
     promoter.confirm(input.actorUserId);
 
