@@ -30,7 +30,10 @@ export function LocalCard({ local }: { local: LocalResponse }) {
           )}
           {/* Pill de estado arriba-izquierda, como la venue card del prototipo. */}
           {local.isVerified ? (
-            <Badge variant="success" className="absolute left-2 top-2 gap-1">
+            <Badge
+              variant="success"
+              className="absolute left-2 top-2 gap-1 bg-deep/90 backdrop-blur-sm"
+            >
               <SealCheck className="h-3 w-3" weight="fill" /> Verificado
             </Badge>
           ) : null}

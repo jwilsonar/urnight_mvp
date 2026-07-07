@@ -19,10 +19,8 @@ const LINKS = [
 export function AccountNav() {
   const pathname = usePathname();
   return (
-    <nav
-      className="flex gap-1 overflow-x-auto border-b [scrollbar-width:none]"
-      aria-label="Navegación de cuenta"
-    >
+    /* flex-wrap (no scroll): evita tabs cortados al borde como "Notificacio…" */
+    <nav className="flex flex-wrap gap-1 border-b" aria-label="Navegación de cuenta">
       {LINKS.map((link) => {
         const active = pathname === link.href;
         return (

@@ -60,7 +60,7 @@ export default async function RegisterPage({
         </Link>
         <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
           <span className="hidden sm:inline">¿Ya tienes cuenta?</span>
-          <Button size="sm" variant="outline" asChild>
+          <Button size="sm" asChild>
             <Link href={loginHref}>Ingresar</Link>
           </Button>
         </div>

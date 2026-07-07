@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@urnight/ui';
 import { LocalCard } from '@/components/catalog/local-card';
-import { SearchBar } from '@/components/catalog/search-bar';
 import { ZoneFilter } from '@/components/catalog/zone-filter';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Reveal } from '@/components/shared/reveal';
@@ -35,10 +34,8 @@ export default async function LocalsPage({
           <h1 className="font-heading text-3xl font-bold tracking-tight">Locales</h1>
           <p className="text-muted-foreground">Encuentra los mejores lugares de la noche.</p>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <SearchBar placeholder="Buscar locales…" />
-          <ZoneFilter zones={zones} />
-        </div>
+        {/* La búsqueda vive en el header (con sugerencias); aquí solo el filtro por zona. */}
+        <ZoneFilter zones={zones} />
       </div>
 
       {locals === null ? (

@@ -154,10 +154,17 @@ export default function PantallasPage() {
           Pantallas del sistema
         </h1>
         <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-          {total} pantallas navegables para auditar el frontend completo.{' '}
+          {total} rutas navegables para auditar el frontend completo.{' '}
           <Badge variant="success">Funcional</Badge> = conectada al backend real;{' '}
           <Badge variant="info">Demo</Badge> = capa de frontend visible mientras no exista su
           backend. Esta página es interna: se ocultará en producción.
+        </p>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          Nota: el prototipo cuenta más de 100 “pantallas de diseño”, pero varias son pasos de un
+          mismo flujo o modales. Aquí cada ruta agrupa lo suyo: el wizard de reserva (R1–R5) es una
+          sola ruta con sus 5 pasos, el checkout (T1–T4) vive dentro del evento, los modales
+          (compartir, galería, reportar) están dentro de sus páginas, y el home cambia solo entre
+          invitado y logueado. Lo aún no construido se lista al final.
         </p>
       </Reveal>
 

@@ -1,5 +1,4 @@
-import { Suspense } from 'react';
-import { SearchBar } from '@/components/catalog/search-bar';
+import { SearchSuggest } from '@/components/catalog/search-suggest';
 import { Logo } from './logo';
 import { MainNav } from './main-nav';
 import { MobileNav } from './mobile-nav';
@@ -18,11 +17,8 @@ export function SiteHeader() {
         <MainNav className="hidden md:flex" />
         <div className="ml-auto flex items-center gap-2">
           <div className="hidden lg:block">
-            {/* useSearchParams (en SearchBar) requiere Suspense para no forzar
-                CSR bailout en las páginas del header que se prerenderizan. */}
-            <Suspense fallback={null}>
-              <SearchBar target="/search" placeholder="Buscar eventos, locales…" />
-            </Suspense>
+            {/* Buscador con sugerencias en vivo (eventos + locales). */}
+            <SearchSuggest placeholder="Buscar eventos, locales…" />
           </div>
           <UserMenu />
         </div>

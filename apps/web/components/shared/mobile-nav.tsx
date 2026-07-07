@@ -54,9 +54,10 @@ export function MobileNav() {
             );
           })}
         </nav>
-        <Separator className="my-4" />
+        {/* Sin sesión no se repiten Ingresar/Crear cuenta: ya están en el header. */}
         {session?.user ? (
           <div className="flex flex-col gap-1">
+            <Separator className="mb-4" />
             {canAccessPanels(session.user.roles) ? (
               <Link
                 href={roleHomePath(session.user.roles)}
@@ -80,16 +81,7 @@ export function MobileNav() {
               Cerrar sesión
             </Button>
           </div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            <Button asChild onClick={() => setOpen(false)}>
-              <Link href="/login">Ingresar</Link>
-            </Button>
-            <Button variant="outline" asChild onClick={() => setOpen(false)}>
-              <Link href="/register">Crear cuenta</Link>
-            </Button>
-          </div>
-        )}
+        ) : null}
       </SheetContent>
     </Sheet>
   );

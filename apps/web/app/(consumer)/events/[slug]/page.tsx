@@ -250,7 +250,15 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
                   <h2 className="mb-3 font-heading text-lg font-extrabold">Entradas</h2>
                   <TicketTypeList ticketTypes={ticketTypes} eventSlug={event.slug} canBuy={canBuy} />
                 </div>
-                <div className="mt-5 flex items-start gap-2.5 rounded-md border border-success-border bg-success-soft px-3.5 py-3 text-xs leading-relaxed text-success">
+                {/* Reserva de mesa desde el evento (feedback). Demo hasta tener
+                    backend; a futuro cada local/evento decidirá si la ofrece. */}
+                <Button variant="secondary" className="mt-4 w-full" asChild>
+                  <Link href="/reserva">Reservar mesa</Link>
+                </Button>
+                <div className="mt-2 text-center">
+                  <Badge variant="info">Demo</Badge>
+                </div>
+                <div className="mt-4 flex items-start gap-2.5 rounded-md border border-success-border bg-success-soft px-3.5 py-3 text-xs leading-relaxed text-success">
                   <ShieldCheck className="mt-0.5 size-4 shrink-0" weight="duotone" />
                   <span>Compra segura · Verificado por UrNight.</span>
                 </div>

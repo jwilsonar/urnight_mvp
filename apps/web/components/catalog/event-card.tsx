@@ -50,12 +50,16 @@ export function EventCard({ event }: { event: EventResponse }) {
               <span>Flyer del evento</span>
             </div>
           )}
-          <Badge variant={soldOut ? 'destructive' : status.variant} className="absolute right-2 top-2">
+          {/* Sobre fotografía: fondo oscuro sólido para que el tono no se lave. */}
+          <Badge
+            variant={soldOut ? 'destructive' : status.variant}
+            className="absolute right-2 top-2 bg-deep/90 backdrop-blur-sm"
+          >
             {soldOut ? 'Agotado' : status.label}
           </Badge>
           {/* Heat del prototipo, calculado con aforo real (ticketsSold/totalCapacity). */}
           {almostFull ? (
-            <Badge variant="warning" className="absolute bottom-2 left-2">
+            <Badge variant="warning" className="absolute bottom-2 left-2 bg-deep/90 backdrop-blur-sm">
               🔥 Casi lleno
             </Badge>
           ) : null}

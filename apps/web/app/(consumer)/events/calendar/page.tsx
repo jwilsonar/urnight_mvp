@@ -2,6 +2,7 @@ import { CalendarBlank } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { EventResponse } from '@urnight/contracts';
+import { Button } from '@urnight/ui';
 import { EventCard } from '@/components/catalog/event-card';
 import { EmptyState } from '@/components/shared/empty-state';
 import { getUpcomingEvents } from '@/lib/api/catalog';
@@ -34,9 +35,9 @@ export default async function EventsCalendarPage() {
           <h1 className="font-heading text-3xl font-bold tracking-tight">Calendario</h1>
           <p className="text-muted-foreground">Próximos eventos agrupados por fecha.</p>
         </div>
-        <Link href="/events" className="text-sm text-primary hover:underline">
-          Ver lista →
-        </Link>
+        <Button variant="secondary" size="sm" asChild>
+          <Link href="/events">Ver lista →</Link>
+        </Button>
       </div>
 
       {events.length === 0 ? (

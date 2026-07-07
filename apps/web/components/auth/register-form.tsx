@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
@@ -19,6 +18,7 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  Label,
   Select,
   SelectContent,
   SelectItem,
@@ -34,9 +34,12 @@ const DOCUMENT_LABELS: Record<(typeof DOCUMENT_TYPES)[number], string> = {
 };
 
 export function RegisterForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
-  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
+  // Nombres y apellidos separados (feedback): permitirá comparar contra el
+  // documento en la validación de identidad. El API recibe fullName compuesto.
+  const [nombres, setNombres] = useState('');
+  const [apellidos, setApellidos] = useState('');
 
   const form = useForm<z.input<typeof registerSchema>, unknown, RegisterDto>({
     resolver: zodResolver(registerSchema),
@@ -64,33 +67,57 @@ export function RegisterForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
         }
         return;
       }
-      router.push(callbackUrl);
-      router.refresh();
+      // Recarga completa: garantiza que header y SessionProvider tomen la
+      // sesión nueva (con router.push quedaba visualmente "como invitado").
+      window.location.assign(callbackUrl);
     });
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <form
+        onSubmit={(event) => {
+          // Compone fullName desde los dos campos antes de que valide el schema.
+          form.setValue('fullName', `${nombres.trim()} ${apellidos.trim()}`.trim());
+          void form.handleSubmit(onSubmit)(event);
+        }}
+        className="space-y-4"
+        noValidate
+      >
         {formError ? (
           <Alert variant="destructive">
             <AlertDescription>{formError}</AlertDescription>
           </Alert>
         ) : null}
 
-        <FormField
-          control={form.control}
-          name="fullName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nombre completo</FormLabel>
-              <FormControl>
-                <Input autoComplete="name" placeholder="Nombre y apellido" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Campos separados; se componen en fullName antes de validar/enviar. */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label htmlFor="reg-nombres">Nombres</Label>
+            <Input
+              id="reg-nombres"
+              autoComplete="given-name"
+              placeholder="ej. Piero"
+              value={nombres}
+              onChange={(event) => setNombres(event.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="reg-apellidos">Apellidos</Label>
+            <Input
+              id="reg-apellidos"
+              autoComplete="family-name"
+              placeholder="ej. Rivera"
+              value={apellidos}
+              onChange={(event) => setApellidos(event.target.value)}
+            />
+          </div>
+        </div>
+        {form.formState.errors.fullName ? (
+          <p className="text-sm font-medium text-destructive">
+            {form.formState.errors.fullName.message ?? 'Ingresa tus nombres y apellidos.'}
+          </p>
+        ) : null}
 
         <FormField
           control={form.control}

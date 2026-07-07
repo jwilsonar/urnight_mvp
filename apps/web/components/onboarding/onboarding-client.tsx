@@ -1,9 +1,10 @@
 'use client';
 
 import { Sparkle } from '@phosphor-icons/react';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
+import { ApiError } from '@/lib/api/client';
 import {
   Button,
   Card,
@@ -37,10 +38,18 @@ export function OnboardingClient({ callbackUrl, userName }: OnboardingClientProp
   const [acceptsMarketing, setAcceptsMarketing] = useState(false);
   const [acceptsReminders, setAcceptsReminders] = useState(true);
 
+  /** Sesión vencida a mitad del onboarding: relogin limpio con retorno aquí.
+      Sin esto el usuario quedaba atrapado (el gate rebota a /onboarding con el
+      JWT viejo y el POST falla 401 en loop). */
+  function reLogin() {
+    toast.error(`${SESSION_EXPIRED} Te llevamos a ingresar de nuevo.`);
+    void signOut({ callbackUrl: `/login?callbackUrl=${encodeURIComponent('/onboarding')}` });
+  }
+
   function finish() {
     const token = session?.accessToken;
     if (!token) {
-      toast.error(SESSION_EXPIRED);
+      reLogin();
       return;
     }
     startTransition(async () => {
@@ -61,6 +70,10 @@ export function OnboardingClient({ callbackUrl, userName }: OnboardingClientProp
         // ya actualizada.
         window.location.assign(callbackUrl);
       } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+          reLogin();
+          return;
+        }
         toast.error(getErrorMessage(error));
       }
     });

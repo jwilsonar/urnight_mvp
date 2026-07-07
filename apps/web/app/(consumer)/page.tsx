@@ -1,11 +1,8 @@
 import {
   ArrowRight,
-  Buildings,
-  CalendarDots,
   MicrophoneStage,
   Moon,
   MusicNotes,
-  ShieldCheck,
   Sparkle,
   Star,
   Waveform,
@@ -247,69 +244,10 @@ export default async function HomePage() {
           </section>
         ) : null}
 
-        {/* ===== Busca por categoría (rail horizontal con snap) ===== */}
-        {genres.length > 0 ? (
-          <section className="pt-16">
-            <Reveal>
-              <h2 className="mb-6 font-heading text-2xl font-extrabold tracking-tight sm:text-3xl">
-                Busca por categoría
-              </h2>
-            </Reveal>
-            <Reveal delay={80}>
-              <div className="un-hscroll">
-                {genres.map((g) => (
-                  <Link
-                    key={g.id}
-                    href={`/events?genreId=${g.id}`}
-                    className="flex w-[200px] flex-col items-center gap-3 rounded-lg border bg-card px-4 py-6 text-center transition-[border-color,transform,box-shadow] hover:-translate-y-0.5 hover:border-accent-border hover:shadow-float"
-                  >
-                    <span className="flex size-[52px] items-center justify-center rounded-md border border-accent-border bg-accent text-lavender [&_svg]:size-6">
-                      {genreIcon(g.name)}
-                    </span>
-                    <span className="text-[13px] font-bold">{g.name}</span>
-                  </Link>
-                ))}
-                <Link
-                  href="/categorias"
-                  className="flex w-[200px] flex-col items-center gap-3 rounded-lg border bg-card px-4 py-6 text-center transition-[border-color,transform,box-shadow] hover:-translate-y-0.5 hover:border-accent-border hover:shadow-float"
-                >
-                  <span className="flex size-[52px] items-center justify-center rounded-md border border-accent-border bg-accent text-lavender [&_svg]:size-6">
-                    <CalendarDots weight="duotone" />
-                  </span>
-                  <span className="text-[13px] font-bold">Ver todas</span>
-                </Link>
-              </div>
-            </Reveal>
-          </section>
-        ) : null}
-
-        {/* ===== CTA afiliación (banner del prototipo) ===== */}
-        <section className="py-16">
-          <Reveal>
-            <div className="flex flex-col items-center gap-4 rounded-2xl border border-accent-border bg-[linear-gradient(180deg,var(--accent-soft),transparent)] px-6 py-14 text-center">
-              <span className="flex size-16 items-center justify-center rounded-xl border border-accent-border bg-accent">
-                <ShieldCheck className="size-7 text-lavender" weight="duotone" />
-              </span>
-              <h2 className="font-heading text-2xl font-extrabold tracking-tight sm:text-3xl">
-                ¿Tienes un local?
-              </h2>
-              <p className="max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
-                Únete a UrNight, publica tus eventos, gestiona tu aforo y llega a miles de personas
-                que buscan dónde ir esta noche.
-              </p>
-              <div className="mt-2 flex flex-wrap justify-center gap-3">
-                <Button size="lg" asChild>
-                  <Link href="/afiliar">Afiliar mi local</Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/promotor/postular">
-                    <Buildings className="size-4" weight="duotone" /> Quiero ser promotor
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </Reveal>
-        </section>
+        {/* El rail "Busca por categoría" y el banner de afiliación se retiraron
+            del home por feedback: los chips de género ya cubren el filtrado y
+            la afiliación vive en /locals. */}
+        <div className="pb-16" />
       </div>
     </div>
   );

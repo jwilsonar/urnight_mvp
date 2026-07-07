@@ -1,8 +1,8 @@
 import { CalendarBlank, Sparkle } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Button } from '@urnight/ui';
 import { EventCard } from '@/components/catalog/event-card';
-import { SearchBar } from '@/components/catalog/search-bar';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Reveal } from '@/components/shared/reveal';
 import { getEvents, getMusicGenres } from '@/lib/api/catalog';
@@ -43,12 +43,10 @@ export default async function EventsPage({
           <h1 className="font-heading text-3xl font-bold tracking-tight">Eventos</h1>
           <p className="text-muted-foreground">Compra tus entradas para las próximas fiestas.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <SearchBar placeholder="Buscar eventos o DJs…" />
-          <a href="/events/calendar" className="text-sm text-primary hover:underline">
-            Calendario
-          </a>
-        </div>
+        {/* La búsqueda vive en el header (con sugerencias); aquí solo el modo calendario. */}
+        <Button variant="secondary" size="sm" asChild>
+          <Link href="/events/calendar">Calendario</Link>
+        </Button>
       </div>
 
       {genres.length > 0 ? (

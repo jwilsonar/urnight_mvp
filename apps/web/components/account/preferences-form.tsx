@@ -81,6 +81,10 @@ export function PreferencesForm() {
                   ))}
                 </SelectContent>
               </Select>
+              <FormDescription>
+                Guarda tu preferencia de idioma. La traducción de la interfaz al inglés llega
+                próximamente.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

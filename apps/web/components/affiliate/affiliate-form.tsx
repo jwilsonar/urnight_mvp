@@ -59,13 +59,27 @@ export function AffiliateForm() {
   });
 
   function onSubmit(values: SubmitAffiliationDto) {
+    // Reglas de producto (feedback): necesitamos poder contactar al solicitante,
+    // así que contacto, teléfono, correo y dirección son obligatorios aunque el
+    // contrato del API los admita vacíos. Validación en cliente, sin tocar el DTO.
+    const required: Array<[keyof SubmitAffiliationDto, string]> = [
+      ['contactName', 'Indica el nombre del responsable.'],
+      ['contactPhone', 'Indica un teléfono de contacto.'],
+      ['contactEmail', 'Indica un correo de contacto.'],
+      ['address', 'Indica la dirección del local.'],
+    ];
+    let hasErrors = false;
+    for (const [field, message] of required) {
+      if (!blank(values[field] as string | undefined)) {
+        form.setError(field, { type: 'required', message });
+        hasErrors = true;
+      }
+    }
+    if (hasErrors) return;
+
     mutation.mutate({
       ...values,
-      address: blank(values.address),
       socials: blank(values.socials),
-      contactName: blank(values.contactName),
-      contactEmail: blank(values.contactEmail),
-      contactPhone: blank(values.contactPhone),
     });
   }
 
@@ -92,9 +106,9 @@ export function AffiliateForm() {
             name="commercialName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nombre comercial</FormLabel>
+                <FormLabel>Nombre del Local</FormLabel>
                 <FormControl>
-                  <Input placeholder="Nombre del local" {...field} />
+                  <Input placeholder="ej. Nocturna Club" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -107,7 +121,7 @@ export function AffiliateForm() {
               <FormItem>
                 <FormLabel>Razón social</FormLabel>
                 <FormControl>
-                  <Input placeholder="Razón social registrada" {...field} />
+                  <Input placeholder="Nombre registrado en SUNAT" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -134,9 +148,7 @@ export function AffiliateForm() {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                Dirección <span className="text-muted-foreground">(opcional)</span>
-              </FormLabel>
+              <FormLabel>Dirección</FormLabel>
               <FormControl>
                 <Input placeholder="Av. / Calle, distrito" {...field} value={field.value ?? ''} />
               </FormControl>
@@ -151,9 +163,7 @@ export function AffiliateForm() {
             name="contactName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  Contacto <span className="text-muted-foreground">(opcional)</span>
-                </FormLabel>
+                <FormLabel>Contacto</FormLabel>
                 <FormControl>
                   <Input placeholder="Nombre del responsable" {...field} value={field.value ?? ''} />
                 </FormControl>
@@ -166,9 +176,7 @@ export function AffiliateForm() {
             name="contactPhone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  Teléfono <span className="text-muted-foreground">(opcional)</span>
-                </FormLabel>
+                <FormLabel>Teléfono</FormLabel>
                 <FormControl>
                   <Input type="tel" placeholder="+51 9XX XXX XXX" {...field} value={field.value ?? ''} />
                 </FormControl>
@@ -183,9 +191,7 @@ export function AffiliateForm() {
           name="contactEmail"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                Correo de contacto <span className="text-muted-foreground">(opcional)</span>
-              </FormLabel>
+              <FormLabel>Correo de contacto</FormLabel>
               <FormControl>
                 <Input type="email" placeholder="contacto@local.com" {...field} value={field.value ?? ''} />
               </FormControl>
@@ -205,12 +211,14 @@ export function AffiliateForm() {
               <FormControl>
                 <Textarea
                   rows={2}
-                  placeholder="Instagram, web, etc."
+                  placeholder="https://instagram.com/tulocal · @tulocal en TikTok · tuweb.com"
                   {...field}
                   value={field.value ?? ''}
                 />
               </FormControl>
-              <FormDescription>Ayúdanos a conocer tu local.</FormDescription>
+              <FormDescription>
+                Pega los links o @usuarios de tus redes, separados por comas.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
