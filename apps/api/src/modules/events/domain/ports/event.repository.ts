@@ -9,6 +9,9 @@ export interface EventListFilter {
   q?: string;
   from?: Date;
   to?: Date;
+  /** Paginación opcional (ausentes ⇒ lista completa, retrocompatible). */
+  limit?: number;
+  offset?: number;
 }
 
 export interface EventRepository {

@@ -2,11 +2,12 @@ import { ArrowLeft } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Button } from '@urnight/ui';
+import { Alert, AlertDescription, Button } from '@urnight/ui';
 import { AuthShell } from '@/components/auth/auth-shell';
 import { GoogleButton } from '@/components/auth/google-button';
 import { LoginForm } from '@/components/auth/login-form';
 import { getSession } from '@/lib/auth-helpers';
+import { SESSION_EXPIRED } from '@/lib/constants';
 import { isSafeInternalPath } from '@/lib/utils/paths';
 import { roleHomePath } from '@/lib/utils/rbac';
 
@@ -18,10 +19,11 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ callbackUrl?: string }>;
+  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
 }) {
-  const { callbackUrl } = await searchParams;
+  const { callbackUrl, error } = await searchParams;
   const safeCallback = isSafeInternalPath(callbackUrl) ? callbackUrl : undefined;
+  const sessionExpired = error === 'SessionExpired';
 
   // Si ya hay sesión, manda a cada rol a su panel (o respeta el deep-link).
   const session = await getSession();
@@ -75,6 +77,11 @@ export default async function LoginPage({
       <p className="mb-7 mt-1.5 text-muted-foreground">Ingresa a tu cuenta</p>
 
       <div className="space-y-4">
+        {sessionExpired ? (
+          <Alert variant="destructive">
+            <AlertDescription>{SESSION_EXPIRED}</AlertDescription>
+          </Alert>
+        ) : null}
         <LoginForm callbackUrl={target} />
         <p className="text-right text-sm">
           <Link href="/recover" className="font-semibold text-lavender hover:underline">

@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-query';
 import type { FieldValues, UseFormSetError } from 'react-hook-form';
 import { toast } from 'sonner';
+import { isSessionExpiredError } from '@/lib/auth/session-expiry';
 import { applyFieldErrors } from './apply-field-errors';
 import { getErrorMessage } from './error-messages';
 
@@ -51,6 +52,9 @@ export function useApiMutation<TData, TVars, TForm extends FieldValues = FieldVa
       config.onSuccess?.(data, vars);
     },
     onError: (err) => {
+      // Sesión expirada: el interceptor global (providers.tsx) ya redirige a
+      // login — un toast aquí solo duplicaría el aviso durante la navegación.
+      if (isSessionExpiredError(err)) return;
       if (config.setError) applyFieldErrors(config.setError, err);
       toast.error(getErrorMessage(err));
     },

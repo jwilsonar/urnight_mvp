@@ -22,6 +22,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import type { LocalImageResponse } from '@urnight/contracts';
 import { Badge, Button, Skeleton, cn } from '@urnight/ui';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { MediaDropzone } from '@/components/shared/media-dropzone';
 import {
   confirmLocalImage,
@@ -32,20 +33,28 @@ import {
 } from '@/lib/api/local-images';
 import { queryKeys } from '@/lib/api/query-keys';
 import { useApiMutation } from '@/lib/api/use-api-mutation';
-import { uploadToStaging } from '@/lib/api/uploads';
+import { isAbortError, uploadToStaging } from '@/lib/api/uploads';
+import { readImageSize } from '@/lib/utils/image';
+import { StorageImage } from '@/lib/storage/storage-context';
 
 interface UploadItem {
   id: string;
+  file: File;
   name: string;
+  /** Object-URL local para el thumbnail durante la subida. */
+  previewUrl: string;
   progress: number;
-  error: boolean;
+  status: 'uploading' | 'error';
+  /** Se decidió al aceptar el archivo (primera imagen del local = portada). */
+  isMain: boolean;
+  controller: AbortController;
 }
 
 interface LocalImagesManagerProps {
   localId: string;
 }
 
-/** Galería drag-and-drop del local: subir, reordenar, portada y eliminar. */
+/** Galería drag-and-drop del local: subir (con cancelar/reintentar), reordenar, portada y eliminar. */
 export function LocalImagesManager({ localId }: LocalImagesManagerProps) {
   const { data: session } = useSession();
   const token = session?.accessToken ?? '';
@@ -59,6 +68,7 @@ export function LocalImagesManager({ localId }: LocalImagesManagerProps) {
   });
 
   const [uploads, setUploads] = useState<UploadItem[]>([]);
+  const [deleting, setDeleting] = useState<LocalImageResponse | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
@@ -72,6 +82,7 @@ export function LocalImagesManager({ localId }: LocalImagesManagerProps) {
     mutationFn: (imageId: string) => deleteLocalImage(localId, imageId, token),
     successMessage: 'Imagen eliminada.',
     invalidateKeys: [key, queryKeys.myLocals],
+    onSuccess: () => setDeleting(null),
   });
 
   const reorder = useApiMutation({
@@ -83,30 +94,66 @@ export function LocalImagesManager({ localId }: LocalImagesManagerProps) {
     setUploads((prev) => prev.map((u) => (u.id === id ? { ...u, ...patch } : u)));
   }
 
+  function removeUpload(id: string) {
+    setUploads((prev) => {
+      const item = prev.find((u) => u.id === id);
+      if (item) URL.revokeObjectURL(item.previewUrl);
+      return prev.filter((u) => u.id !== id);
+    });
+  }
+
+  /** Sube y confirma UN ítem. Reutilizado por la soltada inicial y el retry. */
+  async function uploadOne(item: UploadItem) {
+    try {
+      const stagingKey = await uploadToStaging(
+        item.file,
+        'local',
+        token,
+        (pct) => patchUpload(item.id, { progress: pct }),
+        item.controller.signal,
+      );
+      // width/height son metadatos opcionales del confirm (best-effort).
+      const size = await readImageSize(item.file);
+      await confirmLocalImage(localId, { key: stagingKey, isMain: item.isMain, ...(size ?? {}) }, token);
+      removeUpload(item.id);
+      await queryClient.invalidateQueries({ queryKey: key });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.myLocals });
+    } catch (err) {
+      // Cancelación deliberada: se retira el ítem sin toast de error.
+      if (isAbortError(err)) {
+        removeUpload(item.id);
+        return;
+      }
+      patchUpload(item.id, { status: 'error' });
+      toast.error(err instanceof Error ? err.message : 'No se pudo subir la imagen.');
+    }
+  }
+
   async function handleAccepted(files: File[]) {
     if (!token) {
       toast.error('Sesión no disponible. Vuelve a iniciar sesión.');
       return;
     }
     const hadImages = images.length > 0 || uploads.length > 0;
-    for (const [i, file] of files.entries()) {
-      const item: UploadItem = { id: crypto.randomUUID(), name: file.name, progress: 0, error: false };
-      setUploads((prev) => [...prev, item]);
-      try {
-        const stagingKey = await uploadToStaging(file, 'local', token, (pct) =>
-          patchUpload(item.id, { progress: pct }),
-        );
-        // La primera imagen del local se marca como portada automáticamente.
-        const isMain = !hadImages && i === 0;
-        await confirmLocalImage(localId, { key: stagingKey, isMain }, token);
-        setUploads((prev) => prev.filter((u) => u.id !== item.id));
-      } catch (err) {
-        patchUpload(item.id, { error: true });
-        toast.error(err instanceof Error ? err.message : 'No se pudo subir la imagen.');
-      }
-    }
-    await queryClient.invalidateQueries({ queryKey: key });
-    await queryClient.invalidateQueries({ queryKey: queryKeys.myLocals });
+    const items: UploadItem[] = files.map((file, i) => ({
+      id: crypto.randomUUID(),
+      file,
+      name: file.name,
+      previewUrl: URL.createObjectURL(file),
+      progress: 0,
+      status: 'uploading',
+      // La primera imagen del local se marca como portada automáticamente.
+      isMain: !hadImages && i === 0,
+      controller: new AbortController(),
+    }));
+    setUploads((prev) => [...prev, ...items]);
+    for (const item of items) await uploadOne(item);
+  }
+
+  function retryUpload(item: UploadItem) {
+    const next: UploadItem = { ...item, controller: new AbortController(), status: 'uploading', progress: 0 };
+    setUploads((prev) => prev.map((u) => (u.id === item.id ? next : u)));
+    void uploadOne(next);
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -129,16 +176,41 @@ export function LocalImagesManager({ localId }: LocalImagesManagerProps) {
         <ul className="space-y-2">
           {uploads.map((u) => (
             <li key={u.id} className="flex items-center gap-3 text-sm">
-              <span className="w-40 truncate text-muted-foreground">{u.name}</span>
+              {/* Blob local: <img> crudo a propósito — no pasa por next/image. */}
+              <img src={u.previewUrl} alt="" className="h-10 w-16 shrink-0 rounded object-cover" />
+              <span className="w-28 truncate text-muted-foreground">{u.name}</span>
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                 <div
-                  className={cn('h-full rounded-full transition-all', u.error ? 'bg-destructive' : 'bg-primary')}
-                  style={{ width: `${u.error ? 100 : u.progress}%` }}
+                  className={cn(
+                    'h-full rounded-full transition-all',
+                    u.status === 'error' ? 'bg-destructive' : 'bg-primary',
+                  )}
+                  style={{ width: `${u.status === 'error' ? 100 : u.progress}%` }}
                 />
               </div>
-              <span className="w-10 text-right text-xs text-muted-foreground">
-                {u.error ? 'error' : `${u.progress}%`}
-              </span>
+              {u.status === 'error' ? (
+                <div className="flex shrink-0 gap-1">
+                  <Button type="button" size="sm" variant="outline" className="h-7 px-2" onClick={() => retryUpload(u)}>
+                    Reintentar
+                  </Button>
+                  <Button type="button" size="sm" variant="ghost" className="h-7 px-2" onClick={() => removeUpload(u.id)}>
+                    Quitar
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <span className="w-10 text-right text-xs text-muted-foreground">{u.progress}%</span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 shrink-0 px-2"
+                    onClick={() => u.controller.abort()}
+                  >
+                    Cancelar
+                  </Button>
+                </>
+              )}
             </li>
           ))}
         </ul>
@@ -161,7 +233,7 @@ export function LocalImagesManager({ localId }: LocalImagesManagerProps) {
                   key={image.id}
                   image={image}
                   onSetMain={() => setMain.mutate(image.id)}
-                  onDelete={() => remove.mutate(image.id)}
+                  onDelete={() => setDeleting(image)}
                   busy={setMain.isPending || remove.isPending}
                 />
               ))}
@@ -169,6 +241,19 @@ export function LocalImagesManager({ localId }: LocalImagesManagerProps) {
           </SortableContext>
         </DndContext>
       )}
+
+      <ConfirmDialog
+        open={Boolean(deleting)}
+        onOpenChange={(next) => {
+          if (!next) setDeleting(null);
+        }}
+        title="¿Eliminar esta imagen?"
+        description="Se elimina también del almacenamiento. Esta acción no se puede deshacer."
+        pending={remove.isPending}
+        onConfirm={() => {
+          if (deleting) remove.mutate(deleting.id);
+        }}
+      />
     </div>
   );
 }
@@ -195,7 +280,14 @@ function SortableImage({ image, onSetMain, onDelete, busy }: SortableImageProps)
         isDragging && 'z-10 opacity-70 ring-2 ring-primary',
       )}
     >
-      <img src={image.url} alt="" className="h-full w-full object-cover" />
+      {/* StorageImage resuelve keys/URLs del storage y decide `unoptimized` (dev http). */}
+      <StorageImage
+        src={image.url}
+        alt="Imagen de la galería del local"
+        fill
+        sizes="(max-width: 640px) 50vw, 25vw"
+        className="object-cover"
+      />
 
       {image.isMain && (
         <Badge className="absolute left-1.5 top-1.5 gap-1">

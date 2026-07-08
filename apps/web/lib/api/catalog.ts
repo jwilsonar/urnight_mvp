@@ -83,6 +83,9 @@ export interface EventListParams {
   tagId?: string;
   from?: string;
   to?: string;
+  /** Paginación opcional (ausentes ⇒ lista completa). */
+  limit?: number;
+  offset?: number;
 }
 
 export function getEvents(params?: EventListParams) {
@@ -95,6 +98,8 @@ export function getEvents(params?: EventListParams) {
       tagId: params?.tagId,
       from: params?.from,
       to: params?.to,
+      limit: params?.limit,
+      offset: params?.offset,
     },
     next: { revalidate: CATALOG_REVALIDATE },
   });

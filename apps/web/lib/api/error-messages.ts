@@ -31,6 +31,11 @@ export function getErrorMessage(err: unknown): string {
     if (byStatus) return byStatus;
     return err.problem.title;
   }
+  // AbortSignal.timeout (apiFetch) lanza DOMException con name TimeoutError;
+  // un abort del caller llega como AbortError. Ambos = petición interrumpida.
+  if (err instanceof DOMException && (err.name === 'TimeoutError' || err.name === 'AbortError')) {
+    return 'La solicitud tardó demasiado. Revisa tu conexión e inténtalo de nuevo.';
+  }
   if (err instanceof Error) return err.message;
   return 'Ocurrió un error inesperado.';
 }
