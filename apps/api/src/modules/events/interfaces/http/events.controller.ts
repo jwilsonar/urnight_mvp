@@ -188,6 +188,8 @@ function toEventFilter(query: EventListQuery): EventListFilter {
     tagId: query.tagId,
     from: query.from ? new Date(query.from) : undefined,
     to: query.to ? new Date(query.to) : undefined,
+    limit: query.limit,
+    offset: query.offset,
   };
 }
 

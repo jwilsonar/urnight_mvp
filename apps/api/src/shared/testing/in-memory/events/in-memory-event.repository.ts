@@ -31,7 +31,7 @@ export class InMemoryEventRepository
 
   async listPublished(filter?: EventListFilter): Promise<Event[]> {
     const q = filter?.q?.toLowerCase();
-    return this.values().filter((e) => {
+    const results = this.values().filter((e) => {
       if (e.status !== 'published') return false;
       if (filter?.localId !== undefined && e.localId !== filter.localId) return false;
       if (filter?.from && e.startsAt < filter.from) return false;
@@ -39,6 +39,9 @@ export class InMemoryEventRepository
       if (q && !`${e.name} ${e.description ?? ''}`.toLowerCase().includes(q)) return false;
       return true;
     });
+    const offset = filter?.offset ?? 0;
+    const end = filter?.limit !== undefined ? offset + filter.limit : undefined;
+    return results.slice(offset, end);
   }
 
   async create(event: Event): Promise<Event> {

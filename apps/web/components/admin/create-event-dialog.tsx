@@ -24,18 +24,16 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  Label,
   Textarea,
 } from '@urnight/ui';
+import { StagedImageField } from '@/components/shared/staged-image-field';
 import { createEvent } from '@/lib/api/admin';
 import { queryKeys } from '@/lib/api/query-keys';
 import { useApiMutation } from '@/lib/api/use-api-mutation';
+import { useStagedUpload } from '@/lib/hooks/use-staged-upload';
+import { localInputToIso } from '@/lib/utils';
 import { slugify } from './slugify';
-
-function localDateTimeToIso(value: string | undefined): string | undefined {
-  if (!value) return undefined;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
-}
 
 function blankToUndefined(value: string | undefined): string | undefined {
   return value && value.trim() ? value : undefined;
@@ -47,6 +45,8 @@ export function CreateEventDialog({ localId }: { localId: string }) {
   const token = session?.accessToken ?? '';
   const [open, setOpen] = useState(false);
   const slugEdited = useRef(false);
+  // Flyer con drag-and-drop: se sube a staging al soltarlo y el submit envía la key.
+  const flyer = useStagedUpload('event');
 
   const defaults = (): z.input<typeof createEventSchema> => ({
     localId,
@@ -55,7 +55,6 @@ export function CreateEventDialog({ localId }: { localId: string }) {
     description: '',
     startsAt: '',
     endsAt: '',
-    flyerUrl: '',
     totalCapacity: 0,
     minAgeNote: '',
     dressCode: '',
@@ -74,6 +73,7 @@ export function CreateEventDialog({ localId }: { localId: string }) {
     onSuccess: () => {
       setOpen(false);
       slugEdited.current = false;
+      flyer.reset();
       form.reset(defaults());
     },
   });
@@ -84,14 +84,20 @@ export function CreateEventDialog({ localId }: { localId: string }) {
       localId,
       description: blankToUndefined(values.description ?? undefined),
       endsAt: blankToUndefined(values.endsAt ?? undefined),
-      flyerUrl: blankToUndefined(values.flyerUrl ?? undefined),
+      flyerKey: flyer.stagedKey ?? undefined,
       minAgeNote: blankToUndefined(values.minAgeNote ?? undefined),
       dressCode: blankToUndefined(values.dressCode ?? undefined),
     });
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) flyer.reset();
+      }}
+    >
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4" weight="bold" />
@@ -177,7 +183,7 @@ export function CreateEventDialog({ localId }: { localId: string }) {
                       <Input
                         type="datetime-local"
                         value={field.value && field.value.length > 16 ? field.value.slice(0, 16) : (field.value ?? '')}
-                        onChange={(event) => field.onChange(localDateTimeToIso(event.target.value) ?? '')}
+                        onChange={(event) => field.onChange(localInputToIso(event.target.value) ?? '')}
                         onBlur={field.onBlur}
                         name={field.name}
                         ref={field.ref}
@@ -201,7 +207,7 @@ export function CreateEventDialog({ localId }: { localId: string }) {
                         type="datetime-local"
                         value={field.value && field.value.length > 16 ? field.value.slice(0, 16) : (field.value ?? '')}
                         onChange={(event) =>
-                          field.onChange(event.target.value ? (localDateTimeToIso(event.target.value) ?? '') : '')
+                          field.onChange(event.target.value ? (localInputToIso(event.target.value) ?? '') : '')
                         }
                         onBlur={field.onBlur}
                         name={field.name}
@@ -272,11 +278,18 @@ export function CreateEventDialog({ localId }: { localId: string }) {
               />
             </div>
 
+            <div className="space-y-2">
+              <Label>
+                Flyer <span className="text-muted-foreground">(opcional)</span>
+              </Label>
+              <StagedImageField upload={flyer} disabled={mutation.isPending} />
+            </div>
+
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={mutation.isPending}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={mutation.isPending}>
+              <Button type="submit" disabled={mutation.isPending || flyer.status === 'uploading'}>
                 {mutation.isPending ? 'Creando…' : 'Crear evento'}
               </Button>
             </DialogFooter>

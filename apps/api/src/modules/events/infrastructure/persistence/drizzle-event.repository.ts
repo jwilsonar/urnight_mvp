@@ -111,11 +111,15 @@ export class DrizzleEventRepository implements EventRepository {
     if (filter?.from) conditions.push(gte(event.startsAt, filter.from));
     if (filter?.to) conditions.push(lte(event.startsAt, filter.to));
 
-    const rows = await this.db
+    let query = this.db
       .select()
       .from(event)
       .where(and(...conditions))
-      .orderBy(desc(event.startsAt));
+      .orderBy(desc(event.startsAt))
+      .$dynamic();
+    if (filter?.limit !== undefined) query = query.limit(filter.limit);
+    if (filter?.offset !== undefined) query = query.offset(filter.offset);
+    const rows = await query;
     return rows.map((r) => this.toDomain(r));
   }
 

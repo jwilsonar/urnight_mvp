@@ -39,6 +39,11 @@ export interface RequestOptions extends Omit<RequestInit, 'body'> {
   query?: Record<string, string | number | boolean | undefined>;
   /** Caché de Next (ISR): revalidación por tiempo y tags. */
   next?: { revalidate?: number | false; tags?: string[] };
+  /**
+   * Timeout en ms (default 15s): un API colgado no debe bloquear la petición
+   * indefinidamente. Los uploads binarios no pasan por aquí (XHR presignado).
+   */
+  timeoutMs?: number;
 }
 
 function buildUrl(path: string, query?: RequestOptions['query']): string {
@@ -68,13 +73,19 @@ async function toProblem(res: Response): Promise<ProblemDetails> {
  * entrega un access token vigente).
  */
 export async function apiFetch<T>(path: string, opts: RequestOptions = {}): Promise<T> {
-  const { token, json, query, headers, cache, next, ...rest } = opts;
+  const { token, json, query, headers, cache, next, timeoutMs = 15_000, ...rest } = opts;
   const method = rest.method ?? 'GET';
+
+  // Señal compuesta: timeout propio + señal del caller (si la hay). No hay
+  // streaming en la app (todo se consume con res.json()), abortar es seguro.
+  const timeoutSignal = AbortSignal.timeout(timeoutMs);
+  const signal = rest.signal ? AbortSignal.any([rest.signal, timeoutSignal]) : timeoutSignal;
 
   let res: Response;
   try {
     res = await fetch(buildUrl(path, query), {
       ...rest,
+      signal,
       ...(next ? { next } : {}),
       // cache explícito gana; con ISR (next) se omite; por defecto sin caché.
       ...(cache ? { cache } : next ? {} : { cache: 'no-store' }),
@@ -87,8 +98,10 @@ export async function apiFetch<T>(path: string, opts: RequestOptions = {}): Prom
       body: json !== undefined ? JSON.stringify(json) : undefined,
     });
   } catch (err) {
-    // Fallo de red/DNS/timeout: el backend no respondió.
-    logger.error({ method, path, err: (err as Error).message }, 'web.api.network_error');
+    // Fallo de red/DNS/timeout: el backend no respondió. `name` distingue
+    // TimeoutError (backend colgado) de un fallo DNS/conexión.
+    const cause = err as Error;
+    logger.error({ method, path, err: cause.message, name: cause.name }, 'web.api.network_error');
     throw err;
   }
 

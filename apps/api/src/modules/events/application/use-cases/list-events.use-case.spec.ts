@@ -41,4 +41,19 @@ describe('ListEventsUseCase', () => {
     const result = await useCase.execute();
     expect(result).toHaveLength(0);
   });
+
+  it('aplica limit/offset (paginación opcional)', async () => {
+    const { events, useCase } = build();
+    for (const id of ['e1', 'e2', 'e3']) {
+      await events.create(new EventBuilder().withId(id).withSlug(id).asPublished().build());
+    }
+
+    const firstPage = await useCase.execute({ limit: 2, offset: 0 });
+    const secondPage = await useCase.execute({ limit: 2, offset: 2 });
+
+    expect(firstPage).toHaveLength(2);
+    expect(secondPage).toHaveLength(1);
+    const ids = [...firstPage, ...secondPage].map((e) => e.id).sort();
+    expect(ids).toEqual(['e1', 'e2', 'e3']);
+  });
 });

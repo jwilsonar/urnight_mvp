@@ -15,6 +15,12 @@ export const createEventSchema = z.object({
   startsAt: z.string().datetime({ message: 'startsAt debe ser ISO 8601' }),
   endsAt: z.string().datetime().optional(),
   flyerUrl: z.string().url().max(512).optional(),
+  /**
+   * Flyer subido a staging (key `tmp/…` del presign). El servidor la valida y
+   * promueve a `events/{id}/` tras crear. Tiene prioridad sobre `flyerUrl`
+   * (que se mantiene para seeds/clientes API con imágenes externas).
+   */
+  flyerKey: z.string().max(512).optional(),
   totalCapacity: z.number().int().min(0).default(0),
   minAgeNote: z.string().max(40).optional(),
   dressCode: z.string().max(120).optional(),
@@ -63,6 +69,9 @@ export const eventListQuerySchema = z.object({
   tagId: z.string().uuid().optional(),
   from: z.string().datetime().optional(),
   to: z.string().datetime().optional(),
+  // Paginación opcional (retrocompatible: ausentes ⇒ lista completa).
+  limit: z.coerce.number().int().min(1).max(60).optional(),
+  offset: z.coerce.number().int().min(0).optional(),
 });
 export type EventListQuery = z.infer<typeof eventListQuerySchema>;
 
