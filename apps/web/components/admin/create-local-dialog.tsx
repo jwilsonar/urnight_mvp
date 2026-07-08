@@ -2,6 +2,7 @@
 
 import { Plus } from '@phosphor-icons/react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSession } from 'next-auth/react';
@@ -25,12 +26,17 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  Label,
   Textarea,
 } from '@urnight/ui';
+import { StagedImageField } from '@/components/shared/staged-image-field';
 import { createLocal } from '@/lib/api/admin';
 import { ApiError } from '@/lib/api/client';
-import { useApiMutation } from '@/lib/api/use-api-mutation';
+import { confirmLocalImage } from '@/lib/api/local-images';
 import { queryKeys } from '@/lib/api/query-keys';
+import { useApiMutation } from '@/lib/api/use-api-mutation';
+import { useStagedUpload } from '@/lib/hooks/use-staged-upload';
+import { readImageSize } from '@/lib/utils/image';
 import { slugify } from './slugify';
 
 function blankToUndefined(value: string | undefined): string | undefined {
@@ -38,12 +44,14 @@ function blankToUndefined(value: string | undefined): string | undefined {
 }
 
 /**
- * Ni companyId ni slug se piden al usuario:
+ * Ni companyId, ni slug, ni mainImageUrl se piden al usuario:
  * - companyId se inyecta desde la empresa (tenant) del actor.
  * - slug se deriva del nombre (slugify) y se garantiza único: si el backend
  *   responde LOCAL_SLUG_TAKEN, se reintenta con un sufijo corto.
+ * - la portada se arrastra al dropzone (staging) y se confirma en la galería
+ *   tras crear el local (mismo endpoint que usa el gestor de imágenes).
  */
-const formSchema = createLocalSchema.omit({ companyId: true, slug: true });
+const formSchema = createLocalSchema.omit({ companyId: true, slug: true, mainImageUrl: true });
 type LocalFormValues = z.input<typeof formSchema>;
 /** Local sin slug: el slug lo genera `createLocalUniqueSlug`. */
 type LocalDraft = Omit<CreateLocalDto, 'slug'>;
@@ -53,7 +61,6 @@ const EMPTY: LocalFormValues = {
   description: '',
   address: '',
   googleMapsUrl: '',
-  mainImageUrl: '',
 };
 
 const SLUG_MAX_ATTEMPTS = 6;
@@ -92,6 +99,10 @@ export function CreateLocalDialog() {
   // Empresa del actor (claims del token): el local se crea SIEMPRE en su tenant.
   const companyId = session?.user?.companyId ?? '';
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+  // Portada con drag-and-drop: se sube a staging al soltarla y se confirma
+  // como imagen principal de la galería tras crear el local.
+  const cover = useStagedUpload('local');
 
   const form = useForm<LocalFormValues, unknown, z.output<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -99,12 +110,31 @@ export function CreateLocalDialog() {
   });
 
   const mutation = useApiMutation({
-    mutationFn: (draft: LocalDraft) => createLocalUniqueSlug(draft, token),
+    mutationFn: async (draft: LocalDraft) => {
+      const local = await createLocalUniqueSlug(draft, token);
+      // La portada no bloquea el alta: si el confirm falla, el local ya es
+      // válido y la imagen puede subirse después desde su galería.
+      if (cover.stagedKey) {
+        try {
+          const size = cover.file ? await readImageSize(cover.file) : null;
+          await confirmLocalImage(
+            local.id,
+            { key: cover.stagedKey, isMain: true, ...(size ?? {}) },
+            token,
+          );
+        } catch {
+          toast.warning('Local creado, pero la portada no se pudo adjuntar. Súbela desde su galería.');
+        }
+      }
+      return local;
+    },
     setError: form.setError,
     successMessage: (local) => `Local "${local.name}" creado.`,
     invalidateKeys: [queryKeys.myLocals],
-    onSuccess: () => {
+    onSuccess: (local) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.localImages(local.id) });
       setOpen(false);
+      cover.reset();
       form.reset(EMPTY);
     },
   });
@@ -123,12 +153,17 @@ export function CreateLocalDialog() {
       description: blankToUndefined(values.description ?? undefined),
       address: blankToUndefined(values.address ?? undefined),
       googleMapsUrl: blankToUndefined(values.googleMapsUrl ?? undefined),
-      mainImageUrl: blankToUndefined(values.mainImageUrl ?? undefined),
     });
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) cover.reset();
+      }}
+    >
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4" weight="bold" />
@@ -193,27 +228,21 @@ export function CreateLocalDialog() {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="mainImageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Imagen principal (URL) <span className="text-muted-foreground">(opcional)</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="url" placeholder="https://…/imagen.jpg" {...field} value={field.value ?? ''} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-2">
+              <Label>
+                Imagen principal <span className="text-muted-foreground">(opcional)</span>
+              </Label>
+              <StagedImageField upload={cover} disabled={mutation.isPending} />
+            </div>
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={mutation.isPending}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={mutation.isPending || !companyId}>
+              <Button
+                type="submit"
+                disabled={mutation.isPending || !companyId || cover.status === 'uploading'}
+              >
                 {mutation.isPending ? 'Creando…' : 'Crear local'}
               </Button>
             </DialogFooter>

@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@urnight/ui';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { DataTable, SortableHeader } from '@/components/panels/data-table';
 import { listMyEvents, listMyLocals } from '@/lib/api/admin';
 import { listPromoterAssignments, unassignEvent } from '@/lib/api/promoters';
@@ -44,6 +45,8 @@ export function AssignEventDialog({
   const { data: session } = useSession();
   const token = session?.accessToken ?? '';
   const [selected, setSelected] = useState<EventResponse | null>(null);
+  /** Asignación (promoterEventId) pendiente de confirmación de desasignado. */
+  const [unassignTarget, setUnassignTarget] = useState<string | null>(null);
 
   const localsQuery = useQuery({
     queryKey: queryKeys.myLocals,
@@ -82,6 +85,7 @@ export function AssignEventDialog({
     successMessage: 'Evento desasignado. Los canjes ya realizados se conservan.',
     invalidateKeys: [queryKeys.promoterAssignments(promoter.id)],
     onSuccess: () => {
+      setUnassignTarget(null);
       void assignmentsQuery.refetch();
     },
   });
@@ -140,7 +144,7 @@ export function AssignEventDialog({
                 variant="ghost"
                 className="text-destructive hover:text-destructive"
                 disabled={unassign.isPending}
-                onClick={() => unassign.mutate(a.id)}
+                onClick={() => setUnassignTarget(a.id)}
               >
                 Desasignar
               </Button>
@@ -198,6 +202,20 @@ export function AssignEventDialog({
         onAssigned={() => {
           setSelected(null);
           void assignmentsQuery.refetch();
+        }}
+      />
+
+      <ConfirmDialog
+        open={Boolean(unassignTarget)}
+        onOpenChange={(next) => {
+          if (!next) setUnassignTarget(null);
+        }}
+        title="¿Desasignar este evento?"
+        description="El promotor dejará de promocionarlo. Los códigos ya canjeados se conservan."
+        confirmLabel="Desasignar"
+        pending={unassign.isPending}
+        onConfirm={() => {
+          if (unassignTarget) unassign.mutate(unassignTarget);
         }}
       />
     </>

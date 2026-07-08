@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
 import { getErrorMessage } from '@/lib/api/error-messages';
+import { handleSessionExpired, isSessionExpiredError } from '@/lib/auth/session-expiry';
 import { SESSION_EXPIRED } from '@/lib/constants';
 
 interface RunOptions<T> {
@@ -33,6 +34,11 @@ export function useTokenAction() {
         if (options?.successMessage) toast.success(options.successMessage);
         options?.onSuccess?.(result);
       } catch (error) {
+        // No pasa por React Query: manejar la sesión expirada aquí mismo.
+        if (isSessionExpiredError(error)) {
+          handleSessionExpired();
+          return;
+        }
         toast.error(getErrorMessage(error));
       }
     });

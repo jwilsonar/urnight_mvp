@@ -5,6 +5,7 @@ export { RecordingOutbox } from './recording-outbox';
 export { FakePromoRedemption } from './fake-promo-redemption';
 export { fakeUnitOfWork } from './fake-unit-of-work';
 export { captureEvents, type CapturedEvents } from './capture-events';
+export { FakeStorage } from './fake-storage';
 export {
   FakeEventTenant,
   FakeResourceTenant,

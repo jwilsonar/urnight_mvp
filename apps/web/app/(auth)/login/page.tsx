@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { Alert, AlertDescription } from '@urnight/ui';
 import { AuthCard } from '@/components/auth/auth-card';
 import { GoogleButton } from '@/components/auth/google-button';
 import { LoginForm } from '@/components/auth/login-form';
 import { getSession } from '@/lib/auth-helpers';
+import { SESSION_EXPIRED } from '@/lib/constants';
 import { isSafeInternalPath } from '@/lib/utils/paths';
 import { roleHomePath } from '@/lib/utils/rbac';
 
@@ -16,10 +18,11 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ callbackUrl?: string }>;
+  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
 }) {
-  const { callbackUrl } = await searchParams;
+  const { callbackUrl, error } = await searchParams;
   const safeCallback = isSafeInternalPath(callbackUrl) ? callbackUrl : undefined;
+  const sessionExpired = error === 'SessionExpired';
 
   // Si ya hay sesión, manda a cada rol a su panel (o respeta el deep-link).
   const session = await getSession();
@@ -45,6 +48,11 @@ export default async function LoginPage({
         </>
       }
     >
+      {sessionExpired ? (
+        <Alert variant="destructive">
+          <AlertDescription>{SESSION_EXPIRED}</AlertDescription>
+        </Alert>
+      ) : null}
       <LoginForm callbackUrl={target} />
       {googleEnabled ? (
         <>

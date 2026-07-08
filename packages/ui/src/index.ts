@@ -14,6 +14,19 @@ export {
   CardFooter,
 } from './card';
 export { Alert, AlertTitle, AlertDescription } from './alert';
+export {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogPortal,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from './alert-dialog';
 export { Badge, badgeVariants, type BadgeProps } from './badge';
 export {
   Table,

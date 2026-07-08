@@ -1,20 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ACCEPTED_IMAGE_TYPES, MAX_IMAGE_BYTES, type UpdateEventDto } from '@urnight/contracts';
-import {
-  ObjectNotFoundError,
-  STORAGE_PORT,
-  type StoragePort,
-} from '../../../../shared/adapters/storage/storage.port';
+import type { UpdateEventDto } from '@urnight/contracts';
+import { STORAGE_PORT, type StoragePort } from '../../../../shared/adapters/storage/storage.port';
 import { createLogger } from '../../../../shared/logging/logger';
 import { assertTenant, type TenantScope } from '../../../../shared/tenant/tenant-scope';
 import { Event } from '../../domain/entities/event.entity';
-import {
-  EventFlyerInvalidError,
-  EventFlyerNotFoundError,
-  EventNotFoundError,
-} from '../../domain/errors/events.errors';
+import { EventNotFoundError } from '../../domain/errors/events.errors';
 import { EVENT_TENANT_PORT, type EventTenantPort } from '../../domain/ports/event-tenant.port';
 import { EVENT_REPOSITORY, type EventRepository } from '../../domain/ports/event.repository';
+import { promoteStagedFlyer } from '../services/flyer-storage';
 
 /**
  * Caso de uso: editar un evento de MI empresa (admin_local dueño). Aislado por
@@ -51,8 +44,18 @@ export class UpdateEventUseCase {
     });
 
     if (dto.flyerKey) {
-      const finalKey = await this.promoteFlyer(input.eventId, dto.flyerKey, event.flyerUrl);
+      const currentFlyer = event.flyerUrl;
+      const finalKey = await promoteStagedFlyer(this.storage, input.eventId, dto.flyerKey);
       event.setFlyer(finalKey);
+      // Best-effort: borrar el flyer anterior solo si era una key nuestra del
+      // evento (no una URL externa/seed). No bloquea la operación si falla.
+      if (currentFlyer && currentFlyer.startsWith(`events/${input.eventId}/`)) {
+        try {
+          await this.storage.deleteObject(currentFlyer);
+        } catch (err) {
+          this.log.warn({ eventId: input.eventId, key: currentFlyer, err }, 'events.event.flyer.delete-old-failed');
+        }
+      }
     }
 
     const saved = await this.events.update(event);
@@ -74,52 +77,5 @@ export class UpdateEventUseCase {
 
     // Re-lee con las taxonomías ya aplicadas para devolverlas en la respuesta.
     return (await this.events.findById(saved.id)) ?? saved;
-  }
-
-  /**
-   * Promueve una imagen de staging (tmp/) al prefijo final del evento tras
-   * verificarla server-side (no confía en el cliente). Devuelve la key final.
-   */
-  private async promoteFlyer(
-    eventId: string,
-    stagingKey: string,
-    currentFlyer: string | null,
-  ): Promise<string> {
-    if (!stagingKey.startsWith('tmp/')) {
-      throw new EventFlyerInvalidError('La key de subida no es de staging.');
-    }
-
-    let meta;
-    try {
-      meta = await this.storage.headObject(stagingKey);
-    } catch (err) {
-      if (err instanceof ObjectNotFoundError) throw new EventFlyerNotFoundError();
-      throw err;
-    }
-    if (meta.sizeBytes > MAX_IMAGE_BYTES) {
-      await this.storage.deleteObject(stagingKey);
-      throw new EventFlyerInvalidError('La imagen supera el tamaño máximo permitido.');
-    }
-    if (!(ACCEPTED_IMAGE_TYPES as readonly string[]).includes(meta.contentType ?? '')) {
-      await this.storage.deleteObject(stagingKey);
-      throw new EventFlyerInvalidError('Tipo de imagen no permitido.');
-    }
-
-    // tmp/{uuid}.{ext} → events/{eventId}/{uuid}.{ext}
-    const filename = stagingKey.slice('tmp/'.length);
-    const finalKey = `events/${eventId}/${filename}`;
-    await this.storage.copyObject(stagingKey, finalKey);
-    await this.storage.deleteObject(stagingKey);
-
-    // Best-effort: borrar el flyer anterior solo si era una key nuestra del
-    // evento (no una URL externa/seed). No bloquea la operación si falla.
-    if (currentFlyer && currentFlyer.startsWith(`events/${eventId}/`)) {
-      try {
-        await this.storage.deleteObject(currentFlyer);
-      } catch (err) {
-        this.log.warn({ eventId, key: currentFlyer, err }, 'events.event.flyer.delete-old-failed');
-      }
-    }
-    return finalKey;
   }
 }

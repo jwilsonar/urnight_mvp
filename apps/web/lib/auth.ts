@@ -5,6 +5,7 @@ import type { JWT } from 'next-auth/jwt';
 import { z } from 'zod';
 import type { AuthTokensResponse, UserProfileResponse } from '@urnight/contracts';
 import { fetchMe, googleExchange, refreshTokens } from './api/auth/requests';
+import { ApiError } from './api/client';
 import { createLogger } from './logger';
 
 const log = createLogger('nextauth');
@@ -117,12 +118,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return refreshAccess(token);
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken;
+      // Nunca entregar al browser un access token que se sabe vencido o
+      // irrenovable: con `error` presente el cliente debe re-autenticar
+      // (SessionExpiryWatcher en providers.tsx fuerza el re-login).
+      session.accessToken = token.error ? undefined : token.accessToken;
       session.error = token.error;
       // Scope multi-tenant: se decodifica del access token vigente en cada
       // resolución (cubre también sesiones ya emitidas antes de este cambio).
-      const scope = token.accessToken
-        ? decodeScope(token.accessToken)
+      const scope = session.accessToken
+        ? decodeScope(session.accessToken)
         : { companyId: null, localId: null };
       session.user.companyId = scope.companyId;
       session.user.localId = scope.localId;
@@ -200,8 +204,18 @@ async function refreshAccess<T extends JWT>(token: T): Promise<T> {
     const refreshed = setTokens(token, await refreshTokens(token.refreshToken));
     log.debug({ userId: token.profile?.id }, 'web.auth.refresh.success');
     return refreshed;
-  } catch {
-    log.warn({ userId: token.profile?.id }, 'web.auth.refresh.failed');
+  } catch (err) {
+    // 401/403 del backend = refresh token inválido/revocado: sesión irrecuperable,
+    // se limpian los tokens para no seguir entregando un Bearer muerto. Errores de
+    // red/5xx son transitorios: se conservan los tokens y se reintenta en la
+    // siguiente resolución del JWT.
+    const unrecoverable = err instanceof ApiError && (err.status === 401 || err.status === 403);
+    log.warn({ userId: token.profile?.id, unrecoverable }, 'web.auth.refresh.failed');
+    if (unrecoverable) {
+      delete token.accessToken;
+      delete token.refreshToken;
+      delete token.accessTokenExpires;
+    }
     token.error = 'RefreshAccessTokenError';
     return token;
   }
