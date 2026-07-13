@@ -46,3 +46,8 @@ coverage/
 *.tfstate.*
 *.tfvars
 !*.tfvars.example
+
+# skills instaladas localmente (npx skills) - no versionar
+.agents/
+.claude/
+skills-lock.json

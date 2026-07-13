@@ -1,7 +1,9 @@
-import { CalendarBlank, MapPin, User } from '@phosphor-icons/react/dist/ssr';
+import { BookOpenText, CalendarBlank, MapPin, User } from '@phosphor-icons/react/dist/ssr';
+import Link from 'next/link';
 import type { TicketResponse } from '@urnight/contracts';
-import { Badge, type BadgeProps, Card, CardContent } from '@urnight/ui';
+import { Badge, type BadgeProps, Button, Card, CardContent } from '@urnight/ui';
 import { TicketQr } from '@/components/tickets/ticket-qr';
+import { resolveCartaSlug } from '@/lib/mock/carta';
 import { formatDate } from '@/lib/utils';
 
 const STATUS: Record<TicketResponse['status'], { label: string; variant: BadgeProps['variant'] }> = {
@@ -60,6 +62,16 @@ export function TicketCard({ ticket }: { ticket: TicketResponse }) {
               Emitida {formatDate(ticket.issuedAt)}
             </span>
           </div>
+
+          {/* Carta in-venue (demo): con la entrada válida o ya validada en puerta,
+              el usuario accede a la carta del local para pedir y recoger en barra. */}
+          {ticket.status === 'valid' || ticket.status === 'used' ? (
+            <Button variant="secondary" size="sm" className="mt-2 self-start" asChild>
+              <Link href={`/locals/${resolveCartaSlug(ticket.venueName)}/carta?ticket=${ticket.id}`}>
+                <BookOpenText className="size-4" weight="duotone" /> Ver carta del local
+              </Link>
+            </Button>
+          ) : null}
         </div>
       </CardContent>
     </Card>

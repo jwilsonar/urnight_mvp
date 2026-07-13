@@ -465,6 +465,23 @@
   }
 }
 
+/* Transición entre páginas: fade-up corto al montar cada ruta (app/template.tsx).
+   Ease-out fuerte y <350ms: la navegación se siente viva sin estorbar. */
+@keyframes un-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.un-page-in {
+  animation: un-page-in 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
 /* Accesibilidad: sin movimiento para quien lo pide */
 @media (prefers-reduced-motion: reduce) {
   .un-reveal {
@@ -473,6 +490,9 @@
     transition: none;
   }
   .un-breathe {
+    animation: none;
+  }
+  .un-page-in {
     animation: none;
   }
   .un-zoom-img img {

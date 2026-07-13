@@ -1,4 +1,5 @@
 import {
+  BookOpenText,
   CalendarBlank,
   Compass,
   MapPin,
@@ -20,6 +21,7 @@ import { ReviewList } from '@/components/trust/review-list';
 import { ApiError } from '@/lib/api/client';
 import { getEvents, getLocalBySlug, getLocalImages } from '@/lib/api/catalog';
 import { getReviews } from '@/lib/api/trust';
+import { CARTA_CONFIG_DEMO } from '@/lib/mock/carta';
 
 export const revalidate = 60;
 
@@ -161,6 +163,14 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ sl
                   <WhatsappLogo className="size-4" weight="duotone" /> Reservar mesa
                 </Link>
               </Button>
+              {/* Carta in-venue (demo): visible si el local la tiene habilitada. */}
+              {CARTA_CONFIG_DEMO.some((c) => c.localSlug === slug && c.enabled) ? (
+                <Button variant="secondary" className="mt-2 w-full" asChild>
+                  <Link href={`/locals/${slug}/carta`}>
+                    <BookOpenText className="size-4" weight="duotone" /> Ver carta del local
+                  </Link>
+                </Button>
+              ) : null}
               <div className="mt-2 text-center">
                 <Badge variant="info">Demo</Badge>
               </div>

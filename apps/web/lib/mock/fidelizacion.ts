@@ -60,6 +60,44 @@ export const NIVEL_DEMO = {
   progresoPct: 62,
 };
 
+/* ===== Configuración del programa (panel superadmin) =====
+ * Vista de administración de lo que el consumer ya muestra en
+ * /account/{wallet,niveles,referidos}. Misma historia, otro ángulo. */
+
+export interface NivelConfigDemo {
+  nombre: string;
+  umbralPuntos: number;
+  beneficios: string[];
+  activo: boolean;
+}
+
+export const NIVELES_CONFIG_DEMO: NivelConfigDemo[] = [
+  { nombre: 'Bronce', umbralPuntos: 0, beneficios: ['Acceso a preventa estándar'], activo: true },
+  { nombre: 'Plata', umbralPuntos: 500, beneficios: ['Preventa prioritaria', '1 cola preferente al mes'], activo: true },
+  { nombre: 'Oro', umbralPuntos: 1200, beneficios: ['Cola preferente siempre', '5% en pedidos de carta', 'Regalo de cumpleaños'], activo: true },
+  { nombre: 'Diamante', umbralPuntos: 2000, beneficios: ['Acceso VIP a lanzamientos', '10% en pedidos de carta', 'Mesa garantizada 1 vez al mes'], activo: true },
+];
+
+export interface ReglaPuntosDemo {
+  accion: string;
+  puntos: string;
+  activa: boolean;
+}
+
+export const PUNTOS_REGLAS_DEMO: ReglaPuntosDemo[] = [
+  { accion: 'Compra de entrada', puntos: '+10 pts por cada S/ 10', activa: true },
+  { accion: 'Pedido de carta in-venue', puntos: '+5 pts por cada S/ 10', activa: true },
+  { accion: 'Referido completa su primera compra', puntos: '+30 pts', activa: true },
+  { accion: 'Check-in validado en evento', puntos: '+15 pts', activa: true },
+  { accion: 'Reseña publicada y aprobada', puntos: '+10 pts', activa: false },
+];
+
+export const FIDELIZACION_PARAMS_DEMO = {
+  canje: '200 pts → S/ 20 en wallet',
+  vigenciaPuntos: '12 meses desde su emisión',
+  topeDiario: '500 pts por usuario',
+};
+
 export const BADGES_DEMO: BadgeDemo[] = [
   { nombre: 'Primera vez', sub: 'Primera entrada comprada', unlocked: true, icono: '🎟️' },
   { nombre: 'Reserva VIP', sub: 'Primera mesa VIP reservada', unlocked: true, icono: '🥂' },

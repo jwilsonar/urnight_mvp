@@ -1,6 +1,7 @@
 import {
   Armchair,
   Bell,
+  BookOpenText,
   Buildings,
   ChartLineUp,
   ClockCounterClockwise,
@@ -9,17 +10,20 @@ import {
   House,
   Lifebuoy,
   LinkSimple,
+  Medal,
   Megaphone,
   Money,
   type Icon,
   Pulse,
   QrCode,
+  Receipt,
   Scroll,
   SealCheck,
   ShieldWarning,
   Tag,
   Ticket,
   UserCircle,
+  WarningOctagon,
 } from '@phosphor-icons/react';
 
 /** Secciones de panel = primer segmento bajo /panel. */
@@ -47,6 +51,8 @@ export const PANEL_NAV: Record<PanelSection, PanelNavItem[]> = {
     { href: '/panel/admin/locals', label: 'Locales', icon: Buildings },
     { href: '/panel/admin/promoters', label: 'Promotores', icon: Megaphone },
     { href: '/panel/admin/mesas', label: 'Mesas y planta', icon: Armchair },
+    { href: '/panel/admin/carta', label: 'Carta del local', icon: BookOpenText },
+    { href: '/panel/admin/pedidos', label: 'Pedidos', icon: Receipt },
     { href: '/panel/admin/checkin', label: 'Check-in en vivo', icon: QrCode },
   ],
   promoter: [
@@ -67,6 +73,8 @@ export const PANEL_NAV: Record<PanelSection, PanelNavItem[]> = {
     { href: '/panel/superadmin/companies', label: 'Empresas', icon: Buildings },
     { href: '/panel/superadmin/audit', label: 'Auditoría', icon: ClockCounterClockwise },
     { href: '/panel/superadmin/taxonomy', label: 'Taxonomía', icon: Tag },
+    { href: '/panel/superadmin/fidelizacion', label: 'Fidelización', icon: Medal },
+    { href: '/panel/superadmin/reclamaciones', label: 'Reclamaciones', icon: WarningOctagon },
     { href: '/panel/superadmin/antifraude', label: 'Antifraude', icon: ShieldWarning },
     { href: '/panel/superadmin/salud', label: 'Salud del producto', icon: Pulse },
   ],
