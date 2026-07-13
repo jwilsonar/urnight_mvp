@@ -1,7 +1,7 @@
 'use client';
 
-import { MagnifyingGlass, Plus } from '@phosphor-icons/react';
-import { useMemo, useState } from 'react';
+import { Check, MagnifyingGlass, Plus } from '@phosphor-icons/react';
+import { useEffect, useMemo, useState } from 'react';
 import { Badge, Button, Card, Input, cn } from '@urnight/ui';
 import { useCart } from '@/components/carta/cart-provider';
 import { ProductSheet } from '@/components/carta/product-sheet';
@@ -137,6 +137,15 @@ function ProductCard({
   onOpen: () => void;
   onAdd: () => void;
 }) {
+  // Feedback inmediato del "+": muestra un check ~1s tras agregar, para que se
+  // note que el producto entró al pedido (el FAB "Ver pedido" aparece abajo).
+  const [added, setAdded] = useState(false);
+  useEffect(() => {
+    if (!added) return;
+    const t = setTimeout(() => setAdded(false), 1000);
+    return () => clearTimeout(t);
+  }, [added]);
+
   return (
     <Card
       className={cn(
@@ -170,7 +179,9 @@ function ProductCard({
         {item.tags.length > 0 ? (
           <div className="absolute left-2 top-2 z-10 flex flex-wrap gap-1">
             {item.tags.map((tag) => (
-              <Badge key={tag} variant={TAG_VARIANT[tag]}>
+              // Fondo casi opaco sobre la foto (mismo patrón que event-card):
+              // los variants soft translúcidos no se leen encima de imágenes.
+              <Badge key={tag} variant={TAG_VARIANT[tag]} className="bg-deep/90 backdrop-blur-sm">
                 {CARTA_TAG_LABEL[tag]}
               </Badge>
             ))}
@@ -186,15 +197,20 @@ function ProductCard({
           </span>
           <Button
             size="icon"
-            className="size-8"
+            className={cn('size-8 transition-colors', added && 'bg-success hover:bg-success')}
             disabled={!item.available}
             aria-label={`Agregar ${item.name} al pedido`}
             onClick={(e) => {
               e.stopPropagation();
               onAdd();
+              setAdded(true);
             }}
           >
-            <Plus className="size-4" weight="bold" />
+            {added ? (
+              <Check className="size-4" weight="bold" />
+            ) : (
+              <Plus className="size-4" weight="bold" />
+            )}
           </Button>
         </div>
       </div>
