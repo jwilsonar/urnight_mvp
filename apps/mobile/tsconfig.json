@@ -1,7 +1,6 @@
 {
   "extends": ["expo/tsconfig.base", "@urnight/config/tsconfig.expo.json"],
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
     }

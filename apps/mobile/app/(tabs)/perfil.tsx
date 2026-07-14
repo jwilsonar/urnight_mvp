@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { FadeIn, PressableScale } from '../../components/motion';
 import { Badge, Screen, SectionTitle } from '../../components/primitives';
+import { useSession } from '../../lib/session';
 import { colors, radius, spacing, typography } from '../../lib/theme';
 
 /**
@@ -22,34 +24,48 @@ const BADGES = [
 ];
 
 const MENU = [
-  { icon: 'ticket' as const, label: 'Historial de entradas' },
-  { icon: 'people' as const, label: 'Programa de referidos' },
-  { icon: 'notifications' as const, label: 'Notificaciones' },
-  { icon: 'shield-checkmark' as const, label: 'Privacidad y seguridad' },
-  { icon: 'help-circle' as const, label: 'Centro de ayuda' },
+  { icon: 'ticket' as const, label: 'Mis entradas', href: '/(tabs)/entradas' as const },
+  { icon: 'heart' as const, label: 'Guardados', href: '/perfil/guardados' as const },
+  { icon: 'people' as const, label: 'Programa de referidos', href: '/perfil/referidos' as const },
+  { icon: 'notifications' as const, label: 'Notificaciones', href: '/perfil/notificaciones' as const },
+  { icon: 'storefront' as const, label: 'Reservar mesa', href: '/reserva' as const },
 ];
 
 export default function PerfilScreen() {
+  const router = useRouter();
+  const { user, signOut } = useSession();
   const progreso = Math.round((NIVEL.puntos / NIVEL.meta) * 100);
+
+  const iniciales = (user?.name ?? 'U N')
+    .split(/\s+/)
+    .map((p) => p[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <Screen>
       <FadeIn>
         <View style={styles.header}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>PP</Text>
+            <Text style={styles.avatarText}>{iniciales}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.name}>Piero Pérez</Text>
-            <Text style={styles.email}>pieroperezanelli25@gmail.com</Text>
+            <Text style={styles.name}>{user?.name ?? 'Invitado'}</Text>
+            <Text style={styles.email}>{user?.email ?? ''}</Text>
           </View>
           <Badge tone="warning">{NIVEL.actual}</Badge>
         </View>
       </FadeIn>
 
-      {/* Nivel */}
+      {/* Nivel → detalle de niveles e insignias */}
       <FadeIn delay={60}>
-        <View style={styles.card}>
+        <PressableScale
+          accessibilityRole="button"
+          accessibilityLabel="Ver niveles y badges"
+          onPress={() => router.push('/perfil/niveles')}
+          style={styles.card}
+        >
           <View style={styles.cardRow}>
             <Text style={styles.cardTitle}>Nivel {NIVEL.actual}</Text>
             <Text style={styles.cardHint}>
@@ -60,20 +76,25 @@ export default function PerfilScreen() {
             <View style={[styles.progressFill, { width: `${progreso}%` }]} />
           </View>
           <Text style={styles.cardSub}>
-            {NIVEL.meta - NIVEL.puntos} pts para nivel {NIVEL.siguiente}
+            {NIVEL.meta - NIVEL.puntos} pts para nivel {NIVEL.siguiente} · toca para ver más
           </Text>
-        </View>
+        </PressableScale>
       </FadeIn>
 
-      {/* Wallet */}
+      {/* Wallet → movimientos */}
       <FadeIn delay={110}>
-        <View style={[styles.card, styles.walletCard]}>
+        <PressableScale
+          accessibilityRole="button"
+          accessibilityLabel="Ver wallet y movimientos"
+          onPress={() => router.push('/perfil/wallet')}
+          style={[styles.card, styles.walletCard]}
+        >
           <View style={{ flex: 1 }}>
             <Text style={styles.walletLabel}>Wallet UrNight</Text>
             <Text style={styles.walletSaldo}>{WALLET_SALDO}</Text>
           </View>
-          <Badge tone="info">Demo — llega con pasarela</Badge>
-        </View>
+          <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+        </PressableScale>
       </FadeIn>
 
       {/* Insignias */}
@@ -95,12 +116,26 @@ export default function PerfilScreen() {
       <SectionTitle>Cuenta</SectionTitle>
       <View style={styles.menu}>
         {MENU.map((item) => (
-          <PressableScale key={item.label} accessibilityRole="button" style={styles.menuItem}>
+          <PressableScale
+            key={item.label}
+            accessibilityRole="button"
+            onPress={() => router.push(item.href)}
+            style={styles.menuItem}
+          >
             <Ionicons name={item.icon} size={20} color={colors.lavender} />
             <Text style={styles.menuLabel}>{item.label}</Text>
             <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
           </PressableScale>
         ))}
+        <PressableScale
+          accessibilityRole="button"
+          accessibilityLabel="Cerrar sesión"
+          onPress={signOut}
+          style={styles.menuItem}
+        >
+          <Ionicons name="log-out" size={20} color={colors.error} />
+          <Text style={[styles.menuLabel, { color: colors.error }]}>Cerrar sesión</Text>
+        </PressableScale>
       </View>
 
       <FadeIn delay={200}>

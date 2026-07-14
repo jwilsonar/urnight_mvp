@@ -10,7 +10,8 @@
     "plugins": [
       "expo-router",
       "expo-sqlite",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-status-bar"
     ],
     "ios": {
       "supportsTablet": true,

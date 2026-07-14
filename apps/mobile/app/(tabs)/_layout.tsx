@@ -1,10 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 
+import { useSession } from '../../lib/session';
 import { colors } from '../../lib/theme';
 
-/** Tabs del asistente: descubrir, entradas (QR), carta in-venue y perfil. */
+/**
+ * Tabs del asistente: inicio, explorar, entradas (QR), carta in-venue y
+ * perfil. Sin sesión no hay modo invitado: redirige a /login.
+ */
 export default function TabsLayout() {
+  const { user } = useSession();
+  if (!user) {
+    return <Redirect href="/login" />;
+  }
   return (
     <Tabs
       screenOptions={{
@@ -24,6 +32,13 @@ export default function TabsLayout() {
         options={{
           title: 'Inicio',
           tabBarIcon: ({ color, size }) => <Ionicons name="sparkles" color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="explorar"
+        options={{
+          title: 'Explorar',
+          tabBarIcon: ({ color, size }) => <Ionicons name="compass" color={color} size={size} />,
         }}
       />
       <Tabs.Screen

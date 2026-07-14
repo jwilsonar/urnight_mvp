@@ -77,7 +77,12 @@ export default function InicioScreen() {
       <View style={styles.localGrid}>
         {LOCALES_DEMO.map((local, i) => (
           <FadeIn key={local.slug} delay={i * 50} style={styles.localCell}>
-            <View style={styles.localCard}>
+            <PressableScale
+              accessibilityRole="button"
+              accessibilityLabel={`Ver ${local.nombre}`}
+              onPress={() => router.push(`/local/${local.slug}`)}
+              style={styles.localCard}
+            >
               <Image source={{ uri: local.imageUrl }} style={styles.localImg} />
               <View style={styles.localBody}>
                 <Text style={styles.localName} numberOfLines={1}>
@@ -87,7 +92,7 @@ export default function InicioScreen() {
                   {local.tipo} · {local.zona}
                 </Text>
               </View>
-            </View>
+            </PressableScale>
           </FadeIn>
         ))}
       </View>

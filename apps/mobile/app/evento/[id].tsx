@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 import { FadeIn, PressableScale } from '../../components/motion';
@@ -16,7 +15,6 @@ export default function EventoDetalleScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const evento = eventoById(id ?? '');
-  const [canjeado, setCanjeado] = useState(false);
 
   if (!evento) {
     return (
@@ -61,38 +59,23 @@ export default function EventoDetalleScreen() {
         </FadeIn>
 
         <FadeIn delay={180}>
-          {canjeado ? (
-            <View style={styles.okBox}>
-              <Ionicons name="checkmark-circle" size={22} color={colors.success} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.okTitle}>¡Entrada canjeada!</Text>
-                <Text style={styles.okSub}>Tu QR ya está en la pestaña Entradas.</Text>
-              </View>
-              <PressableScale
-                onPress={() => router.push('/entradas')}
-                accessibilityRole="button"
-                style={styles.okBtn}
-              >
-                <Text style={styles.okBtnText}>Ver QR</Text>
-              </PressableScale>
-            </View>
-          ) : (
-            <PressableScale
-              onPress={() => setCanjeado(true)}
-              accessibilityRole="button"
-              style={styles.cta}
-            >
-              <Ionicons name="ticket" size={20} color={colors.textPrimary} />
-              <Text style={styles.ctaText}>
-                {esGratis ? 'Canjear entrada gratis (demo)' : 'Comprar entrada (demo)'}
-              </Text>
-            </PressableScale>
-          )}
+          <PressableScale
+            onPress={() =>
+              router.push(esGratis ? `/canje/${evento.id}` : `/checkout/${evento.id}`)
+            }
+            accessibilityRole="button"
+            style={styles.cta}
+          >
+            <Ionicons name="ticket" size={20} color={colors.textPrimary} />
+            <Text style={styles.ctaText}>
+              {esGratis ? 'Canjear con código de promotor' : 'Comprar entradas'}
+            </Text>
+          </PressableScale>
         </FadeIn>
 
         <FadeIn delay={230}>
           <Text style={styles.demoNote}>
-            Demo: el canje real valida el código del promotor y emite tu QR único (+18).
+            Demo: el canje valida el código del promotor y emite tu QR único (+18).
           </Text>
         </FadeIn>
       </Screen>
