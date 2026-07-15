@@ -6,6 +6,7 @@ import { SessionProvider, useSession } from 'next-auth/react';
 import { ThemeProvider } from 'next-themes';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Toaster } from 'sonner';
+import { MotionProvider } from '@/components/motion/motion-provider';
 import { handleSessionExpired, isSessionExpiredError } from '@/lib/auth/session-expiry';
 import { StorageProvider } from '@/lib/storage/storage-context';
 
@@ -60,7 +61,9 @@ export function Providers({ session, children }: { session?: Session | null; chi
       {/* DS UrNight es dark-first y no define tema claro: se fuerza dark. */}
       <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" disableTransitionOnChange>
         <QueryClientProvider client={queryClient}>
-          <StorageProvider>{children}</StorageProvider>
+          <StorageProvider>
+            <MotionProvider>{children}</MotionProvider>
+          </StorageProvider>
           <Toaster richColors position="top-right" />
         </QueryClientProvider>
       </ThemeProvider>

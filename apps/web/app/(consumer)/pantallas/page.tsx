@@ -45,6 +45,12 @@ const GRUPOS: Grupo[] = [
       { ruta: '/search', nombre: 'Búsqueda global', estado: 'real' },
       { ruta: '/events', nombre: 'Detalle de evento', estado: 'real', nota: 'Entra a cualquier card del listado' },
       { ruta: '/locals', nombre: 'Detalle de local', estado: 'real', nota: 'Entra a cualquier card del listado' },
+      {
+        ruta: '/locals/nocturna-club',
+        nombre: 'Crowd-meter del local',
+        estado: 'demo',
+        nota: 'Aforo en vivo dentro del detalle de local',
+      },
     ],
   },
   {
@@ -74,6 +80,12 @@ const GRUPOS: Grupo[] = [
       },
       { ruta: '/reserva', nombre: 'Reserva de mesa (R1–R5)', estado: 'demo', nota: 'Wizard: mesa → detalles → botellas → resumen → listo' },
       { ruta: '/locals/nocturna-club/carta', nombre: 'Carta del local (in-venue)', estado: 'demo', nota: 'Con entrada validada: carta → pedido demo → recojo en barra' },
+      {
+        ruta: '/locals/nocturna-club/carta',
+        nombre: 'Split bill (dividir cuenta)',
+        estado: 'demo',
+        nota: 'Dentro del Sheet del pedido',
+      },
       { ruta: '/canjear/ANDREA10', nombre: 'Canjear código promotor', estado: 'real', nota: 'Código del seed' },
       { ruta: '/p/ANDREA10', nombre: 'Landing pública de promotor', estado: 'real' },
     ],
@@ -88,9 +100,11 @@ const GRUPOS: Grupo[] = [
       { ruta: '/account/reservas', nombre: 'Mis reservas (R6)', estado: 'demo' },
       { ruta: '/account/wallet', nombre: 'Wallet UrNight', estado: 'demo' },
       { ruta: '/account/niveles', nombre: 'Niveles y badges', estado: 'demo' },
+      { ruta: '/account/puntos', nombre: 'Historial y canje de puntos', estado: 'demo' },
       { ruta: '/account/referidos', nombre: 'Programa de referidos', estado: 'demo' },
       { ruta: '/account/notificaciones', nombre: 'Notificaciones', estado: 'real' },
       { ruta: '/account/invitaciones', nombre: 'Invitaciones', estado: 'real' },
+      { ruta: '/account/amigos', nombre: 'Amigos / perfil social', estado: 'demo' },
     ],
   },
   {
@@ -118,6 +132,12 @@ const GRUPOS: Grupo[] = [
       { ruta: '/panel', nombre: 'Selector de paneles', estado: 'real', nota: 'Cualquier rol staff' },
       { ruta: '/panel/admin', nombre: 'Panel de local (admin)', estado: 'real', nota: 'owner.nocturna@urnight.pe' },
       { ruta: '/panel/admin/locals', nombre: 'PL · Mis locales', estado: 'real' },
+      {
+        ruta: '/panel/admin/locals',
+        nombre: 'PL · Wizard crear evento (4 pasos)',
+        estado: 'mixta',
+        nota: 'Entra a un local → Crear evento',
+      },
       { ruta: '/panel/admin/promoters', nombre: 'PL · Promotores', estado: 'real' },
       { ruta: '/panel/admin/mesas', nombre: 'PL · Mesas y planta', estado: 'demo', nota: 'Plano del local + reservas del día' },
       { ruta: '/panel/admin/carta', nombre: 'PL · Carta del local', estado: 'demo', nota: 'Registro de productos, precios y disponibilidad' },
@@ -169,7 +189,7 @@ export default function PantallasPage() {
           mismo flujo o modales. Aquí cada ruta agrupa lo suyo: el wizard de reserva (R1–R5) es una
           sola ruta con sus 5 pasos, el checkout (T1–T4) vive dentro del evento, los modales
           (compartir, galería, reportar) están dentro de sus páginas, y el home cambia solo entre
-          invitado y logueado. Lo aún no construido se lista al final.
+          invitado y logueado.
         </p>
       </Reveal>
 
@@ -212,12 +232,6 @@ export default function PantallasPage() {
           Storybook (componentes del design system): corre{' '}
           <code className="font-mono">pnpm --filter @urnight/web storybook</code> y abre
           localhost:6006.
-        </p>
-        <p className="mt-3 rounded-md border px-4 py-3 text-sm leading-relaxed text-muted-foreground">
-          <strong className="text-foreground">En diseño (aún no construidas):</strong> crowd-meter
-          del local, split bill, amigos / perfil social, historial y canje de puntos, y el wizard de
-          crear evento en 4 pasos del panel de local. Se priorizarán cuando su backend esté
-          definido.
         </p>
       </Reveal>
     </div>

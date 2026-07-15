@@ -11,9 +11,11 @@ const LINKS = [
   { href: '/account/reservas', label: 'Reservas' },
   { href: '/account/wallet', label: 'Wallet' },
   { href: '/account/niveles', label: 'Niveles' },
+  { href: '/account/puntos', label: 'Puntos' },
   { href: '/account/referidos', label: 'Referidos' },
   { href: '/account/notificaciones', label: 'Notificaciones' },
   { href: '/account/invitaciones', label: 'Invitaciones' },
+  { href: '/account/amigos', label: 'Amigos' },
 ] as const;
 
 export function AccountNav() {

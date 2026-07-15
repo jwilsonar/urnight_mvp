@@ -51,3 +51,6 @@ coverage/
 .agents/
 .claude/
 skills-lock.json
+
+# graphify: grafo de conocimiento local (se regenera con "graphify update .")
+graphify-out/

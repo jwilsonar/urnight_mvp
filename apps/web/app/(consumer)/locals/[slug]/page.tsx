@@ -10,6 +10,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Badge, Button, Card, CardContent } from '@urnight/ui';
+import { CrowdMeter } from '@/components/catalog/crowd-meter';
 import { EventCard } from '@/components/catalog/event-card';
 import { FavoriteButton } from '@/components/favorites/favorite-button';
 import { LocalGallery } from '@/components/locals/local-gallery';
@@ -22,6 +23,7 @@ import { ApiError } from '@/lib/api/client';
 import { getEvents, getLocalBySlug, getLocalImages } from '@/lib/api/catalog';
 import { getReviews } from '@/lib/api/trust';
 import { CARTA_CONFIG_DEMO } from '@/lib/mock/carta';
+import { crowdForSlug } from '@/lib/mock/crowd';
 
 export const revalidate = 60;
 
@@ -59,6 +61,7 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ sl
   const mapsUrl = hasCoords
     ? `https://www.google.com/maps/dir/?api=1&destination=${local.latitude},${local.longitude}`
     : null;
+  const crowd = crowdForSlug(slug);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -134,7 +137,8 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ sl
         </div>
 
         {/* Sidebar sticky del prototipo: mapa + cómo llegar + reservas */}
-        <aside className="lg:sticky lg:top-24 lg:self-start">
+        <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+          {crowd ? <CrowdMeter crowd={crowd} /> : null}
           <Card>
             <CardContent className="p-6">
               <p className="un-eyebrow mb-3">Para ir a {local.name}</p>

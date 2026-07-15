@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { Badge, Button, Card } from '@urnight/ui';
 import { BADGES_DEMO, NIVEL_DEMO } from '@/lib/mock/fidelizacion';
 
@@ -48,10 +49,12 @@ export default function NivelesPage() {
             </div>
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto">
-            <Button variant="secondary" disabled>
-              Ver historial
+            <Button variant="secondary" asChild>
+              <Link href="/account/puntos#historial">Ver historial</Link>
             </Button>
-            <Button disabled>Canjear puntos</Button>
+            <Button asChild>
+              <Link href="/account/puntos#canjear">Canjear puntos</Link>
+            </Button>
           </div>
         </div>
       </div>

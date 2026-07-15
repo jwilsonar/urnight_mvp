@@ -1,6 +1,7 @@
 'use client';
 
 import { Basket, Minus, Plus, Trash } from '@phosphor-icons/react';
+import { m } from 'framer-motion';
 import { useState } from 'react';
 import {
   Button,
@@ -12,6 +13,7 @@ import {
   SheetTitle,
 } from '@urnight/ui';
 import { useCart } from '@/components/carta/cart-provider';
+import { SplitBillDialog } from '@/components/carta/split-bill-dialog';
 import { formatPEN } from '@/lib/utils';
 import { CARTA_ITEMS_DEMO } from '@/lib/mock/carta';
 
@@ -28,6 +30,7 @@ export function CartFab({
 }) {
   const cart = useCart();
   const [open, setOpen] = useState(false);
+  const [splitOpen, setSplitOpen] = useState(false);
 
   if (cart.count === 0) return null;
 
@@ -39,7 +42,12 @@ export function CartFab({
   return (
     <>
       {/* FAB fijo, respeta safe-area en móvil */}
-      <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <m.div
+        className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+        initial={{ y: 96, scale: 0.9, opacity: 0 }}
+        animate={{ y: 0, scale: 1, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+      >
         <Button
           size="lg"
           className="w-full max-w-md justify-between shadow-float"
@@ -48,11 +56,19 @@ export function CartFab({
         >
           <span className="flex items-center gap-2">
             <Basket className="size-5" weight="duotone" />
-            Ver pedido ({cart.count})
+            Ver pedido{' '}
+            <m.span
+              key={cart.count}
+              initial={{ scale: 0.7 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+            >
+              ({cart.count})
+            </m.span>
           </span>
           <span className="tabular-nums">{formatPEN(cart.totalSoles)}</span>
         </Button>
-      </div>
+      </m.div>
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="bottom" className="mx-auto max-w-lg rounded-t-2xl border-t">
@@ -117,15 +133,30 @@ export function CartFab({
                 {formatPEN(cart.totalSoles)}
               </span>
             </div>
-            <Button className="w-full" size="lg" onClick={confirm}>
-              Confirmar pedido demo
-            </Button>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Button
+                type="button"
+                variant="secondary"
+                size="lg"
+                onClick={() => setSplitOpen(true)}
+              >
+                Dividir cuenta
+              </Button>
+              <Button size="lg" onClick={confirm}>
+                Confirmar pedido demo
+              </Button>
+            </div>
             <p className="text-center text-xs text-muted-foreground">
               Demo: sin pago en línea. La pasarela y la wallet llegan después del MVP.
             </p>
           </div>
         </SheetContent>
       </Sheet>
+      <SplitBillDialog
+        open={splitOpen}
+        onOpenChange={setSplitOpen}
+        totalSoles={cart.totalSoles}
+      />
     </>
   );
 }

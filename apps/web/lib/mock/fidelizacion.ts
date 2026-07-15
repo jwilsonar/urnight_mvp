@@ -112,3 +112,108 @@ export const BADGES_DEMO: BadgeDemo[] = [
   { nombre: 'Crítico fino', sub: '10 reseñas escritas', unlocked: false, icono: '✍️' },
   { nombre: 'Hasta el amanecer', sub: '5 afterhours completos', unlocked: false, icono: '☀️' },
 ];
+
+export interface MovimientoPuntosDemo {
+  fechaLabel: string;
+  concepto: string;
+  puntos: number;
+  tipo: 'gana' | 'canje';
+}
+
+/* El saldo neto de estos movimientos es 1,240 pts, igual al nivel demo. */
+export const HISTORIAL_PUNTOS_DEMO: MovimientoPuntosDemo[] = [
+  {
+    fechaLabel: '12 Jul',
+    concepto: 'Compra de entrada · Neon Nights vol.5',
+    puntos: 70,
+    tipo: 'gana',
+  },
+  {
+    fechaLabel: '10 Jul',
+    concepto: 'Pedido de carta · Nocturna Club',
+    puntos: 14,
+    tipo: 'gana',
+  },
+  {
+    fechaLabel: '08 Jul',
+    concepto: 'Referido: Daniela Vega',
+    puntos: 30,
+    tipo: 'gana',
+  },
+  {
+    fechaLabel: '06 Jul',
+    concepto: 'Check-in validado · Sunset Rooftop',
+    puntos: 15,
+    tipo: 'gana',
+  },
+  {
+    fechaLabel: '03 Jul',
+    concepto: 'Canje: S/ 20 a wallet',
+    puntos: -200,
+    tipo: 'canje',
+  },
+  {
+    fechaLabel: '28 Jun',
+    concepto: 'Compra grupal de entradas · Barranco Beats',
+    puntos: 450,
+    tipo: 'gana',
+  },
+  {
+    fechaLabel: '21 Jun',
+    concepto: 'Compra grupal de entradas · Noche Latina',
+    puntos: 500,
+    tipo: 'gana',
+  },
+  {
+    fechaLabel: '14 Jun',
+    concepto: 'Pedido grupal de carta · Sky Lounge 360',
+    puntos: 361,
+    tipo: 'gana',
+  },
+];
+
+export interface CanjeOpcionDemo {
+  id: string;
+  nombre: string;
+  detalle: string;
+  costoPuntos: number;
+  disponible: boolean;
+}
+
+export const CATALOGO_CANJE_DEMO: CanjeOpcionDemo[] = [
+  {
+    id: 'wallet-20',
+    nombre: 'S/ 20 en wallet',
+    detalle: 'Saldo para tu próxima compra en UrNight.',
+    costoPuntos: 200,
+    disponible: true,
+  },
+  {
+    id: 'trago-cortesia',
+    nombre: 'Trago de cortesía',
+    detalle: 'Un trago seleccionado en locales participantes.',
+    costoPuntos: 150,
+    disponible: true,
+  },
+  {
+    id: 'cola-preferente',
+    nombre: 'Cola preferente x1',
+    detalle: 'Ingreso por la fila preferente una vez.',
+    costoPuntos: 300,
+    disponible: true,
+  },
+  {
+    id: 'botella-premium',
+    nombre: 'Botella premium −20%',
+    detalle: 'Descuento en una botella premium seleccionada.',
+    costoPuntos: 800,
+    disponible: true,
+  },
+  {
+    id: 'mesa-vip',
+    nombre: 'Mesa VIP garantizada',
+    detalle: 'Reserva prioritaria en un local participante.',
+    costoPuntos: 2000,
+    disponible: false,
+  },
+];

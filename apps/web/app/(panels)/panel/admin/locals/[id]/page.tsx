@@ -14,7 +14,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@urnight/ui';
-import { CreateEventDialog } from '@/components/admin/create-event-dialog';
+import { CreateEventWizard } from '@/components/admin/create-event-wizard';
 import { EventsTable } from '@/components/admin/events-table';
 import { LocalActions } from '@/components/admin/local-actions';
 import { LocalImagesManager } from '@/components/admin/local-images-manager';
@@ -124,7 +124,7 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ id
         <TabsContent value="eventos" className="space-y-4 pt-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-heading text-xl font-semibold">Eventos</h2>
-            <CreateEventDialog localId={local.id} />
+            <CreateEventWizard localId={local.id} />
           </div>
           <EventsTable localId={local.id} />
         </TabsContent>

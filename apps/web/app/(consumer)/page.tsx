@@ -11,7 +11,9 @@ import Link from 'next/link';
 import { Badge, Button } from '@urnight/ui';
 import { EventCard } from '@/components/catalog/event-card';
 import { LocalCard } from '@/components/catalog/local-card';
-import { Parallax } from '@/components/motion/parallax';
+import { HeroParallax } from '@/components/home/hero-parallax';
+import { Marquee } from '@/components/motion/marquee';
+import { ScrollReveal3d } from '@/components/motion/scroll-reveal-3d';
 import { Reveal } from '@/components/shared/reveal';
 import { getLocals, getMusicGenres, getTrendingEvents, getUpcomingEvents } from '@/lib/api/catalog';
 
@@ -72,15 +74,12 @@ export default async function HomePage() {
           titular Sora con la marca en glow y strip de stats ===== */}
       <section className="relative overflow-hidden bg-[linear-gradient(180deg,var(--surface-3)_0%,var(--bg-root)_85%)]">
         {/* Glow de fondo con parallax lento (capa profunda) */}
-        <Parallax
-          speed={0.4}
-          className="pointer-events-none absolute -right-52 -top-24"
-        >
+        <HeroParallax>
           <div
             aria-hidden
-            className="un-breathe size-[700px] rounded-full bg-[radial-gradient(circle,var(--accent-soft-strong),transparent_60%)]"
+            className="un-breathe absolute -right-52 -top-24 size-[700px] rounded-full bg-[radial-gradient(circle,var(--accent-soft-strong),transparent_60%)]"
           />
-        </Parallax>
+        </HeroParallax>
         <div className="mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 lg:px-8">
           <Reveal depth>
             <span className="un-eyebrow inline-flex items-center gap-2 rounded-full border border-accent-border bg-accent px-4 py-2">
@@ -159,13 +158,37 @@ export default async function HomePage() {
             ) : null}
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
               {featured.map((event, i) => (
-                <Reveal key={event.id} delay={i * 90}>
+                <ScrollReveal3d key={event.id} delay={i * 70}>
                   <EventCard event={event} />
-                </Reveal>
+                </ScrollReveal3d>
               ))}
             </div>
           </section>
         ) : null}
+
+        <section className="border-y py-3">
+          <Marquee>
+            <div className="flex shrink-0 items-center gap-4">
+              {[
+                'Miraflores',
+                'Barranco',
+                'San Isidro',
+                'Surco',
+                'Reggaetón',
+                'Techno',
+                'House',
+                'Electrónica',
+              ].map((item) => (
+                <span key={item} className="flex shrink-0 items-center gap-4">
+                  <span className="un-eyebrow shrink-0">{item}</span>
+                  <span aria-hidden className="shrink-0 text-muted-foreground">
+                    ·
+                  </span>
+                </span>
+              ))}
+            </div>
+          </Marquee>
+        </section>
 
         {/* ===== Locales populares ===== */}
         {popular.length > 0 ? (
@@ -179,9 +202,9 @@ export default async function HomePage() {
             </Reveal>
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
               {popular.map((local, i) => (
-                <Reveal key={local.id} delay={i * 90}>
+                <ScrollReveal3d key={local.id} delay={i * 70}>
                   <LocalCard local={local} />
-                </Reveal>
+                </ScrollReveal3d>
               ))}
             </div>
           </section>
