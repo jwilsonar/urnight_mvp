@@ -393,9 +393,16 @@
     animation: un-breathe 7s ease-in-out infinite;
   }
 
-  /* Zoom suave de imagen dentro de cards clickeables */
+  /* Zoom suave de imagen dentro de cards clickeables.
+     Se transicionan `transform` Y `scale` porque son propiedades distintas y
+     conviven: `.un-zoom-img:hover img` (aquí abajo) escribe `transform`, pero
+     las utilidades de Tailwind v4 (`group-hover:scale-105`, que usa event-card
+     porque su link estirado tapa el `:hover` del wrapper) escriben `scale`.
+     Con solo `transform` en la lista, ese segundo caso saltaría sin animar. */
   .un-zoom-img img {
-    transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition:
+      transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
+      scale 700ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   .un-zoom-img:hover img {
     transform: scale(1.05);
@@ -450,6 +457,209 @@
   .un-parallax {
     transform: translate3d(0, var(--parallax-y, 0), 0);
     will-change: transform;
+  }
+
+  /* ===================================================================
+     Capa 3D. Todo es CSS 3D (perspective + preserve-3d + translateZ):
+     sin WebGL, sin deps. Los componentes de components/motion/ setean
+     las variables --holo-*, --spot-*, --logo-* por puntero o scroll; el
+     navegador compone en GPU.
+     =================================================================== */
+
+  /* Escenario: abre un espacio con profundidad real para los hijos.
+     Sin esto, el translateZ de un descendiente no se ve. */
+  .un-stage {
+    perspective: var(--stage-persp, 1200px);
+    perspective-origin: var(--stage-origin, 50% 50%);
+    transform-style: preserve-3d;
+  }
+
+  /* ---------- Ticket holográfico ---------- */
+
+  /* Capa de inclinación. Va por fuera del flip para que ambas rotaciones
+     no peleen por el mismo transform. */
+  .un-holo {
+    position: relative;
+    transform: perspective(var(--holo-persp, 900px)) rotateX(var(--holo-rx, 0deg))
+      rotateY(var(--holo-ry, 0deg)) scale(var(--holo-scale, 1));
+    transform-style: preserve-3d;
+    transition: transform 300ms var(--ease-brand);
+    will-change: transform;
+  }
+  /* Con el puntero encima seguimos su posición casi sin lag; al salir, la
+     transición larga devuelve la card con suavidad. */
+  .un-holo[data-active='true'] {
+    transition: transform 80ms linear;
+  }
+
+  /* Foil: bandas de difracción teñidas con la paleta de marca
+     (lavanda → amatista → info) en vez del arcoíris típico. */
+  .un-holo__foil {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: var(--holo-foil-op, 0);
+    transition: opacity 300ms ease;
+    mix-blend-mode: color-dodge;
+    background-image: repeating-linear-gradient(
+      112deg,
+      rgba(184, 168, 255, 0) 0%,
+      rgba(184, 168, 255, 0.22) 5%,
+      rgba(108, 77, 255, 0.28) 10%,
+      rgba(96, 165, 250, 0.2) 15%,
+      rgba(143, 120, 255, 0.26) 20%,
+      rgba(184, 168, 255, 0) 26%
+    );
+    background-size: 260% 260%;
+    background-position: var(--holo-bx, 50%) var(--holo-by, 50%);
+  }
+
+  /* Brillo especular: el reflejo puntual que delata que hay un plano
+     físico inclinándose bajo la luz. */
+  .un-holo__shine {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: var(--holo-shine-op, 0);
+    transition: opacity 300ms ease;
+    mix-blend-mode: overlay;
+    background: radial-gradient(
+      circle at var(--holo-gx, 50%) var(--holo-gy, 50%),
+      rgba(255, 255, 255, 0.45),
+      rgba(255, 255, 255, 0.06) 32%,
+      transparent 58%
+    );
+  }
+
+  /* Flip: cara A / cara B del ticket. */
+  .un-holo-flip {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 640ms var(--ease-brand);
+  }
+  .un-holo-flip[data-flipped='true'] {
+    transform: rotateY(180deg);
+  }
+  .un-holo-flip__face {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .un-holo-flip__face--back {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+  }
+
+  /* ---------- Muro de noches ---------- */
+
+  .un-wall {
+    transform-style: preserve-3d;
+  }
+  .un-wall__row {
+    display: flex;
+    width: max-content;
+    gap: 1.25rem;
+    will-change: transform;
+  }
+  .un-poster {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background-image: var(--poster-bg, var(--gradient-primary));
+    background-size: cover;
+    background-position: center;
+    box-shadow: var(--shadow-card-md);
+    transition:
+      transform 320ms var(--ease-brand),
+      box-shadow 320ms var(--ease-brand);
+  }
+  /* El poster sale del plano hacia la cámara: profundidad de verdad,
+     no un scale disfrazado. */
+  .un-poster:hover {
+    transform: translateZ(48px);
+    box-shadow: var(--shadow-card-xl), var(--glow-btn-lg);
+  }
+
+  /* ---------- Spotlight ---------- */
+
+  /* Luz de club que sigue al cursor. Va detrás del contenido (z-index -1
+     dentro de un isolation:isolate) para no lavar el texto. */
+  .un-spotlight {
+    position: relative;
+    isolation: isolate;
+  }
+  .un-spotlight::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: var(--spot-op, 0);
+    transition: opacity 500ms ease;
+    background: radial-gradient(
+      var(--spot-size, 600px) circle at var(--spot-x, 50%) var(--spot-y, 0%),
+      rgba(108, 77, 255, 0.18),
+      rgba(108, 77, 255, 0.05) 40%,
+      transparent 70%
+    );
+  }
+
+  /* ---------- Logo con luz y profundidad ---------- */
+
+  .un-logo3d {
+    position: relative;
+    transform: perspective(600px) rotateX(var(--logo-rx, 0deg)) rotateY(var(--logo-ry, 0deg));
+    transform-style: preserve-3d;
+    transition: transform 320ms var(--ease-brand);
+  }
+  /* La marca flota por delante del wordmark: al inclinar, el desfase entre
+     ambos planos es lo que se lee como volumen. */
+  .un-logo3d__mark {
+    position: relative;
+    transform: translateZ(20px);
+  }
+  .un-logo3d__word {
+    transform: translateZ(8px);
+  }
+  /* El barrido se recorta con la silueta del PNG (mask-image): la luz
+     recorre la copa sin que haya que remodelar la marca. */
+  .un-logo3d__sweep {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      105deg,
+      transparent 42%,
+      rgba(255, 255, 255, 0.65) 50%,
+      transparent 58%
+    );
+    background-size: 300% 100%;
+    background-position: 220% 0;
+    mask-image: url('/brand/urnight-mark.png');
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-image: url('/brand/urnight-mark.png');
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+  }
+  .un-logo3d[data-sweep='true'] .un-logo3d__sweep {
+    animation: un-sweep 1100ms var(--ease-brand);
+  }
+}
+
+@keyframes un-sweep {
+  from {
+    background-position: 220% 0;
+  }
+  to {
+    background-position: -120% 0;
   }
 }
 
@@ -509,5 +719,43 @@
   }
   .un-parallax {
     transform: none;
+  }
+
+  /* Capa 3D: se queda plana y legible. El flip sigue funcionando porque es
+     una acción del usuario (ver el reverso del ticket), pero sin animarse;
+     lo que se apaga es el movimiento ambiental. */
+  .un-holo {
+    transform: none;
+    transition: none;
+  }
+  .un-holo__foil,
+  .un-holo__shine {
+    display: none;
+  }
+  .un-holo-flip {
+    transition: none;
+  }
+  .un-poster {
+    transition: none;
+  }
+  .un-poster:hover {
+    transform: none;
+  }
+  .un-spotlight::before {
+    display: none;
+  }
+  .un-logo3d {
+    transform: none;
+    transition: none;
+  }
+  .un-logo3d__mark,
+  .un-logo3d__word {
+    transform: none;
+  }
+  .un-logo3d__sweep {
+    display: none;
+  }
+  .un-logo3d[data-sweep='true'] .un-logo3d__sweep {
+    animation: none;
   }
 }

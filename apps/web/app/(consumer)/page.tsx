@@ -12,8 +12,11 @@ import { Badge, Button } from '@urnight/ui';
 import { EventCard } from '@/components/catalog/event-card';
 import { LocalCard } from '@/components/catalog/local-card';
 import { HeroParallax } from '@/components/home/hero-parallax';
+import { NightWall } from '@/components/home/night-wall';
 import { Marquee } from '@/components/motion/marquee';
+import { NightCamera } from '@/components/motion/night-camera';
 import { ScrollReveal3d } from '@/components/motion/scroll-reveal-3d';
+import { Spotlight } from '@/components/motion/spotlight';
 import { Reveal } from '@/components/shared/reveal';
 import { getLocals, getMusicGenres, getTrendingEvents, getUpcomingEvents } from '@/lib/api/catalog';
 
@@ -68,6 +71,12 @@ export default async function HomePage() {
   const popular = locals.slice(0, 4);
   const partner = locals.find((l) => l.isVerified && l.description) ?? locals[0];
 
+  // El muro del hero repite EXACTAMENTE los eventos que pintan las grillas de
+  // abajo. Es lo que hace legítimo su aria-hidden: no esconde nada que no sea
+  // alcanzable con teclado más adelante en la página. Si algún día el muro
+  // muestra eventos propios, hay que quitarle el aria-hidden.
+  const wallEvents = [...featured, ...moreEvents];
+
   return (
     <div>
       {/* ===== Hero del prototipo: gradiente amatista→midnight, glow respirando,
@@ -80,7 +89,29 @@ export default async function HomePage() {
             className="un-breathe absolute -right-52 -top-24 size-[700px] rounded-full bg-[radial-gradient(circle,var(--accent-soft-strong),transparent_60%)]"
           />
         </HeroParallax>
-        <div className="mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 lg:px-8">
+        {/* El muro va DETRÁS del copy, no debajo: como banda aparte medía 939px y
+            empujaba "Eventos destacados" a 2,2 pantallas de scroll — carísimo en
+            un marketplace donde se viene a comprar una entrada. De fondo cuesta
+            0px de scroll y encima se lee mejor: el titular va sobre un muro de
+            noches en movimiento. La sección lo recorta (overflow-hidden). */}
+        {/* blur + opacidad baja = profundidad de campo. Una cámara real enfoca el
+            titular y desenfoca lo que hay detrás; sin esto los títulos de los
+            posters compiten con el copy y el hero se lee sucio. El desenfoque va
+            en este envoltorio, por FUERA del .un-stage: un `filter` aplana el 3D
+            del elemento que lo lleva, así que sobre el muro mataría la
+            perspectiva. Aquí solo rasteriza el resultado ya compuesto. */}
+        <div aria-hidden className="absolute inset-0 z-0 flex items-center opacity-50 blur-[3px]">
+          <NightWall events={wallEvents} className="w-full" />
+        </div>
+        {/* Scrim direccional: casi opaco donde vive el texto, más limpio a la
+            derecha para que el muro respire. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 z-[1] bg-[linear-gradient(90deg,var(--bg-root)_0%,rgba(5,5,10,0.96)_40%,rgba(5,5,10,0.78)_68%,rgba(5,5,10,0.6)_100%)]"
+        />
+        {/* Spotlight: luz de club que sigue al cursor por todo el hero. */}
+        <Spotlight size={700} className="relative z-10">
+        <div className="mx-auto max-w-7xl px-4 pb-20 pt-20 sm:px-6 lg:px-8">
           <Reveal depth>
             <span className="un-eyebrow inline-flex items-center gap-2 rounded-full border border-accent-border bg-accent px-4 py-2">
               🔥 Esta temporada en Lima
@@ -129,6 +160,7 @@ export default async function HomePage() {
             </dl>
           </Reveal>
         </div>
+        </Spotlight>
       </section>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -213,7 +245,13 @@ export default async function HomePage() {
         {/* ===== Partner destacado (split card del prototipo) ===== */}
         {partner ? (
           <section className="pt-16">
-            <Reveal>
+            {/* NightCamera en vez de Reveal: el bloque llega desde el fondo en Z
+                de forma continua con el scroll, en vez de aparecer de golpe. Se
+                usa SOLO aquí — es el único bloque suficientemente grande para
+                que la profundidad se lea, y repetirlo en cada sección cansaría.
+                Ojo: nunca en la última sección de la página (si no llega a
+                centrarse en el viewport se queda atenuada para siempre). */}
+            <NightCamera>
               <div className="overflow-hidden rounded-2xl border border-accent-border bg-[linear-gradient(110deg,#16102a_0%,#0f0a1e_100%)]">
                 <div className="grid min-h-[340px] lg:grid-cols-[1.2fr_1fr]">
                   <div className="flex flex-col justify-center p-8 sm:p-12">
@@ -243,7 +281,7 @@ export default async function HomePage() {
                   </div>
                 </div>
               </div>
-            </Reveal>
+            </NightCamera>
           </section>
         ) : null}
 

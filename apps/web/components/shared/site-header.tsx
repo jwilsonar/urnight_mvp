@@ -1,5 +1,5 @@
 import { SearchSuggest } from '@/components/catalog/search-suggest';
-import { Logo } from './logo';
+import { Logo3D } from './logo-3d';
 import { MainNav } from './main-nav';
 import { MobileNav } from './mobile-nav';
 import { UserMenu } from './user-menu';
@@ -13,7 +13,10 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
           <MobileNav />
-          <Logo />
+          {/* Variante 3D solo en el navbar público: la marca se inclina con el
+              puntero y enciende al cargar. En checkout, auth y paneles se queda
+              el <Logo/> plano — ahí un logo que brilla es distracción. */}
+          <Logo3D />
         </div>
         <MainNav className="hidden md:flex" />
         <div className="ml-auto flex items-center gap-2">
