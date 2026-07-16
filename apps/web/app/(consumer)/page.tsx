@@ -19,6 +19,7 @@ import { ScrollReveal3d } from '@/components/motion/scroll-reveal-3d';
 import { Spotlight } from '@/components/motion/spotlight';
 import { Reveal } from '@/components/shared/reveal';
 import { getLocals, getMusicGenres, getTrendingEvents, getUpcomingEvents } from '@/lib/api/catalog';
+import { StorageImage } from '@/lib/storage/storage-context';
 
 export const revalidate = 60;
 
@@ -278,8 +279,27 @@ export default async function HomePage() {
                       <Badge variant="info">Demo</Badge>
                     </div>
                   </div>
-                  <div className="un-img-ph relative hidden min-h-[240px] lg:block">
-                    <span>Partner · {partner.name}</span>
+                  {/* Imagen real del partner cuando existe; si no, placeholder
+                      con degradado de marca (no las líneas diagonales del
+                      un-img-ph, que se veían como "falta algo"). El scrim
+                      izquierdo funde la foto con el panel de texto. */}
+                  <div className="relative hidden min-h-[240px] overflow-hidden lg:block">
+                    {partner.mainImageUrl ? (
+                      <StorageImage
+                        src={partner.mainImageUrl}
+                        alt={partner.name}
+                        fill
+                        sizes="(max-width: 1024px) 0px, 40vw"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,var(--accent-soft-strong),transparent_60%),linear-gradient(120deg,#1a1030,#0f0a1e)]" />
+                    )}
+                    {/* Scrim para fundir con el panel de texto a la izquierda. */}
+                    <div className="absolute inset-0 bg-[linear-gradient(90deg,#0f0a1e_0%,rgba(15,10,30,0.35)_35%,transparent_100%)]" />
+                    <span className="absolute bottom-4 right-4 rounded-full border border-accent-border bg-deep/80 px-3 py-1 text-xs font-semibold text-lavender backdrop-blur-sm">
+                      {partner.name}
+                    </span>
                   </div>
                 </div>
               </div>

@@ -41,7 +41,7 @@ export default async function RegisterPage({
           <p className="font-heading text-3xl font-extrabold leading-tight">
             Únete a la noche limeña.
           </p>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-4 text-sm leading-relaxed text-foreground/85">
             Crea tu cuenta gratis, guarda tus locales favoritos y compra entradas en segundos.
           </p>
           <div className="mt-5 flex flex-wrap gap-2.5">

@@ -67,7 +67,7 @@ export function RegisterForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
   const [apellidos, setApellidos] = useState('');
 
   const form = useForm<RegisterFormInput, unknown, RegisterFormOutput>({
-    resolver: zodResolver(registerFormSchema, { errorMap: zodErrorMapEs }),
+    resolver: zodResolver(registerFormSchema, { errorMap: zodErrorMapEs, path: [], async: true }),
     defaultValues: {
       fullName: '',
       email: '',

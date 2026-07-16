@@ -44,7 +44,7 @@ export default async function LoginPage({
           <p className="font-heading text-3xl font-extrabold leading-tight">
             Tu noche te está esperando.
           </p>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-4 text-sm leading-relaxed text-foreground/85">
             Entra y sigue donde lo dejaste: guardados, tickets y mucho más.
           </p>
           <div className="mt-5 flex flex-wrap gap-2.5">

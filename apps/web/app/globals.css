@@ -718,6 +718,23 @@
   animation: un-page-in 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
+/* Deriva lenta para el collage de flyers del hero de auth: sube/baja y gira un
+   pelo, en bucle. Da la sensación de "posters flotando" del prototipo sin
+   cargar imágenes (solo transform, compone en GPU). */
+@keyframes un-drift {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--drift-rot, 0deg));
+  }
+  50% {
+    transform: translateY(var(--drift-y, -14px)) rotate(var(--drift-rot, 0deg));
+  }
+}
+.un-float {
+  animation: un-drift var(--drift-dur, 9s) ease-in-out infinite;
+  will-change: transform;
+}
+
 /* Accesibilidad: sin movimiento para quien lo pide */
 @media (prefers-reduced-motion: reduce) {
   .un-reveal {
@@ -726,6 +743,9 @@
     transition: none;
   }
   .un-breathe {
+    animation: none;
+  }
+  .un-float {
     animation: none;
   }
   .un-page-in {

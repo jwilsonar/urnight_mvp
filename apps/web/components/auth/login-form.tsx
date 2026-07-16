@@ -24,7 +24,9 @@ export function LoginForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
   const [formError, setFormError] = useState<string | null>(null);
 
   const form = useForm<LoginDto>({
-    resolver: zodResolver(loginSchema, { errorMap: zodErrorMapEs }),
+    // path/async completan el tipo ParseParams del resolver (runtime solo usa
+    // errorMap para traducir los mensajes por defecto de Zod).
+    resolver: zodResolver(loginSchema, { errorMap: zodErrorMapEs, path: [], async: true }),
     defaultValues: { email: '', password: '' },
   });
 
