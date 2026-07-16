@@ -1,7 +1,8 @@
 import { MapPin, SealCheck } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 import type { LocalResponse } from '@urnight/contracts';
-import { Badge, Card, CardContent } from '@urnight/ui';
+import { Badge, Card, CardContent, cn } from '@urnight/ui';
+import { CTA_CLASS } from '@/components/catalog/event-card';
 import { Tilt } from '@/components/motion/tilt';
 import { StorageImage } from '@/lib/storage/storage-context';
 
@@ -51,6 +52,16 @@ export function LocalCard({ local }: { local: LocalResponse }) {
               {local.description}
             </p>
           ) : null}
+          {/* Mismo pie que la card de evento: coherencia entre tarjetas del
+              catálogo — ambas son 100% clickeables Y ambas muestran el pill CTA
+              como punto de entrada garantizado (clave en móvil). Aquí es un span
+              porque la card entera ya es el link. */}
+          <div className="!mt-3.5 flex items-center justify-between border-t pt-3.5">
+            <span className="text-xs text-muted-foreground">Eventos, carta y reservas</span>
+            <span className={cn(CTA_CLASS, 'transition-transform group-hover:scale-[1.03]')}>
+              Ver local
+            </span>
+          </div>
         </CardContent>
       </Card>
       </Tilt>

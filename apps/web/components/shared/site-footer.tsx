@@ -59,8 +59,27 @@ function FooterColumn({
   );
 }
 
-/** Pie del sitio público — estructura del prototipo (Conócenos / Legales / Síguenos / Ayuda). */
-export function SiteFooter() {
+/**
+ * Pie del sitio público — estructura del prototipo (Conócenos / Legales /
+ * Síguenos / Ayuda).
+ *
+ * `variant`:
+ * - `full` (default): en pantallas de descubrimiento (home, /events, /locals,
+ *   detalle, FAQ, nosotros) donde el pie es navegación útil.
+ * - `slim`: en flujos transaccionales (reserva, carta in-venue) donde el pie
+ *   grande solo mete scroll; se conserva SOLO la barra legal obligatoria
+ *   (Libro de Reclamaciones + copyright). Igual que Joinnus/Teleticket, que no
+ *   repiten el pie completo dentro del flujo de compra.
+ */
+export function SiteFooter({ variant = 'full' }: { variant?: 'full' | 'slim' }) {
+  if (variant === 'slim') {
+    return (
+      <footer className="border-t bg-deep">
+        <FooterBottomBar />
+      </footer>
+    );
+  }
+
   return (
     <footer className="border-t bg-deep">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.2fr_1fr_1fr_1fr] lg:px-8">
@@ -108,21 +127,28 @@ export function SiteFooter() {
         </div>
       </div>
 
-      {/* Barra inferior: Libro de Reclamaciones + copyright */}
-      <div className="border-t">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-5 sm:px-6 md:flex-row lg:px-8">
-          <Link
-            href="/reclamaciones"
-            className="inline-flex items-center gap-2 rounded-sm bg-white px-4 py-2 text-sm font-bold text-neutral-900 transition-opacity hover:opacity-90"
-          >
-            📖 Libro de Reclamaciones
-          </Link>
-          <p className="text-xs text-muted-foreground">
-            Copyright © UrNight {new Date().getFullYear()} · Todos los derechos reservados. Solo
-            para mayores de 18 años.
-          </p>
-        </div>
-      </div>
+      <FooterBottomBar />
     </footer>
+  );
+}
+
+/** Barra inferior legal (obligatoria): Libro de Reclamaciones + copyright.
+    Se muestra en ambas variantes del pie. */
+function FooterBottomBar() {
+  return (
+    <div className="border-t">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-5 sm:px-6 md:flex-row lg:px-8">
+        <Link
+          href="/reclamaciones"
+          className="inline-flex items-center gap-2 rounded-sm bg-white px-4 py-2 text-sm font-bold text-neutral-900 transition-opacity hover:opacity-90"
+        >
+          📖 Libro de Reclamaciones
+        </Link>
+        <p className="text-xs text-muted-foreground">
+          Copyright © UrNight {new Date().getFullYear()} · Todos los derechos reservados. Solo
+          para mayores de 18 años.
+        </p>
+      </div>
+    </div>
   );
 }

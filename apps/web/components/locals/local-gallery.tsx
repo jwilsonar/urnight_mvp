@@ -126,7 +126,9 @@ export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalle
           variant="secondary"
           size="sm"
           onClick={openOverview}
-          className="absolute bottom-3 right-3 gap-2 bg-background/90 shadow-md backdrop-blur hover:bg-background"
+          // Borde marcado (accent) sobre la foto: define los límites del botón,
+          // que con solo el fill translúcido se perdían contra la imagen.
+          className="absolute bottom-3 right-3 gap-2 border border-accent-border bg-background/90 shadow-md backdrop-blur hover:bg-background"
         >
           <Images className="h-4 w-4" weight="fill" />
           Ver galería ({count})
@@ -144,9 +146,10 @@ export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalle
             </span>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={() => setOverview((v) => !v)}
+              // Outline en vez de ghost: el toggle tenía límites invisibles.
               className="mr-10 gap-2"
             >
               {overview ? (

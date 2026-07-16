@@ -49,8 +49,11 @@ export const SheetContent = React.forwardRef<
     <SheetOverlay />
     <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
       {children}
-      <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring disabled:pointer-events-none">
-        <X className="h-4 w-4" />
+      {/* Chip de fondo semiopaco: la X iba suelta con opacity-70 y se perdía
+          cuando el sheet abre sobre una imagen (p. ej. el detalle de la carta).
+          El backing la hace visible sobre cualquier fondo del tema. */}
+      <SheetPrimitive.Close className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-full border border-border bg-background/85 text-foreground backdrop-blur-sm ring-offset-background transition-colors hover:bg-background focus:outline-none focus:ring-2 focus:ring-ring disabled:pointer-events-none">
+        <X className="h-4 w-4" weight="bold" />
         <span className="sr-only">Cerrar</span>
       </SheetPrimitive.Close>
     </SheetPrimitive.Content>

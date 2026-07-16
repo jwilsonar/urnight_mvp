@@ -201,14 +201,16 @@ export default async function HomePage() {
         <section className="border-y py-3">
           <Marquee>
             <div className="flex shrink-0 items-center gap-4">
+              {/* Intercalado distrito/género a propósito: leído al vuelo se
+                  siente "dónde + qué", no dos listas pegadas. */}
               {[
                 'Miraflores',
-                'Barranco',
-                'San Isidro',
-                'Surco',
                 'Reggaetón',
+                'Barranco',
                 'Techno',
+                'San Isidro',
                 'House',
+                'Surco',
                 'Electrónica',
               ].map((item) => (
                 <span key={item} className="flex shrink-0 items-center gap-4">

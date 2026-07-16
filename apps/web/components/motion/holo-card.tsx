@@ -280,7 +280,16 @@ export function HoloFlipButton({
   if (!ctx) return null;
 
   return (
-    <button type="button" onClick={ctx.toggle} aria-pressed={ctx.flipped} aria-label={label} className={className}>
+    <button
+      type="button"
+      onClick={ctx.toggle}
+      aria-pressed={ctx.flipped}
+      aria-label={label}
+      // Tooltip nativo: el icono solo no explica qué hace el botón, y el
+      // aria-label no le llega a quien navega con mouse.
+      title={label}
+      className={className}
+    >
       {children}
     </button>
   );

@@ -229,7 +229,11 @@ export function CheckoutClient({
                   variant="outline"
                   size="icon"
                   disabled={fields.length >= maxQty}
-                  onClick={() => append(emptyAttendee())}
+                  // shouldFocus:false — por defecto append() enfoca el primer
+                  // campo del asistente nuevo y el navegador baja el scroll
+                  // hasta él. Piero quiere quedarse arriba (en el contador) y
+                  // bajar a llenar datos cuando quiera.
+                  onClick={() => append(emptyAttendee(), { shouldFocus: false })}
                   aria-label="Agregar entrada"
                 >
                   <Plus className="h-4 w-4" />

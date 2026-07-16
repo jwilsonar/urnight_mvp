@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { loginSchema, type LoginDto } from '@urnight/contracts';
@@ -18,14 +17,14 @@ import {
   Input,
 } from '@urnight/ui';
 import { loginAction } from '@/lib/auth-actions';
+import { zodErrorMapEs } from '@/lib/validation/zod-es';
 
 export function LoginForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
-  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
 
   const form = useForm<LoginDto>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginSchema, { errorMap: zodErrorMapEs }),
     defaultValues: { email: '', password: '' },
   });
 
@@ -40,8 +39,11 @@ export function LoginForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
         }
         return;
       }
-      router.push(callbackUrl);
-      router.refresh();
+      // Navegación dura a propósito (igual que RegisterForm): un router.push +
+      // refresh solo re-renderiza server components, y los client components
+      // con useSession (navbar, favoritos) se quedaban mostrando "invitado"
+      // hasta un F5 manual. El reload completo rehidrata la sesión en todos.
+      window.location.assign(callbackUrl);
     });
   }
 

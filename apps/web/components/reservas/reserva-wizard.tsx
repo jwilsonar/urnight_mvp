@@ -82,7 +82,15 @@ function QtyStepper({ value, onChange }: { value: number; onChange: (delta: numb
         type="button"
         aria-label="Quitar"
         onClick={() => onChange(-1)}
-        className={cn('flex size-7 items-center justify-center rounded-[6px]', value > 0 ? 'text-foreground' : 'text-muted-foreground')}
+        disabled={value === 0}
+        className={cn(
+          'flex size-7 items-center justify-center rounded-[6px] transition-colors',
+          // Solo tiene sentido cuando hay algo que quitar; deshabilitado sin
+          // que "0 → 0" haga nada. El hover ilumina para dar feedback táctil.
+          value > 0
+            ? 'text-foreground hover:bg-white/10'
+            : 'text-muted-foreground opacity-40',
+        )}
       >
         <Minus className="size-3.5" />
       </button>
@@ -91,10 +99,10 @@ function QtyStepper({ value, onChange }: { value: number; onChange: (delta: numb
         type="button"
         aria-label="Agregar"
         onClick={() => onChange(1)}
-        className={cn(
-          'flex size-7 items-center justify-center rounded-[6px] text-foreground',
-          value === 0 && 'bg-primary text-primary-foreground',
-        )}
+        // El "+" es la acción primaria del stepper: se mantiene morado SIEMPRE
+        // (aunque ya haya botellas elegidas) como ancla visual estable de "así
+        // se agrega". El hover lo aclara para confirmar que es clickeable.
+        className="flex size-7 items-center justify-center rounded-[6px] bg-primary text-primary-foreground transition-colors hover:bg-primary/85"
       >
         <Plus className="size-3.5" />
       </button>
@@ -428,10 +436,12 @@ export function ReservaWizard() {
               <>
                 <div className="mb-1 flex items-baseline justify-between gap-3">
                   <h2 className="font-heading text-xl font-extrabold">Preventa de botellas</h2>
+                  {/* Borde visible en vez de subrayado: define los límites del
+                      botón y mantiene el lenguaje del DS (ghost/outline). */}
                   <button
                     type="button"
                     onClick={() => setStep(3)}
-                    className="text-sm font-bold text-lavender hover:underline"
+                    className="rounded-sm border border-accent-border px-3 py-1.5 text-sm font-bold text-lavender transition-colors hover:bg-accent-soft"
                   >
                     Saltar →
                   </button>

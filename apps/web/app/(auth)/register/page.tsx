@@ -55,7 +55,7 @@ export default async function RegisterPage({
       <div className="mb-8 flex items-center justify-between gap-3">
         <Link
           href="/"
-          className="flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+          className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:border-strong hover:text-foreground"
         >
           <ArrowLeft className="size-4" /> Volver
         </Link>

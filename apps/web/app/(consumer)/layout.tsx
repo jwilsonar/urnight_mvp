@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { SiteFooter } from '@/components/shared/site-footer';
+import { ConditionalFooter } from '@/components/shared/conditional-footer';
 import { SiteHeader } from '@/components/shared/site-header';
 
 /** Zona consumidor (público + autenticado): cabecera, contenido y pie. */
@@ -8,7 +8,8 @@ export default function ConsumerLayout({ children }: { children: ReactNode }) {
     <div className="flex min-h-dvh flex-col" data-area="consumer">
       <SiteHeader />
       <main className="flex-1">{children}</main>
-      <SiteFooter />
+      {/* Pie completo en descubrimiento, slim en flujos transaccionales. */}
+      <ConditionalFooter />
     </div>
   );
 }

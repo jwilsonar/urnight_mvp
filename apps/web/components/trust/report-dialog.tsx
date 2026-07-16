@@ -1,7 +1,7 @@
 'use client';
 
 import { Flag } from '@phosphor-icons/react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import type { CreateReportDto } from '@urnight/contracts';
@@ -42,6 +42,7 @@ interface ReportDialogProps {
 export function ReportDialog({ targetType, targetId }: ReportDialogProps) {
   const { data: session } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const { run, pending } = useTokenAction();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState<CreateReportDto['reason']>('other');
@@ -49,7 +50,13 @@ export function ReportDialog({ targetType, targetId }: ReportDialogProps) {
 
   if (!session?.user) {
     return (
-      <Button variant="ghost" size="sm" onClick={() => router.push('/login')}>
+      <Button
+        variant="outline"
+        size="sm"
+        // callbackUrl: tras loguearse el usuario vuelve AQUÍ (al evento/local
+        // que quería reportar), no al home.
+        onClick={() => router.push(`/login?callbackUrl=${encodeURIComponent(pathname)}`)}
+      >
         <Flag className="h-4 w-4" /> Reportar
       </Button>
     );
@@ -75,7 +82,9 @@ export function ReportDialog({ targetType, targetId }: ReportDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">
+        {/* Outline: el botón necesita límites visibles (feedback de Piero); el
+            hover sombreado del DS se conserva. */}
+        <Button variant="outline" size="sm">
           <Flag className="h-4 w-4" /> Reportar
         </Button>
       </DialogTrigger>

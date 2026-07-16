@@ -83,6 +83,7 @@ export function CartaBrowser() {
             <Reveal key={item.id} delay={(i % 4) * 60}>
               <ProductCard
                 item={item}
+                qtyInCart={cart.lines.find((l) => l.itemId === item.id)?.quantity ?? 0}
                 onOpen={() => setSelected(item)}
                 onAdd={() => cart.add(item.id)}
               />
@@ -130,10 +131,13 @@ function CategoryChip({
 
 function ProductCard({
   item,
+  qtyInCart,
   onOpen,
   onAdd,
 }: {
   item: CartaItemDemo;
+  /** Unidades de este producto ya en el pedido (para el contador del botón). */
+  qtyInCart: number;
   onOpen: () => void;
   onAdd: () => void;
 }) {
@@ -195,11 +199,18 @@ function ProductCard({
           <span className="font-heading text-sm font-extrabold text-lavender">
             {formatPEN(item.priceSoles)}
           </span>
+          {/* El "+" hace "agregado rápido" (sin abrir el detalle). Contador
+              persistente = feedback claro de cuántas unidades ya van en el
+              pedido; el check de 1s confirma el toque más reciente. */}
           <Button
             size="icon"
-            className={cn('size-8 transition-colors', added && 'bg-success hover:bg-success')}
+            className={cn('relative size-8 transition-colors', added && 'bg-success hover:bg-success')}
             disabled={!item.available}
-            aria-label={`Agregar ${item.name} al pedido`}
+            aria-label={
+              qtyInCart > 0
+                ? `Agregar otra unidad de ${item.name} (llevas ${qtyInCart} en el pedido)`
+                : `Agregar ${item.name} al pedido`
+            }
             onClick={(e) => {
               e.stopPropagation();
               onAdd();
@@ -211,6 +222,11 @@ function ProductCard({
             ) : (
               <Plus className="size-4" weight="bold" />
             )}
+            {qtyInCart > 0 ? (
+              <span className="absolute -right-1.5 -top-1.5 flex min-w-[18px] items-center justify-center rounded-full border border-background bg-lavender px-1 text-[11px] font-bold leading-[18px] text-deep">
+                {qtyInCart}
+              </span>
+            ) : null}
           </Button>
         </div>
       </div>

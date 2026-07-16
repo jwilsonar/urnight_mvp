@@ -29,7 +29,8 @@ function timeRange(startsAt: string, endsAt: string | null): string {
   return endsAt ? `${start} – ${TIME.format(new Date(endsAt))}` : start;
 }
 
-const CTA_CLASS =
+/** Pill CTA compartido entre las cards del catálogo (evento y local). */
+export const CTA_CLASS =
   'inline-flex h-[34px] items-center justify-center rounded-sm bg-primary px-3.5 text-[13px] font-semibold text-primary-foreground shadow-glow';
 
 /** Botón redondo sobre flyer/reverso: mismo lenguaje que las badges (fondo sólido). */
@@ -106,9 +107,18 @@ export function EventCard({ event }: { event: EventResponse }) {
                     ? `${Math.max(event.totalCapacity - event.ticketsSold, 0)} cupos`
                     : 'Cupos disponibles'}
               </span>
-              <span className={cn(CTA_CLASS, 'transition-transform group-hover:scale-[1.03]')}>
+              {/* Link real y no un span decorativo: el pill debe navegar SIEMPRE
+                  por sí mismo, sin depender del link estirado que tiene debajo.
+                  z-[3] lo pone por encima de ese overlay; tabIndex -1 + aria-hidden
+                  evitan un segundo stop de tab/lectura al mismo destino. */}
+              <Link
+                href={href}
+                tabIndex={-1}
+                aria-hidden="true"
+                className={cn(CTA_CLASS, 'relative z-[3] transition-transform group-hover:scale-[1.03]')}
+              >
                 Ver evento
-              </span>
+              </Link>
             </div>
           </CardContent>
         </Card>

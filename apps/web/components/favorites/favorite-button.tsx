@@ -27,7 +27,7 @@ export function FavoriteButton({ targetType, targetId, className }: FavoriteButt
   const token = session?.accessToken ?? '';
   const queryClient = useQueryClient();
 
-  const { data: favorites } = useQuery({
+  const { data: favorites, isPending: favoritesLoading } = useQuery({
     queryKey: queryKeys.favorites,
     queryFn: () => listFavorites(token),
     enabled: Boolean(token),
@@ -48,7 +48,13 @@ export function FavoriteButton({ targetType, targetId, className }: FavoriteButt
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.favorites });
     },
-    onError: (err) => toast.error(getErrorMessage(err)),
+    onError: (err) => {
+      toast.error(getErrorMessage(err));
+      // También al fallar: si la API dice "ya está en favoritos" es que el
+      // cache local estaba desfasado (el corazón se veía apagado estando
+      // guardado). Refetch para que el corazón refleje la verdad del server.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.favorites });
+    },
   });
 
   if (status !== 'authenticated') return null;
@@ -59,7 +65,9 @@ export function FavoriteButton({ targetType, targetId, className }: FavoriteButt
       variant={isFavorited ? 'default' : 'outline'}
       size="sm"
       className={className}
-      disabled={mutation.isPending}
+      // Mientras la lista no cargó, `isFavorited` aún no es confiable: mejor
+      // esperar que dejar togglear sobre un estado que puede estar al revés.
+      disabled={mutation.isPending || favoritesLoading}
       onClick={() => mutation.mutate()}
       aria-pressed={isFavorited}
     >

@@ -154,12 +154,11 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
                   <InfoRow
                     icon={<MapPin weight="duotone" />}
                     label="Lugar"
-                    value={
-                      <Link href={`/locals/${local.slug}`} className="text-primary hover:underline">
-                        {local.name}
-                        {local.address ? ` — ${local.address}` : ''}
-                      </Link>
-                    }
+                    // Texto plano: el acceso al local vive en la tarjeta "Dónde
+                    // es" de abajo (con foto), así que aquí un link morado más
+                    // era redundante. Se muestra nombre + dirección, sin estilo
+                    // de enlace.
+                    value={`${local.name}${local.address ? ` — ${local.address}` : ''}`}
                   />
                 ) : null}
                 {event.dressCode ? (
