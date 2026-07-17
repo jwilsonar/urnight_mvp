@@ -64,7 +64,7 @@ export function ReclamacionesInbox() {
             {items.map((r) => (
               <TableRow
                 key={r.id}
-                className="cursor-pointer transition-colors hover:bg-accent/40"
+                className="cursor-pointer transition-colors"
                 onClick={() => setSelected(r)}
               >
                 <TableCell className="font-mono text-xs">{r.codigo}</TableCell>

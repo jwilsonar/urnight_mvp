@@ -5,6 +5,7 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { useSession } from 'next-auth/react';
 import type { TicketTypeResponse } from '@urnight/contracts';
 import { DataTable, SortableHeader } from '@/components/panels/data-table';
+import { ProgressCell } from '@/components/panels/progress-cell';
 import { listTicketTypes } from '@/lib/api/admin';
 import { queryKeys } from '@/lib/api/query-keys';
 import { formatPEN } from '@/lib/utils';
@@ -46,11 +47,20 @@ export function TicketTypesTable({ eventId }: { eventId: string }) {
     {
       id: 'stock',
       header: 'Disponibles',
-      cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground">
-          {row.original.remaining}/{row.original.stock}
-        </span>
-      ),
+      cell: ({ row }) => {
+        const { remaining, stock } = row.original;
+        const availability = stock > 0 ? remaining / stock : 0;
+        const tone = remaining <= 0 ? 'error' : availability <= 0.2 ? 'warning' : 'primary';
+
+        return (
+          <ProgressCell
+            value={remaining}
+            max={stock}
+            tone={tone}
+            ariaLabel={`Entradas disponibles: ${remaining} de ${stock}`}
+          />
+        );
+      },
     },
     {
       accessorKey: 'status',

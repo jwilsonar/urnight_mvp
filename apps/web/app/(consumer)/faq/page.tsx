@@ -1,39 +1,13 @@
-import { CaretDown } from '@phosphor-icons/react/dist/ssr';
-import type { Metadata } from 'next';
-import { Reveal } from '@/components/shared/reveal';
+import { ChatCircleText, EnvelopeSimple } from "@phosphor-icons/react/dist/ssr";
+import type { Metadata } from "next";
+import { Button } from "@urnight/ui";
+import { FaqBrowser } from "@/components/shared/faq-browser";
+import { Reveal } from "@/components/shared/reveal";
 
 export const metadata: Metadata = {
-  title: 'Preguntas frecuentes',
-  description: 'Resolvemos las dudas más comunes sobre cómo usar UrNight.',
+  title: "Preguntas frecuentes",
+  description: "Resolvemos las dudas más comunes sobre cómo usar UrNight.",
 };
-
-/** FAQ del prototipo. Acordeón nativo (details/summary), sin JS. */
-const FAQS: Array<[string, string]> = [
-  [
-    '¿Cómo compro una entrada?',
-    'Elige el evento, selecciona el tipo de entrada y la cantidad, ingresa tus datos y paga de forma segura. Recibirás tu QR en “Mis entradas”.',
-  ],
-  [
-    '¿Puedo reservar una mesa?',
-    'Sí. En el detalle del local o evento elige “Reservar mesa”, selecciona la zona, paga el depósito y recibe tu confirmación con QR.',
-  ],
-  [
-    '¿Cómo funciona el ingreso con QR?',
-    'Muestra el código QR de tu entrada o reserva en la puerta del local. Es único e intransferible.',
-  ],
-  [
-    '¿Puedo cancelar una compra?',
-    'Las cancelaciones dependen de la política de cada evento. Encuentra la opción en el detalle de tu entrada o reserva.',
-  ],
-  [
-    '¿Por qué piden mi documento?',
-    'UrNight es solo para mayores de 18 años. Validamos tu documento automáticamente por la seguridad de la comunidad.',
-  ],
-  [
-    '¿Cómo afilio mi local?',
-    'Ingresa a “Afiliar mi local”, completa los datos de tu negocio y nuestro equipo revisará tu solicitud.',
-  ],
-];
 
 export default function FaqPage() {
   return (
@@ -47,19 +21,26 @@ export default function FaqPage() {
           Resolvemos las dudas más comunes sobre cómo usar UrNight.
         </p>
       </Reveal>
-      <div className="mt-10 space-y-3">
-        {FAQS.map(([q, a], i) => (
-          <Reveal key={q} delay={i * 50}>
-            <details className="group rounded-md border bg-card transition-colors open:border-accent-border">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-semibold [&::-webkit-details-marker]:hidden">
-                {q}
-                <CaretDown className="size-4 shrink-0 text-lavender transition-transform group-open:rotate-180" />
-              </summary>
-              <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">{a}</p>
-            </details>
-          </Reveal>
-        ))}
+      <div className="mt-10">
+        <FaqBrowser />
       </div>
+
+      <Reveal>
+        <div className="mt-10 flex flex-col items-center gap-4 rounded-2xl border border-accent-border bg-[linear-gradient(180deg,var(--accent-soft),transparent)] px-6 py-12 text-center">
+          <ChatCircleText className="size-9 text-lavender" weight="duotone" />
+          <h2 className="font-heading text-xl font-extrabold">
+            ¿Aún necesitas ayuda?
+          </h2>
+          <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+            Nuestro equipo responde en menos de 24 horas, todos los días.
+          </p>
+          <Button asChild>
+            <a href="mailto:soporte@urnight.pe">
+              <EnvelopeSimple className="size-4" weight="duotone" /> Escríbenos
+            </a>
+          </Button>
+        </div>
+      </Reveal>
     </div>
   );
 }

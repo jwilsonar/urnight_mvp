@@ -37,6 +37,10 @@ const STATUS_FILTER = [
   { label: 'Inactivo', value: 'inactive' },
   { label: 'Suspendido', value: 'suspended' },
 ];
+const VERIFICATION_FILTER = [
+  { label: 'Verificados', value: 'true' },
+  { label: 'Pendientes', value: 'false' },
+];
 
 function LocalRowActions({ local, token }: { local: LocalResponse; token: string }) {
   const [suspendOpen, setSuspendOpen] = useState(false);
@@ -178,6 +182,7 @@ export function LocalsTable() {
     {
       accessorKey: 'isVerified',
       header: 'Verificación',
+      filterFn: (row, columnId, value) => String(row.getValue<boolean>(columnId)) === value,
       cell: ({ row }) => <VerifiedBadge isVerified={row.original.isVerified} />,
     },
     {
@@ -207,7 +212,10 @@ export function LocalsTable() {
       onRetry={() => query.refetch()}
       searchColumn="name"
       searchPlaceholder="Buscar local…"
-      filters={[{ columnId: 'status', title: 'Estado', options: STATUS_FILTER }]}
+      filters={[
+        { columnId: 'status', title: 'Estado', options: STATUS_FILTER },
+        { columnId: 'isVerified', title: 'Verificación', options: VERIFICATION_FILTER },
+      ]}
     />
   );
 }
