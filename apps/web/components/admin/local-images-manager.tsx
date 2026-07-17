@@ -1,6 +1,6 @@
 'use client';
 
-import { DotsSixVertical, Star, Trash } from '@phosphor-icons/react';
+import { DotsSixVertical, ImageSquare, Star, Trash } from '@phosphor-icons/react';
 import {
   DndContext,
   PointerSensor,
@@ -18,11 +18,12 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import type { LocalImageResponse } from '@urnight/contracts';
 import { Badge, Button, Skeleton, cn } from '@urnight/ui';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { EmptyState } from '@/components/shared/empty-state';
 import { MediaDropzone } from '@/components/shared/media-dropzone';
 import {
   confirmLocalImage,
@@ -69,6 +70,7 @@ export function LocalImagesManager({ localId }: LocalImagesManagerProps) {
 
   const [uploads, setUploads] = useState<UploadItem[]>([]);
   const [deleting, setDeleting] = useState<LocalImageResponse | null>(null);
+  const dropzoneRef = useRef<HTMLDivElement>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
@@ -170,7 +172,9 @@ export function LocalImagesManager({ localId }: LocalImagesManagerProps) {
 
   return (
     <div className="space-y-4">
-      <MediaDropzone onAccepted={handleAccepted} />
+      <div ref={dropzoneRef}>
+        <MediaDropzone onAccepted={handleAccepted} />
+      </div>
 
       {uploads.length > 0 && (
         <ul className="space-y-2">
@@ -223,7 +227,21 @@ export function LocalImagesManager({ localId }: LocalImagesManagerProps) {
           ))}
         </div>
       ) : images.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Aún no hay imágenes. Sube la primera arriba.</p>
+        <EmptyState
+          icon={<ImageSquare weight="duotone" />}
+          title="Aún no hay imágenes"
+          description="Sube la primera imagen de la galería."
+          action={
+            <Button
+              type="button"
+              onClick={() =>
+                dropzoneRef.current?.querySelector<HTMLInputElement>('input[type="file"]')?.click()
+              }
+            >
+              Subir imagen
+            </Button>
+          }
+        />
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={images.map((img) => img.id)} strategy={rectSortingStrategy}>

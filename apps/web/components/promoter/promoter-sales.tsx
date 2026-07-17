@@ -9,13 +9,11 @@ import {
   Button,
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
   Separator,
   Skeleton,
 } from '@urnight/ui';
 import { EmptyState } from '@/components/shared/empty-state';
+import { StatCard } from '@/components/shared/stat-card';
 import { getErrorMessage } from '@/lib/api/error-messages';
 import { getPromoterSales } from '@/lib/api/promoters';
 import { queryKeys } from '@/lib/api/query-keys';
@@ -82,18 +80,18 @@ export function PromoterSales({ promoterId }: PromoterSalesProps) {
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Comisión total</CardDescription>
-            <CardTitle className="text-2xl">{formatPEN(sales.totalCommission)}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Atribuciones</CardDescription>
-            <CardTitle className="text-2xl">{sales.totalAttributions}</CardTitle>
-          </CardHeader>
-        </Card>
+        <StatCard
+          label="Comisión total"
+          value={formatPEN(sales.totalCommission)}
+          hint="Estimada + confirmada"
+          tone="accent"
+        />
+        <StatCard
+          label="Atribuciones"
+          value={sales.totalAttributions}
+          hint="Compras con tu código"
+          tone="muted"
+        />
       </div>
 
       <div className="flex justify-end">

@@ -1,5 +1,7 @@
 import { MagnifyingGlass } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { Button } from '@urnight/ui';
 import { EventCard } from '@/components/catalog/event-card';
 import { LocalCard } from '@/components/catalog/local-card';
 import { SearchBar } from '@/components/catalog/search-bar';
@@ -63,6 +65,11 @@ export default async function SearchPage({
           icon={<MagnifyingGlass className="h-10 w-10" weight="duotone" />}
           title={`Sin resultados para “${term}”`}
           description="Prueba con otro término o revisa la ortografía."
+          action={
+            <Button asChild variant="ghost">
+              <Link href="/search">Limpiar búsqueda</Link>
+            </Button>
+          }
         />
       ) : (
         <div className="space-y-10">

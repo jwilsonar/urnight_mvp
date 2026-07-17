@@ -1,6 +1,6 @@
 'use client';
 
-import { MagnifyingGlass, PencilSimple, Plus } from '@phosphor-icons/react';
+import { ForkKnife, MagnifyingGlass, PencilSimple, Plus } from '@phosphor-icons/react';
 import { useMemo, useState } from 'react';
 import {
   Badge,
@@ -26,6 +26,7 @@ import {
   cn,
 } from '@urnight/ui';
 import { CartaItemDialog } from '@/components/admin/carta-item-dialog';
+import { EmptyState } from '@/components/shared/empty-state';
 import { StorageImage } from '@/lib/storage/storage-context';
 import { formatPEN } from '@/lib/utils';
 import {
@@ -269,8 +270,26 @@ export function CartaManager() {
             ))}
             {visible.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
-                  Sin productos para este filtro.
+                <TableCell colSpan={6} className="p-0">
+                  <EmptyState
+                    compact
+                    icon={<ForkKnife weight="duotone" />}
+                    title="Sin productos para este filtro"
+                    action={
+                      <div className="flex flex-wrap justify-center gap-2">
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            setQuery('');
+                            setCategoryId(null);
+                          }}
+                        >
+                          Limpiar filtro
+                        </Button>
+                        <Button onClick={() => setDialogItem('new')}>Nuevo producto</Button>
+                      </div>
+                    }
+                  />
                 </TableCell>
               </TableRow>
             ) : null}

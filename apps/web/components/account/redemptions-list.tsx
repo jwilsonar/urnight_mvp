@@ -1,8 +1,11 @@
 'use client';
 
-import { Ticket } from '@phosphor-icons/react';
+import { Gift, Ticket } from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { Button } from '@urnight/ui';
+import { EmptyState } from '@/components/shared/empty-state';
 import { listMyRedemptions } from '@/lib/api/promoters';
 import { queryKeys } from '@/lib/api/query-keys';
 
@@ -21,7 +24,18 @@ export function RedemptionsList() {
     return <p className="text-sm text-muted-foreground">Cargando canjes…</p>;
   }
   if (!data || data.length === 0) {
-    return <p className="text-sm text-muted-foreground">Aún no has canjeado códigos.</p>;
+    return (
+      <EmptyState
+        icon={<Gift weight="duotone" />}
+        title="Aún no tienes canjes"
+        description="Los códigos que canjees aparecerán aquí."
+        action={
+          <Button asChild>
+            <Link href="/events">Explorar eventos</Link>
+          </Button>
+        }
+      />
+    );
   }
 
   return (

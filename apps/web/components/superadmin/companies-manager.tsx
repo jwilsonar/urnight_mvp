@@ -1,5 +1,6 @@
 'use client';
 
+import { Buildings } from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import {
@@ -13,6 +14,7 @@ import {
   TableRow,
 } from '@urnight/ui';
 import type { CompanyResponse } from '@urnight/contracts';
+import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
 import { activateCompany, listCompanies, suspendCompany } from '@/lib/api/companies';
 import { queryKeys } from '@/lib/api/query-keys';
@@ -59,7 +61,12 @@ export function CompaniesManager() {
     );
   }
   if (!companies || companies.length === 0) {
-    return <p className="text-sm text-muted-foreground">No hay empresas registradas.</p>;
+    return (
+      <EmptyState
+        icon={<Buildings weight="duotone" />}
+        title="No hay empresas registradas"
+      />
+    );
   }
 
   return (

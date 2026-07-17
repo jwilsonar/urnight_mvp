@@ -177,7 +177,13 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={columns.length} className="p-0">
-                  {emptyState ?? <EmptyState title="Sin resultados" />}
+                  {emptyState ?? (
+                    <EmptyState
+                      icon={<MagnifyingGlass weight="duotone" />}
+                      title="Sin resultados"
+                      description="Ajusta los filtros o vuelve a intentarlo más tarde."
+                    />
+                  )}
                 </TableCell>
               </TableRow>
             )}

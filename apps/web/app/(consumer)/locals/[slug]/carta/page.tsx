@@ -1,7 +1,8 @@
-import { Clock, MapPin, Ticket } from '@phosphor-icons/react/dist/ssr';
+import { Clock, ForkKnife, MapPin, Ticket } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
-import { Alert, AlertDescription, AlertTitle, Badge } from '@urnight/ui';
+import { Badge } from '@urnight/ui';
 import { CartaExperience } from '@/components/carta/carta-experience';
+import { EmptyState } from '@/components/shared/empty-state';
 import { Reveal } from '@/components/shared/reveal';
 import { getLocalBySlug } from '@/lib/api/catalog';
 import { cartaConfigForSlug } from '@/lib/mock/carta';
@@ -77,12 +78,11 @@ export default async function CartaPage({
       </Reveal>
 
       {!config.enabled ? (
-        <Alert>
-          <AlertTitle>Carta no disponible</AlertTitle>
-          <AlertDescription>
-            Este local aún no habilitó su carta digital. Pregunta en barra por la carta física.
-          </AlertDescription>
-        </Alert>
+        <EmptyState
+          icon={<ForkKnife weight="duotone" />}
+          title="Carta no disponible"
+          description="Este local aún no habilitó su carta digital. Pregunta en barra por la carta física."
+        />
       ) : (
         <>
           <Reveal delay={60}>

@@ -1,4 +1,10 @@
-import { ArrowLeft } from '@phosphor-icons/react/dist/ssr';
+import {
+  ArrowLeft,
+  CalendarBlank,
+  DoorOpen,
+  Megaphone,
+  Ticket,
+} from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -20,6 +26,7 @@ import { LocalActions } from '@/components/admin/local-actions';
 import { LocalImagesManager } from '@/components/admin/local-images-manager';
 import { RequestVerificationButton } from '@/components/admin/request-verification-button';
 import { LocalStatusBadge, VerifiedBadge } from '@/components/admin/status-badges';
+import { StatCard } from '@/components/shared/stat-card';
 import { getLocalById, getLocalStats } from '@/lib/api/admin';
 import { requireAccessToken } from '@/lib/auth-helpers';
 import { formatDateOnly } from '@/lib/utils';
@@ -91,12 +98,28 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ id
                 <CardDescription>Indicadores agregados de este local (#22).</CardDescription>
               </CardHeader>
               <CardContent>
-                <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                  <Kpi label="Eventos" value={stats.eventsCount} />
-                  <Kpi label="Publicados" value={stats.publishedCount} />
-                  <Kpi label="Entradas vendidas" value={stats.ticketsSold} />
-                  <Kpi label="Check-ins" value={stats.checkins} />
-                </dl>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  <StatCard
+                    label="Eventos"
+                    value={stats.eventsCount}
+                    icon={<CalendarBlank weight="duotone" />}
+                  />
+                  <StatCard
+                    label="Publicados"
+                    value={stats.publishedCount}
+                    icon={<Megaphone weight="duotone" />}
+                  />
+                  <StatCard
+                    label="Entradas vendidas"
+                    value={stats.ticketsSold}
+                    icon={<Ticket weight="duotone" />}
+                  />
+                  <StatCard
+                    label="Check-ins"
+                    value={stats.checkins}
+                    icon={<DoorOpen weight="duotone" />}
+                  />
+                </div>
               </CardContent>
             </Card>
           ) : null}
@@ -140,15 +163,6 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ id
           <LocalImagesManager localId={local.id} />
         </TabsContent>
       </Tabs>
-    </div>
-  );
-}
-
-function Kpi({ label, value }: { label: string; value: number }) {
-  return (
-    <div>
-      <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="font-heading text-2xl font-bold">{value}</dd>
     </div>
   );
 }

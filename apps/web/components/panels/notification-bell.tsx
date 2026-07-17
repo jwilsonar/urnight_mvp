@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, EnvelopeSimple, DeviceMobile } from '@phosphor-icons/react';
+import { Bell, BellSlash, EnvelopeSimple, DeviceMobile } from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@urnight/ui';
 import type { NotificationResponse } from '@urnight/contracts';
+import { EmptyState } from '@/components/shared/empty-state';
 import { getMyNotifications } from '@/lib/api/ops';
 import { queryKeys } from '@/lib/api/query-keys';
 import { formatDate } from '@/lib/utils/format';
@@ -73,7 +74,11 @@ export function NotificationBell() {
             </Button>
           </div>
         ) : recent.length === 0 ? (
-          <p className="px-2 py-6 text-center text-sm text-muted-foreground">Sin notificaciones</p>
+          <EmptyState
+            compact
+            icon={<BellSlash weight="duotone" />}
+            title="Sin notificaciones"
+          />
         ) : (
           <ul className="max-h-80 overflow-y-auto">
             {recent.map((n) => {

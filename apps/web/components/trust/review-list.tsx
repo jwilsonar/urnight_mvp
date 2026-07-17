@@ -1,12 +1,19 @@
-import { SealCheck } from '@phosphor-icons/react/dist/ssr';
+import { ChatCircle, SealCheck } from '@phosphor-icons/react/dist/ssr';
 import type { ReviewResponse } from '@urnight/contracts';
 import { Card, CardContent } from '@urnight/ui';
+import { EmptyState } from '@/components/shared/empty-state';
 import { formatDateOnly } from '@/lib/utils';
 import { StarRating } from './star-rating';
 
 export function ReviewList({ reviews }: { reviews: ReviewResponse[] }) {
   if (reviews.length === 0) {
-    return <p className="text-sm text-muted-foreground">Aún no hay reseñas. ¡Sé el primero en opinar!</p>;
+    return (
+      <EmptyState
+        icon={<ChatCircle weight="duotone" />}
+        title="Aún no hay reseñas"
+        description="¡Sé el primero en opinar!"
+      />
+    );
   }
 
   const average = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;

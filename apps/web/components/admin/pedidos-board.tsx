@@ -1,5 +1,6 @@
 'use client';
 
+import { Tray } from '@phosphor-icons/react';
 import { useState } from 'react';
 import {
   Badge,
@@ -10,6 +11,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@urnight/ui';
+import { EmptyState } from '@/components/shared/empty-state';
 import { formatPEN } from '@/lib/utils';
 import {
   CARTA_ORDER_STATUS_LABEL,
@@ -69,9 +71,11 @@ export function PedidosBoard() {
       {FLOW.map((status) => (
         <TabsContent key={status} value={status}>
           {byStatus(status).length === 0 ? (
-            <p className="py-10 text-center text-sm text-muted-foreground">
-              Sin pedidos en «{CARTA_ORDER_STATUS_LABEL[status]}».
-            </p>
+            <EmptyState
+              compact
+              icon={<Tray weight="duotone" />}
+              title={`Sin pedidos en «${CARTA_ORDER_STATUS_LABEL[status]}»`}
+            />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {byStatus(status).map((order) => (

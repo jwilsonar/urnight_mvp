@@ -49,6 +49,11 @@ export default async function LocalsPage({
           icon={<MapPin className="h-10 w-10" weight="duotone" />}
           title="No hay locales"
           description="No encontramos locales para esta zona. Prueba con otra."
+          action={
+            <Button asChild variant="ghost">
+              <Link href="/locals">Ver todos los locales</Link>
+            </Button>
+          }
         />
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

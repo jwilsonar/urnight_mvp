@@ -5,7 +5,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import type { FavoriteResponse, FavoriteTargetType } from '@urnight/contracts';
-import { Badge, Card } from '@urnight/ui';
+import { Badge, Button, Card } from '@urnight/ui';
+import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
 import { listFavorites } from '@/lib/api/favorites';
 import { queryKeys } from '@/lib/api/query-keys';
@@ -47,7 +48,21 @@ export function FavoritesList({ filter }: { filter?: FavoriteTargetType } = {}) 
     );
   }
   if (!favorites || favorites.length === 0) {
-    return <p className="text-sm text-muted-foreground">Aún no tienes favoritos.</p>;
+    const localsOnly = filter === 'local';
+    return (
+      <EmptyState
+        icon={<Heart weight="duotone" />}
+        title={localsOnly ? 'Aún no guardas locales' : 'Aún no tienes favoritos'}
+        description="Guarda eventos y locales con el corazón para tenerlos a mano y no perderte nada."
+        action={
+          <Button asChild>
+            <Link href={localsOnly ? '/locals' : '/events'}>
+              {localsOnly ? 'Descubrir locales' : 'Descubrir eventos'}
+            </Link>
+          </Button>
+        }
+      />
+    );
   }
 
   return (

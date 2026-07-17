@@ -1,5 +1,7 @@
+import { ClipboardText } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@urnight/ui';
+import { EmptyState } from '@/components/shared/empty-state';
 import { listAuditLogs } from '@/lib/api/ops';
 import { requireAccessToken } from '@/lib/auth-helpers';
 import { formatDate } from '@/lib/utils';
@@ -20,7 +22,10 @@ export default async function AuditPage() {
       </header>
 
       {logs.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Sin registros todavía.</p>
+        <EmptyState
+          icon={<ClipboardText weight="duotone" />}
+          title="Sin registros todavía"
+        />
       ) : (
         <Table>
           <TableHeader>

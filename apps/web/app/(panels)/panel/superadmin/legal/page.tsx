@@ -1,4 +1,4 @@
-import { ArrowSquareOut } from '@phosphor-icons/react/dist/ssr';
+import { ArrowSquareOut, Scroll } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
 import { LEGAL_DOC_TYPES, type LegalDocType, type LegalDocumentResponse } from '@urnight/contracts';
 import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@urnight/ui';
@@ -76,6 +76,7 @@ export default async function SuperAdminLegalPage() {
           </div>
         ) : (
           <EmptyState
+            icon={<Scroll weight="duotone" />}
             title="Sin documentos vigentes"
             description="Aún no hay versiones publicadas. Publica la primera abajo."
           />

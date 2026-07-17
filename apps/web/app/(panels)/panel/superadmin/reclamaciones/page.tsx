@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Badge, Card } from '@urnight/ui';
+import { Badge } from '@urnight/ui';
+import { StatCard } from '@/components/shared/stat-card';
 import { ReclamacionesInbox } from '@/components/superadmin/reclamaciones-inbox';
 import { RECLAMACIONES_DEMO } from '@/lib/mock/reclamaciones';
 
@@ -31,19 +32,12 @@ export default function SuperAdminReclamacionesPage() {
         <Badge variant="info">Demo — llega con el backend de trust/ops</Badge>
       </div>
 
-      <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {[
-          { label: 'Nuevas', value: nuevas },
-          { label: 'En revisión', value: enRevision },
-          { label: 'Resueltas', value: resueltas },
-          { label: 'Tiempo medio de cierre', value: '3.2 días' },
-        ].map((kpi) => (
-          <Card key={kpi.label} className="p-4">
-            <dt className="text-xs uppercase tracking-wide text-muted-foreground">{kpi.label}</dt>
-            <dd className="mt-1 font-heading text-2xl font-bold tabular-nums">{kpi.value}</dd>
-          </Card>
-        ))}
-      </dl>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <StatCard label="Nuevas" value={nuevas} tone="warning" />
+        <StatCard label="En revisión" value={enRevision} tone="accent" />
+        <StatCard label="Resueltas" value={resueltas} tone="success" />
+        <StatCard label="Tiempo medio de cierre" value="3.2 días" tone="muted" />
+      </div>
 
       <ReclamacionesInbox />
     </div>

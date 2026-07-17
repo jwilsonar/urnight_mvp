@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Badge, Button, Card, Input, cn } from '@urnight/ui';
 import { useCart } from '@/components/carta/cart-provider';
 import { ProductSheet } from '@/components/carta/product-sheet';
+import { EmptyState } from '@/components/shared/empty-state';
 import { Reveal } from '@/components/shared/reveal';
 import { StorageImage } from '@/lib/storage/storage-context';
 import { formatPEN } from '@/lib/utils';
@@ -74,9 +75,22 @@ export function CartaBrowser() {
 
       {/* Grid de productos */}
       {items.length === 0 ? (
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          Nada por aquí. Prueba con otra búsqueda o categoría.
-        </p>
+        <EmptyState
+          icon={<MagnifyingGlass weight="duotone" />}
+          title="Sin resultados"
+          description="Prueba con otra búsqueda o categoría."
+          action={
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setQuery('');
+                setCategoryId(null);
+              }}
+            >
+              Limpiar filtros
+            </Button>
+          }
+        />
       ) : (
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
           {items.map((item, i) => (

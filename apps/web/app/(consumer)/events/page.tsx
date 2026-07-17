@@ -112,6 +112,11 @@ export default async function EventsPage({
           icon={<CalendarBlank className="h-10 w-10" weight="duotone" />}
           title="No hay eventos"
           description="Aún no hay eventos publicados. Vuelve pronto."
+          action={
+            <Button asChild>
+              <Link href="/locals">Explorar locales</Link>
+            </Button>
+          }
         />
       ) : (
         <>

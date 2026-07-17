@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { TicketTypeResponse } from '@urnight/contracts';
 import { Badge, Button, Card, CardContent } from '@urnight/ui';
 import { tierLabel } from '@/components/admin/status-badges';
+import { EmptyState } from '@/components/shared/empty-state';
 import { formatPEN } from '@/lib/utils';
 
 /** Lista de tipos de entrada. Regla: no se muestra precio sin stock disponible. */
@@ -16,7 +17,14 @@ export function TicketTypeList({
   canBuy: boolean;
 }) {
   if (ticketTypes.length === 0) {
-    return <p className="text-sm text-muted-foreground">Aún no hay entradas a la venta.</p>;
+    return (
+      <EmptyState
+        compact
+        icon={<Ticket weight="duotone" />}
+        title="Aún no hay entradas a la venta"
+        description="Vuelve pronto para conseguir la tuya."
+      />
+    );
   }
 
   return (

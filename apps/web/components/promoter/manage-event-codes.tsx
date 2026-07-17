@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { type ColumnDef } from '@tanstack/react-table';
-import { ArrowLeft, Plus, ShareNetwork } from '@phosphor-icons/react';
+import { ArrowLeft, Plus, QrCode, ShareNetwork } from '@phosphor-icons/react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
@@ -34,6 +34,7 @@ import {
   SelectValue,
 } from '@urnight/ui';
 import { DataTable } from '@/components/panels/data-table';
+import { EmptyState } from '@/components/shared/empty-state';
 import {
   generateRedemptionCode,
   listMyAssignments,
@@ -222,9 +223,12 @@ export function ManageRedemptionCodes({ promoterEventId }: { promoterEventId: st
             searchColumn="code"
             searchPlaceholder="Buscar código…"
             emptyState={
-              <p className="text-sm text-muted-foreground">
-                Aún no generaste códigos de canje. Usa «Generar código de canje» para crear el primero.
-              </p>
+              <EmptyState
+                icon={<QrCode weight="duotone" />}
+                title="Aún no generaste códigos de canje"
+                description="Genera el primero para compartirlo con tu audiencia."
+                action={<Button onClick={() => setGenOpen(true)}>Generar código de canje</Button>}
+              />
             }
           />
         </CardContent>
