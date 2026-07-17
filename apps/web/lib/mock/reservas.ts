@@ -8,6 +8,7 @@ export interface MesaDemo {
   id: string;
   label: string;
   zone: 'Pista' | 'VIP' | 'Lounge';
+  zonaId?: string;
   cap: number;
   min: number;
   deposit: number;
@@ -15,6 +16,22 @@ export interface MesaDemo {
   hot?: string;
   /** Posición en el plano SVG (viewBox 600×400). */
   layout: { x: number; y: number; w: number; h: number };
+}
+
+export interface PaseReservaDemo {
+  id: string;
+  codigo: string;
+  reservaId: string;
+  zonaId: string;
+  titular: string;
+  indice: number;
+  estado: 'activo' | 'usado';
+}
+
+export interface DesgloseReservaDemo {
+  adelanto: number;
+  creditoConsumo: number;
+  comisionServicio: number;
 }
 
 export interface BotellaDemo {
@@ -26,14 +43,14 @@ export interface BotellaDemo {
 }
 
 export const MESAS_DEMO: MesaDemo[] = [
-  { id: 'm1', label: 'Mesa 04 · Pista', zone: 'Pista', cap: 4, min: 200, deposit: 200, status: 'available', layout: { x: 50, y: 70, w: 60, h: 55 } },
-  { id: 'm2', label: 'Mesa 07 · Pista', zone: 'Pista', cap: 4, min: 200, deposit: 200, status: 'available', layout: { x: 130, y: 70, w: 60, h: 55 } },
-  { id: 'm3', label: 'Box VIP 01', zone: 'VIP', cap: 8, min: 600, deposit: 400, status: 'available', hot: 'Pocas', layout: { x: 340, y: 70, w: 90, h: 55 } },
-  { id: 'm4', label: 'Box VIP 02', zone: 'VIP', cap: 8, min: 600, deposit: 400, status: 'reserved', layout: { x: 450, y: 70, w: 90, h: 55 } },
-  { id: 'm5', label: 'Lounge Premium', zone: 'Lounge', cap: 12, min: 1500, deposit: 800, status: 'available', hot: 'Pocas', layout: { x: 50, y: 260, w: 180, h: 90 } },
-  { id: 'm6', label: 'Box VIP 03', zone: 'VIP', cap: 8, min: 600, deposit: 400, status: 'reserved', layout: { x: 340, y: 140, w: 90, h: 55 } },
-  { id: 'm7', label: 'Mesa 11 · Pista', zone: 'Pista', cap: 4, min: 200, deposit: 200, status: 'available', layout: { x: 50, y: 140, w: 60, h: 55 } },
-  { id: 'm8', label: 'Mesa 12 · Pista', zone: 'Pista', cap: 4, min: 200, deposit: 200, status: 'reserved', layout: { x: 130, y: 140, w: 60, h: 55 } },
+  { id: 'm1', label: 'Mesa 04 · Pista', zone: 'Pista', zonaId: 'general', cap: 4, min: 200, deposit: 200, status: 'available', layout: { x: 50, y: 70, w: 60, h: 55 } },
+  { id: 'm2', label: 'Mesa 07 · Pista', zone: 'Pista', zonaId: 'general', cap: 4, min: 200, deposit: 200, status: 'available', layout: { x: 130, y: 70, w: 60, h: 55 } },
+  { id: 'm3', label: 'Box VIP 01', zone: 'VIP', zonaId: 'vip', cap: 8, min: 600, deposit: 400, status: 'available', hot: 'Pocas', layout: { x: 340, y: 70, w: 90, h: 55 } },
+  { id: 'm4', label: 'Box VIP 02', zone: 'VIP', zonaId: 'vip', cap: 8, min: 600, deposit: 400, status: 'reserved', layout: { x: 450, y: 70, w: 90, h: 55 } },
+  { id: 'm5', label: 'Lounge Premium', zone: 'Lounge', zonaId: 'super-vip', cap: 12, min: 1500, deposit: 800, status: 'available', hot: 'Pocas', layout: { x: 50, y: 260, w: 180, h: 90 } },
+  { id: 'm6', label: 'Box VIP 03', zone: 'VIP', zonaId: 'vip', cap: 8, min: 600, deposit: 400, status: 'reserved', layout: { x: 340, y: 140, w: 90, h: 55 } },
+  { id: 'm7', label: 'Mesa 11 · Pista', zone: 'Pista', zonaId: 'general', cap: 4, min: 200, deposit: 200, status: 'available', layout: { x: 50, y: 140, w: 60, h: 55 } },
+  { id: 'm8', label: 'Mesa 12 · Pista', zone: 'Pista', zonaId: 'general', cap: 4, min: 200, deposit: 200, status: 'reserved', layout: { x: 130, y: 140, w: 60, h: 55 } },
 ];
 
 export const BOTELLAS_DEMO: BotellaDemo[] = [
@@ -102,3 +119,45 @@ export const MIS_RESERVAS_DEMO: ReservaHechaDemo[] = [
     estado: 'completada',
   },
 ];
+
+function redondearSoles(monto: number): number {
+  return Math.round(monto * 100) / 100;
+}
+
+export function calcularDesgloseDemo(
+  total: number,
+  politica: { adelantoPct: number; splitConsumoPct: number },
+): DesgloseReservaDemo {
+  const adelanto = redondearSoles((total * politica.adelantoPct) / 100);
+  const creditoConsumo = redondearSoles((adelanto * politica.splitConsumoPct) / 100);
+  const comisionServicio = redondearSoles(adelanto - creditoConsumo);
+  return { adelanto, creditoConsumo, comisionServicio };
+}
+
+const ALFANUM_PASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+function sufijoPaseDemo(): string {
+  return Array.from({ length: 6 }, () =>
+    ALFANUM_PASE.charAt(Math.floor(Math.random() * ALFANUM_PASE.length)),
+  ).join('');
+}
+
+export function emitirPasesDemo(
+  reservaId: string,
+  zonaId: string,
+  titular: string,
+  cantidad: number,
+): PaseReservaDemo[] {
+  return Array.from({ length: Math.max(0, Math.floor(cantidad)) }, (_, indice) => {
+    const sufijo = sufijoPaseDemo();
+    return {
+      id: `pase-${sufijo.toLowerCase()}`,
+      codigo: `PAS-${sufijo}`,
+      reservaId,
+      zonaId,
+      titular,
+      indice: indice + 1,
+      estado: 'activo',
+    };
+  });
+}
