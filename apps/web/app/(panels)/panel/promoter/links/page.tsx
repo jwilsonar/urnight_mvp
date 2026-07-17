@@ -2,6 +2,7 @@
 
 import { PanelPageHeader } from '@/components/panels/panel-page-header';
 import { AssignedEventsTable } from '@/components/promoter/assigned-events-table';
+import { LinkInvitadosCard } from '@/components/promoter/link-invitados-card';
 import { PromoterGate } from '@/components/promoter/promoter-gate';
 import { ReferralLinkCard } from '@/components/promoter/referral-link-card';
 
@@ -17,6 +18,7 @@ export default function PromoterLinksPage() {
         {(promoter) => (
           <div className="space-y-6">
             {promoter.referralLink ? <ReferralLinkCard link={promoter.referralLink} /> : null}
+            <LinkInvitadosCard />
             <AssignedEventsTable />
           </div>
         )}

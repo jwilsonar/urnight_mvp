@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { CARTA_ITEMS_DEMO } from '@/lib/mock/carta';
+import { consumirCreditoDemo, leerCreditoDemo } from '@/lib/mock/credito';
 
 /**
  * Carrito demo de la carta in-venue. Estado client-only persistido en
@@ -30,6 +31,9 @@ interface CartContextValue {
   clear: () => void;
   count: number;
   totalSoles: number;
+  creditoDisponible: number;
+  totalTrasCredito: number;
+  canjearCredito: () => number;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -37,9 +41,16 @@ const CartContext = createContext<CartContextValue | null>(null);
 const priceOf = (itemId: string) =>
   CARTA_ITEMS_DEMO.find((i) => i.id === itemId)?.priceSoles ?? 0;
 
-export function CartProvider({ localSlug, children }: { localSlug: string; children: ReactNode }) {
+export function CartProvider({
+  localSlug = 'nocturna-club',
+  children,
+}: {
+  localSlug?: string;
+  children: ReactNode;
+}) {
   const storageKey = `urnight.carta.${localSlug}`;
   const [lines, setLines] = useState<CartLine[]>([]);
+  const [creditoDisponible, setCreditoDisponible] = useState(0);
 
   // Hidratar desde sessionStorage tras montar (evita mismatch SSR).
   useEffect(() => {
@@ -50,6 +61,10 @@ export function CartProvider({ localSlug, children }: { localSlug: string; child
       /* storage bloqueado: el carrito vive solo en memoria */
     }
   }, [storageKey]);
+
+  useEffect(() => {
+    setCreditoDisponible(leerCreditoDemo(localSlug)?.saldo ?? 0);
+  }, [localSlug]);
 
   useEffect(() => {
     try {
@@ -85,11 +100,42 @@ export function CartProvider({ localSlug, children }: { localSlug: string; child
 
   const clear = useCallback(() => setLines([]), []);
 
-  const value = useMemo<CartContextValue>(() => {
-    const count = lines.reduce((sum, l) => sum + l.quantity, 0);
-    const totalSoles = lines.reduce((sum, l) => sum + l.quantity * priceOf(l.itemId), 0);
-    return { lines, add, remove, setQuantity, clear, count, totalSoles };
-  }, [lines, add, remove, setQuantity, clear]);
+  const count = lines.reduce((sum, l) => sum + l.quantity, 0);
+  const totalSoles = lines.reduce((sum, l) => sum + l.quantity * priceOf(l.itemId), 0);
+  const totalTrasCredito = Math.max(0, totalSoles - creditoDisponible);
+
+  const canjearCredito = useCallback(() => {
+    const descontado = consumirCreditoDemo(localSlug, totalSoles);
+    setCreditoDisponible(leerCreditoDemo(localSlug)?.saldo ?? 0);
+    return descontado;
+  }, [localSlug, totalSoles]);
+
+  const value = useMemo<CartContextValue>(
+    () => ({
+      lines,
+      add,
+      remove,
+      setQuantity,
+      clear,
+      count,
+      totalSoles,
+      creditoDisponible,
+      totalTrasCredito,
+      canjearCredito,
+    }),
+    [
+      lines,
+      add,
+      remove,
+      setQuantity,
+      clear,
+      count,
+      totalSoles,
+      creditoDisponible,
+      totalTrasCredito,
+      canjearCredito,
+    ],
+  );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

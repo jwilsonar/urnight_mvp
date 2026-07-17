@@ -33,15 +33,24 @@ import {
   Textarea,
   cn,
 } from '@urnight/ui';
+import { PasesGrupo } from '@/components/reservas/pases-grupo';
+import { otorgarCreditoDemo } from '@/lib/mock/credito';
+import { leerPoliticaDemo } from '@/lib/mock/politica';
 import {
   BOTELLAS_DEMO,
+  calcularDesgloseDemo,
+  emitirPasesDemo,
   EVENTO_DEMO,
   LLEGADAS_DEMO,
   MESAS_DEMO,
+  type DesgloseReservaDemo,
   type MesaDemo,
+  type PaseReservaDemo,
 } from '@/lib/mock/reservas';
+import { formatPEN } from '@/lib/utils';
 
 const STEPS = ['Mesa', 'Detalles', 'Botellas', 'Resumen', 'Listo'];
+const RESERVA_ID_DEMO = 'reserva-demo-4821';
 
 function Stepper({ current }: { current: number }) {
   return (
@@ -134,6 +143,7 @@ function SummaryCard({ children }: { children: React.ReactNode }) {
 }
 
 export function ReservaWizard() {
+  const politica = leerPoliticaDemo('nocturna-club');
   const [step, setStep] = useState(0);
   const [view, setView] = useState<'lista' | 'planta'>('lista');
   const [mesa, setMesa] = useState<MesaDemo | null>(null);
@@ -143,9 +153,15 @@ export function ReservaWizard() {
   const [host, setHost] = useState('');
   const [notes, setNotes] = useState('');
   const [cart, setCart] = useState<Record<string, number>>({});
+  const [confirmacion, setConfirmacion] = useState<{
+    desglose: DesgloseReservaDemo;
+    pases: PaseReservaDemo[];
+  } | null>(null);
 
   const bottlesTotal = BOTELLAS_DEMO.reduce((sum, b) => sum + (cart[b.id] ?? 0) * b.price, 0);
   const inCart = BOTELLAS_DEMO.filter((b) => (cart[b.id] ?? 0) > 0);
+  const total = (mesa?.deposit ?? 0) + bottlesTotal;
+  const desglose = calcularDesgloseDemo(total, politica);
   const setQty = (id: string, delta: number) =>
     setCart((c) => ({ ...c, [id]: Math.max(0, (c[id] ?? 0) + delta) }));
 
@@ -153,6 +169,22 @@ export function ReservaWizard() {
     if (m.status === 'reserved') return;
     setMesa(m);
     setSize(Math.min(4, m.cap));
+  }
+
+  function confirmarReserva() {
+    if (!mesa) return;
+
+    otorgarCreditoDemo(RESERVA_ID_DEMO, 'nocturna-club', desglose.creditoConsumo);
+    setConfirmacion({
+      desglose,
+      pases: emitirPasesDemo(
+        RESERVA_ID_DEMO,
+        mesa.zonaId ?? 'general',
+        host || 'Titular de la reserva',
+        size,
+      ),
+    });
+    setStep(4);
   }
 
   return (
@@ -164,7 +196,7 @@ export function ReservaWizard() {
         </h1>
         <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
           <Lock className="size-3.5" /> Reserva segura
-          <Badge variant="info">Demo</Badge>
+          <Badge variant="info">Demo — reserva simulada</Badge>
         </span>
       </div>
       <div className="mb-9 border-b pb-6">
@@ -184,6 +216,21 @@ export function ReservaWizard() {
           <p className="mt-5 rounded-md border border-accent-border bg-accent px-6 py-4 font-mono text-2xl font-bold tracking-[0.2em] text-lavender">
             UR-DEMO-4821
           </p>
+          {confirmacion ? (
+            <>
+              <div className="mt-5 rounded-md border border-success-border bg-success-soft p-4 text-sm font-semibold text-success">
+                Tu crédito de consumo de {formatPEN(confirmacion.desglose.creditoConsumo)} ya está
+                activo en la carta del local
+              </div>
+              {!politica.reingresoPermitido ? (
+                <p className="mt-3 flex items-center justify-center gap-2 text-sm text-info">
+                  <Info className="size-4 shrink-0" weight="duotone" /> Este local no permite
+                  reingreso una vez dentro
+                </p>
+              ) : null}
+              <PasesGrupo pases={confirmacion.pases} />
+            </>
+          ) : null}
           <div className="mt-4">
             <Badge variant="info">Demo — la reserva real y el QR llegan con el backend</Badge>
           </div>
@@ -520,19 +567,34 @@ export function ReservaWizard() {
                       ))}
                     </div>
                   ) : null}
-                  <div className="flex justify-between text-base">
-                    <span>Depósito (aplica a consumo)</span>
-                    <strong>S/ {mesa.deposit}</strong>
+                  <div className="flex items-start justify-between gap-4 text-base">
+                    <span>Adelanto a pagar hoy ({politica.adelantoPct}%)</span>
+                    <strong className="shrink-0 tabular-nums">{formatPEN(desglose.adelanto)}</strong>
                   </div>
-                  {bottlesTotal > 0 ? (
-                    <div className="flex justify-between text-base">
-                      <span>Botellas</span>
-                      <strong>S/ {bottlesTotal}</strong>
+                  <div className="flex items-start justify-between gap-4 text-base">
+                    <span>
+                      <span className="block text-success">
+                        Crédito de consumo ({politica.splitConsumoPct}%)
+                      </span>
+                      <span className="mt-0.5 block text-xs text-muted-foreground">
+                        Se canjea en la carta del local
+                      </span>
+                    </span>
+                    <strong className="shrink-0 tabular-nums text-success">
+                      {formatPEN(desglose.creditoConsumo)}
+                    </strong>
+                  </div>
+                  {desglose.comisionServicio > 0 ? (
+                    <div className="flex items-start justify-between gap-4 text-base">
+                      <span>Comisión de servicio</span>
+                      <strong className="shrink-0 tabular-nums">
+                        {formatPEN(desglose.comisionServicio)}
+                      </strong>
                     </div>
                   ) : null}
                   <div className="flex justify-between border-t pt-3 font-heading text-lg font-extrabold">
                     <span>Total al confirmar</span>
-                    <span>S/ {mesa.deposit + bottlesTotal}</span>
+                    <span className="tabular-nums">{formatPEN(desglose.adelanto)}</span>
                   </div>
                 </div>
                 <div className="mt-5 flex items-start gap-3 rounded-md border border-info-border bg-info-soft p-4 text-sm leading-relaxed text-info">
@@ -577,7 +639,7 @@ export function ReservaWizard() {
               </p>
             )}
             {step === 3 ? (
-              <Button className="w-full" onClick={() => setStep(4)}>
+              <Button className="w-full" onClick={confirmarReserva}>
                 Confirmar reserva <Check className="size-4" />
               </Button>
             ) : (

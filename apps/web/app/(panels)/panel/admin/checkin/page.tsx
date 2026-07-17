@@ -1,7 +1,8 @@
-import { CheckCircle, DeviceMobile, QrCode, XCircle } from '@phosphor-icons/react/dist/ssr';
+import { DeviceMobile } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
 import { Badge, Card } from '@urnight/ui';
-import { AFORO_DEMO, CHECKINS_DEMO } from '@/lib/mock/paneles';
+import { CheckinLive } from '@/components/admin/checkin-live';
+import { AFORO_DEMO } from '@/lib/mock/paneles';
 
 export const metadata: Metadata = {
   title: 'Check-in en vivo',
@@ -49,32 +50,7 @@ export default function PlCheckinPage() {
       </Card>
 
       {/* Feed de validaciones */}
-      <section>
-        <h2 className="mb-4 flex items-center gap-2 font-heading text-lg font-bold">
-          <QrCode className="size-5 text-lavender" weight="duotone" /> Últimas validaciones
-        </h2>
-        <Card className="overflow-hidden p-0">
-          {CHECKINS_DEMO.map((c, i) => (
-            <div
-              key={`${c.hora}-${i}`}
-              className="flex items-center gap-3.5 border-b px-4 py-3 last:border-b-0"
-            >
-              {c.valido ? (
-                <CheckCircle className="size-5 shrink-0 text-success" weight="fill" />
-              ) : (
-                <XCircle className="size-5 shrink-0 text-destructive" weight="fill" />
-              )}
-              <div className="min-w-0 flex-1">
-                <p className={`text-sm font-semibold ${c.valido ? '' : 'text-destructive'}`}>
-                  {c.nombre}
-                </p>
-                <p className="text-xs text-muted-foreground">{c.tipo}</p>
-              </div>
-              <span className="font-mono text-xs text-muted-foreground">{c.hora}</span>
-            </div>
-          ))}
-        </Card>
-      </section>
+      <CheckinLive />
 
       <Card className="flex items-start gap-3.5 border-accent-border bg-accent-soft p-4">
         <DeviceMobile className="mt-0.5 size-5 shrink-0 text-lavender" weight="duotone" />

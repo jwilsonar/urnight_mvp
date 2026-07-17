@@ -52,7 +52,7 @@ export const AFORO_DEMO = { dentro: 312, capacidad: 450 };
 export interface CheckinDemo {
   hora: string;
   nombre: string;
-  tipo: 'General' | 'VIP' | 'Cortesía' | 'Reserva mesa';
+  tipo: 'General' | 'VIP' | 'Cortesía' | 'Reserva mesa' | 'Paloteo';
   valido: boolean;
 }
 
