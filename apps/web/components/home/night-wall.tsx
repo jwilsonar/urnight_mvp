@@ -7,7 +7,7 @@
  * sensación es que entras a la noche.
  *
  * Solo CSS 3D + framer-motion (nada de WebGL). El contrato visual vive en
- * globals.css (`.un-wall`, `.un-wall__row`, `.un-poster`); aquí solo se
+ * globals.css (`.rv-wall`, `.rv-wall__row`, `.rv-poster`); aquí solo se
  * orquesta el movimiento.
  */
 
@@ -26,7 +26,7 @@ const MIN_TILES_PER_ROW = 6;
 /** Techo de tiles por fila: cada uno es un nodo + una imagen. 3×8 = 24 y para. */
 const MAX_TILES_PER_ROW = 8;
 
-/** Banda violeta-azul de marca (amatista → lavanda → info). Fuera de aquí no se sale. */
+/** Banda violeta-azul de marca (carmín → rosa → info). Fuera de aquí no se sale. */
 const POSTER_HUE_MIN = 238;
 const POSTER_HUE_SPAN = 42;
 
@@ -154,7 +154,7 @@ export function NightWall({ events, className }: { events: EventResponse[]; clas
     >
       <Stage perspective={1400} origin="50% 30%">
         <m.div
-          className="un-wall flex flex-col items-center gap-5"
+          className="rv-wall flex flex-col items-center gap-5"
           style={
             reduced ? { transformStyle: 'preserve-3d' } : { rotateX, transformStyle: 'preserve-3d' }
           }
@@ -162,7 +162,7 @@ export function NightWall({ events, className }: { events: EventResponse[]; clas
           {rows.map((row, r) => (
             <m.div
               key={r}
-              className="un-wall__row"
+              className="rv-wall__row"
               // preserve-3d en cada eslabón: la fila lleva transform propio
               // (x) y, si quedara `flat`, aplastaría el translateZ del hover
               // del poster contra el plano de la fila.
@@ -180,7 +180,7 @@ export function NightWall({ events, className }: { events: EventResponse[]; clas
                   // envoltorio (ver arriba). El evento se alcanza con teclado
                   // desde las grillas de abajo, que son la ruta real.
                   tabIndex={-1}
-                  className="un-poster aspect-[3/4] w-[168px] shrink-0 sm:w-[224px]"
+                  className="rv-poster aspect-[3/4] w-[168px] shrink-0 sm:w-[224px]"
                   style={{ '--poster-bg': background } as CSSProperties}
                 >
                   {event.flyerUrl ? (

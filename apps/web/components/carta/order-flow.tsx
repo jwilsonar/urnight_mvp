@@ -35,7 +35,7 @@ export function OrderFlow({
           <Card>
             <CardContent className="space-y-6 p-6">
               <div>
-                <p className="un-eyebrow mb-2">Confirma tu pedido</p>
+                <p className="rv-eyebrow mb-2">Confirma tu pedido</p>
                 <h2 className="font-heading text-2xl font-extrabold">Resumen final</h2>
                 <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
                   <MapPin className="size-4 shrink-0" weight="duotone" />
@@ -87,9 +87,9 @@ export function OrderFlow({
     <div className="mx-auto max-w-md space-y-6">
       <Reveal>
         <Card className="overflow-hidden text-center">
-          <div className="un-hero-glow border-b bg-surface px-6 py-8">
-            <p className="un-eyebrow mb-2">Tu código de recojo</p>
-            <p className="font-display text-5xl font-extrabold tracking-widest text-lavender">
+          <div className="rv-hero-glow border-b bg-surface px-6 py-8">
+            <p className="rv-eyebrow mb-2">Tu código de recojo</p>
+            <p className="font-display text-5xl font-extrabold tracking-widest text-rose">
               {pickupCode}
             </p>
             <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">

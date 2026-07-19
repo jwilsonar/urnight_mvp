@@ -63,7 +63,7 @@ function Stepper({ current }: { current: number }) {
               i < current
                 ? 'border-primary bg-primary text-primary-foreground'
                 : i === current
-                  ? 'border-primary bg-accent text-lavender'
+                  ? 'border-primary bg-accent text-rose'
                   : 'border-border text-muted-foreground',
             )}
           >
@@ -123,9 +123,9 @@ function SummaryCard({ children }: { children: React.ReactNode }) {
   return (
     <aside className="lg:sticky lg:top-24 lg:self-start">
       <div className="rounded-lg border bg-card p-5">
-        <p className="un-eyebrow mb-3">Resumen</p>
+        <p className="rv-eyebrow mb-3">Resumen</p>
         <div className="mb-3.5 flex gap-3 border-b pb-3.5">
-          <div className="un-img-ph size-16 shrink-0 rounded-sm">
+          <div className="rv-img-ph size-16 shrink-0 rounded-sm">
             <span>Evento</span>
           </div>
           <div className="min-w-0 text-sm">
@@ -213,7 +213,7 @@ export function ReservaWizard() {
           <p className="mt-3 leading-relaxed text-muted-foreground">
             {mesa?.label} para {size} personas · llegada {time}. Presenta el código al ingresar:
           </p>
-          <p className="mt-5 rounded-md border border-accent-border bg-accent px-6 py-4 font-mono text-2xl font-bold tracking-[0.2em] text-lavender">
+          <p className="mt-5 rounded-md border border-accent-border bg-accent px-6 py-4 font-mono text-2xl font-bold tracking-[0.2em] text-rose">
             UR-DEMO-4821
           </p>
           {confirmacion ? (
@@ -282,7 +282,7 @@ export function ReservaWizard() {
                           m.status === 'reserved' && 'cursor-not-allowed opacity-40',
                         )}
                       >
-                        <div className="un-img-ph h-[110px]">
+                        <div className="rv-img-ph h-[110px]">
                           <span>
                             {m.zone === 'Pista' ? 'Mesa · Pista' : m.zone === 'VIP' ? 'Box · VIP' : 'Lounge · Premium'}
                           </span>
@@ -290,7 +290,7 @@ export function ReservaWizard() {
                         <div className="p-3.5">
                           <div className="flex items-start justify-between gap-2">
                             <div>
-                              <p className="un-eyebrow">{m.zone}</p>
+                              <p className="rv-eyebrow">{m.zone}</p>
                               <p className="mt-0.5 text-[15px] font-bold">{m.label}</p>
                             </div>
                             {m.hot && m.status === 'available' ? (
@@ -376,7 +376,7 @@ export function ReservaWizard() {
 
                 <div className="mt-6 flex items-start gap-3.5 rounded-md border border-accent-border bg-accent-soft p-4 text-sm leading-relaxed text-muted-foreground">
                   <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-accent">
-                    <Info className="size-4 text-lavender" weight="duotone" />
+                    <Info className="size-4 text-rose" weight="duotone" />
                   </span>
                   <p>
                     <strong className="text-foreground">Tu depósito se descuenta del consumo en el local.</strong>{' '}
@@ -394,7 +394,7 @@ export function ReservaWizard() {
                   <div className="flex flex-col gap-2">
                     <Label>Fecha del evento</Label>
                     <div className="flex h-[46px] items-center gap-2.5 rounded-md border bg-white/[0.02] px-3.5 text-sm text-muted-foreground">
-                      <CalendarBlank className="size-4 text-lavender" weight="duotone" />
+                      <CalendarBlank className="size-4 text-rose" weight="duotone" />
                       {EVENTO_DEMO.date} · {EVENTO_DEMO.time}
                       <span className="ml-auto flex items-center gap-1 text-[11px]">
                         <Lock className="size-3" /> Fijada por el evento
@@ -457,7 +457,7 @@ export function ReservaWizard() {
                     />
                     <span className="flex-1">
                       <span className="flex items-center gap-1.5 text-sm font-bold">
-                        <Cake className="size-4 text-lavender" weight="duotone" /> Es mi cumpleaños
+                        <Cake className="size-4 text-rose" weight="duotone" /> Es mi cumpleaños
                       </span>
                       <span className="mt-0.5 block text-xs text-muted-foreground">
                         Avisamos al local — pueden tener una sorpresa preparada
@@ -488,7 +488,7 @@ export function ReservaWizard() {
                   <button
                     type="button"
                     onClick={() => setStep(3)}
-                    className="rounded-sm border border-accent-border px-3 py-1.5 text-sm font-bold text-lavender transition-colors hover:bg-accent-soft"
+                    className="rounded-sm border border-accent-border px-3 py-1.5 text-sm font-bold text-rose transition-colors hover:bg-accent-soft"
                   >
                     Saltar →
                   </button>
@@ -505,11 +505,11 @@ export function ReservaWizard() {
                         (cart[b.id] ?? 0) > 0 && 'border-primary',
                       )}
                     >
-                      <div className="un-img-ph h-[86px] w-20 shrink-0 rounded-sm">
+                      <div className="rv-img-ph h-[86px] w-20 shrink-0 rounded-sm">
                         <span>{b.brand}</span>
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="un-eyebrow">{b.brand}</p>
+                        <p className="rv-eyebrow">{b.brand}</p>
                         <p className="mt-0.5 text-sm font-bold">{b.name}</p>
                         {b.promo ? (
                           <Badge variant="success" className="mt-1.5">

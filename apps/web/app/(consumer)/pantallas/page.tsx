@@ -172,7 +172,7 @@ export default function PantallasPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <Reveal>
-        <p className="un-eyebrow flex items-center gap-2">
+        <p className="rv-eyebrow flex items-center gap-2">
           <Eye className="size-4" weight="duotone" /> Revisión interna
         </p>
         <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
@@ -208,7 +208,7 @@ export default function PantallasPage() {
                   <Card className="flex h-full flex-col p-4 transition-[border-color,transform,box-shadow] hover:-translate-y-0.5 hover:border-accent-border hover:shadow-float">
                     <div className="flex items-start justify-between gap-2">
                       <p className="font-heading text-[15px] font-bold leading-tight">{p.nombre}</p>
-                      <ArrowUpRight className="size-4 shrink-0 text-lavender" />
+                      <ArrowUpRight className="size-4 shrink-0 text-rose" />
                     </div>
                     <p className="mt-1 font-mono text-xs text-muted-foreground">{p.ruta}</p>
                     {p.nota ? (

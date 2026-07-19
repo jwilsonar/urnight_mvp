@@ -39,9 +39,9 @@ export default function ReferidosPage() {
         <Badge variant="info">Demo — llega con el backend de referidos</Badge>
       </div>
 
-      {/* Card del código con gradiente dorado→amatista del prototipo */}
+      {/* Card del código con gradiente dorado→carmín del prototipo */}
       <div className="rounded-xl border border-warning-border bg-[linear-gradient(135deg,var(--warning-soft),var(--accent-soft))] p-6 text-center sm:p-7">
-        <p className="un-eyebrow text-warning">Tu código de invitación</p>
+        <p className="rv-eyebrow text-warning">Tu código de invitación</p>
         <p className="mt-3 font-mono text-3xl font-extrabold tracking-[0.16em] sm:text-4xl">
           {REFERIDOS_DEMO.codigo}
         </p>
@@ -58,7 +58,7 @@ export default function ReferidosPage() {
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <Card className="p-5">
-          <p className="un-eyebrow !text-muted-foreground">Amigos invitados</p>
+          <p className="rv-eyebrow !text-muted-foreground">Amigos invitados</p>
           <p className="mt-1 font-heading text-3xl font-extrabold">
             {REFERIDOS_DEMO.invitados}{' '}
             <span className="text-sm font-medium text-muted-foreground">
@@ -80,7 +80,7 @@ export default function ReferidosPage() {
           </p>
         </Card>
         <Card className="p-5">
-          <p className="un-eyebrow !text-muted-foreground">Puntos UrNight ganados</p>
+          <p className="rv-eyebrow !text-muted-foreground">Puntos UrNight ganados</p>
           <p className="mt-1 font-heading text-3xl font-extrabold">
             + {REFERIDOS_DEMO.puntos}{' '}
             <span className="text-sm font-medium text-muted-foreground">pts</span>
@@ -96,7 +96,7 @@ export default function ReferidosPage() {
       <Card className="overflow-hidden p-0">
         {REFERIDOS_DEMO.lista.map((r) => (
           <div key={r.nombre} className="flex items-center gap-3.5 border-b px-4 py-3.5 last:border-b-0">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-accent-border bg-accent text-sm font-bold text-lavender">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-accent-border bg-accent text-sm font-bold text-rose">
               {r.nombre[0]}
             </span>
             <div className="min-w-0 flex-1">

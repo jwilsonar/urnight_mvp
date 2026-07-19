@@ -80,7 +80,7 @@ export default function PlMesasPage() {
       {/* Reservas del día */}
       <section>
         <h2 className="mb-4 flex items-center gap-2 font-heading text-lg font-bold">
-          <Armchair className="size-5 text-lavender" weight="duotone" /> Reservas de hoy (
+          <Armchair className="size-5 text-rose" weight="duotone" /> Reservas de hoy (
           {RESERVAS_DIA_DEMO.length})
         </h2>
         <Card className="overflow-hidden p-0">

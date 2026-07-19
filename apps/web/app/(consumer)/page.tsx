@@ -80,14 +80,14 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* ===== Hero del prototipo: gradiente amatista→midnight, glow respirando,
+      {/* ===== Hero del prototipo: gradiente carmín→obsidian, glow respirando,
           titular Sora con la marca en glow y strip de stats ===== */}
       <section className="relative overflow-hidden bg-[linear-gradient(180deg,var(--surface-3)_0%,var(--bg-root)_85%)]">
         {/* Glow de fondo con parallax lento (capa profunda) */}
         <HeroParallax>
           <div
             aria-hidden
-            className="un-breathe absolute -right-52 -top-24 size-[700px] rounded-full bg-[radial-gradient(circle,var(--accent-soft-strong),transparent_60%)]"
+            className="rv-breathe absolute -right-52 -top-24 size-[700px] rounded-full bg-[radial-gradient(circle,var(--accent-soft-strong),transparent_60%)]"
           />
         </HeroParallax>
         {/* El muro va DETRÁS del copy, no debajo: como banda aparte medía 939px y
@@ -98,7 +98,7 @@ export default async function HomePage() {
         {/* blur + opacidad baja = profundidad de campo. Una cámara real enfoca el
             titular y desenfoca lo que hay detrás; sin esto los títulos de los
             posters compiten con el copy y el hero se lee sucio. El desenfoque va
-            en este envoltorio, por FUERA del .un-stage: un `filter` aplana el 3D
+            en este envoltorio, por FUERA del .rv-stage: un `filter` aplana el 3D
             del elemento que lo lleva, así que sobre el muro mataría la
             perspectiva. Aquí solo rasteriza el resultado ya compuesto. */}
         <div aria-hidden className="absolute inset-0 z-0 flex items-center opacity-50 blur-[3px]">
@@ -114,7 +114,7 @@ export default async function HomePage() {
         <Spotlight size={700} className="relative z-10">
         <div className="mx-auto max-w-7xl px-4 pb-20 pt-20 sm:px-6 lg:px-8">
           <Reveal depth>
-            <span className="un-eyebrow inline-flex items-center gap-2 rounded-full border border-accent-border bg-accent px-4 py-2">
+            <span className="rv-eyebrow inline-flex items-center gap-2 rounded-full border border-accent-border bg-accent px-4 py-2">
               🔥 Esta temporada en Lima
             </span>
           </Reveal>
@@ -123,7 +123,7 @@ export default async function HomePage() {
               Tu próxima noche
               <br />
               empieza en{' '}
-              <span className="text-lavender [text-shadow:var(--glow-text)]">RAVENUE</span>
+              <span className="text-rose [text-shadow:var(--glow-text)]">RAVENUE</span>
             </h1>
           </Reveal>
           <Reveal delay={160} depth>
@@ -178,11 +178,11 @@ export default async function HomePage() {
             {genres.length > 0 ? (
               <Reveal delay={60}>
                 <div className="mb-7 flex flex-wrap gap-2.5">
-                  <Link href="/events" className="un-chip" data-active="true">
+                  <Link href="/events" className="rv-chip" data-active="true">
                     <Sparkle className="size-4" weight="duotone" /> Todos
                   </Link>
                   {genres.slice(0, 7).map((g) => (
-                    <Link key={g.id} href={`/events?genreId=${g.id}`} className="un-chip">
+                    <Link key={g.id} href={`/events?genreId=${g.id}`} className="rv-chip">
                       {genreIcon(g.name)} {g.name}
                     </Link>
                   ))}
@@ -215,7 +215,7 @@ export default async function HomePage() {
                 'Electrónica',
               ].map((item) => (
                 <span key={item} className="flex shrink-0 items-center gap-4">
-                  <span className="un-eyebrow shrink-0">{item}</span>
+                  <span className="rv-eyebrow shrink-0">{item}</span>
                   <span aria-hidden className="shrink-0 text-muted-foreground">
                     ·
                   </span>
@@ -261,7 +261,7 @@ export default async function HomePage() {
                     <span className="inline-flex items-center gap-2 self-start rounded-full border border-warning-border bg-[linear-gradient(90deg,var(--warning-soft),var(--accent-soft-strong))] px-4 py-1.5 text-xs font-bold tracking-wide text-warning">
                       <Star className="size-3.5" weight="fill" /> PARTNER DESTACADO
                     </span>
-                    <h2 className="mt-5 font-display text-5xl font-black leading-[0.95] tracking-tight text-lavender sm:text-6xl">
+                    <h2 className="mt-5 font-display text-5xl font-black leading-[0.95] tracking-tight text-rose sm:text-6xl">
                       {partner.name}
                     </h2>
                     <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -281,7 +281,7 @@ export default async function HomePage() {
                   </div>
                   {/* Imagen real del partner cuando existe; si no, placeholder
                       con degradado de marca (no las líneas diagonales del
-                      un-img-ph, que se veían como "falta algo"). El scrim
+                      rv-img-ph, que se veían como "falta algo"). El scrim
                       izquierdo funde la foto con el panel de texto. */}
                   <div className="relative hidden min-h-[240px] overflow-hidden lg:block">
                     {partner.mainImageUrl ? (
@@ -297,7 +297,7 @@ export default async function HomePage() {
                     )}
                     {/* Scrim para fundir con el panel de texto a la izquierda. */}
                     <div className="absolute inset-0 bg-gradient-to-r from-background via-background/35 to-transparent" />
-                    <span className="absolute bottom-4 right-4 rounded-full border border-accent-border bg-deep/80 px-3 py-1 text-xs font-semibold text-lavender backdrop-blur-sm">
+                    <span className="absolute bottom-4 right-4 rounded-full border border-accent-border bg-deep/80 px-3 py-1 text-xs font-semibold text-rose backdrop-blur-sm">
                       {partner.name}
                     </span>
                   </div>

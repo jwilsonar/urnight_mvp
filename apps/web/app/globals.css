@@ -199,15 +199,19 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Escalera de fondos y extras RAVENUE como utilidades (bg-root, bg-surface,
-     bg-elevated, text-lavender, border-strong…). Los alias cromáticos legacy
-     se conservan para no romper consumidores existentes. */
+  /* Escalera de fondos, paleta y extras RAVENUE como utilidades
+     (bg-root, bg-surface, text-rose, border-strong…). */
   --color-root: var(--bg-root);
   --color-deep: var(--bg-deep);
   --color-surface: var(--bg-surface);
   --color-elevated: var(--bg-elevated);
-  --color-lavender: var(--rv-rose);
-  --color-amethyst: var(--rv-crimson);
+  --color-obsidian: var(--rv-obsidian);
+  --color-crimson: var(--rv-crimson);
+  --color-wine: var(--rv-wine);
+  --color-rose: var(--rv-rose);
+  --color-moon: var(--rv-moon);
+  --color-smoke: var(--rv-smoke);
+  --color-steel: var(--rv-steel);
   --color-strong: var(--border-strong);
   --color-field: var(--field);
   --color-primary-hover: var(--accent-hover);
@@ -315,7 +319,7 @@
 
 @layer components {
   /* Eyebrow rosa en mayúsculas espaciadas (labels de sección) */
-  .un-eyebrow {
+  .rv-eyebrow {
     font-size: 11.5px;
     color: var(--text-accent);
     letter-spacing: 0.08em;
@@ -325,7 +329,7 @@
 
   /* Placeholder de imagen de marca: trama diagonal carmín + chip rotulado.
      Se usa donde aún no hay fotografía real. */
-  .un-img-ph {
+  .rv-img-ph {
     position: relative;
     overflow: hidden;
     background:
@@ -340,13 +344,13 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-  .un-img-ph::after {
+  .rv-img-ph::after {
     content: '';
     position: absolute;
     inset: 0;
     background: radial-gradient(circle at 30% 30%, rgba(178, 30, 69, 0.15), transparent 60%);
   }
-  .un-img-ph > span {
+  .rv-img-ph > span {
     position: relative;
     z-index: 1;
     padding: 4px 10px;
@@ -356,12 +360,12 @@
   }
 
   /* Fondo hero con wash carmín vertical (atmósfera, no neón) */
-  .un-hero-glow {
+  .rv-hero-glow {
     background: var(--glow-hero);
   }
 
   /* Chip de filtro del prototipo: pill oscura con hairline; activa = tinte carmín */
-  .un-chip {
+  .rv-chip {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -381,23 +385,23 @@
       transform 160ms ease;
   }
   /* El lift/hover solo aplica a chips REALMENTE interactivos (filtros que son
-     <a>/<button>). Los .un-chip decorativos de las pantallas de auth son
+     <a>/<button>). Los .rv-chip decorativos de las pantallas de auth son
      <span>: no deben parecer clickeables (el cursor pointer lo dan el anchor
      nativo y la regla global de botones, no la clase). */
-  a.un-chip:hover,
-  button.un-chip:hover {
+  a.rv-chip:hover,
+  button.rv-chip:hover {
     border-color: var(--accent-border);
     color: var(--color-foreground);
     transform: translateY(-1px);
   }
-  .un-chip[data-active='true'] {
+  .rv-chip[data-active='true'] {
     background: var(--accent-soft-strong);
     border-color: var(--accent-border-strong);
     color: #fff;
   }
 
   /* Carrusel horizontal con snap (categorías, rails de cards) */
-  .un-hscroll {
+  .rv-hscroll {
     display: flex;
     gap: 14px;
     overflow-x: auto;
@@ -405,13 +409,13 @@
     padding-bottom: 8px;
     scrollbar-width: thin;
   }
-  .un-hscroll > * {
+  .rv-hscroll > * {
     scroll-snap-align: start;
     flex-shrink: 0;
   }
 
   /* Reveal on-scroll: estado oculto → visible con fade-up (JS agrega .is-visible) */
-  .un-reveal {
+  .rv-reveal {
     opacity: 0;
     transform: translateY(18px);
     transition:
@@ -419,33 +423,33 @@
       transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
     transition-delay: var(--reveal-delay, 0ms);
   }
-  .un-reveal.is-visible {
+  .rv-reveal.is-visible {
     opacity: 1;
     transform: none;
   }
 
   /* Glow respirando para heros (atmósfera lenta, no estroboscópica) */
-  .un-breathe {
-    animation: un-breathe 7s ease-in-out infinite;
+  .rv-breathe {
+    animation: rv-breathe 7s ease-in-out infinite;
   }
 
   /* Zoom suave de imagen dentro de cards clickeables.
      Se transicionan `transform` Y `scale` porque son propiedades distintas y
-     conviven: `.un-zoom-img:hover img` (aquí abajo) escribe `transform`, pero
+     conviven: `.rv-zoom-img:hover img` (aquí abajo) escribe `transform`, pero
      las utilidades de Tailwind v4 (`group-hover:scale-105`, que usa event-card
      porque su link estirado tapa el `:hover` del wrapper) escriben `scale`.
      Con solo `transform` en la lista, ese segundo caso saltaría sin animar. */
-  .un-zoom-img img {
+  .rv-zoom-img img {
     transition:
       transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
       scale 700ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .un-zoom-img:hover img {
+  .rv-zoom-img:hover img {
     transform: scale(1.05);
   }
 
   /* Reveal con profundidad: entra rotando en X (sensación de acercarse en 3D) */
-  .un-reveal-3d {
+  .rv-reveal-3d {
     opacity: 0;
     transform: perspective(1000px) rotateX(8deg) translateY(28px);
     transform-origin: center bottom;
@@ -454,23 +458,23 @@
       transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
     transition-delay: var(--reveal-delay, 0ms);
   }
-  .un-reveal-3d.is-visible {
+  .rv-reveal-3d.is-visible {
     opacity: 1;
     transform: perspective(1000px) rotateX(0) translateY(0);
   }
 
   /* Tilt 3D siguiendo el puntero (Tilt component setea --tilt-rx/ry/gx/gy) */
-  .un-tilt {
+  .rv-tilt {
     transform: perspective(900px) rotateX(var(--tilt-rx, 0deg)) rotateY(var(--tilt-ry, 0deg));
     transform-style: preserve-3d;
     transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
     will-change: transform;
   }
   /* Brillo especular que sigue al puntero, encima del contenido de la card */
-  .un-tilt[data-glare] {
+  .rv-tilt[data-glare] {
     position: relative;
   }
-  .un-tilt[data-glare]::after {
+  .rv-tilt[data-glare]::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -485,12 +489,12 @@
     pointer-events: none;
     z-index: 2;
   }
-  .un-tilt[data-glare]:hover::after {
+  .rv-tilt[data-glare]:hover::after {
     opacity: 1;
   }
 
   /* Capa con parallax por scroll (Parallax component setea --parallax-y) */
-  .un-parallax {
+  .rv-parallax {
     transform: translate3d(0, var(--parallax-y, 0), 0);
     will-change: transform;
   }
@@ -504,7 +508,7 @@
 
   /* Escenario: abre un espacio con profundidad real para los hijos.
      Sin esto, el translateZ de un descendiente no se ve. */
-  .un-stage {
+  .rv-stage {
     perspective: var(--stage-persp, 1200px);
     perspective-origin: var(--stage-origin, 50% 50%);
     transform-style: preserve-3d;
@@ -514,7 +518,7 @@
 
   /* Capa de inclinación. Va por fuera del flip para que ambas rotaciones
      no peleen por el mismo transform. */
-  .un-holo {
+  .rv-holo {
     position: relative;
     transform: perspective(var(--holo-persp, 900px)) rotateX(var(--holo-rx, 0deg))
       rotateY(var(--holo-ry, 0deg)) scale(var(--holo-scale, 1));
@@ -524,13 +528,13 @@
   }
   /* Con el puntero encima seguimos su posición casi sin lag; al salir, la
      transición larga devuelve la card con suavidad. */
-  .un-holo[data-active='true'] {
+  .rv-holo[data-active='true'] {
     transition: transform 80ms linear;
   }
 
   /* Foil: bandas de difracción teñidas con la paleta de marca
      (rosa → carmín → info) en vez del arcoíris típico. */
-  .un-holo__foil {
+  .rv-holo__foil {
     position: absolute;
     inset: 0;
     z-index: 3;
@@ -554,7 +558,7 @@
 
   /* Brillo especular: el reflejo puntual que delata que hay un plano
      físico inclinándose bajo la luz. */
-  .un-holo__shine {
+  .rv-holo__shine {
     position: absolute;
     inset: 0;
     z-index: 4;
@@ -572,19 +576,19 @@
   }
 
   /* Flip: cara A / cara B del ticket. */
-  .un-holo-flip {
+  .rv-holo-flip {
     position: relative;
     transform-style: preserve-3d;
     transition: transform 640ms var(--ease-brand);
   }
-  .un-holo-flip[data-flipped='true'] {
+  .rv-holo-flip[data-flipped='true'] {
     transform: rotateY(180deg);
   }
-  .un-holo-flip__face {
+  .rv-holo-flip__face {
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
   }
-  .un-holo-flip__face--back {
+  .rv-holo-flip__face--back {
     position: absolute;
     inset: 0;
     transform: rotateY(180deg);
@@ -592,16 +596,16 @@
 
   /* ---------- Muro de noches ---------- */
 
-  .un-wall {
+  .rv-wall {
     transform-style: preserve-3d;
   }
-  .un-wall__row {
+  .rv-wall__row {
     display: flex;
     width: max-content;
     gap: 1.25rem;
     will-change: transform;
   }
-  .un-poster {
+  .rv-poster {
     position: relative;
     overflow: hidden;
     border: 1px solid var(--border);
@@ -616,7 +620,7 @@
   }
   /* El poster sale del plano hacia la cámara: profundidad de verdad,
      no un scale disfrazado. */
-  .un-poster:hover {
+  .rv-poster:hover {
     transform: translateZ(48px);
     box-shadow: var(--shadow-card-xl), var(--glow-btn-lg);
   }
@@ -625,11 +629,11 @@
 
   /* Luz de club que sigue al cursor. Va detrás del contenido (z-index -1
      dentro de un isolation:isolate) para no lavar el texto. */
-  .un-spotlight {
+  .rv-spotlight {
     position: relative;
     isolation: isolate;
   }
-  .un-spotlight::before {
+  .rv-spotlight::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -647,7 +651,7 @@
 
   /* ---------- Logo con luz y profundidad ---------- */
 
-  .un-logo3d {
+  .rv-logo3d {
     position: relative;
     transform: perspective(600px) rotateX(var(--logo-rx, 0deg)) rotateY(var(--logo-ry, 0deg));
     transform-style: preserve-3d;
@@ -655,16 +659,16 @@
   }
   /* La marca flota por delante del wordmark: al inclinar, el desfase entre
      ambos planos es lo que se lee como volumen. */
-  .un-logo3d__mark {
+  .rv-logo3d__mark {
     position: relative;
     transform: translateZ(20px);
   }
-  .un-logo3d__word {
+  .rv-logo3d__word {
     transform: translateZ(8px);
   }
   /* El barrido se recorta con la V intervenida (mask-image): la luz recorre
      el trazo sin salirse de la marca. */
-  .un-logo3d__sweep {
+  .rv-logo3d__sweep {
     position: absolute;
     inset: 0;
     pointer-events: none;
@@ -685,12 +689,12 @@
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-position: center;
   }
-  .un-logo3d[data-sweep='true'] .un-logo3d__sweep {
-    animation: un-sweep 1100ms var(--ease-brand);
+  .rv-logo3d[data-sweep='true'] .rv-logo3d__sweep {
+    animation: rv-sweep 1100ms var(--ease-brand);
   }
 }
 
-@keyframes un-sweep {
+@keyframes rv-sweep {
   from {
     background-position: 220% 0;
   }
@@ -699,7 +703,7 @@
   }
 }
 
-@keyframes un-breathe {
+@keyframes rv-breathe {
   0%,
   100% {
     opacity: 0.75;
@@ -713,7 +717,7 @@
 
 /* Transición entre páginas: fade-up corto al montar cada ruta (app/template.tsx).
    Ease-out fuerte y <350ms: la navegación se siente viva sin estorbar. */
-@keyframes un-page-in {
+@keyframes rv-page-in {
   from {
     opacity: 0;
     transform: translateY(8px);
@@ -724,14 +728,14 @@
   }
 }
 
-.un-page-in {
-  animation: un-page-in 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
+.rv-page-in {
+  animation: rv-page-in 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
 /* Deriva lenta para el collage de flyers del hero de auth: sube/baja y gira un
    pelo, en bucle. Da la sensación de "posters flotando" del prototipo sin
    cargar imágenes (solo transform, compone en GPU). */
-@keyframes un-drift {
+@keyframes rv-drift {
   0%,
   100% {
     transform: translateY(0) rotate(var(--drift-rot, 0deg));
@@ -740,78 +744,78 @@
     transform: translateY(var(--drift-y, -14px)) rotate(var(--drift-rot, 0deg));
   }
 }
-.un-float {
-  animation: un-drift var(--drift-dur, 9s) ease-in-out infinite;
+.rv-float {
+  animation: rv-drift var(--drift-dur, 9s) ease-in-out infinite;
   will-change: transform;
 }
 
 /* Accesibilidad: sin movimiento para quien lo pide */
 @media (prefers-reduced-motion: reduce) {
-  .un-reveal {
+  .rv-reveal {
     opacity: 1;
     transform: none;
     transition: none;
   }
-  .un-breathe {
+  .rv-breathe {
     animation: none;
   }
-  .un-float {
+  .rv-float {
     animation: none;
   }
-  .un-page-in {
+  .rv-page-in {
     animation: none;
   }
-  .un-zoom-img img {
+  .rv-zoom-img img {
     transition: none;
   }
-  .un-reveal-3d {
+  .rv-reveal-3d {
     opacity: 1;
     transform: none;
     transition: none;
   }
-  .un-tilt {
+  .rv-tilt {
     transform: none;
     transition: none;
   }
-  .un-parallax {
+  .rv-parallax {
     transform: none;
   }
 
   /* Capa 3D: se queda plana y legible. El flip sigue funcionando porque es
      una acción del usuario (ver el reverso del ticket), pero sin animarse;
      lo que se apaga es el movimiento ambiental. */
-  .un-holo {
+  .rv-holo {
     transform: none;
     transition: none;
   }
-  .un-holo__foil,
-  .un-holo__shine {
+  .rv-holo__foil,
+  .rv-holo__shine {
     display: none;
   }
-  .un-holo-flip {
+  .rv-holo-flip {
     transition: none;
   }
-  .un-poster {
+  .rv-poster {
     transition: none;
   }
-  .un-poster:hover {
+  .rv-poster:hover {
     transform: none;
   }
-  .un-spotlight::before {
+  .rv-spotlight::before {
     display: none;
   }
-  .un-logo3d {
+  .rv-logo3d {
     transform: none;
     transition: none;
   }
-  .un-logo3d__mark,
-  .un-logo3d__word {
+  .rv-logo3d__mark,
+  .rv-logo3d__word {
     transform: none;
   }
-  .un-logo3d__sweep {
+  .rv-logo3d__sweep {
     display: none;
   }
-  .un-logo3d[data-sweep='true'] .un-logo3d__sweep {
+  .rv-logo3d[data-sweep='true'] .rv-logo3d__sweep {
     animation: none;
   }
 }

@@ -7,7 +7,7 @@ export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
       ref={ref}
       className={cn(
         // DS: cards sin sombra en reposo; hairline + radio 16. El lift/borde
-        // amatista de hover lo aplica cada uso clickeable.
+        // carmín de hover lo aplica cada uso clickeable.
         'rounded-lg border bg-card text-card-foreground transition-[border-color,box-shadow,transform]',
         className,
       )}

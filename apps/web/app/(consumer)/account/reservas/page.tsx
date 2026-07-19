@@ -47,8 +47,8 @@ export default function MisReservasPage() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="un-eyebrow !text-muted-foreground">Código</p>
-                  <p className="font-mono text-lg font-bold tracking-widest text-lavender">
+                  <p className="rv-eyebrow !text-muted-foreground">Código</p>
+                  <p className="font-mono text-lg font-bold tracking-widest text-rose">
                     {reserva.codigo}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">

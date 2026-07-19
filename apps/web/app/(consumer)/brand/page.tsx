@@ -33,7 +33,7 @@ const MESSAGES = [
 function SectionHeading({ eyebrow, title, description }: { eyebrow: string; title: string; description?: string }) {
   return (
     <div className="mb-8 max-w-3xl">
-      <p className="un-eyebrow">{eyebrow}</p>
+      <p className="rv-eyebrow">{eyebrow}</p>
       <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
       {description ? <p className="mt-3 leading-relaxed text-muted-foreground">{description}</p> : null}
     </div>
@@ -45,7 +45,7 @@ export default function BrandLabPage() {
     <div className="bg-root">
       <section className="border-b bg-[image:var(--gradient-brand)]">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-          <p className="un-eyebrow">Brand Lab — identidad exploratoria</p>
+          <p className="rv-eyebrow">Brand Lab — identidad exploratoria</p>
           <h1 className="mt-6 font-display text-5xl font-bold tracking-[0.12em] text-foreground sm:text-7xl lg:text-8xl">
             RA<span className="text-[var(--rv-rose)]">VE</span>NUE
           </h1>

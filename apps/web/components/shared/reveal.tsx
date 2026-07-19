@@ -4,7 +4,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { cn } from '@urnight/ui';
 
 /**
- * Reveal on-scroll: aplica .un-reveal y agrega .is-visible cuando el bloque
+ * Reveal on-scroll: aplica .rv-reveal y agrega .is-visible cuando el bloque
  * entra al viewport (una sola vez). `delay` escalona cards de una grilla.
  * Con prefers-reduced-motion el CSS lo deja siempre visible.
  */
@@ -43,7 +43,7 @@ export function Reveal({
   return (
     <div
       ref={ref}
-      className={cn(depth ? 'un-reveal-3d' : 'un-reveal', className)}
+      className={cn(depth ? 'rv-reveal-3d' : 'rv-reveal', className)}
       style={delay ? ({ '--reveal-delay': `${delay}ms` } as React.CSSProperties) : undefined}
     >
       {children}

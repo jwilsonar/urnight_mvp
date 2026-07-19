@@ -115,7 +115,7 @@ export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { 
             <div className="max-h-[420px] overflow-y-auto py-2">
               {events.length > 0 ? (
                 <div className="px-2">
-                  <p className="un-eyebrow px-2 pb-1 pt-1.5">Eventos</p>
+                  <p className="rv-eyebrow px-2 pb-1 pt-1.5">Eventos</p>
                   {events.map((event) => (
                     <Link
                       key={event.id}
@@ -123,7 +123,7 @@ export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { 
                       onClick={clear}
                       className="flex items-center gap-2.5 rounded-sm px-2 py-2 text-sm transition-colors hover:bg-accent"
                     >
-                      <CalendarBlank className="size-4 shrink-0 text-lavender" weight="duotone" />
+                      <CalendarBlank className="size-4 shrink-0 text-rose" weight="duotone" />
                       <span className="min-w-0 flex-1 truncate font-medium">{event.name}</span>
                       <span className="shrink-0 text-xs text-muted-foreground">
                         {DATE.format(new Date(event.startsAt))}
@@ -134,7 +134,7 @@ export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { 
               ) : null}
               {locals.length > 0 ? (
                 <div className="px-2">
-                  <p className="un-eyebrow px-2 pb-1 pt-2.5">Locales</p>
+                  <p className="rv-eyebrow px-2 pb-1 pt-2.5">Locales</p>
                   {locals.map((local) => (
                     <Link
                       key={local.id}
@@ -142,7 +142,7 @@ export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { 
                       onClick={clear}
                       className="flex items-center gap-2.5 rounded-sm px-2 py-2 text-sm transition-colors hover:bg-accent"
                     >
-                      <MapPin className="size-4 shrink-0 text-lavender" weight="duotone" />
+                      <MapPin className="size-4 shrink-0 text-rose" weight="duotone" />
                       <span className="min-w-0 flex-1 truncate font-medium">{local.name}</span>
                     </Link>
                   ))}
@@ -151,7 +151,7 @@ export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { 
               <button
                 type="button"
                 onClick={goToSearch}
-                className="mt-1 block w-full border-t px-4 py-2.5 text-left text-sm font-semibold text-lavender transition-colors hover:bg-accent"
+                className="mt-1 block w-full border-t px-4 py-2.5 text-left text-sm font-semibold text-rose transition-colors hover:bg-accent"
               >
                 Ver todos los resultados →
               </button>
@@ -162,7 +162,7 @@ export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { 
               <button
                 type="button"
                 onClick={goToSearch}
-                className="ml-1.5 font-semibold text-lavender hover:underline"
+                className="ml-1.5 font-semibold text-rose hover:underline"
               >
                 Buscar igual →
               </button>

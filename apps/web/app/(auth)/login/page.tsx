@@ -48,9 +48,9 @@ export default async function LoginPage({
             Entra y sigue donde lo dejaste: guardados, tickets y mucho más.
           </p>
           <div className="mt-5 flex flex-wrap gap-2.5">
-            <span className="un-chip">🔥 320+ eventos</span>
-            <span className="un-chip">⭐ 85 locales</span>
-            <span className="un-chip">🎟️ Mesa + entrada</span>
+            <span className="rv-chip">🔥 320+ eventos</span>
+            <span className="rv-chip">⭐ 85 locales</span>
+            <span className="rv-chip">🎟️ Mesa + entrada</span>
           </div>
         </div>
       }
@@ -84,7 +84,7 @@ export default async function LoginPage({
         ) : null}
         <LoginForm callbackUrl={target} />
         <p className="text-right text-sm">
-          <Link href="/recover" className="font-semibold text-lavender hover:underline">
+          <Link href="/recover" className="font-semibold text-rose hover:underline">
             ¿Olvidaste tu contraseña?
           </Link>
         </p>

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Luz de club que sigue al puntero. Consume el contrato .un-spotlight de
+ * Luz de club que sigue al puntero. Consume el contrato .rv-spotlight de
  * globals.css (--spot-x/--spot-y en %, --spot-op 0..1, --spot-size en px): el
  * gradiente vive detrás del contenido, aquí solo movemos la lámpara.
  *
@@ -91,7 +91,7 @@ export function Spotlight({
   return (
     <div
       ref={ref}
-      className={cn('un-spotlight', className)}
+      className={cn('rv-spotlight', className)}
       style={{ '--spot-size': `${size}px` } as CSSProperties}
     >
       {children}

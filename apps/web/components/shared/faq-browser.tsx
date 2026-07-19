@@ -75,7 +75,7 @@ function FaqList({
         className="rounded-lg border bg-card px-5 py-10 text-center"
       >
         <MagnifyingGlass
-          className="mx-auto size-7 text-lavender"
+          className="mx-auto size-7 text-rose"
           weight="duotone"
           aria-hidden
         />
@@ -96,7 +96,7 @@ function FaqList({
           <details className="group rounded-md border bg-card transition-colors open:border-accent-border">
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-semibold [&::-webkit-details-marker]:hidden">
               {faq.question}
-              <CaretDown className="size-4 shrink-0 text-lavender transition-transform group-open:rotate-180" />
+              <CaretDown className="size-4 shrink-0 text-rose transition-transform group-open:rotate-180" />
             </summary>
             <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">
               {faq.answer}

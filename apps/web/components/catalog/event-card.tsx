@@ -35,7 +35,7 @@ export const CTA_CLASS =
 
 /** Botón redondo sobre flyer/reverso: mismo lenguaje que las badges (fondo sólido). */
 const ICON_BTN_CLASS =
-  'inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-accent-border bg-deep/90 text-lavender outline-none backdrop-blur-sm transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring';
+  'inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-accent-border bg-deep/90 text-rose outline-none backdrop-blur-sm transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring';
 
 export function EventCard({ event }: { event: EventResponse }) {
   const status = STATUS_LABEL[event.status];
@@ -52,7 +52,7 @@ export function EventCard({ event }: { event: EventResponse }) {
           los estados de hover de la card deben seguir disparándose igual. */}
       <div className="group relative h-full rounded-lg">
         <Card className="flex h-full flex-col overflow-hidden group-hover:border-accent-border group-hover:shadow-float">
-          <div className="un-zoom-img relative aspect-video overflow-hidden">
+          <div className="rv-zoom-img relative aspect-video overflow-hidden">
             {event.flyerUrl ? (
               <StorageImage
                 src={event.flyerUrl}
@@ -60,11 +60,11 @@ export function EventCard({ event }: { event: EventResponse }) {
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 // El zoom pasa a group-hover: el link va por encima del flyer, así
-                // que `.un-zoom-img:hover` ya no se dispara al pasar por la imagen.
+                // que `.rv-zoom-img:hover` ya no se dispara al pasar por la imagen.
                 className="object-cover group-hover:scale-105"
               />
             ) : (
-              <div className="un-img-ph absolute inset-0">
+              <div className="rv-img-ph absolute inset-0">
                 <span>Flyer del evento</span>
               </div>
             )}
@@ -83,7 +83,7 @@ export function EventCard({ event }: { event: EventResponse }) {
             ) : null}
           </div>
           <CardContent className="flex flex-1 flex-col p-4">
-            <p className="un-eyebrow flex items-center gap-1.5">
+            <p className="rv-eyebrow flex items-center gap-1.5">
               <CalendarBlank className="size-3.5" weight="duotone" />
               {DATE.format(new Date(event.startsAt))} · {timeRange(event.startsAt, event.endsAt)}
             </p>
@@ -154,7 +154,7 @@ function EventCardBack({ event, href }: { event: EventResponse; href: string }) 
   return (
     <Card className="flex h-full flex-col overflow-hidden border-accent-border">
       <CardContent className="flex min-h-0 flex-1 flex-col p-4">
-        <p className="un-eyebrow flex items-center gap-1.5">
+        <p className="rv-eyebrow flex items-center gap-1.5">
           <Ticket className="size-3.5" weight="duotone" />
           Detalle del evento
         </p>

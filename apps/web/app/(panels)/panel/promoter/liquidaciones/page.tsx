@@ -37,7 +37,7 @@ export default function LiquidacionesPage() {
               <Money className="size-6 text-warning" weight="duotone" />
             </span>
             <div>
-              <p className="un-eyebrow text-warning">Próxima liquidación</p>
+              <p className="rv-eyebrow text-warning">Próxima liquidación</p>
               <p className="font-heading text-3xl font-black tracking-tight">{proxima.comision}</p>
               <p className="mt-0.5 text-sm text-muted-foreground">
                 {proxima.ventas} ventas del periodo {proxima.periodo} · pago estimado{' '}

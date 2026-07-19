@@ -45,9 +45,9 @@ export default async function RegisterPage({
             Crea tu cuenta gratis, guarda tus locales favoritos y compra entradas en segundos.
           </p>
           <div className="mt-5 flex flex-wrap gap-2.5">
-            <span className="un-chip">🎟️ Entradas al toque</span>
-            <span className="un-chip">❤️ Guarda favoritos</span>
-            <span className="un-chip">+18</span>
+            <span className="rv-chip">🎟️ Entradas al toque</span>
+            <span className="rv-chip">❤️ Guarda favoritos</span>
+            <span className="rv-chip">+18</span>
           </div>
         </div>
       }

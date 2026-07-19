@@ -65,7 +65,7 @@ export default async function ValidatorPage() {
           <CardDescription>Reporta incidencias del escáner al administrador de tu local o a soporte.</CardDescription>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
-          Soporte: <a className="font-medium text-lavender hover:underline" href="mailto:soporte@urnight.pe">soporte@urnight.pe</a>
+          Soporte: <a className="font-medium text-rose hover:underline" href="mailto:soporte@urnight.pe">soporte@urnight.pe</a>
         </CardContent>
       </Card>
     </div>

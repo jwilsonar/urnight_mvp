@@ -46,7 +46,7 @@ export function FriendsDemo() {
                 key={solicitud.id}
                 className="flex flex-wrap items-center gap-3 border-b px-4 py-3.5 last:border-b-0"
               >
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-accent-border bg-accent-soft text-sm font-bold text-lavender">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-accent-border bg-accent-soft text-sm font-bold text-rose">
                   {iniciales(solicitud.nombre)}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -102,7 +102,7 @@ export function FriendsDemo() {
                 key={amigo.id}
                 className="flex items-center gap-3.5 border-b px-4 py-4 last:border-b-0"
               >
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-accent-border bg-accent-soft text-sm font-bold text-lavender">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-accent-border bg-accent-soft text-sm font-bold text-rose">
                   {iniciales(amigo.nombre)}
                 </span>
                 <div className="min-w-0 flex-1">

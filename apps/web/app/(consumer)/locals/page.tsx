@@ -70,7 +70,7 @@ export default async function LocalsPage({
         <Reveal>
           <div className="flex flex-col items-center gap-4 rounded-2xl border border-accent-border bg-[linear-gradient(180deg,var(--accent-soft),transparent)] px-6 py-14 text-center">
             <span className="flex size-16 items-center justify-center rounded-xl border border-accent-border bg-accent">
-              <ShieldCheck className="size-7 text-lavender" weight="duotone" />
+              <ShieldCheck className="size-7 text-rose" weight="duotone" />
             </span>
             <h2 className="font-heading text-2xl font-extrabold tracking-tight sm:text-3xl">
               ¿Tienes un local?

@@ -87,7 +87,7 @@ export function PasesGrupo({ pases }: PasesGrupoProps) {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {pases.map((pase) => (
           <article key={pase.id} className="min-w-0 rounded-md border bg-card p-3">
-            <p className="un-eyebrow !text-muted-foreground">
+            <p className="rv-eyebrow !text-muted-foreground">
               Pase {pase.indice} de {pases.length}
             </p>
             <div className="mt-3 flex flex-col items-center gap-3">

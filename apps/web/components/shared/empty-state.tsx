@@ -13,7 +13,7 @@ interface EmptyStateProps {
 /**
  * Estado vacío reutilizable (patrón "empty state" con mark de icono + título +
  * descripción + acción). Estructura tomada de patrones 21st, revestida con los
- * tokens del DS (accent-border, lavender, un-*). Si no se pasa icono, usa uno
+ * tokens del DS (accent-border, rose, rv-*). Si no se pasa icono, usa uno
  * neutral por defecto para que nunca quede "a medio hacer".
  */
 export function EmptyState({ icon, title, description, action, compact }: EmptyStateProps) {
@@ -26,12 +26,12 @@ export function EmptyState({ icon, title, description, action, compact }: EmptyS
           : 'flex flex-col items-center justify-center gap-3.5 rounded-lg border border-dashed px-6 py-16 text-center'
       }
     >
-      {/* Mark de icono del DS: tinte amatista, borde suave, radio 20. */}
+      {/* Mark de icono del DS: tinte carmín, borde suave, radio 20. */}
       <div
         className={
           compact
-            ? 'flex size-11 items-center justify-center rounded-lg border border-accent-border bg-accent text-lavender [&_svg]:size-5'
-            : 'flex size-[72px] items-center justify-center rounded-xl border border-accent-border bg-accent text-lavender [&_svg]:size-[30px]'
+            ? 'flex size-11 items-center justify-center rounded-lg border border-accent-border bg-accent text-rose [&_svg]:size-5'
+            : 'flex size-[72px] items-center justify-center rounded-xl border border-accent-border bg-accent text-rose [&_svg]:size-[30px]'
         }
       >
         {mark}

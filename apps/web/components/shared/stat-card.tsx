@@ -7,7 +7,7 @@ type StatTone = 'muted' | 'accent' | 'success' | 'warning' | 'destructive';
 
 const TONE: Record<StatTone, string> = {
   muted: 'text-muted-foreground',
-  accent: 'text-lavender',
+  accent: 'text-rose',
   success: 'text-success',
   warning: 'text-warning',
   destructive: 'text-destructive',
@@ -32,17 +32,17 @@ export interface StatCardProps {
 /**
  * Stat card canónica del DS: eyebrow + cifra grande + hint con tono + icono y
  * delta opcionales. Unifica las tres variantes que había sueltas por los
- * paneles (admin plano, promoter un-eyebrow, reclamaciones dl) en un solo
+ * paneles (admin plano, promoter rv-eyebrow, reclamaciones dl) en un solo
  * componente. Estructura tomada del patrón 21st "metric card with trend",
- * revestida con tokens del DS (un-eyebrow, text-lavender/success/warning).
+ * revestida con tokens del DS (rv-eyebrow, text-rose/success/warning).
  */
 export function StatCard({ label, value, icon, hint, tone = 'muted', delta, className }: StatCardProps) {
   return (
     <Card className={cn('p-5', className)}>
       <div className="flex items-start justify-between gap-3">
-        <p className="un-eyebrow !text-muted-foreground">{label}</p>
+        <p className="rv-eyebrow !text-muted-foreground">{label}</p>
         {icon ? (
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-accent-border bg-accent text-lavender [&_svg]:size-[18px]">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-accent-border bg-accent text-rose [&_svg]:size-[18px]">
             {icon}
           </span>
         ) : null}

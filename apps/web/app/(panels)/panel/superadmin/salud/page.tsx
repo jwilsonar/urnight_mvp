@@ -26,7 +26,7 @@ export default function SaludPage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {SALUD_DEMO.map((m) => (
           <Card key={m.nombre} className="p-5">
-            <p className="un-eyebrow !text-muted-foreground">{m.nombre}</p>
+            <p className="rv-eyebrow !text-muted-foreground">{m.nombre}</p>
             <p className="mt-1 font-heading text-3xl font-extrabold tracking-tight">{m.valor}</p>
             <p className={`mt-1 text-xs font-semibold ${m.ok ? 'text-success' : 'text-warning'}`}>
               {m.sub}
@@ -37,7 +37,7 @@ export default function SaludPage() {
 
       <section>
         <h2 className="mb-4 flex items-center gap-2 font-heading text-lg font-bold">
-          <Pulse className="size-5 text-lavender" weight="duotone" /> Servicios
+          <Pulse className="size-5 text-rose" weight="duotone" /> Servicios
         </h2>
         <Card className="overflow-hidden p-0">
           {SERVICIOS_DEMO.map((s) => (

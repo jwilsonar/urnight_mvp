@@ -26,7 +26,7 @@ export default function TwoFaPage() {
     <AuthShell>
       <div className="text-center">
         <div className="mx-auto mb-6 flex size-[110px] items-center justify-center rounded-[32px] border border-accent-border bg-accent shadow-glow-lg">
-          <ShieldCheck className="size-12 text-lavender" weight="duotone" />
+          <ShieldCheck className="size-12 text-rose" weight="duotone" />
         </div>
         <h1 className="font-heading text-4xl font-extrabold tracking-tight">
           Verificación en 2 pasos

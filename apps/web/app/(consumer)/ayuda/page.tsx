@@ -48,7 +48,7 @@ export default function AyudaPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
       <Reveal>
-        <p className="un-eyebrow">Ayuda</p>
+        <p className="rv-eyebrow">Ayuda</p>
         <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
           ¿En qué te ayudamos?
         </h1>
@@ -65,7 +65,7 @@ export default function AyudaPage() {
               <Link href={tema.href} className="block h-full">
                 <Card className="h-full p-5 transition-[border-color,transform,box-shadow] hover:-translate-y-0.5 hover:border-accent-border hover:shadow-float">
                   <span className="flex size-11 items-center justify-center rounded-md border border-accent-border bg-accent">
-                    <Icon className="size-5 text-lavender" weight="duotone" />
+                    <Icon className="size-5 text-rose" weight="duotone" />
                   </span>
                   <p className="mt-3.5 font-heading text-base font-bold">{tema.title}</p>
                   <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
@@ -80,7 +80,7 @@ export default function AyudaPage() {
 
       <Reveal>
         <div className="mt-10 flex flex-col items-center gap-4 rounded-2xl border border-accent-border bg-[linear-gradient(180deg,var(--accent-soft),transparent)] px-6 py-12 text-center">
-          <ChatCircleText className="size-9 text-lavender" weight="duotone" />
+          <ChatCircleText className="size-9 text-rose" weight="duotone" />
           <h2 className="font-heading text-xl font-extrabold">¿Aún necesitas ayuda?</h2>
           <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
             Nuestro equipo responde en menos de 24 horas, todos los días.

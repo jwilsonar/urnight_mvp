@@ -28,7 +28,7 @@ export function Stage({
 }) {
   return (
     <div
-      className={cn('un-stage', className)}
+      className={cn('rv-stage', className)}
       style={
         {
           '--stage-persp': `${perspective}px`,

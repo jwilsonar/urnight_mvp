@@ -96,7 +96,7 @@ function OrderCard({ order, onAdvance }: { order: CartaOrderDemo; onAdvance: () 
     <Card className="animate-in fade-in slide-in-from-bottom-2 flex flex-col gap-3 p-4 duration-300">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="font-mono text-lg font-bold tracking-wider text-lavender">
+          <p className="font-mono text-lg font-bold tracking-wider text-rose">
             {order.pickupCode}
           </p>
           <p className="text-sm font-semibold">{order.attendeeName}</p>

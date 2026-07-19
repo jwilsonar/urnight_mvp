@@ -41,11 +41,11 @@ export function ConversionSplit({
   children,
 }: ConversionSplitProps) {
   return (
-    <section className="un-hero-glow border-b">
+    <section className="rv-hero-glow border-b">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
         <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
-            <p className="un-eyebrow">{eyebrow}</p>
+            <p className="rv-eyebrow">{eyebrow}</p>
             <h1 className="mt-3 max-w-2xl font-display text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
               {title}
             </h1>
@@ -67,7 +67,7 @@ export function ConversionSplit({
             <ul className="mt-10 space-y-4" aria-label="Beneficios">
               {benefits.map((benefit) => (
                 <li key={benefit.label} className="flex items-start gap-3">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-md border border-accent-border bg-accent text-lavender">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-md border border-accent-border bg-accent text-rose">
                     {benefit.icon}
                   </span>
                   <span className="pt-1.5 text-sm font-medium leading-relaxed sm:text-base">

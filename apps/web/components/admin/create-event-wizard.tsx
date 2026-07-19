@@ -63,7 +63,7 @@ function Stepper({ current }: { current: number }) {
               index < current
                 ? 'border-primary bg-primary text-primary-foreground'
                 : index === current
-                  ? 'border-primary bg-accent-soft text-lavender'
+                  ? 'border-primary bg-accent-soft text-rose'
                   : 'border-border text-muted-foreground',
             )}
           >

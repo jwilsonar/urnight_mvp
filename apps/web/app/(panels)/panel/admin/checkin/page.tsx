@@ -30,7 +30,7 @@ export default function PlCheckinPage() {
       <Card className="p-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="un-eyebrow !text-muted-foreground">Personas dentro</p>
+            <p className="rv-eyebrow !text-muted-foreground">Personas dentro</p>
             <p className="font-heading text-5xl font-black tracking-tight">
               {AFORO_DEMO.dentro}
               <span className="text-xl font-bold text-muted-foreground">
@@ -53,7 +53,7 @@ export default function PlCheckinPage() {
       <CheckinLive />
 
       <Card className="flex items-start gap-3.5 border-accent-border bg-accent-soft p-4">
-        <DeviceMobile className="mt-0.5 size-5 shrink-0 text-lavender" weight="duotone" />
+        <DeviceMobile className="mt-0.5 size-5 shrink-0 text-rose" weight="duotone" />
         <p className="text-sm leading-relaxed text-muted-foreground">
           <strong className="text-foreground">El escaneo de QR vive en la app UrNight Validador</strong>{' '}
           del dispositivo de puerta (funciona sin conexión y sincroniza al recuperar señal). Este

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Variante 3D del lockup de marca (patrón .un-logo3d del DS). Misma API que
+ * Variante 3D del lockup de marca (patrón .rv-logo3d del DS). Misma API que
  * <Logo/> para poder sustituirlo donde queramos.
  *
  * El "3D" es solo profundidad y luz: la marca vive en un plano por delante del
@@ -91,11 +91,11 @@ export function Logo3D({ className, href = '/' }: { className?: string; href?: s
       onPointerMove={handleMove}
       onPointerLeave={handleLeave}
       onFocus={triggerSweep}
-      className={cn('un-logo3d inline-flex items-center gap-2.5', className)}
+      className={cn('rv-logo3d inline-flex items-center gap-2.5', className)}
     >
       {/* inline-flex: el box de la marca tiene que calzar exactamente con el de
           la V; el barrido va con inset:0 y máscara `contain`. */}
-      <span className="un-logo3d__mark inline-flex">
+      <span className="rv-logo3d__mark inline-flex">
         <svg
           aria-hidden="true"
           viewBox="0 0 36 36"
@@ -113,11 +113,11 @@ export function Logo3D({ className, href = '/' }: { className?: string; href?: s
         {/* Al acabar soltamos el atributo para poder volver a disparar el barrido. */}
         <span
           aria-hidden="true"
-          className="un-logo3d__sweep"
+          className="rv-logo3d__sweep"
           onAnimationEnd={() => setSweeping(false)}
         />
       </span>
-      <span className="un-logo3d__word font-display text-[19px] font-bold tracking-[0.16em] text-foreground">
+      <span className="rv-logo3d__word font-display text-[19px] font-bold tracking-[0.16em] text-foreground">
         RA<span className="text-[var(--rv-rose)]">VE</span>NUE
       </span>
     </Link>

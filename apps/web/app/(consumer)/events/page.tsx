@@ -85,14 +85,14 @@ export default async function EventsPage({
 
       {genres.length > 0 ? (
         <div className="mb-8 flex flex-wrap gap-2.5">
-          <Link href={chipHref()} className="un-chip" data-active={!filters.genreId}>
+          <Link href={chipHref()} className="rv-chip" data-active={!filters.genreId}>
             <Sparkle className="size-4" weight="duotone" /> Todos
           </Link>
           {genres.map((g) => (
             <Link
               key={g.id}
               href={chipHref(g.id)}
-              className="un-chip"
+              className="rv-chip"
               data-active={filters.genreId === g.id}
             >
               {g.name}
@@ -131,13 +131,13 @@ export default async function EventsPage({
           {page > 1 || hasNext ? (
             <nav aria-label="Paginación" className="mt-10 flex items-center justify-center gap-6">
               {page > 1 ? (
-                <Link href={pageHref(filters, page - 1)} className="text-sm text-lavender hover:underline">
+                <Link href={pageHref(filters, page - 1)} className="text-sm text-rose hover:underline">
                   ← Anterior
                 </Link>
               ) : null}
               <span className="text-sm text-muted-foreground">Página {page}</span>
               {hasNext ? (
-                <Link href={pageHref(filters, page + 1)} className="text-sm text-lavender hover:underline">
+                <Link href={pageHref(filters, page + 1)} className="text-sm text-rose hover:underline">
                   Siguiente →
                 </Link>
               ) : null}

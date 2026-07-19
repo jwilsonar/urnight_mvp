@@ -51,15 +51,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-/** Fila de información del prototipo: icon-tile amatista + label/valor. */
+/** Fila de información del prototipo: icon-tile carmín + label/valor. */
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center gap-4 rounded-md border bg-white/[0.03] px-4 py-3.5">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-accent text-lavender [&_svg]:size-4">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-accent text-rose [&_svg]:size-4">
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="un-eyebrow">{label}</p>
+        <p className="rv-eyebrow">{label}</p>
         <div className="mt-0.5 text-sm font-semibold">{value}</div>
       </div>
     </div>
@@ -92,7 +92,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
 
   return (
     <div>
-      {/* Hero banner del prototipo: flyer full-bleed con degradado hacia midnight */}
+      {/* Hero banner del prototipo: flyer full-bleed con degradado hacia obsidian */}
       <section className="relative h-[340px] overflow-hidden sm:h-[420px]">
         {event.flyerUrl ? (
           <StorageImage
@@ -104,7 +104,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
             className="object-cover"
           />
         ) : (
-          <div className="un-img-ph absolute inset-0">
+          <div className="rv-img-ph absolute inset-0">
             <span>Hero · {event.name}</span>
           </div>
         )}
@@ -195,7 +195,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
                             className="object-cover"
                           />
                         ) : (
-                          <div className="un-img-ph absolute inset-0">
+                          <div className="rv-img-ph absolute inset-0">
                             <span>Local</span>
                           </div>
                         )}

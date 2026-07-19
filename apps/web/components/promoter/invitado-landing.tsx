@@ -148,7 +148,7 @@ export function InvitadoLanding({ codigo }: { codigo: string }) {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
-            <p className="w-full rounded-md border border-accent-border bg-accent px-5 py-4 font-mono text-2xl font-bold tracking-[0.2em] text-lavender sm:text-3xl">
+            <p className="w-full rounded-md border border-accent-border bg-accent px-5 py-4 font-mono text-2xl font-bold tracking-[0.2em] text-rose sm:text-3xl">
               {codigoEmitido.codigo}
             </p>
             <div className="mt-6">
@@ -163,7 +163,7 @@ export function InvitadoLanding({ codigo }: { codigo: string }) {
       ) : (
         <Card>
           <CardHeader className="text-center">
-            <p className="un-eyebrow text-lavender">Invitación de promotor</p>
+            <p className="rv-eyebrow text-rose">Invitación de promotor</p>
             <CardTitle className="text-2xl">
               {PROMOTOR_LINK_DEMO.promotorNombre} te invita a la lista
             </CardTitle>

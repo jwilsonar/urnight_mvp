@@ -49,7 +49,7 @@ export default function ReclamacionesPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
-      <p className="un-eyebrow flex items-center gap-2">
+      <p className="rv-eyebrow flex items-center gap-2">
         <BookOpen className="size-4" weight="duotone" /> Ayuda
       </p>
       <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">

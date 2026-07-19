@@ -34,7 +34,7 @@ export default function AmigosPage() {
         ].map((kpi, index) => (
           <Reveal key={kpi.label} delay={60 + index * 60}>
             <Card className="p-5">
-              <p className="un-eyebrow !text-muted-foreground">{kpi.label}</p>
+              <p className="rv-eyebrow !text-muted-foreground">{kpi.label}</p>
               <p className="mt-1 font-heading text-3xl font-extrabold tabular-nums">
                 {kpi.value}
               </p>

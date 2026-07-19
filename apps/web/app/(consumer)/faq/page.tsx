@@ -13,7 +13,7 @@ export default function FaqPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
       <Reveal>
-        <p className="un-eyebrow">Ayuda</p>
+        <p className="rv-eyebrow">Ayuda</p>
         <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
           Preguntas frecuentes
         </h1>
@@ -27,7 +27,7 @@ export default function FaqPage() {
 
       <Reveal>
         <div className="mt-10 flex flex-col items-center gap-4 rounded-2xl border border-accent-border bg-[linear-gradient(180deg,var(--accent-soft),transparent)] px-6 py-12 text-center">
-          <ChatCircleText className="size-9 text-lavender" weight="duotone" />
+          <ChatCircleText className="size-9 text-rose" weight="duotone" />
           <h2 className="font-heading text-xl font-extrabold">
             ¿Aún necesitas ayuda?
           </h2>

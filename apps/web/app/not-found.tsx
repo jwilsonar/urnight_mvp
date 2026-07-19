@@ -5,8 +5,8 @@ import { Button } from '@urnight/ui';
 /** Pantalla 49 del prototipo: 404 nocturno con glow de marca. */
 export default function NotFound() {
   return (
-    <div className="un-hero-glow flex min-h-dvh flex-col items-center justify-center gap-5 px-4 text-center">
-      <p className="font-display text-[110px] font-black leading-none tracking-tight text-lavender [text-shadow:var(--glow-text)] sm:text-[150px]">
+    <div className="rv-hero-glow flex min-h-dvh flex-col items-center justify-center gap-5 px-4 text-center">
+      <p className="font-display text-[110px] font-black leading-none tracking-tight text-rose [text-shadow:var(--glow-text)] sm:text-[150px]">
         404
       </p>
       <h1 className="font-heading text-2xl font-extrabold tracking-tight sm:text-3xl">

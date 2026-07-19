@@ -11,7 +11,7 @@ import {
 } from '@urnight/ui';
 
 /**
- * Campos del DS (patrón .field): 46px, fill suave, focus ring amatista
+ * Campos del DS (patrón .field): 46px, fill suave, focus ring carmín
  * pegado al borde, placeholders muted.
  */
 const meta = {

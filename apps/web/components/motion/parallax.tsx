@@ -50,7 +50,7 @@ export function Parallax({
   }, [speed]);
 
   return (
-    <div ref={ref} className={cn('un-parallax', className)}>
+    <div ref={ref} className={cn('rv-parallax', className)}>
       {children}
     </div>
   );

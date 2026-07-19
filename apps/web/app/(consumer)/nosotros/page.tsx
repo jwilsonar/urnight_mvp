@@ -47,10 +47,10 @@ const SECTIONS = [
 export default function NosotrosPage() {
   return (
     <div>
-      <section className="un-hero-glow border-b">
+      <section className="rv-hero-glow border-b">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <Reveal>
-            <p className="un-eyebrow">Conócenos</p>
+            <p className="rv-eyebrow">Conócenos</p>
             <h1 className="mt-3 max-w-4xl font-display text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
               La noche se vive mejor cuando todo fluye
             </h1>
@@ -80,7 +80,7 @@ export default function NosotrosPage() {
         aria-labelledby="nuestra-historia"
       >
         <Reveal>
-          <p className="un-eyebrow">Nuestra historia</p>
+          <p className="rv-eyebrow">Nuestra historia</p>
           <h2
             id="nuestra-historia"
             className="mt-2 font-heading text-3xl font-extrabold sm:text-4xl"
@@ -95,7 +95,7 @@ export default function NosotrosPage() {
             return (
               <Reveal key={section.title} delay={index * 60} className="h-full">
                 <Card className="h-full p-6">
-                  <span className="flex size-11 items-center justify-center rounded-md border border-accent-border bg-accent text-lavender">
+                  <span className="flex size-11 items-center justify-center rounded-md border border-accent-border bg-accent text-rose">
                     <Icon className="size-5" weight="duotone" aria-hidden />
                   </span>
                   <h3 className="mt-4 font-heading text-xl font-bold">

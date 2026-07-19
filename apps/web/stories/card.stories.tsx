@@ -3,7 +3,7 @@ import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitl
 
 /**
  * Card del DS: fill oscuro, hairline, radio 16, sin sombra en reposo.
- * Las cards clickeables levantan 2px con borde amatista al hover.
+ * Las cards clickeables levantan 2px con borde carmín al hover.
  */
 const meta = {
   title: 'UrNight/Card',
@@ -31,10 +31,10 @@ export const Contenido: Story = {
 export const Clickeable: Story = {
   render: () => (
     <Card className="w-96 cursor-pointer p-5 hover:-translate-y-0.5 hover:border-accent-border hover:shadow-float">
-      <div className="un-img-ph mb-4 aspect-[16/10] rounded-sm">
+      <div className="rv-img-ph mb-4 aspect-[16/10] rounded-sm">
         <span>Cover del evento</span>
       </div>
-      <p className="un-eyebrow mb-1">Sáb 19 Abr · 11:00pm</p>
+      <p className="rv-eyebrow mb-1">Sáb 19 Abr · 11:00pm</p>
       <p className="font-heading text-[17px] font-bold">Noche de amatista</p>
       <p className="mt-1 text-sm text-muted-foreground">Barranco · Desde S/ 60</p>
     </Card>

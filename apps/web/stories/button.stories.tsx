@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Button } from '@urnight/ui';
 
 /**
- * Botón según DS UrNight: primary amatista con glow de firma, secondary con
- * fill blanco sutil, outline = "ghost" del DS (borde amatista, texto lavanda).
+ * Botón según DS RAVENUE: primary carmín con glow de firma, secondary con
+ * fill blanco sutil, outline = "ghost" del DS (borde carmín, texto rosa).
  * Alturas 34/44/52, radios 8/12/16.
  */
 const meta = {

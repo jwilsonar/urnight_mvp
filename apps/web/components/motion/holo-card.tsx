@@ -4,7 +4,7 @@
  * Ticket holográfico: la card se inclina bajo el puntero, el foil difracta según
  * esa inclinación y (opcional) se voltea para enseñar el reverso.
  *
- * Todo el aspecto vive en `.un-holo*` (globals.css); aquí solo alimentamos sus
+ * Todo el aspecto vive en `.rv-holo*` (globals.css); aquí solo alimentamos sus
  * variables CSS. Nunca con setState: un re-render por frame multiplicado por una
  * grilla de cards se come el scroll. El estado de React es solo `flipped`, que es
  * discreto.
@@ -192,7 +192,7 @@ export function HoloCard({
     if (active && active !== document.body) return;
 
     const face = flipRef.current?.querySelector<HTMLElement>(
-      flipped ? '.un-holo-flip__face--back' : '.un-holo-flip__face',
+      flipped ? '.rv-holo-flip__face--back' : '.rv-holo-flip__face',
     );
     face
       ?.querySelector<HTMLElement>(
@@ -217,7 +217,7 @@ export function HoloCard({
     <div
       ref={ref}
       className={cn(
-        'un-holo rounded-lg',
+        'rv-holo rounded-lg',
         cardIsTrigger && 'cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring',
         className,
       )}
@@ -230,25 +230,25 @@ export function HoloCard({
       <FlipContext.Provider value={{ flipped, toggle }}>
         <div
           ref={flipRef}
-          className="un-holo-flip h-full rounded-lg"
+          className="rv-holo-flip h-full rounded-lg"
           data-flipped={flipped ? 'true' : undefined}
         >
           {/* `relative` ancla el foil/shine (inset:0) y `rounded-lg` es de donde
               heredan su border-radius. */}
           <div
-            className="un-holo-flip__face relative h-full rounded-lg"
+            className="rv-holo-flip__face relative h-full rounded-lg"
             aria-hidden={canFlip && flipped}
             inert={canFlip && flipped}
           >
             {children}
-            <span className="un-holo__foil" aria-hidden="true" />
-            <span className="un-holo__shine" aria-hidden="true" />
+            <span className="rv-holo__foil" aria-hidden="true" />
+            <span className="rv-holo__shine" aria-hidden="true" />
           </div>
           {canFlip ? (
             // Cada cara se oculta al teclado y al lector mientras no está de
             // frente: si no, se tabula "a través" de algo que no está en pantalla.
             <div
-              className="un-holo-flip__face un-holo-flip__face--back rounded-lg"
+              className="rv-holo-flip__face rv-holo-flip__face--back rounded-lg"
               aria-hidden={!flipped}
               inert={!flipped}
             >

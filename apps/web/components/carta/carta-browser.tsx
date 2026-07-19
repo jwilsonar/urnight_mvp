@@ -58,7 +58,7 @@ export function CartaBrowser() {
       </div>
 
       {/* Chips de categorías */}
-      <div className="un-hscroll -mx-4 flex gap-2 px-4 pb-1">
+      <div className="rv-hscroll -mx-4 flex gap-2 px-4 pb-1">
         <CategoryChip active={categoryId === null} onClick={() => setCategoryId(null)}>
           Todo
         </CategoryChip>
@@ -167,7 +167,7 @@ function ProductCard({
   return (
     <Card
       className={cn(
-        'un-zoom-img group relative flex h-full cursor-pointer flex-col overflow-hidden p-0 transition-[border-color,box-shadow] duration-200 hover:border-strong hover:shadow-float',
+        'rv-zoom-img group relative flex h-full cursor-pointer flex-col overflow-hidden p-0 transition-[border-color,box-shadow] duration-200 hover:border-strong hover:shadow-float',
         !item.available && 'opacity-60',
       )}
       onClick={onOpen}
@@ -210,7 +210,7 @@ function ProductCard({
         <h3 className="font-heading text-sm font-bold leading-tight">{item.name}</h3>
         <p className="line-clamp-2 text-xs text-muted-foreground">{item.description}</p>
         <div className="mt-auto flex items-center justify-between pt-2">
-          <span className="font-heading text-sm font-extrabold text-lavender">
+          <span className="font-heading text-sm font-extrabold text-rose">
             {formatPEN(item.priceSoles)}
           </span>
           {/* El "+" hace "agregado rápido" (sin abrir el detalle). Contador
@@ -237,7 +237,7 @@ function ProductCard({
               <Plus className="size-4" weight="bold" />
             )}
             {qtyInCart > 0 ? (
-              <span className="absolute -right-1.5 -top-1.5 flex min-w-[18px] items-center justify-center rounded-full border border-background bg-lavender px-1 text-[11px] font-bold leading-[18px] text-deep">
+              <span className="absolute -right-1.5 -top-1.5 flex min-w-[18px] items-center justify-center rounded-full border border-background bg-rose px-1 text-[11px] font-bold leading-[18px] text-deep">
                 {qtyInCart}
               </span>
             ) : null}

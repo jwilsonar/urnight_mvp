@@ -42,7 +42,7 @@ function FooterColumn({
 }) {
   return (
     <div>
-      <p className="un-eyebrow mb-4">{title}</p>
+      <p className="rv-eyebrow mb-4">{title}</p>
       <ul className="space-y-2.5">
         {links.map((link) => (
           <li key={link.href}>
@@ -100,7 +100,7 @@ export function SiteFooter({ variant = 'full' }: { variant?: 'full' | 'slim' }) 
         {/* Síguenos + Ayuda */}
         <div className="space-y-6">
           <div>
-            <p className="un-eyebrow mb-4">Síguenos</p>
+            <p className="rv-eyebrow mb-4">Síguenos</p>
             <div className="flex flex-wrap gap-2">
               {REDES.map(({ icon: Icon, label }) => (
                 <span
@@ -115,7 +115,7 @@ export function SiteFooter({ variant = 'full' }: { variant?: 'full' | 'slim' }) 
             </div>
           </div>
           <div>
-            <p className="un-eyebrow mb-4">Ayuda</p>
+            <p className="rv-eyebrow mb-4">Ayuda</p>
             <div className="flex flex-wrap gap-2">
               <Button size="sm" asChild>
                 <a href="mailto:hola@urnight.pe">Contáctanos</a>

@@ -34,7 +34,7 @@ export function AuthShell({
               />
               <div
                 aria-hidden
-                className="un-breathe absolute -left-24 top-1/4 size-96 rounded-full bg-[radial-gradient(circle,var(--accent-ring),transparent_65%)] blur-2xl"
+                className="rv-breathe absolute -left-24 top-1/4 size-96 rounded-full bg-[radial-gradient(circle,var(--accent-ring),transparent_65%)] blur-2xl"
               />
               <div
                 aria-hidden
@@ -50,15 +50,15 @@ export function AuthShell({
                   y del claim, así que nunca compite con el texto. */}
               <div aria-hidden className="pointer-events-none absolute inset-0">
                 <div
-                  className="un-float absolute right-10 top-14 h-44 w-32 rounded-2xl border border-white/10 bg-[linear-gradient(150deg,var(--accent-deep),var(--bg-card))] opacity-70 shadow-2xl"
+                  className="rv-float absolute right-10 top-14 h-44 w-32 rounded-2xl border border-white/10 bg-[linear-gradient(150deg,var(--accent-deep),var(--bg-card))] opacity-70 shadow-2xl"
                   style={{ '--drift-rot': '6deg', '--drift-y': '-16px', '--drift-dur': '9s' } as CSSProperties}
                 />
                 <div
-                  className="un-float absolute right-32 top-40 h-40 w-28 rounded-2xl border border-white/10 bg-[linear-gradient(150deg,var(--accent-hover),var(--bg-elevated))] opacity-60 shadow-2xl"
+                  className="rv-float absolute right-32 top-40 h-40 w-28 rounded-2xl border border-white/10 bg-[linear-gradient(150deg,var(--accent-hover),var(--bg-elevated))] opacity-60 shadow-2xl"
                   style={{ '--drift-rot': '-8deg', '--drift-y': '12px', '--drift-dur': '11s' } as CSSProperties}
                 />
                 <div
-                  className="un-float absolute bottom-16 right-16 h-36 w-52 rounded-2xl border border-warning-border/30 bg-[linear-gradient(150deg,#4a2f14,var(--bg-elevated))] opacity-50 shadow-2xl"
+                  className="rv-float absolute bottom-16 right-16 h-36 w-52 rounded-2xl border border-warning-border/30 bg-[linear-gradient(150deg,#4a2f14,var(--bg-elevated))] opacity-50 shadow-2xl"
                   style={{ '--drift-rot': '3deg', '--drift-y': '-10px', '--drift-dur': '13s' } as CSSProperties}
                 />
               </div>

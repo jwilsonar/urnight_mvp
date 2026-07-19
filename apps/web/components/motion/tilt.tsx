@@ -50,7 +50,7 @@ export function Tilt({
       onPointerMove={handleMove}
       onPointerLeave={reset}
       data-glare={glare ? '' : undefined}
-      className={cn('un-tilt', className)}
+      className={cn('rv-tilt', className)}
     >
       {children}
     </div>

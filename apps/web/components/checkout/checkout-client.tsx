@@ -111,7 +111,7 @@ export function CheckoutClient({
               <Gift className="h-5 w-5 text-primary" weight="duotone" />
               <p className="text-sm font-medium">
                 Tu promotor {freeOffer?.promoterName ?? 'UrNight'} te brinda una{' '}
-                <span className="font-semibold text-lavender">entrada GRATIS</span> al evento
+                <span className="font-semibold text-rose">entrada GRATIS</span> al evento
               </p>
             </div>
             <div className="flex gap-4 p-4">
@@ -156,7 +156,7 @@ export function CheckoutClient({
 
           <div className="flex items-center justify-between text-base font-semibold">
             <span>Total</span>
-            <span className="text-lavender">GRATIS</span>
+            <span className="text-rose">GRATIS</span>
           </div>
 
           <Button type="submit" className="w-full" size="lg" disabled={pending}>

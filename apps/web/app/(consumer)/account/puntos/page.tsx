@@ -44,12 +44,12 @@ export default function PuntosPage() {
       <Reveal delay={60}>
         <Card className="border-accent-border bg-accent-soft">
           <CardContent className="p-6 sm:p-7">
-            <p className="un-eyebrow">Saldo disponible</p>
+            <p className="rv-eyebrow">Saldo disponible</p>
             <p className="mt-1 font-heading text-5xl font-black tracking-tight tabular-nums">
               {NIVEL_DEMO.puntos.toLocaleString('es-PE')}
               <span className="ml-2 text-lg font-bold text-muted-foreground">pts</span>
             </p>
-            <p className="mt-2 text-sm font-semibold text-lavender">
+            <p className="mt-2 text-sm font-semibold text-rose">
               Equivalen a {formatPEN(NIVEL_DEMO.puntos / 10)}
             </p>
             <p className="mt-3 text-xs text-muted-foreground">
@@ -85,7 +85,7 @@ export default function PuntosPage() {
                   <CardContent className="flex h-full flex-col gap-4">
                     <p className="text-sm text-muted-foreground">{opcion.detalle}</p>
                     <div className="mt-auto flex items-center justify-between gap-3">
-                      <span className="font-heading text-lg font-extrabold text-lavender tabular-nums">
+                      <span className="font-heading text-lg font-extrabold text-rose tabular-nums">
                         {opcion.costoPuntos.toLocaleString('es-PE')} pts
                       </span>
                       <Button type="button" size="sm" disabled={!opcion.disponible}>

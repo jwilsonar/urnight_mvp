@@ -83,7 +83,7 @@ export function SplitBillDialog({ open, onOpenChange, totalSoles }: SplitBillDia
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Monto por persona
             </p>
-            <p className="mt-1 font-heading text-4xl font-black text-lavender tabular-nums">
+            <p className="mt-1 font-heading text-4xl font-black text-rose tabular-nums">
               {formatPEN(totalSoles / personas)}
             </p>
           </div>
@@ -91,7 +91,7 @@ export function SplitBillDialog({ open, onOpenChange, totalSoles }: SplitBillDia
           <div className="divide-y rounded-md border">
             {participantes.map((participante) => (
               <div key={participante.id} className="flex items-center gap-3 px-3 py-3">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-sm font-bold text-lavender">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-sm font-bold text-rose">
                   {participante.nombre.charAt(0)}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-sm font-semibold">

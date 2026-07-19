@@ -23,14 +23,14 @@ export default function NivelesPage() {
         <Badge variant="info">Demo — llega con el backend de puntos</Badge>
       </div>
 
-      {/* Card de nivel con gradiente dorado→amatista del prototipo */}
+      {/* Card de nivel con gradiente dorado→carmín del prototipo */}
       <div className="rounded-xl border border-warning-border bg-[linear-gradient(135deg,var(--warning-soft),var(--accent-soft))] p-6 sm:p-7">
         <div className="flex flex-wrap items-center gap-5">
           <div className="flex size-20 items-center justify-center rounded-full bg-[linear-gradient(135deg,#ffd700,#f59e0b)] text-4xl shadow-[0_0_40px_rgba(245,158,11,0.4)]">
             🥇
           </div>
           <div className="min-w-0 flex-1">
-            <p className="un-eyebrow text-warning">Nivel actual</p>
+            <p className="rv-eyebrow text-warning">Nivel actual</p>
             <p className="font-heading text-2xl font-black sm:text-3xl">
               {NIVEL_DEMO.actual} · {NIVEL_DEMO.puntos.toLocaleString('es-PE')} pts
             </p>
@@ -75,7 +75,7 @@ export default function NivelesPage() {
             <p className="mt-2 text-[13px] font-bold leading-tight">{b.nombre}</p>
             <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{b.sub}</p>
             {!b.unlocked ? (
-              <p className="un-eyebrow mt-2 !text-muted-foreground">🔒 Bloqueado</p>
+              <p className="rv-eyebrow mt-2 !text-muted-foreground">🔒 Bloqueado</p>
             ) : null}
           </Card>
         ))}

@@ -35,7 +35,7 @@ export default function RecoverPage() {
       {sent ? (
         <div className="text-center">
           <div className="mx-auto mb-6 flex size-24 items-center justify-center rounded-2xl border border-accent-border bg-accent shadow-glow">
-            <EnvelopeSimple className="size-10 text-lavender" weight="duotone" />
+            <EnvelopeSimple className="size-10 text-rose" weight="duotone" />
           </div>
           <h1 className="font-heading text-3xl font-extrabold tracking-tight">Revisa tu correo</h1>
           <p className="mt-3 leading-relaxed text-muted-foreground">
@@ -76,7 +76,7 @@ export default function RecoverPage() {
             </Button>
             <Link
               href="/login"
-              className="flex items-center justify-center gap-2 text-sm font-semibold text-lavender hover:underline"
+              className="flex items-center justify-center gap-2 text-sm font-semibold text-rose hover:underline"
             >
               <ArrowLeft className="size-4" /> Volver al inicio de sesión
             </Link>

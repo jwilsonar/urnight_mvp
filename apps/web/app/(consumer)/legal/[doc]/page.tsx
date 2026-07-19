@@ -203,7 +203,7 @@ export default async function LegalPage({ params }: { params: Promise<{ doc: str
   return (
     <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
       <Reveal>
-        <p className="un-eyebrow">{entry.crumb}</p>
+        <p className="rv-eyebrow">{entry.crumb}</p>
         <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
           {entry.title}
         </h1>

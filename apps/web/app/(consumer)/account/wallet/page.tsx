@@ -22,9 +22,9 @@ export default function WalletPage() {
         <Badge variant="info">Demo — llega con el backend de wallet</Badge>
       </div>
 
-      {/* Card de saldo con gradiente amatista del prototipo */}
+      {/* Card de saldo con gradiente carmín del prototipo */}
       <div className="rounded-xl border border-accent-border bg-[linear-gradient(135deg,var(--accent-soft-strong),var(--accent-soft))] p-6 sm:p-7">
-        <p className="un-eyebrow">Saldo disponible</p>
+        <p className="rv-eyebrow">Saldo disponible</p>
         <p className="mt-1 font-heading text-5xl font-black tracking-tight">{WALLET_DEMO.saldo}</p>
         <p className="mt-1 text-sm text-muted-foreground">{WALLET_DEMO.equivalencia}</p>
         <div className="mt-5 flex flex-wrap gap-2.5">

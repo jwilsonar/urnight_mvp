@@ -58,7 +58,7 @@ export function Providers({ session, children }: { session?: Session | null; chi
   return (
     <SessionProvider session={session}>
       <SessionExpiryWatcher />
-      {/* DS UrNight es dark-first y no define tema claro: se fuerza dark. */}
+      {/* DS RAVENUE es dark-first y no define tema claro: se fuerza dark. */}
       <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" disableTransitionOnChange>
         <QueryClientProvider client={queryClient}>
           <StorageProvider>

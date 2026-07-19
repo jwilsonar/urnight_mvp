@@ -87,7 +87,7 @@ export default function AfiliarPage() {
         aria-labelledby="como-funciona"
       >
         <Reveal>
-          <p className="un-eyebrow">Cómo funciona</p>
+          <p className="rv-eyebrow">Cómo funciona</p>
           <h2
             id="como-funciona"
             className="mt-2 font-heading text-3xl font-extrabold sm:text-4xl"

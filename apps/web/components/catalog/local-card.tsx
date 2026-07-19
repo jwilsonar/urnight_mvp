@@ -15,7 +15,7 @@ export function LocalCard({ local }: { local: LocalResponse }) {
       {/* Card clickeable con tilt 3D siguiendo el puntero + borde/sombra al hover. */}
       <Tilt className="h-full rounded-lg">
       <Card className="h-full overflow-hidden group-hover:border-accent-border group-hover:shadow-float">
-        <div className="un-zoom-img relative aspect-[4/3] overflow-hidden">
+        <div className="rv-zoom-img relative aspect-[4/3] overflow-hidden">
           {local.mainImageUrl ? (
             <StorageImage
               src={local.mainImageUrl}
@@ -25,7 +25,7 @@ export function LocalCard({ local }: { local: LocalResponse }) {
               className="object-cover"
             />
           ) : (
-            <div className="un-img-ph absolute inset-0">
+            <div className="rv-img-ph absolute inset-0">
               <span>Fachada del local</span>
             </div>
           )}

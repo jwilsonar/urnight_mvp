@@ -58,7 +58,7 @@ export function OrderStatusTimeline() {
               className={cn(
                 'relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full border-2 transition-[background-color,border-color,transform] duration-300',
                 done && 'border-primary bg-primary text-primary-foreground',
-                active && 'un-breathe border-primary bg-accent text-lavender',
+                active && 'rv-breathe border-primary bg-accent text-rose',
                 !done && !active && 'border-border bg-surface text-muted-foreground',
               )}
             >
@@ -68,7 +68,7 @@ export function OrderStatusTimeline() {
                 <span
                   className={cn(
                     'size-2 rounded-full transition-colors duration-300',
-                    active ? 'bg-lavender' : 'bg-border',
+                    active ? 'bg-rose' : 'bg-border',
                   )}
                 />
               )}

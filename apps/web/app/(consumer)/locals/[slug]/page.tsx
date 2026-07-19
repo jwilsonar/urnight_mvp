@@ -141,13 +141,13 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ sl
           {crowd ? <CrowdMeter crowd={crowd} /> : null}
           <Card>
             <CardContent className="p-6">
-              <p className="un-eyebrow mb-3">Para ir a {local.name}</p>
+              <p className="rv-eyebrow mb-3">Para ir a {local.name}</p>
               {hasCoords ? (
                 <div className="mb-4 overflow-hidden rounded-md">
                   <LocalMap latitude={local.latitude!} longitude={local.longitude!} name={local.name} />
                 </div>
               ) : (
-                <div className="un-img-ph mb-4 h-40 rounded-md">
+                <div className="rv-img-ph mb-4 h-40 rounded-md">
                   <span>Mapa · Ubicación</span>
                 </div>
               )}

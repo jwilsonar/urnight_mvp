@@ -65,7 +65,7 @@ export function CheckinLive() {
     <section>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 font-heading text-lg font-bold">
-          <QrCode className="size-5 text-lavender" weight="duotone" /> Últimas validaciones
+          <QrCode className="size-5 text-rose" weight="duotone" /> Últimas validaciones
         </h2>
         <PaloteoRegistrar onRegistrado={agregarPaloteo} />
       </div>

@@ -47,7 +47,7 @@ export function PromoterKpis({
       label: 'Comisión total',
       value: PEN.format(sales?.totalCommission ?? 0),
       sub: 'Estimada + confirmada',
-      tone: 'text-lavender',
+      tone: 'text-rose',
     },
     {
       label: 'Comisión confirmada',
@@ -59,7 +59,7 @@ export function PromoterKpis({
       label: 'Ventas atribuidas',
       value: String(sales?.totalAttributions ?? 0),
       sub: 'Compras con tu código',
-      tone: 'text-lavender',
+      tone: 'text-rose',
     },
     {
       label: 'Clicks en tu link',
@@ -73,7 +73,7 @@ export function PromoterKpis({
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {kpis.map((kpi) => (
         <Card key={kpi.label} className="p-5">
-          <p className="un-eyebrow !text-muted-foreground">{kpi.label}</p>
+          <p className="rv-eyebrow !text-muted-foreground">{kpi.label}</p>
           <p className="mt-1 font-heading text-3xl font-extrabold tracking-tight">{kpi.value}</p>
           <p className={`mt-1 text-xs font-semibold ${kpi.tone}`}>{kpi.sub}</p>
         </Card>

@@ -65,7 +65,7 @@ export function LinkInvitadosCard() {
     <Card>
       <CardHeader>
         <div className="flex flex-wrap items-center gap-2">
-          <UsersThree className="size-5 text-lavender" weight="duotone" />
+          <UsersThree className="size-5 text-rose" weight="duotone" />
           <CardTitle>Tu lista de invitados</CardTitle>
           <Badge variant="info" className="ml-auto">
             Demo — self-serve
@@ -94,7 +94,7 @@ export function LinkInvitadosCard() {
 
         <div className="flex items-center justify-between gap-3 border-y py-3">
           <span className="text-sm font-semibold">Códigos de este evento</span>
-          <span className="font-mono text-sm font-bold text-lavender">
+          <span className="font-mono text-sm font-bold text-rose">
             emitidos {codigos.length} / cupo {cupo}
           </span>
         </div>
@@ -112,7 +112,7 @@ export function LinkInvitadosCard() {
               const estado = ESTADO_BADGE[item.estado];
               return (
                 <div key={item.id} className="flex flex-wrap items-center gap-3 px-3.5 py-3">
-                  <span className="font-mono text-sm font-bold text-lavender">{item.codigo}</span>
+                  <span className="font-mono text-sm font-bold text-rose">{item.codigo}</span>
                   <span className="min-w-0 flex-1 truncate text-sm">{item.nombreInvitado}</span>
                   <Badge variant={estado.variant}>{estado.label}</Badge>
                 </div>

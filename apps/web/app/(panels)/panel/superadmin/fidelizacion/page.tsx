@@ -69,7 +69,7 @@ export default function SuperAdminFidelizacionPage() {
                 <TableRow key={nivel.nombre}>
                   <TableCell className="font-semibold">
                     <span className="flex items-center gap-2">
-                      <Medal className="size-4 text-lavender" weight="duotone" /> {nivel.nombre}
+                      <Medal className="size-4 text-rose" weight="duotone" /> {nivel.nombre}
                     </span>
                   </TableCell>
                   <TableCell className="tabular-nums">{nivel.umbralPuntos} pts</TableCell>
@@ -111,7 +111,7 @@ export default function SuperAdminFidelizacionPage() {
               {PUNTOS_REGLAS_DEMO.map((regla) => (
                 <TableRow key={regla.accion}>
                   <TableCell className="font-semibold">{regla.accion}</TableCell>
-                  <TableCell className="tabular-nums text-lavender">{regla.puntos}</TableCell>
+                  <TableCell className="tabular-nums text-rose">{regla.puntos}</TableCell>
                   <TableCell>
                     <Badge variant={regla.activa ? 'success' : 'outline'}>
                       {regla.activa ? 'Activa' : 'Pausada'}
