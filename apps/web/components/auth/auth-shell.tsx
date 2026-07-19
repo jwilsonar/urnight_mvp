@@ -8,7 +8,7 @@ import { Logo } from '@/components/shared/logo';
  */
 export function AuthShell({
   hero,
-  heroLabel = 'UrNight · Night life',
+  heroLabel = 'RAVENUE · Night life',
   children,
 }: {
   hero?: ReactNode;
@@ -30,15 +30,15 @@ export function AuthShell({
                   className="object-cover" /> manteniendo el scrim de abajo. */}
               <div
                 aria-hidden
-                className="absolute inset-0 bg-[linear-gradient(160deg,#1a0f3d_0%,#0c0820_45%,#05050a_100%)]"
+                className="absolute inset-0 bg-[image:var(--gradient-brand)]"
               />
               <div
                 aria-hidden
-                className="un-breathe absolute -left-24 top-1/4 size-96 rounded-full bg-[radial-gradient(circle,rgba(108,77,255,0.35),transparent_65%)] blur-2xl"
+                className="un-breathe absolute -left-24 top-1/4 size-96 rounded-full bg-[radial-gradient(circle,var(--accent-ring),transparent_65%)] blur-2xl"
               />
               <div
                 aria-hidden
-                className="absolute -right-16 top-8 size-72 rounded-full bg-[radial-gradient(circle,rgba(184,168,255,0.22),transparent_65%)] blur-2xl"
+                className="absolute -right-16 top-8 size-72 rounded-full bg-[radial-gradient(circle,var(--text-accent-glow),transparent_65%)] blur-2xl"
               />
               <div
                 aria-hidden
@@ -50,15 +50,15 @@ export function AuthShell({
                   y del claim, así que nunca compite con el texto. */}
               <div aria-hidden className="pointer-events-none absolute inset-0">
                 <div
-                  className="un-float absolute right-10 top-14 h-44 w-32 rounded-2xl border border-white/10 bg-[linear-gradient(150deg,#2a1a5c,#140d2e)] opacity-70 shadow-2xl"
+                  className="un-float absolute right-10 top-14 h-44 w-32 rounded-2xl border border-white/10 bg-[linear-gradient(150deg,var(--accent-deep),var(--bg-card))] opacity-70 shadow-2xl"
                   style={{ '--drift-rot': '6deg', '--drift-y': '-16px', '--drift-dur': '9s' } as CSSProperties}
                 />
                 <div
-                  className="un-float absolute right-32 top-40 h-40 w-28 rounded-2xl border border-white/10 bg-[linear-gradient(150deg,#3a2170,#1a1030)] opacity-60 shadow-2xl"
+                  className="un-float absolute right-32 top-40 h-40 w-28 rounded-2xl border border-white/10 bg-[linear-gradient(150deg,var(--accent-hover),var(--bg-elevated))] opacity-60 shadow-2xl"
                   style={{ '--drift-rot': '-8deg', '--drift-y': '12px', '--drift-dur': '11s' } as CSSProperties}
                 />
                 <div
-                  className="un-float absolute bottom-16 right-16 h-36 w-52 rounded-2xl border border-warning-border/30 bg-[linear-gradient(150deg,#4a2f14,#1a1030)] opacity-50 shadow-2xl"
+                  className="un-float absolute bottom-16 right-16 h-36 w-52 rounded-2xl border border-warning-border/30 bg-[linear-gradient(150deg,#4a2f14,var(--bg-elevated))] opacity-50 shadow-2xl"
                   style={{ '--drift-rot': '3deg', '--drift-y': '-10px', '--drift-dur': '13s' } as CSSProperties}
                 />
               </div>
@@ -67,7 +67,7 @@ export function AuthShell({
               </span>
               {/* Scrim: garantiza legibilidad del claim y los chips sobre
                   cualquier fondo (también cuando haya foto o el collage). */}
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,10,0.1)_0%,rgba(5,5,10,0.35)_55%,rgba(5,5,10,0.85)_100%)]" />
+              <div className="absolute inset-0 bg-gradient-to-b from-root/10 via-root/35 to-root/85" />
             </div>
             {/* z-10: por encima del collage y el scrim. La sombra de texto
                 asegura contraste del claim sobre el fondo animado. */}

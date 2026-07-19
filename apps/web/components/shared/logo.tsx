@@ -1,31 +1,33 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@urnight/ui';
 
 /**
- * Lockup de marca UrNight (patrón .un-logo del DS): copa amatista + wordmark
- * blanco extrabold. El asset vive en public/brand/urnight-mark.png.
+ * Lockup principal RAVENUE: V intervenida + wordmark con el enlace "VE"
+ * destacado entre RAVE y VENUE.
  */
 export function Logo({ className, href = '/' }: { className?: string; href?: string }) {
   return (
     <Link
       href={href}
       className={cn('inline-flex items-center gap-2.5', className)}
-      aria-label="UrNight — inicio"
+      aria-label="RAVENUE — inicio"
     >
-      {/* unoptimized: asset de marca diminuto y estático; evita depender del
-          optimizador de imágenes (sharp) para pintar el logo. */}
-      <Image
-        src="/brand/urnight-mark.png"
-        alt=""
-        width={22}
-        height={36}
-        priority
-        unoptimized
-        className="h-9 w-auto"
-      />
-      <span className="font-heading text-[19px] font-extrabold tracking-tight text-foreground">
-        UrNight
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 36 36"
+        className="h-9 w-9 shrink-0 text-primary"
+        fill="none"
+      >
+        <path
+          d="M5 6 16 29 27 6M27 6l6-4"
+          stroke="currentColor"
+          strokeWidth="3.5"
+          strokeLinecap="square"
+          strokeLinejoin="miter"
+        />
+      </svg>
+      <span className="font-display text-[19px] font-bold tracking-[0.16em] text-foreground">
+        RA<span className="text-[var(--rv-rose)]">VE</span>NUE
       </span>
     </Link>
   );

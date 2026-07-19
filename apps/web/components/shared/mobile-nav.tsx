@@ -34,7 +34,7 @@ export function MobileNav() {
       </SheetTrigger>
       <SheetContent side="left" className="w-72">
         <SheetHeader>
-          <SheetTitle className="text-left">UrNight</SheetTitle>
+          <SheetTitle className="text-left">RAVENUE</SheetTitle>
         </SheetHeader>
         <nav className="mt-6 flex flex-col gap-1" aria-label="Navegación móvil">
           {NAV_LINKS.map((link) => {

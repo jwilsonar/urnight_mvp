@@ -198,9 +198,9 @@ export function NightWall({ events, className }: { events: EventResponse[]; clas
                       flyer real puede ser claro y comerse el texto. */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-3">
-                    {/* Blanco, no `text-primary`: ese token es #6c4dff (relleno de
-                        marca, pensado para fondos, no para texto) y sobre el scrim
-                        da 4.06:1 — por debajo del 4.5:1 que pide AA a 14px, y menos
+                    {/* Blanco, no `text-primary`: ese token es carmín de marca,
+                        pensado para fondos, no para texto, y sobre oscuro da ~2.9:1;
+                        queda por debajo del 4.5:1 que pide AA a 14px y resulta menos
                         legible que su propio subtítulo. */}
                     <p className="font-display line-clamp-2 text-sm leading-tight text-white">
                       {event.name}

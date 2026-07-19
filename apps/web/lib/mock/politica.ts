@@ -41,7 +41,7 @@ export const POLITICA_DEFAULT: PoliticaLocalDemo = {
   paloteoHabilitado: true,
   cupoCodigosPorPromotor: 30,
   zonas: [
-    { id: 'general', nombre: 'General', orden: 1, color: '#8f78ff', activa: true },
+    { id: 'general', nombre: 'General', orden: 1, color: '#c62850', activa: true },
     { id: 'vip', nombre: 'VIP', orden: 2, color: '#f59e0b', activa: true },
     { id: 'super-vip', nombre: 'SUPER VIP', orden: 3, color: '#ef4444', activa: true },
   ],

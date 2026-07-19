@@ -123,7 +123,7 @@ export default async function HomePage() {
               Tu próxima noche
               <br />
               empieza en{' '}
-              <span className="text-primary [text-shadow:var(--glow-text)]">UrNight</span>
+              <span className="text-lavender [text-shadow:var(--glow-text)]">RAVENUE</span>
             </h1>
           </Reveal>
           <Reveal delay={160} depth>
@@ -255,13 +255,13 @@ export default async function HomePage() {
                 Ojo: nunca en la última sección de la página (si no llega a
                 centrarse en el viewport se queda atenuada para siempre). */}
             <NightCamera>
-              <div className="overflow-hidden rounded-2xl border border-accent-border bg-[linear-gradient(110deg,#16102a_0%,#0f0a1e_100%)]">
+              <div className="overflow-hidden rounded-2xl border border-accent-border bg-[linear-gradient(110deg,var(--bg-elevated)_0%,var(--bg-base)_100%)]">
                 <div className="grid min-h-[340px] lg:grid-cols-[1.2fr_1fr]">
                   <div className="flex flex-col justify-center p-8 sm:p-12">
                     <span className="inline-flex items-center gap-2 self-start rounded-full border border-warning-border bg-[linear-gradient(90deg,var(--warning-soft),var(--accent-soft-strong))] px-4 py-1.5 text-xs font-bold tracking-wide text-warning">
                       <Star className="size-3.5" weight="fill" /> PARTNER DESTACADO
                     </span>
-                    <h2 className="mt-5 font-display text-5xl font-black leading-[0.95] tracking-tight text-primary sm:text-6xl">
+                    <h2 className="mt-5 font-display text-5xl font-black leading-[0.95] tracking-tight text-lavender sm:text-6xl">
                       {partner.name}
                     </h2>
                     <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -293,10 +293,10 @@ export default async function HomePage() {
                         className="object-cover"
                       />
                     ) : (
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,var(--accent-soft-strong),transparent_60%),linear-gradient(120deg,#1a1030,#0f0a1e)]" />
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,var(--accent-soft-strong),transparent_60%),linear-gradient(120deg,var(--bg-elevated),var(--bg-base))]" />
                     )}
                     {/* Scrim para fundir con el panel de texto a la izquierda. */}
-                    <div className="absolute inset-0 bg-[linear-gradient(90deg,#0f0a1e_0%,rgba(15,10,30,0.35)_35%,transparent_100%)]" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-background via-background/35 to-transparent" />
                     <span className="absolute bottom-4 right-4 rounded-full border border-accent-border bg-deep/80 px-3 py-1 text-xs font-semibold text-lavender backdrop-blur-sm">
                       {partner.name}
                     </span>

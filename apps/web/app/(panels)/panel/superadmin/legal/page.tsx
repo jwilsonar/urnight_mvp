@@ -65,7 +65,7 @@ export default async function SuperAdminLegalPage() {
                     href={doc.contentUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-lavender hover:underline"
                   >
                     Ver documento
                     <ArrowSquareOut className="h-4 w-4" />

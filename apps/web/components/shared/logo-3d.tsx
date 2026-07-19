@@ -6,12 +6,10 @@
  *
  * El "3D" es solo profundidad y luz: la marca vive en un plano por delante del
  * wordmark (translateZ 20px vs 8px, ya en el CSS) y al inclinar el desfase
- * entre ambos planos es lo que se lee como volumen. El PNG se pinta tal cual
- * — nunca se remodela ni se deforma.
+ * entre ambos planos es lo que se lee como volumen.
  */
 
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@urnight/ui';
 
@@ -87,7 +85,7 @@ export function Logo3D({ className, href = '/' }: { className?: string; href?: s
     <Link
       ref={ref}
       href={href}
-      aria-label="UrNight — inicio"
+      aria-label="RAVENUE — inicio"
       data-sweep={sweeping ? 'true' : undefined}
       onPointerEnter={triggerSweep}
       onPointerMove={handleMove}
@@ -96,20 +94,22 @@ export function Logo3D({ className, href = '/' }: { className?: string; href?: s
       className={cn('un-logo3d inline-flex items-center gap-2.5', className)}
     >
       {/* inline-flex: el box de la marca tiene que calzar exactamente con el de
-          la imagen — el barrido va con inset:0 y máscara `contain`, y con el
-          leading de un inline la silueta no cuadraría. */}
+          la V; el barrido va con inset:0 y máscara `contain`. */}
       <span className="un-logo3d__mark inline-flex">
-        {/* unoptimized: asset de marca diminuto y estático; evita depender del
-            optimizador de imágenes (sharp) para pintar el logo. */}
-        <Image
-          src="/brand/urnight-mark.png"
-          alt=""
-          width={22}
-          height={36}
-          priority
-          unoptimized
-          className="h-9 w-auto"
-        />
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 36 36"
+          className="h-9 w-9 shrink-0 text-primary"
+          fill="none"
+        >
+          <path
+            d="M5 6 16 29 27 6M27 6l6-4"
+            stroke="currentColor"
+            strokeWidth="3.5"
+            strokeLinecap="square"
+            strokeLinejoin="miter"
+          />
+        </svg>
         {/* Al acabar soltamos el atributo para poder volver a disparar el barrido. */}
         <span
           aria-hidden="true"
@@ -117,8 +117,8 @@ export function Logo3D({ className, href = '/' }: { className?: string; href?: s
           onAnimationEnd={() => setSweeping(false)}
         />
       </span>
-      <span className="un-logo3d__word font-heading text-[19px] font-extrabold tracking-tight text-foreground">
-        UrNight
+      <span className="un-logo3d__word font-display text-[19px] font-bold tracking-[0.16em] text-foreground">
+        RA<span className="text-[var(--rv-rose)]">VE</span>NUE
       </span>
     </Link>
   );

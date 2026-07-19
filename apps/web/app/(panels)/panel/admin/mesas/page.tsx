@@ -49,13 +49,13 @@ export default function PlMesasPage() {
             <span className="size-3 rounded-[3px] bg-primary" /> Ocupada
           </span>
         </div>
-        <svg viewBox="0 0 600 400" className="w-full rounded-md border bg-[#0e0e1a]" role="img" aria-label="Plano del local">
-          <rect x="20" y="20" width="280" height="180" rx="8" fill="rgba(108,77,255,0.06)" stroke="rgba(108,77,255,0.2)" />
-          <text x="32" y="42" fill="rgba(184,168,255,0.7)" fontSize="11" fontWeight="700" letterSpacing="2">PISTA</text>
+        <svg viewBox="0 0 600 400" className="w-full rounded-md border bg-background" role="img" aria-label="Plano del local">
+          <rect x="20" y="20" width="280" height="180" rx="8" fill="var(--accent-soft-faint)" stroke="var(--accent-border-subtle)" />
+          <text x="32" y="42" fill="var(--text-accent-soft)" fontSize="11" fontWeight="700" letterSpacing="2">PISTA</text>
           <rect x="320" y="20" width="260" height="180" rx="8" fill="rgba(245,158,11,0.06)" stroke="rgba(245,158,11,0.2)" />
           <text x="332" y="42" fill="rgba(252,211,77,0.8)" fontSize="11" fontWeight="700" letterSpacing="2">BOX VIP</text>
-          <rect x="20" y="220" width="560" height="160" rx="8" fill="rgba(143,120,255,0.06)" stroke="rgba(143,120,255,0.2)" />
-          <text x="32" y="242" fill="rgba(184,168,255,0.7)" fontSize="11" fontWeight="700" letterSpacing="2">LOUNGE</text>
+          <rect x="20" y="220" width="560" height="160" rx="8" fill="var(--accent-hover-soft-faint)" stroke="var(--accent-hover-border-subtle)" />
+          <text x="32" y="242" fill="var(--text-accent-soft)" fontSize="11" fontWeight="700" letterSpacing="2">LOUNGE</text>
           {MESAS_PLANTA_DEMO.map((m) => {
             const c = ESTADO_MESA[m.estado] ?? ESTADO_MESA.libre!;
             return (

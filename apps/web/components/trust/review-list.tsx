@@ -36,7 +36,7 @@ export function ReviewList({ reviews }: { reviews: ReviewResponse[] }) {
                 <div className="flex items-center justify-between gap-2">
                   <StarRating value={review.rating} />
                   {review.isVerified ? (
-                    <span className="inline-flex items-center gap-1 text-xs text-primary">
+                    <span className="inline-flex items-center gap-1 text-xs text-lavender">
                       <SealCheck className="h-3 w-3" weight="fill" /> Compra verificada
                     </span>
                   ) : null}

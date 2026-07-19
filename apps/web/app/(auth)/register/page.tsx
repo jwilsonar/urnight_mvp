@@ -12,7 +12,7 @@ import { roleHomePath } from '@/lib/utils/rbac';
 
 export const metadata: Metadata = {
   title: 'Crear cuenta',
-  description: 'Crea tu cuenta en UrNight. Solo para mayores de 18 años.',
+  description: 'Crea tu cuenta en RAVENUE. Solo para mayores de 18 años.',
 };
 
 export default async function RegisterPage({

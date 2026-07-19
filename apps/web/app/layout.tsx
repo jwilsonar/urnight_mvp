@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'sw
 const sora = Sora({ subsets: ['latin'], weight: ['600', '700', '800'], variable: '--font-sora', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: { default: 'UrNight — Vida nocturna en Perú', template: '%s · UrNight' },
+  title: { default: 'RAVENUE — Vida nocturna en Perú', template: '%s · RAVENUE' },
   description: 'Descubre locales y eventos de vida nocturna en Perú. Compra entradas, guarda favoritos y deja reseñas.',
 };
 

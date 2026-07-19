@@ -131,13 +131,13 @@ export default async function EventsPage({
           {page > 1 || hasNext ? (
             <nav aria-label="Paginación" className="mt-10 flex items-center justify-center gap-6">
               {page > 1 ? (
-                <Link href={pageHref(filters, page - 1)} className="text-sm text-primary hover:underline">
+                <Link href={pageHref(filters, page - 1)} className="text-sm text-lavender hover:underline">
                   ← Anterior
                 </Link>
               ) : null}
               <span className="text-sm text-muted-foreground">Página {page}</span>
               {hasNext ? (
-                <Link href={pageHref(filters, page + 1)} className="text-sm text-primary hover:underline">
+                <Link href={pageHref(filters, page + 1)} className="text-sm text-lavender hover:underline">
                   Siguiente →
                 </Link>
               ) : null}

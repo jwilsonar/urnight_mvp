@@ -87,8 +87,7 @@ export function SiteFooter({ variant = 'full' }: { variant?: 'full' | 'slim' }) 
         <div className="space-y-4">
           <Logo />
           <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
-            La forma más fácil de descubrir la mejor noche de Lima. Eventos, bares y discotecas en
-            un solo lugar.
+            Donde la noche encuentra su lugar.
           </p>
           <span className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">
             🇵🇪 Español · Perú
@@ -145,7 +144,7 @@ function FooterBottomBar() {
           📖 Libro de Reclamaciones
         </Link>
         <p className="text-xs text-muted-foreground">
-          Copyright © UrNight {new Date().getFullYear()} · Todos los derechos reservados. Solo
+          Copyright © RAVENUE {new Date().getFullYear()} · Todos los derechos reservados. Solo
           para mayores de 18 años.
         </p>
       </div>

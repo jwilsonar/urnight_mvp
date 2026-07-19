@@ -5,7 +5,7 @@ import { Button, Checkbox, Input, cn } from '@urnight/ui';
 import { EmptyState } from '@/components/shared/empty-state';
 import type { ZonaLocalDemo } from '@/lib/mock/politica';
 
-const COLORES_ZONA = ['#8f78ff', '#f59e0b', '#ef4444', '#22c55e', '#38bdf8'] as const;
+const COLORES_ZONA = ['#c62850', '#f59e0b', '#ef4444', '#22c55e', '#38bdf8'] as const;
 
 interface ZonasEditorProps {
   value: ZonaLocalDemo[];
@@ -42,7 +42,7 @@ export function ZonasEditor({ value, onChange }: ZonasEditorProps) {
         id,
         nombre: 'Nueva zona',
         orden: value.length + 1,
-        color: COLORES_ZONA[value.length % COLORES_ZONA.length] ?? '#8f78ff',
+        color: COLORES_ZONA[value.length % COLORES_ZONA.length] ?? '#c62850',
         activa: true,
       },
     ]);
