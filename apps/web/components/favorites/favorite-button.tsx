@@ -1,8 +1,10 @@
 'use client';
 
 import { Heart } from '@phosphor-icons/react';
+import { m } from 'framer-motion';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import type { FavoriteTargetType } from '@urnight/contracts';
 import { Button } from '@urnight/ui';
@@ -26,6 +28,7 @@ export function FavoriteButton({ targetType, targetId, className }: FavoriteButt
   const { data: session, status } = useSession();
   const token = session?.accessToken ?? '';
   const queryClient = useQueryClient();
+  const [optimisticFavorited, setOptimisticFavorited] = useState<boolean | null>(null);
 
   const { data: favorites, isPending: favoritesLoading } = useQuery({
     queryKey: queryKeys.favorites,
@@ -33,22 +36,31 @@ export function FavoriteButton({ targetType, targetId, className }: FavoriteButt
     enabled: Boolean(token),
   });
 
-  const isFavorited = (favorites ?? []).some(
-    (f) => f.targetType === targetType && f.targetId === targetId,
-  );
+  const serverFavorited = (favorites ?? []).some((f) => f.targetType === targetType && f.targetId === targetId);
+  const isFavorited = optimisticFavorited ?? serverFavorited;
+
+  useEffect(() => {
+    setOptimisticFavorited(null);
+  }, [targetId, targetType]);
 
   const mutation = useMutation({
-    mutationFn: async () => {
-      if (isFavorited) {
+    mutationFn: async (nextFavorited: boolean) => {
+      if (!nextFavorited) {
         await removeFavorite(targetType, targetId, token);
       } else {
         await addFavorite({ targetType, targetId }, token);
       }
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.favorites });
+    onMutate: (nextFavorited) => {
+      setOptimisticFavorited(nextFavorited);
+    },
+    onSuccess: async (_data, nextFavorited) => {
+      toast.success(nextFavorited ? 'Agregado a favoritos.' : 'Quitado de favoritos.');
+      await queryClient.invalidateQueries({ queryKey: queryKeys.favorites });
+      setOptimisticFavorited(null);
     },
     onError: (err) => {
+      setOptimisticFavorited(null);
       toast.error(getErrorMessage(err));
       // También al fallar: si la API dice "ya está en favoritos" es que el
       // cache local estaba desfasado (el corazón se veía apagado estando
@@ -64,15 +76,23 @@ export function FavoriteButton({ targetType, targetId, className }: FavoriteButt
       type="button"
       variant={isFavorited ? 'default' : 'outline'}
       size="sm"
-      className={className}
+      className={`text-foreground ${className ?? ''}`}
       // Mientras la lista no cargó, `isFavorited` aún no es confiable: mejor
       // esperar que dejar togglear sobre un estado que puede estar al revés.
       disabled={mutation.isPending || favoritesLoading}
-      onClick={() => mutation.mutate()}
+      onClick={() => mutation.mutate(!isFavorited)}
       aria-pressed={isFavorited}
     >
-      <Heart weight={isFavorited ? 'fill' : 'regular'} className="size-4" />
-      {isFavorited ? 'En favoritos' : 'Favorito'}
+      <m.span
+        key={isFavorited ? 'favorited' : 'not-favorited'}
+        initial={{ scale: 0.75 }}
+        animate={{ scale: isFavorited ? [0.75, 1.2, 1] : 1 }}
+        transition={{ duration: 0.3 }}
+        aria-hidden
+      >
+        <Heart weight={isFavorited ? 'fill' : 'regular'} className="size-4" />
+      </m.span>
+      {isFavorited ? 'En favoritos' : 'Favoritos'}
     </Button>
   );
 }

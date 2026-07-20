@@ -45,12 +45,20 @@ export function ReporteSemanal() {
         <p className="text-sm font-semibold text-muted-foreground print:text-black">
           Semana del {reporte.semana}
         </p>
-        <Button type="button" variant="outline" className="print:hidden" onClick={() => window.print()}>
-          <Printer className="size-4" weight="duotone" /> Imprimir / compartir
+        <Button
+          type="button"
+          variant="outline"
+          className="print:hidden"
+          onClick={() => window.print()}
+        >
+          <Printer className="size-4" weight="duotone" /> Imprimir
         </Button>
       </div>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Indicadores semanales">
+      <section
+        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        aria-label="Indicadores semanales"
+      >
         <StatCard
           label="Ingresos de la semana"
           value={formatPEN(reporte.totales.ingresosSoles)}

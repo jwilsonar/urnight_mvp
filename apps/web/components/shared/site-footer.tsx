@@ -130,7 +130,7 @@ export function SiteFooter({
             <p className="rv-eyebrow mb-4">Ayuda</p>
             <div className="flex flex-wrap gap-2">
               <Button size="sm" asChild>
-                <a href="mailto:soporte@ravenue.pe">Contáctanos</a>
+                <Link href="/contacto">Contáctanos</Link>
               </Button>
               <ClearCookiesButton />
             </div>

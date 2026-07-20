@@ -2,6 +2,7 @@
 
 import { ForkKnife, MagnifyingGlass, PencilSimple, Plus } from '@phosphor-icons/react';
 import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import {
   Badge,
   Button,
@@ -26,6 +27,7 @@ import {
   cn,
 } from '@urnight/ui';
 import { CartaItemDialog } from '@/components/admin/carta-item-dialog';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { EmptyState } from '@/components/shared/empty-state';
 import { StorageImage } from '@/lib/storage/storage-context';
 import { formatPEN } from '@/lib/utils';
@@ -37,6 +39,10 @@ import {
   type CartaConfigDemo,
   type CartaItemDemo,
 } from '@/lib/mock/carta';
+
+type PendingToggle =
+  | { type: 'config'; enabled: boolean }
+  | { type: 'availability'; item: CartaItemDemo; available: boolean };
 
 /**
  * Gestión demo de la carta: productos, disponibilidad y configuración por
@@ -50,6 +56,7 @@ export function CartaManager() {
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [dialogItem, setDialogItem] = useState<CartaItemDemo | 'new' | null>(null);
+  const [pendingToggle, setPendingToggle] = useState<PendingToggle | null>(null);
 
   const config = configs.find((c) => c.localSlug === selectedSlug) ?? configs[0]!;
 
@@ -66,23 +73,37 @@ export function CartaManager() {
   const agotados = items.length - activos;
 
   const updateConfig = (patch: Partial<CartaConfigDemo>) => {
-    setConfigs((prev) =>
-      prev.map((c) => (c.localSlug === selectedSlug ? { ...c, ...patch } : c)),
-    );
+    setConfigs((prev) => prev.map((c) => (c.localSlug === selectedSlug ? { ...c, ...patch } : c)));
   };
 
-  const toggleAvailable = (id: string) => {
-    setItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, available: !i.available } : i)),
-    );
+  const setAvailable = (id: string, available: boolean) => {
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, available } : i)));
   };
 
   const saveItem = (item: CartaItemDemo) => {
+    const isNew = !items.some((current) => current.id === item.id);
     setItems((prev) => {
       const exists = prev.some((i) => i.id === item.id);
       return exists ? prev.map((i) => (i.id === item.id ? item : i)) : [item, ...prev];
     });
+    toast.success(isNew ? 'Producto creado.' : 'Cambios guardados.');
     setDialogItem(null);
+  };
+
+  const confirmToggle = () => {
+    if (!pendingToggle) return;
+    if (pendingToggle.type === 'config') {
+      updateConfig({ enabled: pendingToggle.enabled });
+      toast.success(pendingToggle.enabled ? 'Carta habilitada.' : 'Carta deshabilitada.');
+    } else {
+      setAvailable(pendingToggle.item.id, pendingToggle.available);
+      toast.success(
+        pendingToggle.available
+          ? `${pendingToggle.item.name} está disponible.`
+          : `${pendingToggle.item.name} quedó no disponible.`,
+      );
+    }
+    setPendingToggle(null);
   };
 
   return (
@@ -132,10 +153,10 @@ export function CartaManager() {
             <Label>Carta digital</Label>
             <Button
               type="button"
-              variant={config.enabled ? 'default' : 'secondary'}
-              className="w-full"
+              variant="outline"
+              className="w-full text-foreground"
               aria-pressed={config.enabled}
-              onClick={() => updateConfig({ enabled: !config.enabled })}
+              onClick={() => setPendingToggle({ type: 'config', enabled: !config.enabled })}
             >
               {config.enabled ? 'Habilitada' : 'Deshabilitada'}
             </Button>
@@ -207,10 +228,7 @@ export function CartaManager() {
             {visible.map((item) => (
               <TableRow
                 key={item.id}
-                className={cn(
-                  'transition-opacity duration-200',
-                  !item.available && 'opacity-50',
-                )}
+                className={cn('transition-opacity duration-200', !item.available && 'opacity-50')}
               >
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -248,12 +266,19 @@ export function CartaManager() {
                 </TableCell>
                 <TableCell>
                   <Button
-                    variant={item.available ? 'outline' : 'secondary'}
+                    variant="outline"
                     size="sm"
+                    className="text-foreground"
                     aria-pressed={item.available}
-                    onClick={() => toggleAvailable(item.id)}
+                    onClick={() =>
+                      setPendingToggle({
+                        type: 'availability',
+                        item,
+                        available: !item.available,
+                      })
+                    }
                   >
-                    {item.available ? 'Disponible' : 'Agotado'}
+                    {item.available ? 'Disponible' : 'No disponible'}
                   </Button>
                 </TableCell>
                 <TableCell>
@@ -304,6 +329,30 @@ export function CartaManager() {
           if (!open) setDialogItem(null);
         }}
         onSave={saveItem}
+      />
+
+      <ConfirmDialog
+        open={pendingToggle !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingToggle(null);
+        }}
+        destructive={false}
+        title={
+          pendingToggle?.type === 'config'
+            ? pendingToggle.enabled
+              ? '¿Habilitar la carta?'
+              : '¿Deshabilitar la carta?'
+            : pendingToggle?.available
+              ? '¿Marcar el producto como disponible?'
+              : '¿Marcar el producto como no disponible?'
+        }
+        description={
+          pendingToggle?.type === 'config'
+            ? 'Confirma el cambio de visibilidad de la carta para los asistentes.'
+            : `Confirma el cambio de disponibilidad de ${pendingToggle?.item.name ?? 'este producto'}.`
+        }
+        confirmLabel="Confirmar cambio"
+        onConfirm={confirmToggle}
       />
     </div>
   );

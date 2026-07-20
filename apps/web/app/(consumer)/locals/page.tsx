@@ -15,23 +15,16 @@ export const metadata: Metadata = {
   description: 'Descubre discotecas y bares de vida nocturna en Perú.',
 };
 
-export default async function LocalsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ zoneId?: string; q?: string }>;
-}) {
+export default async function LocalsPage({ searchParams }: { searchParams: Promise<{ zoneId?: string; q?: string }> }) {
   const { zoneId, q } = await searchParams;
   // Degrada con elegancia si el API no responde (evita romper el build ISR).
-  const [zones, locals] = await Promise.all([
-    getZones().catch(() => []),
-    getLocals({ zoneId, q }).catch(() => null),
-  ]);
+  const [zones, locals] = await Promise.all([getZones().catch(() => []), getLocals({ zoneId, q }).catch(() => null)]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-heading text-3xl font-bold tracking-tight">Locales</h1>
+          <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">Locales</h1>
           <p className="text-muted-foreground">Encuentra los mejores lugares de la noche.</p>
         </div>
         {/* La búsqueda vive en el header (con sugerencias); aquí solo el filtro por zona. */}
@@ -72,12 +65,10 @@ export default async function LocalsPage({
             <span className="flex size-16 items-center justify-center rounded-xl border border-accent-border bg-accent">
               <ShieldCheck className="size-7 text-rose" weight="duotone" />
             </span>
-            <h2 className="font-heading text-2xl font-extrabold tracking-tight sm:text-3xl">
-              ¿Tienes un local?
-            </h2>
+            <h2 className="font-heading text-2xl font-extrabold tracking-tight sm:text-3xl">¿Tienes un local?</h2>
             <p className="max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
-              Únete a RAVENUE, publica tus eventos, gestiona tu aforo y llega a miles de personas
-              que buscan dónde ir esta noche.
+              Únete a RAVENUE, publica tus eventos, gestiona tu aforo y llega a miles de personas que buscan dónde ir
+              esta noche.
             </p>
             <Button size="lg" className="mt-2" asChild>
               <Link href="/afiliar">Afiliar mi local</Link>

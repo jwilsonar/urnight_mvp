@@ -120,6 +120,7 @@ export function PlatformSettingEditor() {
                   <Button
                     type="button"
                     variant="outline"
+                    className="text-foreground"
                     onClick={onLoad}
                     disabled={loadMutation.isPending}
                   >

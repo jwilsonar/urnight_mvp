@@ -30,7 +30,10 @@ import { cn } from '@urnight/ui';
  */
 const FOIL_GAIN = 1.8;
 
-const LABELS = { toBack: 'Ver el reverso del ticket', toFront: 'Volver al frente del ticket' };
+const LABELS = {
+  toBack: 'Ver el reverso del ticket',
+  toFront: 'Volver al frente del ticket',
+};
 
 type FlipApi = { flipped: boolean; toggle: () => void };
 const FlipContext = createContext<FlipApi | null>(null);
@@ -228,11 +231,7 @@ export function HoloCard({
       {...triggerProps}
     >
       <FlipContext.Provider value={{ flipped, toggle }}>
-        <div
-          ref={flipRef}
-          className="rv-holo-flip h-full rounded-lg"
-          data-flipped={flipped ? 'true' : undefined}
-        >
+        <div ref={flipRef} className="rv-holo-flip h-full rounded-lg" data-flipped={flipped ? 'true' : undefined}>
           {/* `relative` ancla el foil/shine (inset:0) y `rounded-lg` es de donde
               heredan su border-radius. */}
           <div
@@ -282,7 +281,12 @@ export function HoloFlipButton({
   return (
     <button
       type="button"
-      onClick={ctx.toggle}
+      onPointerDown={(event) => event.stopPropagation()}
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        ctx.toggle();
+      }}
       aria-pressed={ctx.flipped}
       aria-label={label}
       // Tooltip nativo: el icono solo no explica qué hace el botón, y el

@@ -69,11 +69,12 @@ export function CompaniesManager() {
       id: 'actions',
       header: 'Acciones',
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="flex min-w-28 justify-start">
           {row.original.status === 'suspended' ? (
             <Button
               size="sm"
               variant="outline"
+              className="min-w-24 text-foreground"
               disabled={activate.isPending}
               onClick={() => activate.mutate(row.original.id)}
             >
@@ -83,6 +84,7 @@ export function CompaniesManager() {
             <Button
               size="sm"
               variant="outline"
+              className="min-w-24 text-foreground"
               disabled={suspend.isPending}
               onClick={() => suspend.mutate(row.original.id)}
             >

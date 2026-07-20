@@ -22,7 +22,7 @@ export function AccountNav() {
   const pathname = usePathname();
   return (
     /* flex-wrap (no scroll): evita tabs cortados al borde como "Notificacio…" */
-    <nav className="flex flex-wrap gap-1 border-b" aria-label="Navegación de cuenta">
+    <nav className="flex flex-wrap justify-center gap-1 border-b" aria-label="Navegación de cuenta">
       {LINKS.map((link) => {
         const active = pathname === link.href;
         return (
@@ -32,7 +32,9 @@ export function AccountNav() {
             aria-current={active ? 'page' : undefined}
             className={cn(
               '-mb-px shrink-0 whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium transition-colors',
-              active ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground',
+              active
+                ? 'border-primary text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground',
             )}
           >
             {link.label}

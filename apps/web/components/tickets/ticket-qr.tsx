@@ -27,7 +27,11 @@ export function TicketQr({
   useEffect(() => {
     if (qrImageKey) return;
     let active = true;
-    QRCode.toDataURL(qrCode, { margin: 1, width: size * 2, errorCorrectionLevel: 'M' })
+    QRCode.toDataURL(qrCode, {
+      margin: 1,
+      width: size * 2,
+      errorCorrectionLevel: 'M',
+    })
       .then((url) => {
         if (active) setDataUrl(url);
       })
@@ -46,7 +50,7 @@ export function TicketQr({
         alt="Código QR de la entrada"
         width={size}
         height={size}
-        className="shrink-0 rounded-md bg-white p-1"
+        className="aspect-square shrink-0 rounded-md bg-white object-contain p-1"
       />
     );
   }
@@ -59,7 +63,7 @@ export function TicketQr({
         width={size}
         height={size}
         unoptimized
-        className="shrink-0 rounded-md bg-white p-1"
+        className="aspect-square shrink-0 rounded-md bg-white object-contain p-1"
       />
     );
   }

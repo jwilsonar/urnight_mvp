@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { PromoterDashboard } from '@/components/promoter/promoter-dashboard';
+import { PromoterOverview } from '@/components/promoter/promoter-overview';
 import { requireRole } from '@/lib/auth-helpers';
 
 export const metadata: Metadata = {
@@ -15,5 +15,5 @@ export const metadata: Metadata = {
 export default async function PromoterPage() {
   await requireRole(['promoter', 'super_admin'], '/panel');
 
-  return <PromoterDashboard />;
+  return <PromoterOverview />;
 }

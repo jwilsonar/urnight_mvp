@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@urnight/ui';
 import { FavoritesList } from '@/components/account/favorites-list';
 import { PreferencesForm } from '@/components/account/preferences-form';
+import { ProfileEditForm } from '@/components/account/profile-edit-form';
 import { RedemptionsList } from '@/components/account/redemptions-list';
+import { fetchMe } from '@/lib/api/auth/requests';
 import { getSession } from '@/lib/auth-helpers';
 
 export const metadata: Metadata = { title: 'Perfil y ajustes' };
@@ -19,22 +21,19 @@ export default async function AccountProfilePage() {
   const session = await getSession();
   const user = session?.user;
   const roles = user?.roles ?? [];
+  const profile = session?.accessToken ? await fetchMe(session.accessToken).catch(() => null) : null;
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Perfil</CardTitle>
-          <CardDescription>Datos de tu cuenta (solo lectura).</CardDescription>
+          <CardDescription>Revisa y edita tus datos de contacto.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 text-sm">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Nombre</span>
             <span className="font-medium">{user?.name ?? '—'}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Correo</span>
-            <span className="font-medium">{user?.email ?? '—'}</span>
           </div>
           <div className="flex items-center justify-between gap-2">
             <span className="text-muted-foreground">Roles</span>
@@ -50,6 +49,11 @@ export default async function AccountProfilePage() {
               )}
             </div>
           </div>
+          <ProfileEditForm
+            initialEmail={profile?.email ?? user?.email ?? ''}
+            initialPhone={profile?.phone ?? ''}
+            initialImage={profile?.avatarUrl ?? user?.image}
+          />
         </CardContent>
       </Card>
 
@@ -76,7 +80,7 @@ export default async function AccountProfilePage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Preferencias</CardTitle>
-          <CardDescription>Idioma y notificaciones de tu cuenta.</CardDescription>
+          <CardDescription>Notificaciones y avisos de tu cuenta.</CardDescription>
         </CardHeader>
         <CardContent>
           <PreferencesForm />

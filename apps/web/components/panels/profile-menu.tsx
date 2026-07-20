@@ -1,7 +1,10 @@
 'use client';
 
 import { ArrowSquareOut, Gauge, GearSix, SignOut, Ticket } from '@phosphor-icons/react';
+import { useQueryClient } from '@tanstack/react-query';
+import { signOut } from 'next-auth/react';
 import Link from 'next/link';
+import { useState } from 'react';
 import {
   Avatar,
   AvatarFallback,
@@ -14,7 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@urnight/ui';
-import { signOutAction } from '@/lib/auth-actions';
 import { ROLE_PANEL_LABEL, primaryRole, roleHomePath } from '@/lib/utils/rbac';
 
 function initials(name?: string | null): string {
@@ -35,8 +37,22 @@ interface ProfileMenuUser {
 
 /** Avatar + menú de cuenta del panel (ir al panel, ajustes, ver sitio, salir). */
 export function ProfileMenu({ user }: { user: ProfileMenuUser }) {
+  const queryClient = useQueryClient();
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const panelHref = roleHomePath(user.roles);
   const panelLabel = ROLE_PANEL_LABEL[primaryRole(user.roles)];
+
+  async function handleSignOut() {
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+    try {
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      await signOut({ redirect: true, callbackUrl: '/login' });
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   return (
     <DropdownMenu>
@@ -76,12 +92,13 @@ export function ProfileMenu({ user }: { user: ProfileMenuUser }) {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
+          disabled={isSigningOut}
           onSelect={(event) => {
             event.preventDefault();
-            void signOutAction();
+            void handleSignOut();
           }}
         >
-          <SignOut className="h-4 w-4" /> Cerrar sesión
+          <SignOut className="h-4 w-4" /> {isSigningOut ? 'Cerrando…' : 'Cerrar sesión'}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

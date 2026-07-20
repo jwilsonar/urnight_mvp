@@ -2,6 +2,7 @@ import { SearchSuggest } from '@/components/catalog/search-suggest';
 import { Logo3D } from './logo-3d';
 import { MainNav } from './main-nav';
 import { MobileNav } from './mobile-nav';
+import { NotificationBellConsumer } from './notification-bell-consumer';
 import { UserMenu } from './user-menu';
 
 /** Cabecera del sitio público. Server Component con islas cliente para sesión/tema. */
@@ -19,11 +20,15 @@ export function SiteHeader() {
           <Logo3D />
         </div>
         <MainNav className="hidden md:flex" />
-        <div className="ml-auto flex items-center gap-2">
-          <div className="hidden lg:block">
-            {/* Buscador con sugerencias en vivo (eventos + locales). */}
-            <SearchSuggest placeholder="Buscar eventos, locales…" />
-          </div>
+        {/* En lg+, los `auto` a ambos lados centran el clúster buscador+campana+
+            avatar entre el logo/nav y el borde derecho: buscador más al centro y
+            perfil cerca de él (§ feedback), sin hueco muerto a la derecha. */}
+        <div className="hidden w-64 lg:block xl:w-72 lg:ml-auto">
+          {/* Buscador con sugerencias en vivo (eventos + locales). */}
+          <SearchSuggest placeholder="Buscar eventos, locales…" />
+        </div>
+        <div className="ml-auto flex items-center gap-1 lg:ml-0 lg:mr-auto">
+          <NotificationBellConsumer />
           <UserMenu />
         </div>
       </div>

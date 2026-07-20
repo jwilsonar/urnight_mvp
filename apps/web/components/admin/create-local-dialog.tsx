@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
-import type { z } from 'zod';
+import { z } from 'zod';
 import { COMPANIES_ERROR_CODES, createLocalSchema, type CreateLocalDto } from '@urnight/contracts';
 import {
   Button,
@@ -37,6 +37,7 @@ import { queryKeys } from '@/lib/api/query-keys';
 import { useApiMutation } from '@/lib/api/use-api-mutation';
 import { useStagedUpload } from '@/lib/hooks/use-staged-upload';
 import { readImageSize } from '@/lib/utils/image';
+import { markLocalApprovalPending } from './local-approval-mock';
 import { slugify } from './slugify';
 
 function blankToUndefined(value: string | undefined): string | undefined {
@@ -51,7 +52,11 @@ function blankToUndefined(value: string | undefined): string | undefined {
  * - la portada se arrastra al dropzone (staging) y se confirma en la galería
  *   tras crear el local (mismo endpoint que usa el gestor de imágenes).
  */
-const formSchema = createLocalSchema.omit({ companyId: true, slug: true, mainImageUrl: true });
+const formSchema = createLocalSchema
+  .omit({ companyId: true, slug: true, mainImageUrl: true })
+  .extend({
+    address: z.string().trim().min(1, 'La dirección es obligatoria.').max(255),
+  });
 type LocalFormValues = z.input<typeof formSchema>;
 /** Local sin slug: el slug lo genera `createLocalUniqueSlug`. */
 type LocalDraft = Omit<CreateLocalDto, 'slug'>;
@@ -83,7 +88,8 @@ async function createLocalUniqueSlug(draft: LocalDraft, token: string) {
     try {
       return await createLocal({ ...draft, slug }, token);
     } catch (err) {
-      const slugTaken = err instanceof ApiError && err.code === COMPANIES_ERROR_CODES.LOCAL_SLUG_TAKEN;
+      const slugTaken =
+        err instanceof ApiError && err.code === COMPANIES_ERROR_CODES.LOCAL_SLUG_TAKEN;
       if (slugTaken && attempt < SLUG_MAX_ATTEMPTS - 1) continue;
       throw err;
     }
@@ -123,16 +129,21 @@ export function CreateLocalDialog() {
             token,
           );
         } catch {
-          toast.warning('Local creado, pero la portada no se pudo adjuntar. Súbela desde su galería.');
+          toast.warning(
+            'Local creado, pero la portada no se pudo adjuntar. Súbela desde su galería.',
+          );
         }
       }
       return local;
     },
     setError: form.setError,
-    successMessage: (local) => `Local "${local.name}" creado.`,
+    successMessage: (local) => `Local "${local.name}" creado como borrador y enviado a aprobación.`,
     invalidateKeys: [queryKeys.myLocals],
     onSuccess: (local) => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.localImages(local.id) });
+      markLocalApprovalPending(local.id);
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.localImages(local.id),
+      });
       setOpen(false);
       cover.reset();
       form.reset(EMPTY);
@@ -151,7 +162,7 @@ export function CreateLocalDialog() {
       companyId,
       ...values,
       description: blankToUndefined(values.description ?? undefined),
-      address: blankToUndefined(values.address ?? undefined),
+      address: values.address.trim(),
       googleMapsUrl: blankToUndefined(values.googleMapsUrl ?? undefined),
     });
   }
@@ -173,7 +184,10 @@ export function CreateLocalDialog() {
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Crear local</DialogTitle>
-          <DialogDescription>Registra un nuevo local de tu empresa.</DialogDescription>
+          <DialogDescription>
+            Registra el local como borrador. Deberá completar su configuración y recibir la
+            aprobación de un super admin antes de publicarse.
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
@@ -205,7 +219,12 @@ export function CreateLocalDialog() {
                     Descripción <span className="text-muted-foreground">(opcional)</span>
                   </FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Sobre tu local…" rows={3} {...field} value={field.value ?? ''} />
+                    <Textarea
+                      placeholder="Sobre tu local…"
+                      rows={3}
+                      {...field}
+                      value={field.value ?? ''}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -217,9 +236,7 @@ export function CreateLocalDialog() {
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    Dirección <span className="text-muted-foreground">(opcional)</span>
-                  </FormLabel>
+                  <FormLabel>Dirección</FormLabel>
                   <FormControl>
                     <Input placeholder="Av. Principal 123" {...field} value={field.value ?? ''} />
                   </FormControl>
@@ -236,7 +253,12 @@ export function CreateLocalDialog() {
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={mutation.isPending}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+                disabled={mutation.isPending}
+              >
                 Cancelar
               </Button>
               <Button

@@ -150,7 +150,7 @@ export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalle
               size="sm"
               onClick={() => setOverview((v) => !v)}
               // Outline en vez de ghost: el toggle tenía límites invisibles.
-              className="mr-10 gap-2"
+              className="mr-10 gap-2 text-foreground"
             >
               {overview ? (
                 <>
@@ -233,13 +233,7 @@ export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalle
                         i === index ? 'ring-2 ring-primary' : 'opacity-60 hover:opacity-100'
                       }`}
                     >
-                      <StorageImage
-                        src={photo.url}
-                        alt=""
-                        fill
-                        sizes="80px"
-                        className="object-cover"
-                      />
+                      <StorageImage src={photo.url} alt="" fill sizes="80px" className="object-cover" />
                     </button>
                   ))}
                 </div>

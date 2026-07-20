@@ -6,7 +6,7 @@ import { cn } from './lib/cn';
 /*
  * Variantes según DS RAVENUE: primary carmín con glow de firma, secondary
  * fill blanco sutil + hairline, outline = "ghost" del DS (borde carmín,
- * texto rosa). Alturas 34/44/52 y radios 8/12/16 del DS.
+ * texto claro). Alturas 34/44/52 y radios 8/12/16 del DS.
  */
 const buttonVariants = cva(
   'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-bold transition-[background-color,border-color,box-shadow,transform] motion-safe:active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
@@ -15,7 +15,7 @@ const buttonVariants = cva(
       variant: {
         default: 'bg-primary text-primary-foreground shadow-glow hover:bg-primary-hover active:bg-primary-active',
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline: 'border border-primary bg-transparent text-rose hover:bg-accent',
+        outline: 'border border-primary bg-transparent text-foreground hover:bg-accent',
         secondary: 'border border-border bg-secondary text-secondary-foreground hover:border-strong hover:bg-white/10',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-rose underline-offset-4 hover:underline',
@@ -32,8 +32,7 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 

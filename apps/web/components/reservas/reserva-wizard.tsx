@@ -96,9 +96,7 @@ function QtyStepper({ value, onChange }: { value: number; onChange: (delta: numb
           'flex size-7 items-center justify-center rounded-[6px] transition-colors',
           // Solo tiene sentido cuando hay algo que quitar; deshabilitado sin
           // que "0 → 0" haga nada. El hover ilumina para dar feedback táctil.
-          value > 0
-            ? 'text-foreground hover:bg-white/10'
-            : 'text-muted-foreground opacity-40',
+          value > 0 ? 'text-foreground hover:bg-white/10' : 'text-foreground opacity-40',
         )}
       >
         <Minus className="size-3.5" />
@@ -151,6 +149,7 @@ export function ReservaWizard() {
   const [time, setTime] = useState('11:30 PM');
   const [birthday, setBirthday] = useState(false);
   const [host, setHost] = useState('');
+  const [hostError, setHostError] = useState('');
   const [notes, setNotes] = useState('');
   const [cart, setCart] = useState<Record<string, number>>({});
   const [confirmacion, setConfirmacion] = useState<{
@@ -162,8 +161,7 @@ export function ReservaWizard() {
   const inCart = BOTELLAS_DEMO.filter((b) => (cart[b.id] ?? 0) > 0);
   const total = (mesa?.deposit ?? 0) + bottlesTotal;
   const desglose = calcularDesgloseDemo(total, politica);
-  const setQty = (id: string, delta: number) =>
-    setCart((c) => ({ ...c, [id]: Math.max(0, (c[id] ?? 0) + delta) }));
+  const setQty = (id: string, delta: number) => setCart((c) => ({ ...c, [id]: Math.max(0, (c[id] ?? 0) + delta) }));
 
   function pickMesa(m: MesaDemo) {
     if (m.status === 'reserved') return;
@@ -173,27 +171,34 @@ export function ReservaWizard() {
 
   function confirmarReserva() {
     if (!mesa) return;
+    const cleanHost = host.trim();
+    if (!cleanHost) {
+      setHostError('Ingresa el nombre de la persona titular de la reserva.');
+      setStep(1);
+      return;
+    }
 
     otorgarCreditoDemo(RESERVA_ID_DEMO, 'nocturna-club', desglose.creditoConsumo);
     setConfirmacion({
       desglose,
-      pases: emitirPasesDemo(
-        RESERVA_ID_DEMO,
-        mesa.zonaId ?? 'general',
-        host || 'Titular de la reserva',
-        size,
-      ),
+      pases: emitirPasesDemo(RESERVA_ID_DEMO, mesa.zonaId ?? 'general', cleanHost, size),
     });
     setStep(4);
+  }
+
+  function continuar() {
+    if (step === 1 && !host.trim()) {
+      setHostError('Ingresa el nombre de la persona titular de la reserva.');
+      return;
+    }
+    setStep((current) => current + 1);
   }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Cabecera del flujo: título + candado de reserva segura + stepper */}
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-heading text-2xl font-extrabold tracking-tight sm:text-3xl">
-          Reserva tu mesa
-        </h1>
+        <h1 className="font-heading text-2xl font-extrabold tracking-tight sm:text-3xl">Reserva tu mesa</h1>
         <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
           <Lock className="size-3.5" /> Reserva segura
           <Badge variant="info">Demo — reserva simulada</Badge>
@@ -219,13 +224,12 @@ export function ReservaWizard() {
           {confirmacion ? (
             <>
               <div className="mt-5 rounded-md border border-success-border bg-success-soft p-4 text-sm font-semibold text-success">
-                Tu crédito de consumo de {formatPEN(confirmacion.desglose.creditoConsumo)} ya está
-                activo en la carta del local
+                Tu crédito de consumo de {formatPEN(confirmacion.desglose.creditoConsumo)} ya está activo en la carta
+                del local
               </div>
               {!politica.reingresoPermitido ? (
                 <p className="mt-3 flex items-center justify-center gap-2 text-sm text-info">
-                  <Info className="size-4 shrink-0" weight="duotone" /> Este local no permite
-                  reingreso una vez dentro
+                  <Info className="size-4 shrink-0" weight="duotone" /> Este local no permite reingreso una vez dentro
                 </p>
               ) : null}
               <PasesGrupo pases={confirmacion.pases} />
@@ -293,9 +297,7 @@ export function ReservaWizard() {
                               <p className="rv-eyebrow">{m.zone}</p>
                               <p className="mt-0.5 text-[15px] font-bold">{m.label}</p>
                             </div>
-                            {m.hot && m.status === 'available' ? (
-                              <Badge variant="warning">{m.hot}</Badge>
-                            ) : null}
+                            {m.hot && m.status === 'available' ? <Badge variant="warning">{m.hot}</Badge> : null}
                             {m.status === 'reserved' ? <Badge variant="outline">Reservada</Badge> : null}
                           </div>
                           <div className="mt-2.5 flex flex-wrap gap-x-3.5 gap-y-1 text-xs text-muted-foreground">
@@ -313,7 +315,8 @@ export function ReservaWizard() {
                   <div className="rounded-lg border bg-card p-5">
                     <div className="mb-4 flex flex-wrap gap-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1.5">
-                        <span className="size-3 rounded-[3px] border border-success-border bg-success-soft" /> Disponible
+                        <span className="size-3 rounded-[3px] border border-success-border bg-success-soft" />{' '}
+                        Disponible
                       </span>
                       <span className="flex items-center gap-1.5">
                         <span className="size-3 rounded-[3px] border border-warning-border bg-warning-soft" /> Pocas
@@ -325,15 +328,68 @@ export function ReservaWizard() {
                         <span className="size-3 rounded-[3px] bg-primary" /> Tu selección
                       </span>
                     </div>
-                    <svg viewBox="0 0 600 400" className="w-full rounded-md border bg-background" role="img" aria-label="Plano del local">
-                      <rect x="20" y="20" width="280" height="180" rx="8" fill="var(--accent-soft-faint)" stroke="var(--accent-border-subtle)" />
-                      <text x="32" y="42" fill="var(--text-accent-soft)" fontSize="11" fontWeight="700" letterSpacing="2">PISTA</text>
-                      <rect x="320" y="20" width="260" height="180" rx="8" fill="rgba(245,158,11,0.06)" stroke="rgba(245,158,11,0.2)" />
-                      <text x="332" y="42" fill="rgba(252,211,77,0.8)" fontSize="11" fontWeight="700" letterSpacing="2">BOX VIP</text>
-                      <rect x="20" y="220" width="560" height="160" rx="8" fill="var(--accent-hover-soft-faint)" stroke="var(--accent-hover-border-subtle)" />
-                      <text x="32" y="242" fill="var(--text-accent-soft)" fontSize="11" fontWeight="700" letterSpacing="2">LOUNGE</text>
-                      <text x="536" y="42" fill="rgba(160,160,176,0.8)" fontSize="10">⬆ Barra</text>
-                      <text x="270" y="395" fill="rgba(160,160,176,0.8)" fontSize="10">⬇ Entrada principal</text>
+                    <svg
+                      viewBox="0 0 600 400"
+                      className="w-full rounded-md border bg-background"
+                      role="img"
+                      aria-label="Plano del local"
+                    >
+                      <rect
+                        x="20"
+                        y="20"
+                        width="280"
+                        height="180"
+                        rx="8"
+                        fill="var(--accent-soft-faint)"
+                        stroke="var(--accent-border-subtle)"
+                      />
+                      <text
+                        x="32"
+                        y="42"
+                        fill="var(--text-accent-soft)"
+                        fontSize="11"
+                        fontWeight="700"
+                        letterSpacing="2"
+                      >
+                        PISTA
+                      </text>
+                      <rect
+                        x="320"
+                        y="20"
+                        width="260"
+                        height="180"
+                        rx="8"
+                        fill="rgba(245,158,11,0.06)"
+                        stroke="rgba(245,158,11,0.2)"
+                      />
+                      <text x="332" y="42" fill="rgba(252,211,77,0.8)" fontSize="11" fontWeight="700" letterSpacing="2">
+                        BOX VIP
+                      </text>
+                      <rect
+                        x="20"
+                        y="220"
+                        width="560"
+                        height="160"
+                        rx="8"
+                        fill="var(--accent-hover-soft-faint)"
+                        stroke="var(--accent-hover-border-subtle)"
+                      />
+                      <text
+                        x="32"
+                        y="242"
+                        fill="var(--text-accent-soft)"
+                        fontSize="11"
+                        fontWeight="700"
+                        letterSpacing="2"
+                      >
+                        LOUNGE
+                      </text>
+                      <text x="536" y="42" fill="rgba(160,160,176,0.8)" fontSize="10">
+                        ⬆ Barra
+                      </text>
+                      <text x="270" y="395" fill="rgba(160,160,176,0.8)" fontSize="10">
+                        ⬇ Entrada principal
+                      </text>
                       {MESAS_DEMO.map((m) => {
                         const isSel = mesa?.id === m.id;
                         const fill = isSel
@@ -356,7 +412,16 @@ export function ReservaWizard() {
                             onClick={() => pickMesa(m)}
                             className={m.status === 'reserved' ? 'cursor-not-allowed' : 'cursor-pointer'}
                           >
-                            <rect x={m.layout.x} y={m.layout.y} width={m.layout.w} height={m.layout.h} rx="6" fill={fill} stroke={stroke} strokeWidth="1.5" />
+                            <rect
+                              x={m.layout.x}
+                              y={m.layout.y}
+                              width={m.layout.w}
+                              height={m.layout.h}
+                              rx="6"
+                              fill={fill}
+                              stroke={stroke}
+                              strokeWidth="1.5"
+                            />
                             <text
                               x={m.layout.x + m.layout.w / 2}
                               y={m.layout.y + m.layout.h / 2 + 4}
@@ -379,8 +444,8 @@ export function ReservaWizard() {
                     <Info className="size-4 text-rose" weight="duotone" />
                   </span>
                   <p>
-                    <strong className="text-foreground">Tu depósito se descuenta del consumo en el local.</strong>{' '}
-                    No es un cargo extra — si consumes más del mínimo, solo pagas la diferencia en caja.
+                    <strong className="text-foreground">Tu depósito se descuenta del consumo en el local.</strong> No es
+                    un cargo extra — si consumes más del mínimo, solo pagas la diferencia en caja.
                   </p>
                 </div>
               </>
@@ -435,13 +500,25 @@ export function ReservaWizard() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="rw-host">Nombre del anfitrión (opcional)</Label>
+                    <Label htmlFor="rw-host">A nombre de quién</Label>
                     <Input
                       id="rw-host"
                       value={host}
-                      onChange={(e) => setHost(e.target.value)}
+                      onChange={(e) => {
+                        setHost(e.target.value);
+                        if (e.target.value.trim()) setHostError('');
+                      }}
                       placeholder="ej. Piero Rivera"
+                      autoComplete="name"
+                      required
+                      aria-invalid={Boolean(hostError)}
+                      aria-describedby={hostError ? 'rw-host-error' : undefined}
                     />
+                    {hostError ? (
+                      <p id="rw-host-error" className="text-sm text-destructive" role="alert">
+                        {hostError}
+                      </p>
+                    ) : null}
                   </div>
                   <label
                     className={cn(
@@ -573,23 +650,17 @@ export function ReservaWizard() {
                   </div>
                   <div className="flex items-start justify-between gap-4 text-base">
                     <span>
-                      <span className="block text-success">
-                        Crédito de consumo ({politica.splitConsumoPct}%)
-                      </span>
+                      <span className="block text-success">Crédito de consumo ({politica.splitConsumoPct}%)</span>
                       <span className="mt-0.5 block text-xs text-muted-foreground">
                         Se canjea en la carta del local
                       </span>
                     </span>
-                    <strong className="shrink-0 tabular-nums text-success">
-                      {formatPEN(desglose.creditoConsumo)}
-                    </strong>
+                    <strong className="shrink-0 tabular-nums text-success">{formatPEN(desglose.creditoConsumo)}</strong>
                   </div>
                   {desglose.comisionServicio > 0 ? (
                     <div className="flex items-start justify-between gap-4 text-base">
                       <span>Comisión de servicio</span>
-                      <strong className="shrink-0 tabular-nums">
-                        {formatPEN(desglose.comisionServicio)}
-                      </strong>
+                      <strong className="shrink-0 tabular-nums">{formatPEN(desglose.comisionServicio)}</strong>
                     </div>
                   ) : null}
                   <div className="flex justify-between border-t pt-3 font-heading text-lg font-extrabold">
@@ -600,8 +671,8 @@ export function ReservaWizard() {
                 <div className="mt-5 flex items-start gap-3 rounded-md border border-info-border bg-info-soft p-4 text-sm leading-relaxed text-info">
                   <Info className="mt-0.5 size-4 shrink-0" weight="duotone" />
                   <p>
-                    Vista de demostración: el cobro del depósito se habilitará cuando exista el
-                    backend de reservas. Confirmar no genera ningún cargo.
+                    Vista de demostración: el cobro del depósito se habilitará cuando exista el backend de reservas.
+                    Confirmar no genera ningún cargo.
                   </p>
                 </div>
               </>
@@ -643,7 +714,7 @@ export function ReservaWizard() {
                 Confirmar reserva <Check className="size-4" />
               </Button>
             ) : (
-              <Button className="w-full" disabled={!mesa} onClick={() => setStep((s) => s + 1)}>
+              <Button className="w-full" disabled={!mesa} onClick={continuar}>
                 Continuar <ArrowRight className="size-4" />
               </Button>
             )}

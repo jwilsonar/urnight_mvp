@@ -5,8 +5,8 @@ import { ReclamacionesInbox } from '@/components/superadmin/reclamaciones-inbox'
 import { RECLAMACIONES_DEMO } from '@/lib/mock/reclamaciones';
 
 export const metadata: Metadata = {
-  title: 'Reclamaciones',
-  description: 'Bandeja del Libro de Reclamaciones digital.',
+  title: 'Reclamos',
+  description: 'Bandeja de reclamos del Libro de Reclamaciones digital.',
 };
 
 /*
@@ -24,7 +24,7 @@ export default function SuperAdminReclamacionesPage() {
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">Reclamaciones</h1>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Reclamos</h1>
           <p className="text-muted-foreground">
             Bandeja del Libro de Reclamaciones: revisa y resuelve los reclamos de asistentes.
           </p>

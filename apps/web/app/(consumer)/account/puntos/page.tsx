@@ -1,11 +1,8 @@
 import type { Metadata } from 'next';
 import {
   Badge,
-  Button,
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Table,
   TableBody,
   TableCell,
@@ -14,13 +11,9 @@ import {
   TableRow,
   cn,
 } from '@urnight/ui';
+import { PointsRedemptionGrid } from '@/components/account/points-redemption-grid';
 import { Reveal } from '@/components/shared/reveal';
-import {
-  CATALOGO_CANJE_DEMO,
-  FIDELIZACION_PARAMS_DEMO,
-  HISTORIAL_PUNTOS_DEMO,
-  NIVEL_DEMO,
-} from '@/lib/mock/fidelizacion';
+import { FIDELIZACION_PARAMS_DEMO, HISTORIAL_PUNTOS_DEMO, NIVEL_DEMO } from '@/lib/mock/fidelizacion';
 import { formatPEN } from '@/lib/utils';
 
 export const metadata: Metadata = { title: 'Puntos' };
@@ -49,12 +42,8 @@ export default function PuntosPage() {
               {NIVEL_DEMO.puntos.toLocaleString('es-PE')}
               <span className="ml-2 text-lg font-bold text-muted-foreground">pts</span>
             </p>
-            <p className="mt-2 text-sm font-semibold text-rose">
-              Equivalen a {formatPEN(NIVEL_DEMO.puntos / 10)}
-            </p>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Vigencia: {FIDELIZACION_PARAMS_DEMO.vigenciaPuntos}.
-            </p>
+            <p className="mt-2 text-sm font-semibold text-rose">Equivalen a {formatPEN(NIVEL_DEMO.puntos / 10)}</p>
+            <p className="mt-3 text-xs text-muted-foreground">Vigencia: {FIDELIZACION_PARAMS_DEMO.vigenciaPuntos}.</p>
           </CardContent>
         </Card>
       </Reveal>
@@ -68,36 +57,7 @@ export default function PuntosPage() {
             </p>
           </div>
         </Reveal>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {CATALOGO_CANJE_DEMO.map((opcion, index) => {
-            const faltan = Math.max(0, opcion.costoPuntos - NIVEL_DEMO.puntos);
-            return (
-              <Reveal key={opcion.id} delay={140 + (index % 3) * 60}>
-                <Card className={cn('h-full', !opcion.disponible && 'opacity-55')}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-3">
-                      <CardTitle className="font-heading text-base">{opcion.nombre}</CardTitle>
-                      {!opcion.disponible ? (
-                        <Badge variant="warning">Te faltan {faltan} pts</Badge>
-                      ) : null}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex h-full flex-col gap-4">
-                    <p className="text-sm text-muted-foreground">{opcion.detalle}</p>
-                    <div className="mt-auto flex items-center justify-between gap-3">
-                      <span className="font-heading text-lg font-extrabold text-rose tabular-nums">
-                        {opcion.costoPuntos.toLocaleString('es-PE')} pts
-                      </span>
-                      <Button type="button" size="sm" disabled={!opcion.disponible}>
-                        Canjear
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Reveal>
-            );
-          })}
-        </div>
+        <PointsRedemptionGrid />
       </section>
 
       <section id="historial" className="scroll-mt-24">
@@ -117,15 +77,10 @@ export default function PuntosPage() {
               <TableBody>
                 {HISTORIAL_PUNTOS_DEMO.map((movimiento) => (
                   <TableRow key={`${movimiento.fechaLabel}-${movimiento.concepto}`}>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
-                      {movimiento.fechaLabel}
-                    </TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">{movimiento.fechaLabel}</TableCell>
                     <TableCell>{movimiento.concepto}</TableCell>
                     <TableCell
-                      className={cn(
-                        'text-right font-bold tabular-nums',
-                        movimiento.tipo === 'gana' && 'text-success',
-                      )}
+                      className={cn('text-right font-bold tabular-nums', movimiento.tipo === 'gana' && 'text-success')}
                     >
                       {movimiento.puntos > 0 ? '+' : ''}
                       {movimiento.puntos.toLocaleString('es-PE')} pts

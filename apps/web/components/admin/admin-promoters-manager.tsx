@@ -21,13 +21,13 @@ import {
   DialogTrigger,
   Skeleton,
 } from '@urnight/ui';
-import { CreatePromoterForm } from '@/components/promoter/create-promoter-form';
 import { PromoCodeForm } from '@/components/promoter/promo-code-form';
 import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
 import { listMyPromoters } from '@/lib/api/promoters';
 import { queryKeys } from '@/lib/api/query-keys';
 import { AssignEventDialog } from './assign-event-dialog';
+import { CreateAdminPromoterForm } from './create-admin-promoter-form';
 
 const STATUS_LABEL: Record<string, string> = {
   pending: 'Pendiente',
@@ -73,7 +73,7 @@ export function AdminPromotersManager() {
                 aceptarla se activa y obtiene su enlace de referido.
               </DialogDescription>
             </DialogHeader>
-            <CreatePromoterForm
+            <CreateAdminPromoterForm
               onCreated={(created) => {
                 setPromoter(created);
                 setPromoterOpen(false);
@@ -85,7 +85,7 @@ export function AdminPromotersManager() {
 
         <Dialog open={promoOpen} onOpenChange={setPromoOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline">
+            <Button variant="outline" className="text-foreground">
               <Tag className="h-4 w-4" weight="bold" />
               Crear código
             </Button>
@@ -137,15 +137,20 @@ export function AdminPromotersManager() {
                     ) : null}
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
+                    <Badge variant={p.status === 'active' ? 'default' : 'secondary'}>
+                      {STATUS_LABEL[p.status] ?? p.status}
+                    </Badge>
                     {p.status === 'active' ? (
-                      <Button size="sm" variant="outline" onClick={() => setAssignTo(p)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-foreground"
+                        onClick={() => setAssignTo(p)}
+                      >
                         <CalendarPlus className="h-4 w-4" weight="bold" />
                         Asignar eventos
                       </Button>
                     ) : null}
-                    <Badge variant={p.status === 'active' ? 'default' : 'secondary'}>
-                      {STATUS_LABEL[p.status] ?? p.status}
-                    </Badge>
                   </div>
                 </li>
               ))}

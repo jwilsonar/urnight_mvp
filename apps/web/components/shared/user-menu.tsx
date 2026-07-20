@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, Envelope, Gauge, Heart, SignOut, Ticket, UserCircle } from '@phosphor-icons/react';
+import { Envelope, Gauge, Heart, SignOut, Ticket, UserCircle } from '@phosphor-icons/react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import {
@@ -90,11 +90,6 @@ export function UserMenu() {
         <DropdownMenuItem asChild>
           <Link href="/account/guardados">
             <Heart className="h-4 w-4" /> Guardados
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/account/notificaciones">
-            <Bell className="h-4 w-4" /> Notificaciones
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

@@ -78,7 +78,7 @@ export const PANEL_NAV: Record<PanelSection, PanelNavItem[]> = {
     { href: '/panel/superadmin/audit', label: 'Auditoría', icon: ClockCounterClockwise },
     { href: '/panel/superadmin/taxonomy', label: 'Taxonomía', icon: Tag },
     { href: '/panel/superadmin/fidelizacion', label: 'Fidelización', icon: Medal },
-    { href: '/panel/superadmin/reclamaciones', label: 'Reclamaciones', icon: WarningOctagon },
+    { href: '/panel/superadmin/reclamaciones', label: 'Reclamos', icon: WarningOctagon },
     { href: '/panel/superadmin/antifraude', label: 'Antifraude', icon: ShieldWarning },
     { href: '/panel/superadmin/salud', label: 'Salud del producto', icon: Pulse },
   ],

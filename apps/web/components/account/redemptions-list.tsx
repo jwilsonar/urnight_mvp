@@ -39,16 +39,17 @@ export function RedemptionsList() {
   }
 
   return (
-    <ul className="space-y-2">
+    <ul className="grid gap-3 sm:grid-cols-2">
       {data.map((redemption) => (
-        <li key={redemption.id} className="flex items-center justify-between text-sm">
-          <span className="flex items-center gap-2">
+        <li
+          key={redemption.id}
+          className="flex min-w-0 flex-col gap-2 rounded-md border p-3 text-sm sm:justify-between"
+        >
+          <span className="flex min-w-0 items-center gap-2">
             <Ticket className="size-4 text-primary" weight="fill" />
-            Descuento S/ {redemption.discountApplied.toFixed(2)}
+            <span className="truncate">Descuento S/ {redemption.discountApplied.toFixed(2)}</span>
           </span>
-          <span className="text-muted-foreground">
-            {new Date(redemption.redeemedAt).toLocaleDateString('es-PE')}
-          </span>
+          <span className="text-muted-foreground">{new Date(redemption.redeemedAt).toLocaleDateString('es-PE')}</span>
         </li>
       ))}
     </ul>

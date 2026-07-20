@@ -1,6 +1,16 @@
 import { Armchair } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
-import { Badge, Card, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@urnight/ui';
+import {
+  Badge,
+  Card,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@urnight/ui';
+import { MesasOrderEditor } from '@/components/admin/mesas-order-editor';
 import { MESAS_PLANTA_DEMO, RESERVAS_DIA_DEMO } from '@/lib/mock/paneles';
 
 export const metadata: Metadata = {
@@ -11,8 +21,8 @@ export const metadata: Metadata = {
 /* Pantallas PL 100-101 del prototipo. Demo frontend-only (sin backend de mesas). */
 
 const ESTADO_MESA: Record<string, { fill: string; stroke: string }> = {
-  libre: { fill: 'rgba(34,197,94,0.3)', stroke: 'rgba(34,197,94,0.8)' },
-  reservada: { fill: 'rgba(245,158,11,0.3)', stroke: 'rgba(245,158,11,0.8)' },
+  libre: { fill: 'var(--success-soft)', stroke: 'var(--success)' },
+  reservada: { fill: 'var(--warning-soft)', stroke: 'var(--warning)' },
   ocupada: { fill: 'var(--accent-soft-strong)', stroke: 'var(--text-accent)' },
 };
 
@@ -40,32 +50,99 @@ export default function PlMesasPage() {
       <Card className="p-5">
         <div className="mb-4 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <span className="size-3 rounded-[3px] border border-success-border bg-success-soft" /> Libre ({libres})
+            <span className="size-3 rounded-[3px] border border-success-border bg-success-soft" />{' '}
+            Libre ({libres})
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="size-3 rounded-[3px] border border-warning-border bg-warning-soft" /> Reservada
+            <span className="size-3 rounded-[3px] border border-warning-border bg-warning-soft" />{' '}
+            Reservada
           </span>
           <span className="flex items-center gap-1.5">
             <span className="size-3 rounded-[3px] bg-primary" /> Ocupada
           </span>
         </div>
-        <svg viewBox="0 0 600 400" className="w-full rounded-md border bg-background" role="img" aria-label="Plano del local">
-          <rect x="20" y="20" width="280" height="180" rx="8" fill="var(--accent-soft-faint)" stroke="var(--accent-border-subtle)" />
-          <text x="32" y="42" fill="var(--text-accent-soft)" fontSize="11" fontWeight="700" letterSpacing="2">PISTA</text>
-          <rect x="320" y="20" width="260" height="180" rx="8" fill="rgba(245,158,11,0.06)" stroke="rgba(245,158,11,0.2)" />
-          <text x="332" y="42" fill="rgba(252,211,77,0.8)" fontSize="11" fontWeight="700" letterSpacing="2">BOX VIP</text>
-          <rect x="20" y="220" width="560" height="160" rx="8" fill="var(--accent-hover-soft-faint)" stroke="var(--accent-hover-border-subtle)" />
-          <text x="32" y="242" fill="var(--text-accent-soft)" fontSize="11" fontWeight="700" letterSpacing="2">LOUNGE</text>
+        <svg
+          viewBox="0 0 600 400"
+          className="w-full rounded-md border bg-background"
+          role="img"
+          aria-label="Plano del local"
+        >
+          <rect
+            x="20"
+            y="20"
+            width="280"
+            height="180"
+            rx="8"
+            fill="var(--accent-soft-faint)"
+            stroke="var(--accent-border-subtle)"
+          />
+          <text
+            x="32"
+            y="42"
+            fill="var(--text-accent-soft)"
+            fontSize="11"
+            fontWeight="700"
+            letterSpacing="2"
+          >
+            PISTA
+          </text>
+          <rect
+            x="320"
+            y="20"
+            width="260"
+            height="180"
+            rx="8"
+            fill="var(--warning-soft)"
+            stroke="var(--warning-border)"
+          />
+          <text
+            x="332"
+            y="42"
+            fill="var(--warning-fg)"
+            fontSize="11"
+            fontWeight="700"
+            letterSpacing="2"
+          >
+            BOX VIP
+          </text>
+          <rect
+            x="20"
+            y="220"
+            width="560"
+            height="160"
+            rx="8"
+            fill="var(--accent-hover-soft-faint)"
+            stroke="var(--accent-hover-border-subtle)"
+          />
+          <text
+            x="32"
+            y="242"
+            fill="var(--text-accent-soft)"
+            fontSize="11"
+            fontWeight="700"
+            letterSpacing="2"
+          >
+            LOUNGE
+          </text>
           {MESAS_PLANTA_DEMO.map((m) => {
             const c = ESTADO_MESA[m.estado] ?? ESTADO_MESA.libre!;
             return (
               <g key={m.id}>
-                <rect x={m.layout.x} y={m.layout.y} width={m.layout.w} height={m.layout.h} rx="6" fill={c.fill} stroke={c.stroke} strokeWidth="1.5" />
+                <rect
+                  x={m.layout.x}
+                  y={m.layout.y}
+                  width={m.layout.w}
+                  height={m.layout.h}
+                  rx="6"
+                  fill={c.fill}
+                  stroke={c.stroke}
+                  strokeWidth="1.5"
+                />
                 <text
                   x={m.layout.x + m.layout.w / 2}
                   y={m.layout.y + m.layout.h / 2 + 4}
                   textAnchor="middle"
-                  fill="#fff"
+                  fill="var(--foreground)"
                   fontSize="11"
                   fontWeight="700"
                 >
@@ -76,6 +153,8 @@ export default function PlMesasPage() {
           })}
         </svg>
       </Card>
+
+      <MesasOrderEditor initialTables={MESAS_PLANTA_DEMO} />
 
       {/* Reservas del día */}
       <section>

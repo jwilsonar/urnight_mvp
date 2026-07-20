@@ -1,6 +1,16 @@
 import { Money } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
-import { Badge, Card, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@urnight/ui';
+import {
+  Badge,
+  Card,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@urnight/ui';
+import { PromoterRefreshButton } from '@/components/promoter/promoter-refresh-button';
 import { LIQUIDACIONES_DEMO } from '@/lib/mock/paneles';
 
 export const metadata: Metadata = {
@@ -27,7 +37,10 @@ export default function LiquidacionesPage() {
             Tus comisiones consolidadas por quincena y su estado de pago.
           </p>
         </div>
-        <Badge variant="info">Demo — llega con el backend de pagos</Badge>
+        <div className="flex items-center gap-2">
+          <PromoterRefreshButton />
+          <Badge variant="info">Demo — llega con el backend de pagos</Badge>
+        </div>
       </div>
 
       {proxima ? (

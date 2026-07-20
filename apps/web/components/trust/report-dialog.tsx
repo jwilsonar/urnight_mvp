@@ -3,7 +3,7 @@
 import { Flag } from '@phosphor-icons/react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { CreateReportDto } from '@urnight/contracts';
 import {
   Button,
@@ -47,6 +47,8 @@ export function ReportDialog({ targetType, targetId }: ReportDialogProps) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState<CreateReportDto['reason']>('other');
   const [comment, setComment] = useState('');
+  const [commentError, setCommentError] = useState('');
+  const commentRef = useRef<HTMLTextAreaElement>(null);
 
   if (!session?.user) {
     return (
@@ -63,11 +65,18 @@ export function ReportDialog({ targetType, targetId }: ReportDialogProps) {
   }
 
   function submit() {
+    const cleanComment = comment.trim();
+    if (reason === 'other' && !cleanComment) {
+      setCommentError('Describe el motivo del reporte.');
+      commentRef.current?.focus();
+      return;
+    }
+
     const dto: CreateReportDto = {
       targetType,
       ...(targetType === 'local' ? { localId: targetId } : { eventId: targetId }),
       reason,
-      comment: comment.trim() ? comment : undefined,
+      comment: cleanComment || undefined,
       severity: 'low',
     };
     run((token) => createReport(dto, token), {
@@ -75,6 +84,8 @@ export function ReportDialog({ targetType, targetId }: ReportDialogProps) {
       onSuccess: () => {
         setOpen(false);
         setComment('');
+        setCommentError('');
+        if (commentRef.current) commentRef.current.style.height = 'auto';
       },
     });
   }
@@ -96,7 +107,14 @@ export function ReportDialog({ targetType, targetId }: ReportDialogProps) {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="report-reason">Motivo</Label>
-            <Select value={reason} onValueChange={(value) => setReason(value as CreateReportDto['reason'])}>
+            <Select
+              value={reason}
+              onValueChange={(value) => {
+                const nextReason = value as CreateReportDto['reason'];
+                setReason(nextReason);
+                if (nextReason !== 'other') setCommentError('');
+              }}
+            >
               <SelectTrigger id="report-reason">
                 <SelectValue />
               </SelectTrigger>
@@ -110,14 +128,30 @@ export function ReportDialog({ targetType, targetId }: ReportDialogProps) {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="report-comment">Comentario (opcional)</Label>
+            <Label htmlFor="report-comment">Comentario{reason === 'other' ? '' : ' (opcional)'}</Label>
             <Textarea
+              ref={commentRef}
               id="report-comment"
               value={comment}
-              onChange={(event) => setComment(event.target.value)}
+              onChange={(event) => {
+                const textarea = event.currentTarget;
+                setComment(textarea.value);
+                if (textarea.value.trim()) setCommentError('');
+                textarea.style.height = 'auto';
+                textarea.style.height = `${Math.min(textarea.scrollHeight, 192)}px`;
+              }}
               maxLength={2000}
+              required={reason === 'other'}
+              aria-invalid={Boolean(commentError)}
+              aria-describedby={commentError ? 'report-comment-error' : undefined}
+              className="min-h-24 max-h-48 resize-none overflow-y-auto"
               placeholder="Describe el problema…"
             />
+            {commentError ? (
+              <p id="report-comment-error" className="text-sm text-destructive" role="alert">
+                {commentError}
+              </p>
+            ) : null}
           </div>
         </div>
         <DialogFooter>

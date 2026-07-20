@@ -91,7 +91,7 @@ export function EventCard({ event }: { event: EventResponse }) {
             {/* Sobre fotografía: fondo oscuro sólido para que el tono no se lave. */}
             <Badge
               variant={soldOut ? "destructive" : status.variant}
-              className="absolute right-2 top-2 bg-deep/90 backdrop-blur-sm"
+              className="absolute left-2 top-2 bg-deep/90 backdrop-blur-sm"
             >
               {soldOut ? "Agotado" : status.label}
             </Badge>
@@ -106,16 +106,18 @@ export function EventCard({ event }: { event: EventResponse }) {
             ) : null}
           </div>
           <CardContent className="flex flex-1 flex-col p-4">
-            <p className="rv-eyebrow flex items-center gap-1.5">
-              <CalendarBlank className="size-3.5" weight="duotone" />
-              {DATE.format(new Date(event.startsAt))} ·{" "}
-              {timeRange(event.startsAt, event.endsAt)}
+            <p className="rv-eyebrow flex min-w-0 items-center gap-1.5 whitespace-nowrap">
+              <CalendarBlank className="size-3.5 shrink-0" weight="duotone" />
+              <span className="truncate">
+                {DATE.format(new Date(event.startsAt))} ·{" "}
+                {timeRange(event.startsAt, event.endsAt)}
+              </span>
             </p>
-            <h3 className="mt-2 line-clamp-2 font-heading text-[17px] font-bold leading-tight">
+            <h3 className="mt-2 min-h-[2.5em] line-clamp-2 font-heading text-[17px] font-bold leading-tight">
               {event.name}
             </h3>
             {/* Pills a la altura del prototipo: +18 + tags del evento */}
-            <div className="mt-3 flex flex-wrap gap-1.5">
+            <div className="mb-3 mt-3 flex flex-wrap gap-1.5">
               {event.minAgeNote ? (
                 <Badge variant="destructive">{event.minAgeNote}</Badge>
               ) : null}
@@ -147,7 +149,7 @@ export function EventCard({ event }: { event: EventResponse }) {
         </Card>
         <HoloFlipButton
           label="Ver información"
-          className={cn(ICON_BTN_CLASS, "absolute left-2 top-2 z-[5]")}
+          className={cn(ICON_BTN_CLASS, "absolute right-2 top-2 z-[5]")}
         >
           <Info className="size-4" weight="duotone" />
         </HoloFlipButton>
