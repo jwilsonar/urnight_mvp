@@ -88,7 +88,7 @@ export default async function CartaPage({
           <Reveal delay={60}>
             <p className="mb-6 max-w-2xl text-sm text-muted-foreground">
               Arma tu pedido desde el celular y recógelo sin hacer cola. En el MVP el pago es
-              al recoger; el pago en línea llega con la wallet UrNight.
+              al recoger; el pago en línea llega con la wallet RAVENUE.
             </p>
           </Reveal>
           <CartaExperience localSlug={slug} pickupZone={config.pickupZone} />

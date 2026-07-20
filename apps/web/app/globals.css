@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;600;700&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import '@urnight/ui/styles.css';
@@ -28,8 +29,13 @@
  * vive en `--primary` / `--rv-crimson`.
  */
 :root {
+  /* Familias canónicas; el navegador usa fallbacks del sistema sin bloquear el build. */
+  --font-inter: 'Inter';
+  --font-sora: 'Sora';
+  --font-jetbrains-mono: 'JetBrains Mono';
+
   /* ---- Paleta cruda RAVENUE ---- */
-  --rv-obsidian: #09090d;
+  --rv-obsidian: #0b0b0d;
   --rv-crimson: #b21e45;
   --rv-crimson-hover: #c62850;
   --rv-wine: #6e1833;
@@ -37,14 +43,15 @@
   --rv-moon: #f4f0f2;
   --rv-smoke: #a8a4ae;
   --rv-steel: #302e38;
+  --rv-border-soft: #44414d;
 
   /* ---- Escalera de fondos (más oscuro → más claro) ---- */
-  --bg-root: #060609;
-  --bg-deep: #08080c;
-  --bg-base: #09090d;
-  --bg-surface: #15151c;
-  --bg-card: #1a1a23;
-  --bg-elevated: #1d1d26;
+  --bg-root: #08080a;
+  --bg-deep: #0a0a0c;
+  --bg-base: #0b0b0d;
+  --bg-surface: #1a1a1d;
+  --bg-card: #1e1d24;
+  --bg-elevated: #23222a;
 
   /* ---- Texto ---- */
   --text-primary: #f4f0f2;
@@ -63,7 +70,7 @@
   --accent-soft: rgba(178, 30, 69, 0.14);
   --accent-soft-strong: rgba(178, 30, 69, 0.22);
   --accent-border-subtle: rgba(178, 30, 69, 0.2);
-  --accent-ring: rgba(178, 30, 69, 0.35);
+  --accent-ring: rgba(178, 30, 69, 0.55);
   --accent-glow: rgba(178, 30, 69, 0.4);
   --accent-border: rgba(178, 30, 69, 0.35);
   --accent-hover-soft-faint: rgba(198, 40, 80, 0.06);
@@ -91,15 +98,20 @@
   --info-border: rgba(96, 165, 250, 0.35);
 
   /* ---- Atmósfera (glow controlado, nunca neón pesado) ---- */
-  --glow-hero: radial-gradient(ellipse at top, #2e0a18 0%, #09090d 60%);
+  --glow-hero: radial-gradient(ellipse at top, #2e0a18 0%, #0b0b0d 60%);
   --glow-spot: radial-gradient(circle, rgba(178, 30, 69, 0.14), transparent 60%);
   --gradient-primary: linear-gradient(120deg, rgba(178, 30, 69, 0.25), rgba(46, 7, 22, 0.8) 60%), #2e0716;
-  --gradient-brand: linear-gradient(135deg, #09090d 0%, #15151c 55%, #6e1833 100%);
+  --gradient-brand: linear-gradient(135deg, #0b0b0d 0%, #1a1a1d 55%, #6e1833 100%);
+  --gradient-luxury: linear-gradient(90deg, #0b0b0d 0%, #6e1833 100%);
+  --gradient-spotlight: radial-gradient(ellipse at 50% 0%, rgba(244, 240, 242, 0.14) 0%, rgba(11, 11, 13, 0) 70%);
 
   /* ---- Elevación: sombras profundas y suaves; glow = firma de marca ---- */
-  --shadow-card-sm: 0 4px 16px rgba(0, 0, 0, 0.3);
-  --shadow-card-md: 0 12px 40px rgba(0, 0, 0, 0.4);
-  --shadow-card-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --shadow-card-sm: var(--shadow-sm);
+  --shadow-card-md: var(--shadow-md);
+  --shadow-card-lg: var(--shadow-lg);
   --shadow-card-xl: 0 30px 80px rgba(0, 0, 0, 0.6);
   --glow-btn: 0 0 18px rgba(178, 30, 69, 0.35);
   --glow-btn-lg: 0 0 32px rgba(178, 30, 69, 0.45);
@@ -110,6 +122,11 @@
 
   /* ---- Motion: rápido y calmado ---- */
   --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --motion-fast: 120ms;
+  --motion-normal: 220ms;
+  --motion-slow: 360ms;
   --dur-fast: 0.12s;
   --dur-base: 0.18s;
   --dur-slow: 0.25s;
@@ -138,7 +155,7 @@
   --destructive-foreground: #ffffff;
 
   --border: var(--rv-steel);
-  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-strong: var(--rv-border-soft);
   --border-faint: rgba(255, 255, 255, 0.05);
   --input: rgba(255, 255, 255, 0.14);
   --ring: var(--accent-ring);
@@ -212,6 +229,7 @@
   --color-moon: var(--rv-moon);
   --color-smoke: var(--rv-smoke);
   --color-steel: var(--rv-steel);
+  --color-border-soft: var(--rv-border-soft);
   --color-strong: var(--border-strong);
   --color-field: var(--field);
   --color-primary-hover: var(--accent-hover);
@@ -240,6 +258,7 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-sora), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 
   /* Escala de radios del DS: 8 / 12 / 16 / 20 / 24; pill solo chips y badges */
   --radius-sm: 8px;

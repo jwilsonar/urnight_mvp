@@ -1,5 +1,5 @@
 /**
- * Seed de datos de prueba — UrNight MVP.
+ * Seed de datos de prueba — RAVENUE MVP.
  *
  * Genera un dataset extenso y coherente que cubre las 43 tablas del DER
  * (8 bounded contexts) respetando TODAS las invariantes/CHECK del esquema:
@@ -263,10 +263,10 @@ async function main() {
   // legal_document (terms/privacy/refund_policy). Solo uno current por tipo.
   const LD = { termsOld: uid(), terms: uid(), privacy: uid(), refund: uid() };
   await db.insert(legalDocument).values([
-    { id: LD.termsOld, docType: 'terms', version: '0.9', contentUrl: 'https://cdn.urnight.pe/legal/terms-0.9.pdf', isCurrent: false, publishedAt: daysFromNow(-200) },
-    { id: LD.terms, docType: 'terms', version: '1.0', contentUrl: 'https://cdn.urnight.pe/legal/terms-1.0.pdf', isCurrent: true, publishedAt: daysFromNow(-60) },
-    { id: LD.privacy, docType: 'privacy', version: '1.0', contentUrl: 'https://cdn.urnight.pe/legal/privacy-1.0.pdf', isCurrent: true, publishedAt: daysFromNow(-60) },
-    { id: LD.refund, docType: 'refund_policy', version: '1.0', contentUrl: 'https://cdn.urnight.pe/legal/refund-1.0.pdf', isCurrent: true, publishedAt: daysFromNow(-60) },
+    { id: LD.termsOld, docType: 'terms', version: '0.9', contentUrl: 'https://cdn.ravenue.pe/legal/terms-0.9.pdf', isCurrent: false, publishedAt: daysFromNow(-200) },
+    { id: LD.terms, docType: 'terms', version: '1.0', contentUrl: 'https://cdn.ravenue.pe/legal/terms-1.0.pdf', isCurrent: true, publishedAt: daysFromNow(-60) },
+    { id: LD.privacy, docType: 'privacy', version: '1.0', contentUrl: 'https://cdn.ravenue.pe/legal/privacy-1.0.pdf', isCurrent: true, publishedAt: daysFromNow(-60) },
+    { id: LD.refund, docType: 'refund_policy', version: '1.0', contentUrl: 'https://cdn.ravenue.pe/legal/refund-1.0.pdf', isCurrent: true, publishedAt: daysFromNow(-60) },
   ]);
 
   // legal_acceptance: cada user acepta terms+privacy actuales.
@@ -357,10 +357,10 @@ async function main() {
 
   // local_verification
   await db.insert(localVerification).values([
-    { localId: L.a1, status: 'approved', licenseReference: 'LIC-MIRA-2026-0012', documentUrl: 'https://cdn.urnight.pe/verif/a1.pdf', notes: 'Licencia municipal vigente y aforo verificado.', verifiedBy: U.superAdmin, validUntil: '2026-12-31' },
-    { localId: L.a2, status: 'approved', licenseReference: 'LIC-ISID-2026-0044', documentUrl: 'https://cdn.urnight.pe/verif/a2.pdf', notes: 'Rooftop con certificado de Defensa Civil.', verifiedBy: U.superAdmin, validUntil: '2026-12-31' },
-    { localId: L.b1, status: 'approved', licenseReference: 'LIC-BARR-2026-0099', documentUrl: 'https://cdn.urnight.pe/verif/b1.pdf', notes: 'Aprobado.', verifiedBy: U.superAdmin, validUntil: '2026-12-31' },
-    { localId: L.b2, status: 'pending', licenseReference: 'LIC-SURCO-2026-0150', documentUrl: 'https://cdn.urnight.pe/verif/b2.pdf', notes: 'En revisión: falta certificado de aforo.', verifiedBy: null, validUntil: null },
+    { localId: L.a1, status: 'approved', licenseReference: 'LIC-MIRA-2026-0012', documentUrl: 'https://cdn.ravenue.pe/verif/a1.pdf', notes: 'Licencia municipal vigente y aforo verificado.', verifiedBy: U.superAdmin, validUntil: '2026-12-31' },
+    { localId: L.a2, status: 'approved', licenseReference: 'LIC-ISID-2026-0044', documentUrl: 'https://cdn.ravenue.pe/verif/a2.pdf', notes: 'Rooftop con certificado de Defensa Civil.', verifiedBy: U.superAdmin, validUntil: '2026-12-31' },
+    { localId: L.b1, status: 'approved', licenseReference: 'LIC-BARR-2026-0099', documentUrl: 'https://cdn.ravenue.pe/verif/b1.pdf', notes: 'Aprobado.', verifiedBy: U.superAdmin, validUntil: '2026-12-31' },
+    { localId: L.b2, status: 'pending', licenseReference: 'LIC-SURCO-2026-0150', documentUrl: 'https://cdn.ravenue.pe/verif/b2.pdf', notes: 'En revisión: falta certificado de aforo.', verifiedBy: null, validUntil: null },
   ]);
 
   // affiliation_request (pending / approved / rejected)
@@ -608,7 +608,7 @@ async function main() {
           ticketTypeId: t.ticketTypeId,
           qrCode: qr(),
           status: t.status,
-          pdfUrl: `https://cdn.urnight.pe/tickets/${ticketId}.pdf`,
+          pdfUrl: `https://cdn.ravenue.pe/tickets/${ticketId}.pdf`,
           issuedAt: opts.createdAt,
           usedAt: t.usedAt ?? null,
         });

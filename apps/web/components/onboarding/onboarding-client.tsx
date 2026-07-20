@@ -88,7 +88,7 @@ export function OnboardingClient({ callbackUrl, userName }: OnboardingClientProp
           <div className="flex items-center gap-2">
             <Sparkle className="h-6 w-6 text-primary" weight="duotone" />
             <CardTitle className="font-heading text-2xl">
-              {userName ? `¡Bienvenido, ${userName}!` : '¡Bienvenido a UrNight!'}
+              {userName ? `¡Bienvenido, ${userName}!` : '¡Bienvenido a RAVENUE!'}
             </CardTitle>
           </div>
           <CardDescription>

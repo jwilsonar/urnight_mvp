@@ -4,7 +4,7 @@ import { Badge, Button, Card } from '@urnight/ui';
 import { WALLET_DEMO } from '@/lib/mock/fidelizacion';
 
 export const metadata: Metadata = {
-  title: 'Wallet UrNight',
+  title: 'Wallet RAVENUE',
   description: 'Tu saldo, reembolsos y movimientos en un solo lugar.',
 };
 
@@ -14,7 +14,7 @@ export default function WalletPage() {
     <div>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="font-heading text-xl font-extrabold tracking-tight">Wallet UrNight</h2>
+          <h2 className="font-heading text-xl font-extrabold tracking-tight">Wallet RAVENUE</h2>
           <p className="text-sm text-muted-foreground">
             Tu saldo, reembolsos y movimientos en un solo lugar.
           </p>

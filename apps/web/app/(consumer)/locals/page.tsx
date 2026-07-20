@@ -76,7 +76,7 @@ export default async function LocalsPage({
               ¿Tienes un local?
             </h2>
             <p className="max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
-              Únete a UrNight, publica tus eventos, gestiona tu aforo y llega a miles de personas
+              Únete a RAVENUE, publica tus eventos, gestiona tu aforo y llega a miles de personas
               que buscan dónde ir esta noche.
             </p>
             <Button size="lg" className="mt-2" asChild>

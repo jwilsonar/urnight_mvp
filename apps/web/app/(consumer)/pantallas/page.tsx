@@ -91,14 +91,14 @@ const GRUPOS: Grupo[] = [
     ],
   },
   {
-    titulo: '4 · Mi cuenta (inicia sesión: user@urnight.pe)',
+    titulo: '4 · Mi cuenta (inicia sesión: user@ravenue.pe)',
     descripcion: 'La contraseña de prueba está en el seed del repo (packages/db).',
     pantallas: [
       { ruta: '/account', nombre: 'Perfil', estado: 'real' },
       { ruta: '/account/tickets', nombre: 'Mis entradas (QR)', estado: 'real' },
       { ruta: '/account/guardados', nombre: 'Guardados / favoritos', estado: 'real' },
       { ruta: '/account/reservas', nombre: 'Mis reservas (R6)', estado: 'demo' },
-      { ruta: '/account/wallet', nombre: 'Wallet UrNight', estado: 'demo' },
+      { ruta: '/account/wallet', nombre: 'Wallet RAVENUE', estado: 'demo' },
       { ruta: '/account/niveles', nombre: 'Niveles y badges', estado: 'demo' },
       { ruta: '/account/puntos', nombre: 'Historial y canje de puntos', estado: 'demo' },
       { ruta: '/account/referidos', nombre: 'Programa de referidos', estado: 'demo' },
@@ -130,7 +130,7 @@ const GRUPOS: Grupo[] = [
       'Cierra sesión y entra con el correo indicado (contraseña de prueba: en el seed del repo, packages/db).',
     pantallas: [
       { ruta: '/panel', nombre: 'Selector de paneles', estado: 'real', nota: 'Cualquier rol staff' },
-      { ruta: '/panel/admin', nombre: 'Panel de local (admin)', estado: 'real', nota: 'owner.nocturna@urnight.pe' },
+      { ruta: '/panel/admin', nombre: 'Panel de local (admin)', estado: 'real', nota: 'owner.nocturna@ravenue.pe' },
       { ruta: '/panel/admin/locals', nombre: 'PL · Mis locales', estado: 'real' },
       {
         ruta: '/panel/admin/locals',
@@ -143,7 +143,7 @@ const GRUPOS: Grupo[] = [
       { ruta: '/panel/admin/carta', nombre: 'PL · Carta del local', estado: 'demo', nota: 'Registro de productos, precios y disponibilidad' },
       { ruta: '/panel/admin/pedidos', nombre: 'PL · Pedidos in-venue', estado: 'demo', nota: 'Cola de pedidos de la carta por estado' },
       { ruta: '/panel/admin/checkin', nombre: 'PL · Check-in en vivo', estado: 'demo', nota: 'Aforo + validaciones de puerta' },
-      { ruta: '/panel/superadmin', nombre: 'Super Admin', estado: 'real', nota: 'admin@urnight.pe' },
+      { ruta: '/panel/superadmin', nombre: 'Super Admin', estado: 'real', nota: 'admin@ravenue.pe' },
       { ruta: '/panel/superadmin/companies', nombre: 'SA · Empresas', estado: 'real' },
       { ruta: '/panel/superadmin/affiliations', nombre: 'SA · Afiliaciones', estado: 'real' },
       { ruta: '/panel/superadmin/reviews', nombre: 'SA · Reseñas y reportes', estado: 'real' },
@@ -152,11 +152,11 @@ const GRUPOS: Grupo[] = [
       { ruta: '/panel/superadmin/reclamaciones', nombre: 'SA · Reclamaciones', estado: 'demo', nota: 'Bandeja del Libro de Reclamaciones' },
       { ruta: '/panel/superadmin/antifraude', nombre: 'SA · Antifraude', estado: 'demo', nota: 'Señales de reventa y abuso' },
       { ruta: '/panel/superadmin/salud', nombre: 'SA · Salud del producto', estado: 'demo', nota: 'Métricas y estado de servicios' },
-      { ruta: '/panel/promoter', nombre: 'Panel RRPP (KPIs)', estado: 'real', nota: 'promoter@urnight.pe' },
+      { ruta: '/panel/promoter', nombre: 'Panel RRPP (KPIs)', estado: 'real', nota: 'promoter@ravenue.pe' },
       { ruta: '/panel/promoter/links', nombre: 'RRPP · Mis links', estado: 'real' },
       { ruta: '/panel/promoter/ventas', nombre: 'RRPP · Ventas', estado: 'real' },
       { ruta: '/panel/promoter/liquidaciones', nombre: 'RRPP · Liquidaciones', estado: 'demo', nota: 'Comisiones por quincena' },
-      { ruta: '/panel/validator', nombre: 'Panel validador', estado: 'real', nota: 'validator@urnight.pe' },
+      { ruta: '/panel/validator', nombre: 'Panel validador', estado: 'real', nota: 'validator@ravenue.pe' },
     ],
   },
 ];

@@ -6,7 +6,7 @@ import { Reveal } from "@/components/shared/reveal";
 
 export const metadata: Metadata = {
   title: "Preguntas frecuentes",
-  description: "Resolvemos las dudas más comunes sobre cómo usar UrNight.",
+  description: "Resolvemos las dudas más comunes sobre cómo usar RAVENUE.",
 };
 
 export default function FaqPage() {
@@ -18,7 +18,7 @@ export default function FaqPage() {
           Preguntas frecuentes
         </h1>
         <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Resolvemos las dudas más comunes sobre cómo usar UrNight.
+          Resolvemos las dudas más comunes sobre cómo usar RAVENUE.
         </p>
       </Reveal>
       <div className="mt-10">
@@ -35,7 +35,7 @@ export default function FaqPage() {
             Nuestro equipo responde en menos de 24 horas, todos los días.
           </p>
           <Button asChild>
-            <a href="mailto:soporte@urnight.pe">
+            <a href="mailto:soporte@ravenue.pe">
               <EnvelopeSimple className="size-4" weight="duotone" /> Escríbenos
             </a>
           </Button>

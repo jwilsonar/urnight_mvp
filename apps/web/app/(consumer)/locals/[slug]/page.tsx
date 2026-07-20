@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const local = await loadLocal(slug);
   return {
     title: local.name,
-    description: local.description ?? `Descubre ${local.name} en UrNight.`,
+    description: local.description ?? `Descubre ${local.name} en RAVENUE.`,
     openGraph: local.mainImageUrl ? { images: [local.mainImageUrl] } : undefined,
   };
 }

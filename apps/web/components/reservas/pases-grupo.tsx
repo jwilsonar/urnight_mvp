@@ -60,7 +60,7 @@ export function PasesGrupo({ pases }: PasesGrupoProps) {
 
     if (typeof navigator.share === 'function') {
       try {
-        await navigator.share({ title: 'Pases de grupo UrNight', text: texto });
+        await navigator.share({ title: 'Pases de grupo RAVENUE', text: texto });
         return;
       } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') return;

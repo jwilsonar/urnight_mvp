@@ -6,7 +6,7 @@ import { Badge } from '@urnight/ui';
  * El radio pill está reservado a chips/tags/badges.
  */
 const meta = {
-  title: 'UrNight/Badge',
+  title: 'RAVENUE/Badge',
   component: Badge,
 } satisfies Meta<typeof Badge>;
 
@@ -21,7 +21,7 @@ export const Tonos: Story = {
       <Badge variant="success">● Abierto ahora</Badge>
       <Badge variant="warning">Casi lleno</Badge>
       <Badge variant="destructive">Agotado</Badge>
-      <Badge variant="info">Verificado por UrNight</Badge>
+      <Badge variant="info">Verificado por RAVENUE</Badge>
       <Badge variant="outline">+18</Badge>
     </div>
   ),

@@ -12,7 +12,7 @@ export interface CreditoConsumoDemo {
 }
 
 function creditoKey(localSlug: string): string {
-  return `urnight.credito.${localSlug}`;
+  return `ravenue.credito.${localSlug}`;
 }
 
 function guardarCreditoDemo(credito: CreditoConsumoDemo): void {

@@ -15,7 +15,7 @@ export default function NivelesPage() {
     <div>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="font-heading text-xl font-extrabold tracking-tight">Tu nivel UrNight</h2>
+          <h2 className="font-heading text-xl font-extrabold tracking-tight">Tu nivel RAVENUE</h2>
           <p className="text-sm text-muted-foreground">
             Sube de nivel acumulando puntos. Cada nivel desbloquea perks.
           </p>

@@ -6,7 +6,7 @@ import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitl
  * Las cards clickeables levantan 2px con borde carmín al hover.
  */
 const meta = {
-  title: 'UrNight/Card',
+  title: 'RAVENUE/Card',
   component: Card,
 } satisfies Meta<typeof Card>;
 

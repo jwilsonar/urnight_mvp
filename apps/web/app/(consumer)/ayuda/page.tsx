@@ -86,7 +86,7 @@ export default function AyudaPage() {
             Nuestro equipo responde en menos de 24 horas, todos los días.
           </p>
           <Button asChild>
-            <a href="mailto:soporte@urnight.pe">
+            <a href="mailto:soporte@ravenue.pe">
               <EnvelopeSimple className="size-4" weight="duotone" /> Escríbenos
             </a>
           </Button>

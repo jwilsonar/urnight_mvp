@@ -5,14 +5,14 @@ import { requireRole } from '@/lib/auth-helpers';
 
 export const metadata: Metadata = {
   title: 'Panel de validador',
-  description: 'Escaneo de entradas en puerta con la app de validación UrNight.',
+  description: 'Escaneo de entradas en puerta con la app de validación RAVENUE.',
 };
 
 const STEPS = [
   {
     icon: DeviceMobile,
     title: 'Abre la app de validación',
-    description: 'Inicia sesión con este mismo correo en la app UrNight Validador del dispositivo de puerta.',
+    description: 'Inicia sesión con este mismo correo en la app RAVENUE Validador del dispositivo de puerta.',
   },
   {
     icon: QrCode,
@@ -40,7 +40,7 @@ export default async function ValidatorPage() {
         <h1 className="font-heading text-2xl font-bold">Hola, {session.user.name}</h1>
         <p className="max-w-2xl text-muted-foreground">
           Tu rol valida el ingreso a los eventos de tu local. El escaneo de entradas se realiza desde la{' '}
-          <strong className="text-foreground">app de validación UrNight</strong> en el dispositivo de puerta.
+          <strong className="text-foreground">app de validación RAVENUE</strong> en el dispositivo de puerta.
         </p>
       </div>
 
@@ -65,7 +65,7 @@ export default async function ValidatorPage() {
           <CardDescription>Reporta incidencias del escáner al administrador de tu local o a soporte.</CardDescription>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
-          Soporte: <a className="font-medium text-rose hover:underline" href="mailto:soporte@urnight.pe">soporte@urnight.pe</a>
+          Soporte: <a className="font-medium text-rose hover:underline" href="mailto:soporte@ravenue.pe">soporte@ravenue.pe</a>
         </CardContent>
       </Card>
     </div>

@@ -55,7 +55,7 @@ export default function PlCheckinPage() {
       <Card className="flex items-start gap-3.5 border-accent-border bg-accent-soft p-4">
         <DeviceMobile className="mt-0.5 size-5 shrink-0 text-rose" weight="duotone" />
         <p className="text-sm leading-relaxed text-muted-foreground">
-          <strong className="text-foreground">El escaneo de QR vive en la app UrNight Validador</strong>{' '}
+          <strong className="text-foreground">El escaneo de QR vive en la app RAVENUE Validador</strong>{' '}
           del dispositivo de puerta (funciona sin conexión y sincroniza al recuperar señal). Este
           panel muestra el resultado en tiempo real.
         </p>

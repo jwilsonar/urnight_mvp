@@ -11,7 +11,7 @@ import { Reveal } from "@/components/shared/reveal";
 export const metadata: Metadata = {
   title: "Sobre nosotros",
   description:
-    "UrNight nació en Lima para reunir en un solo lugar lo mejor de la noche: eventos, bares y discotecas verificados.",
+    "RAVENUE nació en Lima para reunir en un solo lugar lo mejor de la noche: eventos, bares y discotecas verificados.",
 };
 
 const STATS = [
@@ -20,7 +20,7 @@ const STATS = [
   { value: "12k", label: "Noctámbulos felices" },
 ] as const;
 
-/** Historia de UrNight: el texto original se conserva y cambia su jerarquía visual. */
+/** Historia de RAVENUE: el texto original se conserva y cambia su jerarquía visual. */
 const SECTIONS = [
   {
     icon: Target,
@@ -55,7 +55,7 @@ export default function NosotrosPage() {
               La noche se vive mejor cuando todo fluye
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              UrNight nació en Lima para reunir en un solo lugar lo mejor de la
+              RAVENUE nació en Lima para reunir en un solo lugar lo mejor de la
               noche: eventos, bares y discotecas verificados.
             </p>
           </Reveal>

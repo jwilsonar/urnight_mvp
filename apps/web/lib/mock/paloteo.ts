@@ -27,7 +27,7 @@ export const PROMOTORES_LOCAL_DEMO: PromotorLocalDemo[] = [
   { id: 'promotor-lucia', nombre: 'Lucía Paredes', code: 'LUCIAP' },
 ];
 
-const PALOTEO_KEY = 'urnight.paloteo';
+const PALOTEO_KEY = 'ravenue.paloteo';
 
 function guardarPaloteosDemo(paloteos: PaloteoDemo[]): void {
   if (typeof window === 'undefined') return;

@@ -25,7 +25,7 @@ export interface PromotorLinkDemo {
 
 export const PROMOTOR_LINK_DEMO: PromotorLinkDemo = {
   code: 'ANDREA10',
-  url: 'https://urnight.pe/r/ANDREA10',
+  url: 'https://ravenue.pe/r/ANDREA10',
   clicks: 154,
   isActive: true,
   promotorNombre: 'Andrea',
@@ -40,7 +40,7 @@ function sufijoAleatorio(): string {
 }
 
 function invitadosKey(promotorCodigo: string): string {
-  return `urnight.invitados.${promotorCodigo}`;
+  return `ravenue.invitados.${promotorCodigo}`;
 }
 
 function guardarCodigosInvitadoDemo(

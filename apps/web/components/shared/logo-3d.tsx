@@ -10,6 +10,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@urnight/ui';
 
@@ -18,8 +19,7 @@ import { cn } from '@urnight/ui';
  *  empieza a leerse como un juguete. */
 const TILT_MAX = 7;
 
-/** El barrido de entrada espera a que el wordmark termine de cambiar de fuente
- *  y el PNG de decodificar; a t=0 el destello se perdería. */
+/** El barrido de entrada espera a que el PNG termine de decodificar. */
 const SWEEP_ON_MOUNT_DELAY = 260;
 
 export function Logo3D({ className, href = '/' }: { className?: string; href?: string }) {
@@ -91,34 +91,23 @@ export function Logo3D({ className, href = '/' }: { className?: string; href?: s
       onPointerMove={handleMove}
       onPointerLeave={handleLeave}
       onFocus={triggerSweep}
-      className={cn('rv-logo3d inline-flex items-center gap-2.5', className)}
+      className={cn('rv-logo3d inline-flex items-center', className)}
     >
-      {/* inline-flex: el box de la marca tiene que calzar exactamente con el de
-          la V; el barrido va con inset:0 y máscara `contain`. */}
+      {/* El contenido cambia al asset final; los handlers y el tilt permanecen intactos. */}
       <span className="rv-logo3d__mark inline-flex">
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 36 36"
-          className="h-9 w-9 shrink-0 text-primary"
-          fill="none"
-        >
-          <path
-            d="M5 6 16 29 27 6M27 6l6-4"
-            stroke="currentColor"
-            strokeWidth="3.5"
-            strokeLinecap="square"
-            strokeLinejoin="miter"
-          />
-        </svg>
+        <Image
+          src="/brand/wordmark-white.png"
+          alt="RAVENUE"
+          width={1151}
+          height={86}
+          className="h-5 w-auto sm:h-6"
+        />
         {/* Al acabar soltamos el atributo para poder volver a disparar el barrido. */}
         <span
           aria-hidden="true"
           className="rv-logo3d__sweep"
           onAnimationEnd={() => setSweeping(false)}
         />
-      </span>
-      <span className="rv-logo3d__word font-display text-[19px] font-bold tracking-[0.16em] text-foreground">
-        RA<span className="text-[var(--rv-rose)]">VE</span>NUE
       </span>
     </Link>
   );

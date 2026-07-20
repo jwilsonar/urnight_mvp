@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import {
   Badge,
   Button,
@@ -14,13 +15,21 @@ import { LogoDirections } from './logo-directions';
 export const metadata: Metadata = { title: 'Brand Lab' };
 
 const PALETTE = [
-  { name: 'Obsidian Night', hex: '#09090D', use: 'Fondo', swatch: 'bg-[var(--rv-obsidian)]' },
-  { name: 'Midnight Carbon', hex: '#15151C', use: 'Superficies', swatch: 'bg-surface' },
+  { name: 'Obsidian', hex: '#0B0B0D', use: 'Fondo base', swatch: 'bg-[var(--rv-obsidian)]' },
+  { name: 'Charcoal Carbon', hex: '#1A1A1D', use: 'Superficies', swatch: 'bg-surface' },
+  { name: 'Elevated', hex: '#23222A', use: 'Superficies elevadas', swatch: 'bg-elevated' },
   { name: 'Ravenue Crimson', hex: '#B21E45', use: 'Acciones y marca', swatch: 'bg-primary' },
   { name: 'Deep Wine', hex: '#6E1833', use: 'Pressed y degradados', swatch: 'bg-[var(--rv-wine)]' },
   { name: 'Moon White', hex: '#F4F0F2', use: 'Texto primario', swatch: 'bg-foreground' },
   { name: 'Smoke Gray', hex: '#A8A4AE', use: 'Texto secundario', swatch: 'bg-[var(--rv-smoke)]' },
   { name: 'Steel Border', hex: '#302E38', use: 'Bordes', swatch: 'bg-[var(--rv-steel)]' },
+  { name: 'Border Soft', hex: '#44414D', use: 'Bordes fuertes y hover', swatch: 'bg-[var(--rv-border-soft)]' },
+] as const;
+
+const MOTION = [
+  { name: 'Fast', value: '120ms', use: 'Hover y press' },
+  { name: 'Normal', value: '220ms', use: 'Paneles y modales' },
+  { name: 'Slow', value: '360ms', use: 'Transiciones de página' },
 ] as const;
 
 const MESSAGES = [
@@ -45,10 +54,16 @@ export default function BrandLabPage() {
     <div className="bg-root">
       <section className="border-b bg-[image:var(--gradient-brand)]">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-          <p className="rv-eyebrow">Brand Lab — identidad exploratoria</p>
-          <h1 className="mt-6 font-display text-5xl font-bold tracking-[0.12em] text-foreground sm:text-7xl lg:text-8xl">
-            RA<span className="text-[var(--rv-rose)]">VE</span>NUE
-          </h1>
+          <p className="rv-eyebrow">Brand Lab — identidad final</p>
+          <h1 className="sr-only">RAVENUE</h1>
+          <Image
+            src="/brand/lockup-horizontal-white.png"
+            alt="RAVENUE"
+            width={1274}
+            height={235}
+            priority
+            className="mt-8 h-auto w-full max-w-3xl"
+          />
           <p className="mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
             Donde la noche encuentra su lugar.
           </p>
@@ -59,8 +74,8 @@ export default function BrandLabPage() {
         <div id="logos-title">
           <SectionHeading
             eyebrow="01 — Sistema de logo"
-            title="Tres direcciones, una identidad"
-            description="Comparativa para decidir qué símbolo debe guiar la experiencia urbana de RAVENUE."
+            title="Identidad final"
+            description="El wordmark y la V angular forman el sistema definitivo para los puntos de contacto de RAVENUE."
           />
         </div>
         <LogoDirections />
@@ -222,11 +237,44 @@ export default function BrandLabPage() {
         <div id="gradient-title">
           <SectionHeading eyebrow="07 — Atmósfera" title="Gradiente institucional" />
         </div>
-        <div className="rounded-xl border bg-[image:var(--gradient-brand)] p-8 sm:p-12">
-          <p className="max-w-xl font-display text-3xl font-bold sm:text-4xl">Profundidad nocturna sin perder claridad.</p>
-          <code className="mt-8 block overflow-x-auto rounded-md border bg-root/80 p-4 text-xs text-[var(--rv-rose)] sm:text-sm">
-            --gradient-brand: linear-gradient(135deg, #09090D 0%, #15151C 55%, #6E1833 100%);
-          </code>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="rounded-xl border bg-[image:var(--gradient-brand)] p-8 sm:p-12">
+            <p className="max-w-xl font-display text-3xl font-bold sm:text-4xl">Profundidad nocturna sin perder claridad.</p>
+            <code className="mt-8 block overflow-x-auto rounded-md border bg-root/80 p-4 text-xs text-[var(--rv-rose)]">
+              --gradient-brand: linear-gradient(135deg, #0B0B0D 0%, #1A1A1D 55%, #6E1833 100%);
+            </code>
+          </div>
+          <div className="rounded-xl border bg-[image:var(--gradient-luxury)] p-8 sm:p-12">
+            <p className="max-w-xl font-display text-3xl font-bold sm:text-4xl">Luxury</p>
+            <code className="mt-8 block overflow-x-auto rounded-md border bg-root/80 p-4 text-xs text-[var(--rv-rose)]">
+              --gradient-luxury: linear-gradient(90deg, #0B0B0D 0%, #6E1833 100%);
+            </code>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t bg-deep" aria-labelledby="motion-title">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+          <div id="motion-title">
+            <SectionHeading
+              eyebrow="08 — Motion"
+              title="Rápido, claro y controlado"
+              description="Duraciones canónicas para feedback, transiciones de componentes y cambios de página."
+            />
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {MOTION.map((token) => (
+              <Card key={token.name} className="p-6">
+                <p className="rv-eyebrow">{token.name}</p>
+                <p className="mt-3 font-mono text-2xl font-medium text-foreground">{token.value}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{token.use}</p>
+              </Card>
+            ))}
+          </div>
+          <div className="mt-4 grid gap-4 font-mono text-sm text-muted-foreground lg:grid-cols-2">
+            <code className="rounded-md border bg-card p-4">standard · cubic-bezier(0.4, 0, 0.2, 1)</code>
+            <code className="rounded-md border bg-card p-4">out · cubic-bezier(0, 0, 0.2, 1)</code>
+          </div>
         </div>
       </section>
     </div>

@@ -110,7 +110,7 @@ export function CheckoutClient({
             <div className="flex items-center gap-2 bg-primary/10 px-4 py-3">
               <Gift className="h-5 w-5 text-primary" weight="duotone" />
               <p className="text-sm font-medium">
-                Tu promotor {freeOffer?.promoterName ?? 'UrNight'} te brinda una{' '}
+                Tu promotor {freeOffer?.promoterName ?? 'RAVENUE'} te brinda una{' '}
                 <span className="font-semibold text-rose">entrada GRATIS</span> al evento
               </p>
             </div>

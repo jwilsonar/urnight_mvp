@@ -79,7 +79,7 @@ export function FriendsDemo() {
           <div>
             <h2 className="font-heading text-xl font-extrabold">Tus amigos</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Personas con las que compartiste una noche UrNight.
+              Personas con las que compartiste una noche RAVENUE.
             </p>
           </div>
           <div className="w-full sm:max-w-xs">

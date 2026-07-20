@@ -5,10 +5,10 @@ import {
   XLogo,
   YoutubeLogo,
 } from '@phosphor-icons/react/dist/ssr';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@urnight/ui';
 import { ClearCookiesButton } from './clear-cookies-button';
-import { Logo } from './logo';
 
 const CONOCENOS = [
   { href: '/nosotros', label: 'Sobre nosotros' },
@@ -85,7 +85,15 @@ export function SiteFooter({ variant = 'full' }: { variant?: 'full' | 'slim' }) 
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.2fr_1fr_1fr_1fr] lg:px-8">
         {/* Marca + tagline + idioma */}
         <div className="space-y-4">
-          <Logo />
+          <Link href="/" className="inline-flex" aria-label="RAVENUE — inicio">
+            <Image
+              src="/brand/lockup-horizontal-white.png"
+              alt="RAVENUE"
+              width={1274}
+              height={235}
+              className="h-7 w-auto"
+            />
+          </Link>
           <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
             Donde la noche encuentra su lugar.
           </p>
@@ -118,7 +126,7 @@ export function SiteFooter({ variant = 'full' }: { variant?: 'full' | 'slim' }) 
             <p className="rv-eyebrow mb-4">Ayuda</p>
             <div className="flex flex-wrap gap-2">
               <Button size="sm" asChild>
-                <a href="mailto:hola@urnight.pe">Contáctanos</a>
+                <a href="mailto:hola@ravenue.pe">Contáctanos</a>
               </Button>
               <ClearCookiesButton />
             </div>

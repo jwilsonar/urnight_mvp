@@ -57,7 +57,7 @@ export default function ReclamacionesPage() {
       </h1>
       <p className="mt-4 max-w-xl leading-relaxed text-muted-foreground">
         Conforme al Código de Protección y Defensa del Consumidor (Ley N.º 29571), registra aquí tu
-        queja o reclamo sobre los servicios de UrNight.
+        queja o reclamo sobre los servicios de RAVENUE.
       </p>
 
       <form onSubmit={submit} className="mt-9 space-y-5 rounded-lg border bg-card p-6">

@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const event = await loadEvent(slug);
   return {
     title: event.name,
-    description: event.description ?? `Entradas para ${event.name} en UrNight.`,
+    description: event.description ?? `Entradas para ${event.name} en RAVENUE.`,
     openGraph: event.flyerUrl ? { images: [resolveStorageUrl(event.flyerUrl)] } : undefined,
   };
 }
@@ -259,7 +259,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
                 </div>
                 <div className="mt-4 flex items-start gap-2.5 rounded-md border border-success-border bg-success-soft px-3.5 py-3 text-xs leading-relaxed text-success">
                   <ShieldCheck className="mt-0.5 size-4 shrink-0" weight="duotone" />
-                  <span>Compra segura · Verificado por UrNight.</span>
+                  <span>Compra segura · Verificado por RAVENUE.</span>
                 </div>
               </CardContent>
             </Card>

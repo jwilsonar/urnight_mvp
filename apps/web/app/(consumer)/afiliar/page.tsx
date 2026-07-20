@@ -12,7 +12,7 @@ import { Reveal } from "@/components/shared/reveal";
 
 export const metadata: Metadata = {
   title: "Afilia tu local",
-  description: "Suma tu discoteca o bar a UrNight y empieza a vender entradas.",
+  description: "Suma tu discoteca o bar a RAVENUE y empieza a vender entradas.",
 };
 
 const STATS = [
@@ -61,7 +61,7 @@ const STEPS = [
   },
 ] as const;
 
-/** Solicitud pública de afiliación de un local a UrNight. */
+/** Solicitud pública de afiliación de un local a RAVENUE. */
 export default function AfiliarPage() {
   return (
     <div>
@@ -71,7 +71,7 @@ export default function AfiliarPage() {
         description="Centraliza entradas, reservas y promotores para que tu equipo opere la noche con información clara, desde la venta hasta el ingreso."
         stats={STATS}
         benefits={BENEFITS}
-        formTitle="Afilia tu local a UrNight"
+        formTitle="Afilia tu local a RAVENUE"
         formDescription={
           <>
             Vende entradas, gestiona eventos y llega a más gente. Déjanos tus

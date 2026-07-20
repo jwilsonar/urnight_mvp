@@ -25,19 +25,19 @@ const DOCS = {
     title: 'Términos y condiciones',
     updated: 'Última actualización: mayo 2026',
     intro:
-      'Estos términos regulan el uso de la plataforma UrNight y los servicios ofrecidos a través de ella.',
+      'Estos términos regulan el uso de la plataforma RAVENUE y los servicios ofrecidos a través de ella.',
     sections: [
       [
         '1. Aceptación',
-        'Al crear una cuenta o usar UrNight aceptas estos términos y condiciones, así como nuestras políticas de privacidad y de cookies.',
+        'Al crear una cuenta o usar RAVENUE aceptas estos términos y condiciones, así como nuestras políticas de privacidad y de cookies.',
       ],
       [
         '2. Uso de la plataforma',
-        'UrNight es una plataforma exclusiva para mayores de 18 años que conecta usuarios con eventos y locales. Debes brindar información veraz y mantener la confidencialidad de tu cuenta.',
+        'RAVENUE es una plataforma exclusiva para mayores de 18 años que conecta usuarios con eventos y locales. Debes brindar información veraz y mantener la confidencialidad de tu cuenta.',
       ],
       [
         '3. Compra de entradas y reservas',
-        'Las compras y reservas se rigen por las condiciones de cada evento y local. UrNight actúa como intermediario tecnológico para la venta y gestión.',
+        'Las compras y reservas se rigen por las condiciones de cada evento y local. RAVENUE actúa como intermediario tecnológico para la venta y gestión.',
       ],
       [
         '4. Responsabilidades',
@@ -45,7 +45,7 @@ const DOCS = {
       ],
       [
         '5. Propiedad intelectual',
-        'Todo el contenido, marca y diseño de UrNight están protegidos. No está permitida su reproducción sin autorización.',
+        'Todo el contenido, marca y diseño de RAVENUE están protegidos. No está permitida su reproducción sin autorización.',
       ],
     ],
   },
@@ -99,7 +99,7 @@ const DOCS = {
     title: 'Declaración del Beneficiario Final',
     updated: 'Última actualización: mayo 2026',
     intro:
-      'En cumplimiento de la normativa vigente, UrNight identifica a sus beneficiarios finales.',
+      'En cumplimiento de la normativa vigente, RAVENUE identifica a sus beneficiarios finales.',
     sections: [
       [
         'Definición',
@@ -107,7 +107,7 @@ const DOCS = {
       ],
       [
         'Declaración',
-        'UrNight mantiene actualizada la identificación de sus beneficiarios finales conforme a la normativa de prevención de lavado de activos.',
+        'RAVENUE mantiene actualizada la identificación de sus beneficiarios finales conforme a la normativa de prevención de lavado de activos.',
       ],
       [
         'Transparencia',
@@ -139,11 +139,11 @@ const DOCS = {
     crumb: 'Legales',
     title: 'Política de reembolsos',
     updated: 'Última actualización: mayo 2026',
-    intro: 'Condiciones aplicables a la devolución de entradas compradas en UrNight.',
+    intro: 'Condiciones aplicables a la devolución de entradas compradas en RAVENUE.',
     sections: [
       [
         'Regla general',
-        'Salvo cancelación del evento, las entradas adquiridas en UrNight no son reembolsables. Antes de comprar, revisa la fecha, el local y las condiciones del evento.',
+        'Salvo cancelación del evento, las entradas adquiridas en RAVENUE no son reembolsables. Antes de comprar, revisa la fecha, el local y las condiciones del evento.',
       ],
       [
         'Cancelación del evento',

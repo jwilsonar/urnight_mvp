@@ -48,7 +48,7 @@ export function CartProvider({
   localSlug?: string;
   children: ReactNode;
 }) {
-  const storageKey = `urnight.carta.${localSlug}`;
+  const storageKey = `ravenue.carta.${localSlug}`;
   const [lines, setLines] = useState<CartLine[]>([]);
   const [creditoDisponible, setCreditoDisponible] = useState(0);
 

@@ -80,7 +80,7 @@ export function leerPoliticaDemo(localSlug: string): PoliticaLocalDemo {
   if (typeof window === 'undefined') return fallback;
 
   try {
-    const raw = localStorage.getItem(`urnight.politica.${localSlug}`);
+    const raw = localStorage.getItem(`ravenue.politica.${localSlug}`);
     return raw ? (JSON.parse(raw) as PoliticaLocalDemo) : fallback;
   } catch {
     return fallback;
@@ -91,7 +91,7 @@ export function guardarPoliticaDemo(politica: PoliticaLocalDemo): void {
   if (typeof window === 'undefined') return;
 
   try {
-    localStorage.setItem(`urnight.politica.${politica.localSlug}`, JSON.stringify(politica));
+    localStorage.setItem(`ravenue.politica.${politica.localSlug}`, JSON.stringify(politica));
   } catch {
     /* storage bloqueado: la política conserva el estado en memoria del consumidor */
   }

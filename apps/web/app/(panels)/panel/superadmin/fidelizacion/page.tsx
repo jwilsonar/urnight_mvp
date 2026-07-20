@@ -40,7 +40,7 @@ export default function SuperAdminFidelizacionPage() {
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Fidelización</h1>
           <p className="text-muted-foreground">
-            Niveles, reglas de puntos e insignias del programa UrNight.
+            Niveles, reglas de puntos e insignias del programa RAVENUE.
           </p>
         </div>
         <Badge variant="info">Demo — llega con el backend de fidelización</Badge>

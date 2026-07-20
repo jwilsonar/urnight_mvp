@@ -37,7 +37,7 @@ const FAQS = [
     category: "Cuenta",
     question: "¿Por qué piden mi documento?",
     answer:
-      "UrNight es solo para mayores de 18 años. Validamos tu documento automáticamente por la seguridad de la comunidad.",
+      "RAVENUE es solo para mayores de 18 años. Validamos tu documento automáticamente por la seguridad de la comunidad.",
   },
   {
     category: "Cuenta",

@@ -16,7 +16,7 @@ export default function ReferidosPage() {
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(
-        `https://urnight.pe/r/${REFERIDOS_DEMO.codigo.toLowerCase()}`,
+        `https://ravenue.pe/r/${REFERIDOS_DEMO.codigo.toLowerCase()}`,
       );
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -80,7 +80,7 @@ export default function ReferidosPage() {
           </p>
         </Card>
         <Card className="p-5">
-          <p className="rv-eyebrow !text-muted-foreground">Puntos UrNight ganados</p>
+          <p className="rv-eyebrow !text-muted-foreground">Puntos RAVENUE ganados</p>
           <p className="mt-1 font-heading text-3xl font-extrabold">
             + {REFERIDOS_DEMO.puntos}{' '}
             <span className="text-sm font-medium text-muted-foreground">pts</span>

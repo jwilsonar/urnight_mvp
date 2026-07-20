@@ -7,7 +7,7 @@ import { Button } from '@urnight/ui';
  * Alturas 34/44/52, radios 8/12/16.
  */
 const meta = {
-  title: 'UrNight/Button',
+  title: 'RAVENUE/Button',
   component: Button,
   args: { children: 'Comprar entradas' },
 } satisfies Meta<typeof Button>;

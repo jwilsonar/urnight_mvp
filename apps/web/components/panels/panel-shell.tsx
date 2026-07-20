@@ -45,7 +45,7 @@ export function PanelShell({ user, children }: { user: PanelShellUser; children:
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetContent side="left" className="w-72">
             <SheetHeader>
-              <SheetTitle className="text-left">UrNight</SheetTitle>
+              <SheetTitle className="text-left">RAVENUE</SheetTitle>
             </SheetHeader>
             <div className="mt-6">
               <PanelSidebar section={section} onNavigate={() => setMobileOpen(false)} />

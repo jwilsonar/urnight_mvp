@@ -17,7 +17,7 @@ export default function SaludPage() {
         <div>
           <h1 className="font-heading text-2xl font-bold tracking-tight">Salud del producto</h1>
           <p className="text-muted-foreground">
-            Métricas operativas y estado de los servicios de UrNight.
+            Métricas operativas y estado de los servicios de RAVENUE.
           </p>
         </div>
         <Badge variant="info">Demo — se conectará a la observabilidad real</Badge>
