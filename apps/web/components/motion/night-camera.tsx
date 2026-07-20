@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Cámara por scroll: la sección llega desde el fondo en Z conforme entra al
@@ -14,9 +14,9 @@
  * sección se acerca mientras bajas y retrocede si subes.
  */
 
-import { m, useScroll, useSpring, useTransform } from 'framer-motion';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Stage } from '@/components/motion/stage';
+import { m, useScroll, useSpring, useTransform } from "framer-motion";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Stage } from "@/components/motion/stage";
 
 /**
  * El CSS del repo ya apaga sus propias clases con prefers-reduced-motion, pero
@@ -28,11 +28,11 @@ function useReducedMotionPref() {
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReduced(mq.matches);
     const onChange = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
   return reduced;
@@ -66,7 +66,7 @@ export function NightCamera({
   // nunca. No envuelvas con esto el último bloque de una página.
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ['start end', 'center center'],
+    offset: ["start end", "center center"],
   });
 
   // Un solo muelle sobre el progreso (más barato que uno por transform) para
@@ -91,13 +91,15 @@ export function NightCamera({
           perspective el translateZ no se ve y falla en silencio, y así todos
           los hijos de la sección comparten punto de fuga. */}
       <Stage perspective={1400}>
+        {/* El plano 3D no captura hits durante el scroll; el contenido conserva
+            sus eventos en el wrapper interior y los botones siguen operables. */}
         <m.div
           style={{ z, rotateX, opacity }}
           // Red de seguridad para el primer frame, antes de que corra el
           // effect: una regla !important sí gana a un style inline sin él.
-          className="motion-reduce:transform-none! motion-reduce:opacity-100!"
+          className="pointer-events-none motion-reduce:transform-none! motion-reduce:opacity-100!"
         >
-          {children}
+          <div className="pointer-events-auto">{children}</div>
         </m.div>
       </Stage>
     </div>

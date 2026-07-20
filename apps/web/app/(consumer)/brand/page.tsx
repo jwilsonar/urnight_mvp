@@ -1,5 +1,5 @@
-import type { Metadata } from 'next';
-import Image from 'next/image';
+import type { Metadata } from "next";
+import Image from "next/image";
 import {
   Badge,
   Button,
@@ -9,42 +9,113 @@ import {
   CardHeader,
   CardTitle,
   Input,
-} from '@urnight/ui';
-import { LogoDirections } from './logo-directions';
+} from "@urnight/ui";
+import { LogoDirections } from "./logo-directions";
 
-export const metadata: Metadata = { title: 'Brand Lab' };
+export const metadata: Metadata = { title: "Brand Lab" };
 
 const PALETTE = [
-  { name: 'Obsidian', hex: '#0B0B0D', use: 'Fondo base', swatch: 'bg-[var(--rv-obsidian)]' },
-  { name: 'Charcoal Carbon', hex: '#1A1A1D', use: 'Superficies', swatch: 'bg-surface' },
-  { name: 'Elevated', hex: '#23222A', use: 'Superficies elevadas', swatch: 'bg-elevated' },
-  { name: 'Ravenue Crimson', hex: '#B21E45', use: 'Acciones y marca', swatch: 'bg-primary' },
-  { name: 'Deep Wine', hex: '#6E1833', use: 'Pressed y degradados', swatch: 'bg-[var(--rv-wine)]' },
-  { name: 'Moon White', hex: '#F4F0F2', use: 'Texto primario', swatch: 'bg-foreground' },
-  { name: 'Smoke Gray', hex: '#A8A4AE', use: 'Texto secundario', swatch: 'bg-[var(--rv-smoke)]' },
-  { name: 'Steel Border', hex: '#302E38', use: 'Bordes', swatch: 'bg-[var(--rv-steel)]' },
-  { name: 'Border Soft', hex: '#44414D', use: 'Bordes fuertes y hover', swatch: 'bg-[var(--rv-border-soft)]' },
+  {
+    name: "Obsidian",
+    hex: "#0B0B0D",
+    use: "Fondo base",
+    swatch: "bg-[var(--rv-obsidian)]",
+  },
+  {
+    name: "Charcoal Carbon",
+    hex: "#1A1A1D",
+    use: "Superficies",
+    swatch: "bg-surface",
+  },
+  {
+    name: "Elevated",
+    hex: "#23222A",
+    use: "Superficies elevadas",
+    swatch: "bg-elevated",
+  },
+  {
+    name: "Ravenue Crimson",
+    hex: "#B21E45",
+    use: "Acciones y marca",
+    swatch: "bg-primary",
+  },
+  {
+    name: "Deep Wine",
+    hex: "#6E1833",
+    use: "Pressed y degradados",
+    swatch: "bg-[var(--rv-wine)]",
+  },
+  {
+    name: "Moon White",
+    hex: "#F4F0F2",
+    use: "Texto primario",
+    swatch: "bg-foreground",
+  },
+  {
+    name: "Smoke Gray",
+    hex: "#A8A4AE",
+    use: "Texto secundario",
+    swatch: "bg-[var(--rv-smoke)]",
+  },
+  {
+    name: "Steel Border",
+    hex: "#302E38",
+    use: "Bordes",
+    swatch: "bg-[var(--rv-steel)]",
+  },
+  {
+    name: "Border Soft",
+    hex: "#44414D",
+    use: "Bordes fuertes y hover",
+    swatch: "bg-[var(--rv-border-soft)]",
+  },
 ] as const;
 
 const MOTION = [
-  { name: 'Fast', value: '120ms', use: 'Hover y press' },
-  { name: 'Normal', value: '220ms', use: 'Paneles y modales' },
-  { name: 'Slow', value: '360ms', use: 'Transiciones de página' },
+  { name: "Fast", value: "120ms", use: "Hover y press" },
+  { name: "Normal", value: "220ms", use: "Paneles y modales" },
+  { name: "Slow", value: "360ms", use: "Transiciones de página" },
 ] as const;
 
 const MESSAGES = [
-  { context: 'Eslogan principal', messages: ['Donde la noche encuentra su lugar.'] },
-  { context: 'Alternativa', messages: ['La noche, mejor conectada.'] },
-  { context: 'B2C', messages: ['Encuentra dónde vibra la noche.', 'Tu noche empieza aquí.'] },
-  { context: 'B2B', messages: ['Turn venues into revenue.', 'Más visibilidad. Más público. Más negocio.'] },
+  {
+    context: "Eslogan principal",
+    messages: ["Donde la noche encuentra su lugar."],
+  },
+  { context: "Alternativa", messages: ["La noche, mejor conectada."] },
+  {
+    context: "B2C",
+    messages: ["Encuentra dónde vibra la noche.", "Tu noche empieza aquí."],
+  },
+  {
+    context: "B2B",
+    messages: [
+      "Turn venues into revenue.",
+      "Más visibilidad. Más público. Más negocio.",
+    ],
+  },
 ] as const;
 
-function SectionHeading({ eyebrow, title, description }: { eyebrow: string; title: string; description?: string }) {
+function SectionHeading({
+  eyebrow,
+  title,
+  description,
+}: {
+  eyebrow: string;
+  title: string;
+  description?: string;
+}) {
   return (
     <div className="mb-8 max-w-3xl">
       <p className="rv-eyebrow">{eyebrow}</p>
-      <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
-      {description ? <p className="mt-3 leading-relaxed text-muted-foreground">{description}</p> : null}
+      <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">
+        {title}
+      </h2>
+      {description ? (
+        <p className="mt-3 leading-relaxed text-muted-foreground">
+          {description}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -57,10 +128,10 @@ export default function BrandLabPage() {
           <p className="rv-eyebrow">Brand Lab — identidad final</p>
           <h1 className="sr-only">RAVENUE</h1>
           <Image
-            src="/brand/lockup-horizontal-white.png"
+            src="/brand/lockup-horizontal.png"
             alt="RAVENUE"
-            width={1274}
-            height={235}
+            width={1292}
+            height={252}
             priority
             className="mt-8 h-auto w-full max-w-3xl"
           />
@@ -70,7 +141,10 @@ export default function BrandLabPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8" aria-labelledby="logos-title">
+      <section
+        className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8"
+        aria-labelledby="logos-title"
+      >
         <div id="logos-title">
           <SectionHeading
             eyebrow="01 — Sistema de logo"
@@ -92,12 +166,22 @@ export default function BrandLabPage() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {PALETTE.map((color) => (
-              <article key={color.name} className="overflow-hidden rounded-lg border bg-card">
-                <div className={`h-32 border-b ${color.swatch}`} aria-hidden="true" />
+              <article
+                key={color.name}
+                className="overflow-hidden rounded-lg border bg-card"
+              >
+                <div
+                  className={`h-32 border-b ${color.swatch}`}
+                  aria-hidden="true"
+                />
                 <div className="p-4">
                   <h3 className="font-bold">{color.name}</h3>
-                  <p className="mt-1 font-mono text-xs text-[var(--rv-rose)]">{color.hex}</p>
-                  <p className="mt-2 text-sm text-muted-foreground">{color.use}</p>
+                  <p className="mt-1 font-mono text-xs text-[var(--rv-rose)]">
+                    {color.hex}
+                  </p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {color.use}
+                  </p>
                 </div>
               </article>
             ))}
@@ -107,7 +191,10 @@ export default function BrandLabPage() {
               <strong>Regla de composición</strong>
               <span className="text-muted-foreground">70 / 20 / 10</span>
             </div>
-            <div className="mt-4 flex h-5 overflow-hidden rounded-full" aria-label="70% oscuros, 20% blancos y grises, 10% carmín">
+            <div
+              className="mt-4 flex h-5 overflow-hidden rounded-full"
+              aria-label="70% oscuros, 20% blancos y grises, 10% carmín"
+            >
               <span className="w-[70%] bg-[var(--rv-obsidian)]" />
               <span className="w-[20%] bg-foreground" />
               <span className="w-[10%] bg-primary" />
@@ -116,18 +203,29 @@ export default function BrandLabPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8" aria-labelledby="type-title">
+      <section
+        className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8"
+        aria-labelledby="type-title"
+      >
         <div id="type-title">
-          <SectionHeading eyebrow="03 — Tipografía" title="Sora para atraer. Inter para orientar." />
+          <SectionHeading
+            eyebrow="03 — Tipografía"
+            title="Sora para atraer. Inter para orientar."
+          />
         </div>
         <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <Card className="p-6 sm:p-8">
-            <p className="font-display text-4xl font-bold leading-tight sm:text-6xl">La noche encuentra su lugar.</p>
-            <p className="mt-5 text-sm text-muted-foreground">Sora 700 · titulares, campañas y momentos de marca.</p>
+            <p className="font-display text-4xl font-bold leading-tight sm:text-6xl">
+              La noche encuentra su lugar.
+            </p>
+            <p className="mt-5 text-sm text-muted-foreground">
+              Sora 700 · titulares, campañas y momentos de marca.
+            </p>
           </Card>
           <Card className="p-6 sm:p-8">
             <p className="text-lg leading-relaxed">
-              Descubre eventos, locales y experiencias con una interfaz clara incluso cuando la noche apenas comienza.
+              Descubre eventos, locales y experiencias con una interfaz clara
+              incluso cuando la noche apenas comienza.
             </p>
             <div className="mt-6 overflow-hidden rounded-md border text-sm">
               <div className="grid grid-cols-2 border-b bg-surface px-4 py-3 font-bold">
@@ -139,7 +237,9 @@ export default function BrandLabPage() {
                 <span>UI y lectura</span>
               </div>
             </div>
-            <p className="mt-5 text-sm text-muted-foreground">Inter 400–700 · navegación, datos, formularios y cuerpo.</p>
+            <p className="mt-5 text-sm text-muted-foreground">
+              Inter 400–700 · navegación, datos, formularios y cuerpo.
+            </p>
           </Card>
         </div>
       </section>
@@ -155,7 +255,9 @@ export default function BrandLabPage() {
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             <Card className="p-6">
-              <h3 className="font-heading text-lg font-bold">Acciones y estados</h3>
+              <h3 className="font-heading text-lg font-bold">
+                Acciones y estados
+              </h3>
               <div className="mt-5 flex flex-wrap items-center gap-3">
                 <Button>Default</Button>
                 <Button className="bg-primary-hover">Hover</Button>
@@ -164,22 +266,33 @@ export default function BrandLabPage() {
                 <Badge>RAVENUE Select</Badge>
               </div>
               <div className="mt-7">
-                <label htmlFor="brand-lab-email" className="mb-2 block text-sm font-bold">
+                <label
+                  htmlFor="brand-lab-email"
+                  className="mb-2 block text-sm font-bold"
+                >
                   Correo de invitación
                 </label>
-                <Input id="brand-lab-email" type="email" placeholder="socio@ravenue.pe" />
+                <Input
+                  id="brand-lab-email"
+                  type="email"
+                  placeholder="socio@ravenue.pe"
+                />
               </div>
             </Card>
             <Card>
               <CardHeader>
                 <Badge className="w-fit">Esta noche</Badge>
                 <CardTitle className="pt-3">Sesión RAVENUE</CardTitle>
-                <CardDescription>Una tarjeta real para validar superficie, borde y jerarquía.</CardDescription>
+                <CardDescription>
+                  Una tarjeta real para validar superficie, borde y jerarquía.
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="rounded-md border bg-surface p-4">
                   <p className="font-bold">Centro de Lima · 11:30 p. m.</p>
-                  <p className="mt-1 text-sm text-muted-foreground">Acceso verificado y cupos limitados.</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Acceso verificado y cupos limitados.
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -187,9 +300,15 @@ export default function BrandLabPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8" aria-labelledby="contrast-title">
+      <section
+        className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8"
+        aria-labelledby="contrast-title"
+      >
         <div id="contrast-title">
-          <SectionHeading eyebrow="05 — Semántica" title="Carmín de marca no es error" />
+          <SectionHeading
+            eyebrow="05 — Semántica"
+            title="Carmín de marca no es error"
+          />
         </div>
         <div className="grid overflow-hidden rounded-lg border sm:grid-cols-2">
           <div className="bg-primary p-8 text-primary-foreground">
@@ -202,8 +321,9 @@ export default function BrandLabPage() {
           </div>
         </div>
         <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-          La acción de marca usa un carmín frío y profundo. El estado de error conserva un rojo brillante para distinguir
-          intención de marca y alerta funcional.
+          La acción de marca usa un carmín frío y profundo. El estado de error
+          conserva un rojo brillante para distinguir intención de marca y alerta
+          funcional.
         </p>
       </section>
 
@@ -216,15 +336,26 @@ export default function BrandLabPage() {
             <table className="w-full min-w-2xl border-collapse text-left text-sm">
               <thead className="bg-surface text-foreground">
                 <tr>
-                  <th scope="col" className="px-5 py-4 font-bold">Contexto</th>
-                  <th scope="col" className="px-5 py-4 font-bold">Mensajes</th>
+                  <th scope="col" className="px-5 py-4 font-bold">
+                    Contexto
+                  </th>
+                  <th scope="col" className="px-5 py-4 font-bold">
+                    Mensajes
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {MESSAGES.map((row) => (
                   <tr key={row.context} className="border-t">
-                    <th scope="row" className="px-5 py-4 align-top font-bold text-[var(--rv-rose)]">{row.context}</th>
-                    <td className="px-5 py-4 text-muted-foreground">{row.messages.join(' / ')}</td>
+                    <th
+                      scope="row"
+                      className="px-5 py-4 align-top font-bold text-[var(--rv-rose)]"
+                    >
+                      {row.context}
+                    </th>
+                    <td className="px-5 py-4 text-muted-foreground">
+                      {row.messages.join(" / ")}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -233,21 +364,33 @@ export default function BrandLabPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8" aria-labelledby="gradient-title">
+      <section
+        className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8"
+        aria-labelledby="gradient-title"
+      >
         <div id="gradient-title">
-          <SectionHeading eyebrow="07 — Atmósfera" title="Gradiente institucional" />
+          <SectionHeading
+            eyebrow="07 — Atmósfera"
+            title="Gradiente institucional"
+          />
         </div>
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="rounded-xl border bg-[image:var(--gradient-brand)] p-8 sm:p-12">
-            <p className="max-w-xl font-display text-3xl font-bold sm:text-4xl">Profundidad nocturna sin perder claridad.</p>
+            <p className="max-w-xl font-display text-3xl font-bold sm:text-4xl">
+              Profundidad nocturna sin perder claridad.
+            </p>
             <code className="mt-8 block overflow-x-auto rounded-md border bg-root/80 p-4 text-xs text-[var(--rv-rose)]">
-              --gradient-brand: linear-gradient(135deg, #0B0B0D 0%, #1A1A1D 55%, #6E1833 100%);
+              --gradient-brand: linear-gradient(135deg, #0B0B0D 0%, #1A1A1D 55%,
+              #6E1833 100%);
             </code>
           </div>
           <div className="rounded-xl border bg-[image:var(--gradient-luxury)] p-8 sm:p-12">
-            <p className="max-w-xl font-display text-3xl font-bold sm:text-4xl">Luxury</p>
+            <p className="max-w-xl font-display text-3xl font-bold sm:text-4xl">
+              Luxury
+            </p>
             <code className="mt-8 block overflow-x-auto rounded-md border bg-root/80 p-4 text-xs text-[var(--rv-rose)]">
-              --gradient-luxury: linear-gradient(90deg, #0B0B0D 0%, #6E1833 100%);
+              --gradient-luxury: linear-gradient(90deg, #0B0B0D 0%, #6E1833
+              100%);
             </code>
           </div>
         </div>
@@ -266,14 +409,22 @@ export default function BrandLabPage() {
             {MOTION.map((token) => (
               <Card key={token.name} className="p-6">
                 <p className="rv-eyebrow">{token.name}</p>
-                <p className="mt-3 font-mono text-2xl font-medium text-foreground">{token.value}</p>
-                <p className="mt-2 text-sm text-muted-foreground">{token.use}</p>
+                <p className="mt-3 font-mono text-2xl font-medium text-foreground">
+                  {token.value}
+                </p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {token.use}
+                </p>
               </Card>
             ))}
           </div>
           <div className="mt-4 grid gap-4 font-mono text-sm text-muted-foreground lg:grid-cols-2">
-            <code className="rounded-md border bg-card p-4">standard · cubic-bezier(0.4, 0, 0.2, 1)</code>
-            <code className="rounded-md border bg-card p-4">out · cubic-bezier(0, 0, 0.2, 1)</code>
+            <code className="rounded-md border bg-card p-4">
+              standard · cubic-bezier(0.4, 0, 0.2, 1)
+            </code>
+            <code className="rounded-md border bg-card p-4">
+              out · cubic-bezier(0, 0, 0.2, 1)
+            </code>
           </div>
         </div>
       </section>

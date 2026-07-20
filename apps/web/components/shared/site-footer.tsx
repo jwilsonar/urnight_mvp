@@ -4,33 +4,33 @@ import {
   TiktokLogo,
   XLogo,
   YoutubeLogo,
-} from '@phosphor-icons/react/dist/ssr';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@urnight/ui';
-import { ClearCookiesButton } from './clear-cookies-button';
+} from "@phosphor-icons/react/dist/ssr";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@urnight/ui";
+import { ClearCookiesButton } from "./clear-cookies-button";
 
 const CONOCENOS = [
-  { href: '/nosotros', label: 'Sobre nosotros' },
-  { href: '/faq', label: 'Preguntas frecuentes' },
-  { href: '/afiliar', label: 'Afiliar mi local' },
+  { href: "/nosotros", label: "Sobre nosotros" },
+  { href: "/faq", label: "Preguntas frecuentes" },
+  { href: "/afiliar", label: "Afiliar mi local" },
 ] as const;
 
 const LEGALES = [
-  { href: '/legal/terms', label: 'Términos y condiciones' },
-  { href: '/legal/privacy', label: 'Políticas de privacidad' },
-  { href: '/legal/cookies', label: 'Políticas de cookies' },
-  { href: '/legal/beneficiario', label: 'Declaración del Beneficiario Final' },
-  { href: '/legal/clausulas', label: 'Cláusulas de usos adicionales' },
+  { href: "/legal/terms", label: "Términos y condiciones" },
+  { href: "/legal/privacy", label: "Políticas de privacidad" },
+  { href: "/legal/cookies", label: "Políticas de cookies" },
+  { href: "/legal/beneficiario", label: "Declaración del Beneficiario Final" },
+  { href: "/legal/clausulas", label: "Cláusulas de usos adicionales" },
 ] as const;
 
 /* Redes aún sin perfiles publicados: iconos visibles pero sin navegación. */
 const REDES = [
-  { icon: FacebookLogo, label: 'Facebook' },
-  { icon: InstagramLogo, label: 'Instagram' },
-  { icon: XLogo, label: 'X' },
-  { icon: TiktokLogo, label: 'TikTok' },
-  { icon: YoutubeLogo, label: 'YouTube' },
+  { icon: FacebookLogo, label: "Facebook" },
+  { icon: InstagramLogo, label: "Instagram" },
+  { icon: XLogo, label: "X" },
+  { icon: TiktokLogo, label: "TikTok" },
+  { icon: YoutubeLogo, label: "YouTube" },
 ] as const;
 
 function FooterColumn({
@@ -71,8 +71,12 @@ function FooterColumn({
  *   (Libro de Reclamaciones + copyright). Igual que Joinnus/Teleticket, que no
  *   repiten el pie completo dentro del flujo de compra.
  */
-export function SiteFooter({ variant = 'full' }: { variant?: 'full' | 'slim' }) {
-  if (variant === 'slim') {
+export function SiteFooter({
+  variant = "full",
+}: {
+  variant?: "full" | "slim";
+}) {
+  if (variant === "slim") {
     return (
       <footer className="border-t bg-deep">
         <FooterBottomBar />
@@ -87,10 +91,10 @@ export function SiteFooter({ variant = 'full' }: { variant?: 'full' | 'slim' }) 
         <div className="space-y-4">
           <Link href="/" className="inline-flex" aria-label="RAVENUE — inicio">
             <Image
-              src="/brand/lockup-horizontal-white.png"
+              src="/brand/lockup-horizontal.png"
               alt="RAVENUE"
-              width={1274}
-              height={235}
+              width={1292}
+              height={252}
               className="h-7 w-auto"
             />
           </Link>
@@ -126,7 +130,7 @@ export function SiteFooter({ variant = 'full' }: { variant?: 'full' | 'slim' }) 
             <p className="rv-eyebrow mb-4">Ayuda</p>
             <div className="flex flex-wrap gap-2">
               <Button size="sm" asChild>
-                <a href="mailto:hola@ravenue.pe">Contáctanos</a>
+                <a href="mailto:soporte@ravenue.pe">Contáctanos</a>
               </Button>
               <ClearCookiesButton />
             </div>
@@ -152,8 +156,8 @@ function FooterBottomBar() {
           📖 Libro de Reclamaciones
         </Link>
         <p className="text-xs text-muted-foreground">
-          Copyright © RAVENUE {new Date().getFullYear()} · Todos los derechos reservados. Solo
-          para mayores de 18 años.
+          Copyright © RAVENUE {new Date().getFullYear()} · Todos los derechos
+          reservados. Solo para mayores de 18 años.
         </p>
       </div>
     </div>

@@ -2,28 +2,27 @@ import {
   BookOpenText,
   CalendarBlank,
   Compass,
-  MapPin,
   SealCheck,
   WhatsappLogo,
-} from '@phosphor-icons/react/dist/ssr';
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { Badge, Button, Card, CardContent } from '@urnight/ui';
-import { CrowdMeter } from '@/components/catalog/crowd-meter';
-import { EventCard } from '@/components/catalog/event-card';
-import { FavoriteButton } from '@/components/favorites/favorite-button';
-import { LocalGallery } from '@/components/locals/local-gallery';
-import { LocalMap } from '@/components/locals/local-map';
-import { EmptyState } from '@/components/shared/empty-state';
-import { Reveal } from '@/components/shared/reveal';
-import { ReportDialog } from '@/components/trust/report-dialog';
-import { ReviewList } from '@/components/trust/review-list';
-import { ApiError } from '@/lib/api/client';
-import { getEvents, getLocalBySlug, getLocalImages } from '@/lib/api/catalog';
-import { getReviews } from '@/lib/api/trust';
-import { CARTA_CONFIG_DEMO } from '@/lib/mock/carta';
-import { crowdForSlug } from '@/lib/mock/crowd';
+} from "@phosphor-icons/react/dist/ssr";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Badge, Button, Card, CardContent } from "@urnight/ui";
+import { CrowdMeter } from "@/components/catalog/crowd-meter";
+import { EventCard } from "@/components/catalog/event-card";
+import { FavoriteButton } from "@/components/favorites/favorite-button";
+import { LocalGallery } from "@/components/locals/local-gallery";
+import { LocalMap } from "@/components/locals/local-map";
+import { EmptyState } from "@/components/shared/empty-state";
+import { Reveal } from "@/components/shared/reveal";
+import { ReportDialog } from "@/components/trust/report-dialog";
+import { ReviewList } from "@/components/trust/review-list";
+import { ApiError } from "@/lib/api/client";
+import { getEvents, getLocalBySlug, getLocalImages } from "@/lib/api/catalog";
+import { getReviews } from "@/lib/api/trust";
+import { CARTA_CONFIG_DEMO } from "@/lib/mock/carta";
+import { crowdForSlug } from "@/lib/mock/crowd";
 
 export const revalidate = 60;
 
@@ -36,17 +35,27 @@ async function loadLocal(slug: string) {
   }
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const local = await loadLocal(slug);
   return {
     title: local.name,
     description: local.description ?? `Descubre ${local.name} en RAVENUE.`,
-    openGraph: local.mainImageUrl ? { images: [local.mainImageUrl] } : undefined,
+    openGraph: local.mainImageUrl
+      ? { images: [local.mainImageUrl] }
+      : undefined,
   };
 }
 
-export default async function LocalDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function LocalDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const local = await loadLocal(slug);
   // Datos secundarios: si fallan, la página del local (ya cargada) degrada a
@@ -65,7 +74,11 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ sl
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <LocalGallery images={images} localName={local.name} fallbackImageUrl={local.mainImageUrl} />
+      <LocalGallery
+        images={images}
+        localName={local.name}
+        fallbackImageUrl={local.mainImageUrl}
+      />
 
       <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
         <div>
@@ -88,11 +101,6 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ sl
                 <ReportDialog targetType="local" targetId={local.id} />
               </div>
             </div>
-            {local.address ? (
-              <p className="mt-2 flex items-center gap-1.5 text-muted-foreground">
-                <MapPin className="size-4 shrink-0" weight="duotone" /> {local.address}
-              </p>
-            ) : null}
           </Reveal>
 
           {local.description ? (
@@ -106,7 +114,7 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ sl
           <Reveal>
             <section className="mt-10">
               <h2 className="mb-4 font-heading text-xl font-extrabold">
-                Próximos eventos {events.length > 0 ? `(${events.length})` : ''}
+                Próximos eventos {events.length > 0 ? `(${events.length})` : ""}
               </h2>
               {events.length === 0 ? (
                 <EmptyState
@@ -129,7 +137,7 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ sl
           <Reveal>
             <section className="mt-10 pb-4">
               <h2 className="mb-4 font-heading text-xl font-extrabold">
-                Reseñas {reviews.length > 0 ? `(${reviews.length})` : ''}
+                Reseñas {reviews.length > 0 ? `(${reviews.length})` : ""}
               </h2>
               <ReviewList reviews={reviews} />
             </section>
@@ -144,7 +152,11 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ sl
               <p className="rv-eyebrow mb-3">Para ir a {local.name}</p>
               {hasCoords ? (
                 <div className="mb-4 overflow-hidden rounded-md">
-                  <LocalMap latitude={local.latitude!} longitude={local.longitude!} name={local.name} />
+                  <LocalMap
+                    latitude={local.latitude!}
+                    longitude={local.longitude!}
+                    name={local.name}
+                  />
                 </div>
               ) : (
                 <div className="rv-img-ph mb-4 h-40 rounded-md">
@@ -152,7 +164,9 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ sl
                 </div>
               )}
               {local.address ? (
-                <p className="mb-4 text-sm text-muted-foreground">{local.address}</p>
+                <p className="mb-4 text-sm text-muted-foreground">
+                  {local.address}
+                </p>
               ) : null}
               {mapsUrl ? (
                 <Button className="w-full" asChild>
@@ -164,14 +178,18 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ sl
               {/* Reservas de mesa: flujo demo del prototipo (sin backend aún). */}
               <Button variant="secondary" className="mt-2 w-full" asChild>
                 <Link href="/reserva">
-                  <WhatsappLogo className="size-4" weight="duotone" /> Reservar mesa
+                  <WhatsappLogo className="size-4" weight="duotone" /> Reservar
+                  mesa
                 </Link>
               </Button>
               {/* Carta in-venue (demo): visible si el local la tiene habilitada. */}
-              {CARTA_CONFIG_DEMO.some((c) => c.localSlug === slug && c.enabled) ? (
+              {CARTA_CONFIG_DEMO.some(
+                (c) => c.localSlug === slug && c.enabled,
+              ) ? (
                 <Button variant="secondary" className="mt-2 w-full" asChild>
                   <Link href={`/locals/${slug}/carta`}>
-                    <BookOpenText className="size-4" weight="duotone" /> Ver carta del local
+                    <BookOpenText className="size-4" weight="duotone" /> Ver
+                    carta del local
                   </Link>
                 </Button>
               ) : null}

@@ -1,11 +1,11 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { LEGAL_DOC_TYPES, type LegalDocType } from '@urnight/contracts';
-import { Button } from '@urnight/ui';
-import { Reveal } from '@/components/shared/reveal';
-import { getCurrentLegalDocument } from '@/lib/api/ops';
-import { formatDateOnly } from '@/lib/utils';
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { LEGAL_DOC_TYPES, type LegalDocType } from "@urnight/contracts";
+import { Button } from "@urnight/ui";
+import { Reveal } from "@/components/shared/reveal";
+import { getCurrentLegalDocument } from "@/lib/api/ops";
+import { formatDateOnly } from "@/lib/utils";
 
 // ISR: los documentos legales cambian rara vez; cacheamos por 1 hora.
 export const revalidate = 3600;
@@ -21,141 +21,151 @@ export const revalidate = 3600;
  */
 const DOCS = {
   terms: {
-    crumb: 'Legales',
-    title: 'Términos y condiciones',
-    updated: 'Última actualización: mayo 2026',
+    crumb: "Legales",
+    title: "Términos y condiciones",
+    contentUrl: "https://cdn.ravenue.pe/legal/terminos-y-condiciones.pdf",
+    updated: "Última actualización: mayo 2026",
     intro:
-      'Estos términos regulan el uso de la plataforma RAVENUE y los servicios ofrecidos a través de ella.',
+      "Estos términos regulan el uso de la plataforma RAVENUE y los servicios ofrecidos a través de ella.",
     sections: [
       [
-        '1. Aceptación',
-        'Al crear una cuenta o usar RAVENUE aceptas estos términos y condiciones, así como nuestras políticas de privacidad y de cookies.',
+        "1. Aceptación",
+        "Al crear una cuenta o usar RAVENUE aceptas estos términos y condiciones, así como nuestras políticas de privacidad y de cookies.",
       ],
       [
-        '2. Uso de la plataforma',
-        'RAVENUE es una plataforma exclusiva para mayores de 18 años que conecta usuarios con eventos y locales. Debes brindar información veraz y mantener la confidencialidad de tu cuenta.',
+        "2. Uso de la plataforma",
+        "RAVENUE es una plataforma exclusiva para mayores de 18 años que conecta usuarios con eventos y locales. Debes brindar información veraz y mantener la confidencialidad de tu cuenta.",
       ],
       [
-        '3. Compra de entradas y reservas',
-        'Las compras y reservas se rigen por las condiciones de cada evento y local. RAVENUE actúa como intermediario tecnológico para la venta y gestión.',
+        "3. Compra de entradas y reservas",
+        "Las compras y reservas se rigen por las condiciones de cada evento y local. RAVENUE actúa como intermediario tecnológico para la venta y gestión.",
       ],
       [
-        '4. Responsabilidades',
-        'El acceso final a cada local queda sujeto a sus normas de ingreso. Los locales son responsables de la prestación del servicio ofrecido.',
+        "4. Responsabilidades",
+        "El acceso final a cada local queda sujeto a sus normas de ingreso. Los locales son responsables de la prestación del servicio ofrecido.",
       ],
       [
-        '5. Propiedad intelectual',
-        'Todo el contenido, marca y diseño de RAVENUE están protegidos. No está permitida su reproducción sin autorización.',
+        "5. Propiedad intelectual",
+        "Todo el contenido, marca y diseño de RAVENUE están protegidos. No está permitida su reproducción sin autorización.",
       ],
     ],
   },
   privacy: {
-    crumb: 'Legales',
-    title: 'Políticas de privacidad',
-    updated: 'Última actualización: mayo 2026',
-    intro: 'Explicamos qué datos recopilamos, con qué fin y cómo los protegemos.',
+    crumb: "Legales",
+    title: "Políticas de privacidad",
+    contentUrl: "https://cdn.ravenue.pe/legal/politica-de-privacidad.pdf",
+    updated: "Última actualización: mayo 2026",
+    intro:
+      "Explicamos qué datos recopilamos, con qué fin y cómo los protegemos.",
     sections: [
       [
-        'Datos que recopilamos',
-        'Datos de registro (nombre, correo, documento, teléfono), información de compras y reservas, y datos de uso de la plataforma.',
+        "Datos que recopilamos",
+        "Datos de registro (nombre, correo, documento, teléfono), información de compras y reservas, y datos de uso de la plataforma.",
       ],
       [
-        'Cómo los usamos',
-        'Para gestionar tu cuenta, procesar compras y reservas, verificar tu mayoría de edad, prevenir fraude y mejorar tu experiencia.',
+        "Cómo los usamos",
+        "Para gestionar tu cuenta, procesar compras y reservas, verificar tu mayoría de edad, prevenir fraude y mejorar tu experiencia.",
       ],
       [
-        'Protección',
-        'Tus datos se almacenan cifrados y aplicamos medidas de seguridad para evitar accesos no autorizados.',
+        "Protección",
+        "Tus datos se almacenan cifrados y aplicamos medidas de seguridad para evitar accesos no autorizados.",
       ],
       [
-        'Tus derechos',
-        'Puedes acceder, rectificar o solicitar la eliminación de tus datos escribiéndonos desde el centro de ayuda.',
+        "Tus derechos",
+        "Puedes acceder, rectificar o solicitar la eliminación de tus datos escribiéndonos desde el centro de ayuda.",
       ],
     ],
   },
   cookies: {
-    crumb: 'Legales',
-    title: 'Políticas de cookies',
-    updated: 'Última actualización: mayo 2026',
+    crumb: "Legales",
+    title: "Políticas de cookies",
+    contentUrl: "https://cdn.ravenue.pe/legal/politica-de-cookies.pdf",
+    updated: "Última actualización: mayo 2026",
     intro:
-      'Usamos cookies para que la plataforma funcione correctamente y mejorar tu experiencia.',
+      "Usamos cookies para que la plataforma funcione correctamente y mejorar tu experiencia.",
     sections: [
       [
-        '¿Qué son las cookies?',
-        'Pequeños archivos que se guardan en tu dispositivo para recordar tus preferencias y mantener tu sesión activa.',
+        "¿Qué son las cookies?",
+        "Pequeños archivos que se guardan en tu dispositivo para recordar tus preferencias y mantener tu sesión activa.",
       ],
       [
-        'Tipos de cookies',
-        'Esenciales (necesarias para el funcionamiento), de rendimiento (analíticas anónimas) y de personalización (recordar tus filtros y preferencias).',
+        "Tipos de cookies",
+        "Esenciales (necesarias para el funcionamiento), de rendimiento (analíticas anónimas) y de personalización (recordar tus filtros y preferencias).",
       ],
       [
-        'Gestión',
-        'Puedes limpiar las cookies desde el pie de página o desde la configuración de tu navegador en cualquier momento.',
+        "Gestión",
+        "Puedes limpiar las cookies desde el pie de página o desde la configuración de tu navegador en cualquier momento.",
       ],
     ],
   },
   beneficiario: {
-    crumb: 'Legales',
-    title: 'Declaración del Beneficiario Final',
-    updated: 'Última actualización: mayo 2026',
+    crumb: "Legales",
+    title: "Declaración del Beneficiario Final",
+    contentUrl:
+      "https://cdn.ravenue.pe/legal/declaracion-beneficiario-final.pdf",
+    updated: "Última actualización: mayo 2026",
     intro:
-      'En cumplimiento de la normativa vigente, RAVENUE identifica a sus beneficiarios finales.',
+      "En cumplimiento de la normativa vigente, RAVENUE identifica a sus beneficiarios finales.",
     sections: [
       [
-        'Definición',
-        'Se entiende por beneficiario final a la persona natural que finalmente posee o controla a la empresa titular de la plataforma.',
+        "Definición",
+        "Se entiende por beneficiario final a la persona natural que finalmente posee o controla a la empresa titular de la plataforma.",
       ],
       [
-        'Declaración',
-        'RAVENUE mantiene actualizada la identificación de sus beneficiarios finales conforme a la normativa de prevención de lavado de activos.',
+        "Declaración",
+        "RAVENUE mantiene actualizada la identificación de sus beneficiarios finales conforme a la normativa de prevención de lavado de activos.",
       ],
       [
-        'Transparencia',
-        'Esta información se encuentra a disposición de las autoridades competentes cuando sea requerida.',
+        "Transparencia",
+        "Esta información se encuentra a disposición de las autoridades competentes cuando sea requerida.",
       ],
     ],
   },
   clausulas: {
-    crumb: 'Legales',
-    title: 'Cláusulas de usos adicionales',
-    updated: 'Última actualización: mayo 2026',
-    intro: 'Condiciones aplicables al consentimiento para usos adicionales de tus datos.',
+    crumb: "Legales",
+    title: "Cláusulas de usos adicionales",
+    contentUrl: "https://cdn.ravenue.pe/legal/clausulas-usos-adicionales.pdf",
+    updated: "Última actualización: mayo 2026",
+    intro:
+      "Condiciones aplicables al consentimiento para usos adicionales de tus datos.",
     sections: [
       [
-        'Alcance',
-        'Al otorgar tu consentimiento para usos adicionales, autorizas el envío de beneficios, promociones y descuentos personalizados.',
+        "Alcance",
+        "Al otorgar tu consentimiento para usos adicionales, autorizas el envío de beneficios, promociones y descuentos personalizados.",
       ],
       [
-        'Carácter voluntario',
-        'Este consentimiento es opcional y no condiciona el uso de la plataforma ni la compra de entradas o reservas.',
+        "Carácter voluntario",
+        "Este consentimiento es opcional y no condiciona el uso de la plataforma ni la compra de entradas o reservas.",
       ],
       [
-        'Revocación',
-        'Puedes revocar tu consentimiento en cualquier momento desde la configuración de tu cuenta o escribiéndonos al centro de ayuda.',
+        "Revocación",
+        "Puedes revocar tu consentimiento en cualquier momento desde la configuración de tu cuenta o escribiéndonos al centro de ayuda.",
       ],
     ],
   },
   refund_policy: {
-    crumb: 'Legales',
-    title: 'Política de reembolsos',
-    updated: 'Última actualización: mayo 2026',
-    intro: 'Condiciones aplicables a la devolución de entradas compradas en RAVENUE.',
+    crumb: "Legales",
+    title: "Política de reembolsos",
+    contentUrl: "https://cdn.ravenue.pe/legal/politica-de-reembolsos.pdf",
+    updated: "Última actualización: mayo 2026",
+    intro:
+      "Condiciones aplicables a la devolución de entradas compradas en RAVENUE.",
     sections: [
       [
-        'Regla general',
-        'Salvo cancelación del evento, las entradas adquiridas en RAVENUE no son reembolsables. Antes de comprar, revisa la fecha, el local y las condiciones del evento.',
+        "Regla general",
+        "Salvo cancelación del evento, las entradas adquiridas en RAVENUE no son reembolsables. Antes de comprar, revisa la fecha, el local y las condiciones del evento.",
       ],
       [
-        'Cancelación del evento',
-        'Si el organizador cancela un evento, gestionaremos la devolución del importe de la entrada según el medio de pago utilizado y los plazos del procesador.',
+        "Cancelación del evento",
+        "Si el organizador cancela un evento, gestionaremos la devolución del importe de la entrada según el medio de pago utilizado y los plazos del procesador.",
       ],
       [
-        'Política de cada local',
-        'Cada local y evento puede definir condiciones adicionales de reembolso o cambio. Estas se muestran en el detalle del evento antes de la compra.',
+        "Política de cada local",
+        "Cada local y evento puede definir condiciones adicionales de reembolso o cambio. Estas se muestran en el detalle del evento antes de la compra.",
       ],
       [
-        'Cómo solicitarlo',
-        'Ante cualquier duda o solicitud, escríbenos desde el centro de ayuda indicando tu número de orden.',
+        "Cómo solicitarlo",
+        "Ante cualquier duda o solicitud, escríbenos desde el centro de ayuda indicando tu número de orden.",
       ],
     ],
   },
@@ -184,10 +194,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { doc } = await params;
   const entry = isDocKey(doc) ? DOCS[doc] : null;
-  return { title: entry?.title ?? 'Legal', description: entry?.intro };
+  return { title: entry?.title ?? "Legal", description: entry?.intro };
 }
 
-export default async function LegalPage({ params }: { params: Promise<{ doc: string }> }) {
+export default async function LegalPage({
+  params,
+}: {
+  params: Promise<{ doc: string }>;
+}) {
   const { doc } = await params;
   if (!isDocKey(doc)) notFound();
 
@@ -197,8 +211,11 @@ export default async function LegalPage({ params }: { params: Promise<{ doc: str
   // gestiona el backend. Si falla o no existe, seguimos con el respaldo estático
   // para no dejar la página legal en blanco (y no romper el build ISR sin API).
   const current = isLegalDocType(doc)
-    ? await getCurrentLegalDocument(doc, undefined, { revalidate }).catch(() => null)
+    ? await getCurrentLegalDocument(doc, undefined, { revalidate }).catch(
+        () => null,
+      )
     : null;
+  const documentUrl = current?.contentUrl ?? entry.contentUrl;
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
@@ -226,15 +243,13 @@ export default async function LegalPage({ params }: { params: Promise<{ doc: str
           </Reveal>
         ))}
       </div>
-      {current ? (
-        <div className="mt-10">
-          <Button asChild>
-            <Link href={current.contentUrl} target="_blank" rel="noopener noreferrer">
-              Ver documento oficial completo
-            </Link>
-          </Button>
-        </div>
-      ) : null}
+      <div className="mt-10">
+        <Button asChild>
+          <Link href={documentUrl} target="_blank" rel="noopener noreferrer">
+            Ver documento
+          </Link>
+        </Button>
+      </div>
     </article>
   );
 }
