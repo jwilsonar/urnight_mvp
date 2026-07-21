@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@urnight/ui";
-import { type AppLocale } from "@/lib/i18n/config";
+import { type AppLocale, toBaseLocale } from "@/lib/i18n/config";
 import { setLocale } from "@/lib/i18n/set-locale";
 
 export function LocaleSwitcher({
@@ -21,7 +21,9 @@ export function LocaleSwitcher({
   id: string;
   showLabel?: boolean;
 }) {
-  const locale = useLocale() as AppLocale;
+  // `useLocale()` devuelve el locale regional ('es-PE'/'en-US'); el Select
+  // trabaja con el idioma base ('es'/'en').
+  const locale: AppLocale = toBaseLocale(useLocale());
   const router = useRouter();
   const t = useTranslations("common.language");
   const [isPending, startTransition] = useTransition();

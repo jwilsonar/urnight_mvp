@@ -1,6 +1,7 @@
 'use client';
 
 import { CheckCircle, LinkBreak, Ticket } from '@phosphor-icons/react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState, type FormEvent } from 'react';
 import {
   Badge,
@@ -61,6 +62,7 @@ function PseudoQr({ codigo }: { codigo: string }) {
 }
 
 export function InvitadoLanding({ codigo }: { codigo: string }) {
+  const t = useTranslations('invitado');
   const [nombre, setNombre] = useState('');
   const [politica, setPolitica] = useState<PoliticaLocalDemo | null>(null);
   const [emitidos, setEmitidos] = useState<CodigoInvitadoDemo[]>([]);
@@ -80,12 +82,12 @@ export function InvitadoLanding({ codigo }: { codigo: string }) {
     return (
       <main className="mx-auto w-full max-w-xl px-4 py-12 sm:py-16">
         <div className="mb-4 flex justify-center">
-          <Badge variant="info">Demo — lista de invitados</Badge>
+          <Badge variant="info">{t('demoBadge')}</Badge>
         </div>
         <EmptyState
           icon={<LinkBreak weight="duotone" />}
-          title="Link no válido o vencido"
-          description="Pídele al promotor un enlace activo para ingresar a su lista."
+          title={t('invalid.title')}
+          description={t('invalid.description')}
         />
       </main>
     );
@@ -127,14 +129,14 @@ export function InvitadoLanding({ codigo }: { codigo: string }) {
   return (
     <main className="mx-auto w-full max-w-xl px-4 py-10 sm:py-14">
       <div className="mb-4 flex justify-center">
-        <Badge variant="info">Demo — lista de invitados</Badge>
+        <Badge variant="info">{t('demoBadge')}</Badge>
       </div>
 
       {cupoCompleto && !codigoEmitido ? (
         <EmptyState
           icon={<Ticket weight="duotone" />}
-          title="Cupo de invitados completo"
-          description="Este promotor ya emitió todos los códigos disponibles para el evento."
+          title={t('full.title')}
+          description={t('full.description')}
         />
       ) : codigoEmitido ? (
         <Card className="text-center">
@@ -142,9 +144,9 @@ export function InvitadoLanding({ codigo }: { codigo: string }) {
             <div className="mx-auto mb-2 flex size-14 items-center justify-center rounded-xl border border-success-border bg-success-soft text-success">
               <CheckCircle className="size-7" weight="duotone" />
             </div>
-            <CardTitle>Ya estás en la lista</CardTitle>
+            <CardTitle>{t('issued.title')}</CardTitle>
             <CardDescription>
-              Guarda este código. Está emitido a nombre de {codigoEmitido.nombreInvitado}.
+              {t('issued.description', { name: codigoEmitido.nombreInvitado })}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
@@ -154,40 +156,43 @@ export function InvitadoLanding({ codigo }: { codigo: string }) {
             <div className="mt-6">
               <PseudoQr codigo={codigoEmitido.codigo} />
             </div>
-            <p className="mt-5 font-heading text-lg font-bold">Preséntalo en puerta</p>
+            <p className="mt-5 font-heading text-lg font-bold">
+              {t('issued.doorTitle')}
+            </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              El equipo del local validará tu código al llegar.
+              {t('issued.doorDescription')}
             </p>
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardHeader className="text-center">
-            <p className="rv-eyebrow text-rose">Invitación de promotor</p>
+            <p className="rv-eyebrow text-rose">{t('form.eyebrow')}</p>
             <CardTitle className="text-2xl">
-              {PROMOTOR_LINK_DEMO.promotorNombre} te invita a la lista
+              {t('form.title', { promoter: PROMOTOR_LINK_DEMO.promotorNombre })}
             </CardTitle>
-            <CardDescription>Registra tu nombre y recibe tu código personal de ingreso.</CardDescription>
+            <CardDescription>{t('form.description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <form className="space-y-4" onSubmit={emitir}>
               <div className="space-y-2">
-                <Label htmlFor="nombre-invitado">Nombre completo</Label>
+                <Label htmlFor="nombre-invitado">{t('form.nameLabel')}</Label>
                 <Input
                   id="nombre-invitado"
                   value={nombre}
                   onChange={(event) => setNombre(event.target.value)}
-                  placeholder="Ej. Valeria Cruz"
+                  placeholder={t('form.namePlaceholder')}
                   autoComplete="name"
                   required
                 />
               </div>
               <Button type="submit" className="w-full">
-                Obtener mi código
+                {t('form.submit')}
               </Button>
               <p className="text-center text-xs text-muted-foreground">
-                Quedan {Math.max(0, politica.cupoCodigosPorPromotor - emitidos.length)} códigos
-                disponibles.
+                {t('form.remaining', {
+                  count: Math.max(0, politica.cupoCodigosPorPromotor - emitidos.length),
+                })}
               </p>
             </form>
           </CardContent>

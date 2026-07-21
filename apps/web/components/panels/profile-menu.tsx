@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowSquareOut, Gauge, GearSix, SignOut, Ticket } from '@phosphor-icons/react';
+import { ArrowSquareOut, Gauge, GearSix, SignOut } from '@phosphor-icons/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
@@ -78,11 +78,6 @@ export function ProfileMenu({ user }: { user: ProfileMenuUser }) {
         <DropdownMenuItem asChild>
           <Link href="/account">
             <GearSix className="h-4 w-4" /> Ajustes de cuenta
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/account/tickets">
-            <Ticket className="h-4 w-4" /> Mis entradas
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

@@ -1458,6 +1458,32 @@
     "continue": "Ver evento y continuar"
   },
   "guest": { "metadataTitle": "Lista de invitados" },
+  "invitado": {
+    "demoBadge": "Demo — lista de invitados",
+    "invalid": {
+      "title": "Link no válido o vencido",
+      "description": "Pídele al promotor un enlace activo para ingresar a su lista."
+    },
+    "full": {
+      "title": "Cupo de invitados completo",
+      "description": "Este promotor ya emitió todos los códigos disponibles para el evento."
+    },
+    "issued": {
+      "title": "Ya estás en la lista",
+      "description": "Guarda este código. Está emitido a nombre de {name}.",
+      "doorTitle": "Preséntalo en puerta",
+      "doorDescription": "El equipo del local validará tu código al llegar."
+    },
+    "form": {
+      "eyebrow": "Invitación de promotor",
+      "title": "{promoter} te invita a la lista",
+      "description": "Registra tu nombre y recibe tu código personal de ingreso.",
+      "nameLabel": "Nombre completo",
+      "namePlaceholder": "Ej. Valeria Cruz",
+      "submit": "Obtener mi código",
+      "remaining": "{count, plural, one {Queda # código disponible.} other {Quedan # códigos disponibles.}}"
+    }
+  },
   "complaints": {
     "metadata": {
       "title": "Libro de Reclamaciones",
@@ -1507,6 +1533,36 @@
     },
     "formTitle": "Conviértete en promotor",
     "formDescription": "Postula para vender entradas y ganar comisiones por tus referidos. Un local revisará tu solicitud."
+  },
+  "promotorApply": {
+    "successToast": "Postulación enviada. Te avisaremos cuando sea revisada.",
+    "success": {
+      "title": "Postulación recibida",
+      "description": "Tu postulación <strong>{name}</strong> está en estado <strong>{status}</strong>. Un administrador la revisará pronto.",
+      "submitAnother": "Enviar otra postulación"
+    },
+    "optional": "(opcional)",
+    "fields": {
+      "name": {
+        "label": "Nombre o marca",
+        "placeholder": "Tu nombre artístico o marca"
+      },
+      "contactEmail": {
+        "label": "Correo de contacto",
+        "placeholder": "tu@correo.com"
+      },
+      "contactPhone": {
+        "label": "Teléfono",
+        "placeholder": "+51 9XX XXX XXX"
+      },
+      "socials": {
+        "label": "Redes sociales",
+        "placeholder": "Instagram, TikTok, etc. — cuéntanos tu alcance.",
+        "description": "Comparte enlaces que muestren tu comunidad."
+      }
+    },
+    "sending": "Enviando…",
+    "submit": "Enviar postulación"
   },
   "legal": {
     "fallbackTitle": "Legal",

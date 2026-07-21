@@ -1455,6 +1455,32 @@
     "continue": "View event and continue"
   },
   "guest": { "metadataTitle": "Guest list" },
+  "invitado": {
+    "demoBadge": "Demo — guest list",
+    "invalid": {
+      "title": "Invalid or expired link",
+      "description": "Ask the promoter for an active link to join their guest list."
+    },
+    "full": {
+      "title": "Guest list is full",
+      "description": "This promoter has already issued all available codes for the event."
+    },
+    "issued": {
+      "title": "You're on the list",
+      "description": "Save this code. It was issued to {name}.",
+      "doorTitle": "Show it at the door",
+      "doorDescription": "The venue team will verify your code when you arrive."
+    },
+    "form": {
+      "eyebrow": "Promoter invitation",
+      "title": "{promoter} invited you to the guest list",
+      "description": "Enter your name to receive your personal entry code.",
+      "nameLabel": "Full name",
+      "namePlaceholder": "e.g. Valeria Cruz",
+      "submit": "Get my code",
+      "remaining": "{count, plural, one {# code remaining.} other {# codes remaining.}}"
+    }
+  },
   "complaints": {
     "metadata": {
       "title": "Complaints Book",
@@ -1504,6 +1530,36 @@
     },
     "formTitle": "Become a promoter",
     "formDescription": "Apply to sell tickets and earn commission from referrals. A venue will review your application."
+  },
+  "promotorApply": {
+    "successToast": "Application submitted. We'll let you know once it's reviewed.",
+    "success": {
+      "title": "Application received",
+      "description": "Your application for <strong>{name}</strong> is currently <strong>{status}</strong>. An administrator will review it soon.",
+      "submitAnother": "Submit another application"
+    },
+    "optional": "(optional)",
+    "fields": {
+      "name": {
+        "label": "Name or brand",
+        "placeholder": "Your stage name or brand"
+      },
+      "contactEmail": {
+        "label": "Contact email",
+        "placeholder": "you@email.com"
+      },
+      "contactPhone": {
+        "label": "Phone",
+        "placeholder": "+51 9XX XXX XXX"
+      },
+      "socials": {
+        "label": "Social media",
+        "placeholder": "Instagram, TikTok, etc. — tell us about your reach.",
+        "description": "Share links that showcase your community."
+      }
+    },
+    "sending": "Sending…",
+    "submit": "Submit application"
   },
   "legal": {
     "fallbackTitle": "Legal",

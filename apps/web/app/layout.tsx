@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getLocale } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { Providers } from './providers';
 import './globals.css';
@@ -8,9 +9,12 @@ export const metadata: Metadata = {
   description: 'Descubre locales y eventos de vida nocturna en Perú. Compra entradas, guarda favoritos y deja reseñas.',
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  // `lang` sigue el locale activo regional (cookie NEXT_LOCALE, ej. 'es-PE' /
+  // 'en-US') para a11y/SEO correctos.
+  const locale = await getLocale();
   return (
-    <html lang="es-PE" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body className="min-h-dvh bg-root font-sans text-foreground antialiased">
         {/*
          * SessionProvider raíz SIN session: las páginas consumer (ISR,
