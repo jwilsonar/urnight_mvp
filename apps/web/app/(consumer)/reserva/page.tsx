@@ -1,10 +1,11 @@
-import type { Metadata } from 'next';
-import { ReservaWizard } from '@/components/reservas/reserva-wizard';
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { ReservaWizard } from "@/components/reservas/reserva-wizard";
 
-export const metadata: Metadata = {
-  title: 'Reserva tu mesa',
-  description: 'Elige tu mesa, arma tu noche y asegura tu box con RAVENUE.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("reserva.metadata");
+  return { title: t("title"), description: t("description") };
+}
 
 /** Flujo R1–R5 del prototipo. Demo frontend-only hasta tener backend de reservas. */
 export default function ReservaPage() {

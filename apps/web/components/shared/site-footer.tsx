@@ -1,28 +1,18 @@
+"use client";
+
 import {
   FacebookLogo,
   InstagramLogo,
   TiktokLogo,
   XLogo,
   YoutubeLogo,
-} from "@phosphor-icons/react/dist/ssr";
+} from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@urnight/ui";
 import { ClearCookiesButton } from "./clear-cookies-button";
-
-const CONOCENOS = [
-  { href: "/nosotros", label: "Sobre nosotros" },
-  { href: "/faq", label: "Preguntas frecuentes" },
-  { href: "/afiliar", label: "Afiliar mi local" },
-] as const;
-
-const LEGALES = [
-  { href: "/legal/terms", label: "Términos y condiciones" },
-  { href: "/legal/privacy", label: "Políticas de privacidad" },
-  { href: "/legal/cookies", label: "Políticas de cookies" },
-  { href: "/legal/beneficiario", label: "Declaración del Beneficiario Final" },
-  { href: "/legal/clausulas", label: "Cláusulas de usos adicionales" },
-] as const;
+import { LocaleSwitcher } from "./locale-switcher";
 
 /* Redes aún sin perfiles publicados: iconos visibles pero sin navegación. */
 const REDES = [
@@ -76,6 +66,20 @@ export function SiteFooter({
 }: {
   variant?: "full" | "slim";
 }) {
+  const t = useTranslations("footer");
+  const aboutLinks = [
+    { href: "/nosotros", label: t("about.us") },
+    { href: "/faq", label: t("about.faq") },
+    { href: "/afiliar", label: t("about.affiliate") },
+  ];
+  const legalLinks = [
+    { href: "/legal/terms", label: t("legal.terms") },
+    { href: "/legal/privacy", label: t("legal.privacy") },
+    { href: "/legal/cookies", label: t("legal.cookies") },
+    { href: "/legal/beneficiario", label: t("legal.beneficiary") },
+    { href: "/legal/clausulas", label: t("legal.additionalUses") },
+  ];
+
   if (variant === "slim") {
     return (
       <footer className="border-t bg-deep">
@@ -87,9 +91,9 @@ export function SiteFooter({
   return (
     <footer className="border-t bg-deep">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.2fr_1fr_1fr_1fr] lg:px-8">
-        {/* Marca + tagline + idioma */}
+        {/* Marca + tagline */}
         <div className="space-y-4">
-          <Link href="/" className="inline-flex" aria-label="RAVENUE — inicio">
+          <Link href="/" className="inline-flex" aria-label={t("homeAria")}>
             <Image
               src="/brand/lockup-horizontal.png"
               alt="RAVENUE"
@@ -99,26 +103,23 @@ export function SiteFooter({
             />
           </Link>
           <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
-            Donde la noche encuentra su lugar.
+            {t("tagline")}
           </p>
-          <span className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">
-            🇵🇪 Español · Perú
-          </span>
         </div>
 
-        <FooterColumn title="Conócenos" links={CONOCENOS} />
-        <FooterColumn title="Legales" links={LEGALES} />
+        <FooterColumn title={t("about.title")} links={aboutLinks} />
+        <FooterColumn title={t("legal.title")} links={legalLinks} />
 
         {/* Síguenos + Ayuda */}
         <div className="space-y-6">
           <div>
-            <p className="rv-eyebrow mb-4">Síguenos</p>
+            <p className="rv-eyebrow mb-4">{t("follow")}</p>
             <div className="flex flex-wrap gap-2">
               {REDES.map(({ icon: Icon, label }) => (
                 <span
                   key={label}
-                  title={`${label} — próximamente`}
-                  aria-label={`${label} (próximamente)`}
+                  title={t("comingSoonTitle", { network: label })}
+                  aria-label={t("comingSoonAria", { network: label })}
                   className="flex size-10 cursor-default items-center justify-center rounded-sm border bg-white/[0.03] text-muted-foreground transition-colors hover:border-accent-border hover:text-foreground"
                 >
                   <Icon className="size-4.5" weight="fill" />
@@ -127,10 +128,10 @@ export function SiteFooter({
             </div>
           </div>
           <div>
-            <p className="rv-eyebrow mb-4">Ayuda</p>
+            <p className="rv-eyebrow mb-4">{t("help")}</p>
             <div className="flex flex-wrap gap-2">
               <Button size="sm" asChild>
-                <Link href="/contacto">Contáctanos</Link>
+                <Link href="/contacto">{t("contact")}</Link>
               </Button>
               <ClearCookiesButton />
             </div>
@@ -146,6 +147,8 @@ export function SiteFooter({
 /** Barra inferior legal (obligatoria): Libro de Reclamaciones + copyright.
     Se muestra en ambas variantes del pie. */
 function FooterBottomBar() {
+  const t = useTranslations("footer");
+
   return (
     <div className="border-t">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-5 sm:px-6 md:flex-row lg:px-8">
@@ -153,11 +156,11 @@ function FooterBottomBar() {
           href="/reclamaciones"
           className="inline-flex items-center gap-2 rounded-sm bg-white px-4 py-2 text-sm font-bold text-neutral-900 transition-opacity hover:opacity-90"
         >
-          📖 Libro de Reclamaciones
+          📖 {t("complaintsBook")}
         </Link>
+        <LocaleSwitcher id="footer-language" />
         <p className="text-xs text-muted-foreground">
-          Copyright © RAVENUE {new Date().getFullYear()} · Todos los derechos
-          reservados. Solo para mayores de 18 años.
+          {t("copyright", { year: new Date().getFullYear() })}
         </p>
       </div>
     </div>

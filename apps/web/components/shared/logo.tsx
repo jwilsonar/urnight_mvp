@@ -6,15 +6,17 @@ import { cn } from "@urnight/ui";
 export function Logo({
   className,
   href = "/",
+  ariaLabel = "RAVENUE — inicio",
 }: {
   className?: string;
   href?: string;
+  ariaLabel?: string;
 }) {
   return (
     <Link
       href={href}
       className={cn("inline-flex items-center", className)}
-      aria-label="RAVENUE — inicio"
+      aria-label={ariaLabel}
     >
       <Image
         src="/brand/wordmark.png"

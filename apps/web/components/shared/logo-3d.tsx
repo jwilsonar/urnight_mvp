@@ -12,6 +12,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { cn } from "@urnight/ui";
 
 /** Grados máximos de inclinación. Igual que <Tilt/> para que el logo se
@@ -29,6 +30,7 @@ export function Logo3D({
   className?: string;
   href?: string;
 }) {
+  const t = useTranslations("footer");
   const ref = useRef<HTMLAnchorElement>(null);
   const rafRef = useRef(0);
   const pointerRef = useRef({ x: 0, y: 0 });
@@ -98,7 +100,7 @@ export function Logo3D({
     <Link
       ref={ref}
       href={href}
-      aria-label="RAVENUE — inicio"
+      aria-label={t("homeAria")}
       data-sweep={sweeping ? "true" : undefined}
       onPointerEnter={triggerSweep}
       onPointerMove={handleMove}

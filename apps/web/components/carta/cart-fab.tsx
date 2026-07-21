@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import { Basket, Minus, Plus, Trash } from '@phosphor-icons/react';
-import { m } from 'framer-motion';
-import { useState } from 'react';
+import { Basket, Minus, Plus, Trash } from "@phosphor-icons/react";
+import { m } from "framer-motion";
+import { useState } from "react";
+import { useFormatter, useTranslations } from "next-intl";
 import {
   Button,
   Separator,
@@ -11,11 +12,10 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from '@urnight/ui';
-import { useCart } from '@/components/carta/cart-provider';
-import { SplitBillDialog } from '@/components/carta/split-bill-dialog';
-import { formatPEN } from '@/lib/utils';
-import { CARTA_ITEMS_DEMO } from '@/lib/mock/carta';
+} from "@urnight/ui";
+import { useCart } from "@/components/carta/cart-provider";
+import { SplitBillDialog } from "@/components/carta/split-bill-dialog";
+import { CARTA_ITEMS_DEMO } from "@/lib/mock/carta";
 
 /**
  * FAB del pedido: visible con items en el carrito; abre el resumen para
@@ -28,6 +28,11 @@ export function CartFab({
   pickupZone: string;
   onConfirm: () => void;
 }) {
+  const t = useTranslations("carta.cart");
+  const cartaT = useTranslations("carta");
+  const format = useFormatter();
+  const money = (value: number) =>
+    format.number(value, { style: "currency", currency: "PEN" });
   const cart = useCart();
   const [open, setOpen] = useState(false);
   const [splitOpen, setSplitOpen] = useState(false);
@@ -46,37 +51,51 @@ export function CartFab({
         className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
         initial={{ y: 96, scale: 0.9, opacity: 0 }}
         animate={{ y: 0, scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+        transition={{ type: "spring", stiffness: 420, damping: 30 }}
       >
         <Button
           size="lg"
           className="w-full max-w-md justify-between shadow-float"
           onClick={() => setOpen(true)}
-          aria-label={`Ver pedido: ${cart.count} productos, total ${formatPEN(cart.totalSoles)}`}
+          aria-label={t("viewAria", {
+            count: cart.count,
+            total: money(cart.totalSoles),
+          })}
         >
           <span className="flex items-center gap-2">
             <Basket className="size-5" weight="duotone" />
-            Ver pedido{' '}
+            {t("view")}{" "}
             <m.span
               key={cart.count}
               initial={{ scale: 0.7 }}
               animate={{ scale: 1 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+              transition={{ type: "spring", stiffness: 500, damping: 22 }}
             >
               ({cart.count})
             </m.span>
           </span>
-          <span className="tabular-nums">{formatPEN(cart.totalSoles)}</span>
+          <span className="tabular-nums">{money(cart.totalSoles)}</span>
         </Button>
       </m.div>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="bottom" className="mx-auto max-w-lg rounded-t-2xl border-t">
+        <SheetContent
+          side="bottom"
+          className="mx-auto max-w-lg rounded-t-2xl border-t"
+        >
           <SheetHeader className="text-left">
-            <SheetTitle className="font-heading text-xl font-extrabold">Tu pedido</SheetTitle>
+            <SheetTitle className="font-heading text-xl font-extrabold">
+              {t("title")}
+            </SheetTitle>
             <SheetDescription>
-              Recoges en: <span className="font-semibold text-foreground">{pickupZone}</span> ·
-              pagas al recoger.
+              {t.rich("pickup", {
+                zone: pickupZone,
+                strong: (chunks: React.ReactNode) => (
+                  <span className="font-semibold text-foreground">
+                    {chunks}
+                  </span>
+                ),
+              })}
             </SheetDescription>
           </SheetHeader>
 
@@ -85,11 +104,16 @@ export function CartFab({
               const item = CARTA_ITEMS_DEMO.find((i) => i.id === line.itemId);
               if (!item) return null;
               return (
-                <div key={line.itemId} className="flex items-center justify-between gap-3">
+                <div
+                  key={line.itemId}
+                  className="flex items-center justify-between gap-3"
+                >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold">{item.name}</p>
+                    <p className="truncate text-sm font-semibold">
+                      {cartaT(`items.${item.id}.name`)}
+                    </p>
                     <p className="text-xs text-muted-foreground tabular-nums">
-                      {formatPEN(item.priceSoles)} c/u
+                      {t("each", { amount: money(item.priceSoles) })}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -97,8 +121,12 @@ export function CartFab({
                       variant="ghost"
                       size="icon"
                       className="size-7 rounded-full"
-                      aria-label={`Quitar un ${item.name}`}
-                      onClick={() => cart.setQuantity(line.itemId, line.quantity - 1)}
+                      aria-label={t("removeAria", {
+                        item: cartaT(`items.${item.id}.name`),
+                      })}
+                      onClick={() =>
+                        cart.setQuantity(line.itemId, line.quantity - 1)
+                      }
                     >
                       {line.quantity === 1 ? (
                         <Trash className="size-3.5" />
@@ -113,8 +141,12 @@ export function CartFab({
                       variant="ghost"
                       size="icon"
                       className="size-7 rounded-full"
-                      aria-label={`Agregar un ${item.name}`}
-                      onClick={() => cart.setQuantity(line.itemId, line.quantity + 1)}
+                      aria-label={t("addAria", {
+                        item: cartaT(`items.${item.id}.name`),
+                      })}
+                      onClick={() =>
+                        cart.setQuantity(line.itemId, line.quantity + 1)
+                      }
                     >
                       <Plus className="size-3.5" weight="bold" />
                     </Button>
@@ -128,9 +160,11 @@ export function CartFab({
 
           <div className="space-y-4 pt-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Total</span>
+              <span className="text-sm text-muted-foreground">
+                {t("total")}
+              </span>
               <span className="font-heading text-lg font-extrabold tabular-nums">
-                {formatPEN(cart.totalSoles)}
+                {money(cart.totalSoles)}
               </span>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
@@ -140,14 +174,14 @@ export function CartFab({
                 size="lg"
                 onClick={() => setSplitOpen(true)}
               >
-                Dividir cuenta
+                {t("split")}
               </Button>
               <Button size="lg" onClick={confirm}>
-                Confirmar pedido demo
+                {t("confirm")}
               </Button>
             </div>
             <p className="text-center text-xs text-muted-foreground">
-              Demo: sin pago en línea. La pasarela y la wallet llegan después del MVP.
+              {t("demoNote")}
             </p>
           </div>
         </SheetContent>

@@ -1,17 +1,16 @@
-'use client';
+"use client";
 
-import { Check } from '@phosphor-icons/react';
-import { useEffect, useState } from 'react';
-import { cn } from '@urnight/ui';
-import { CARTA_ORDER_STATUS_LABEL, type CartaOrderStatusDemo } from '@/lib/mock/carta';
+import { Check } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { cn } from "@urnight/ui";
+import { type CartaOrderStatusDemo } from "@/lib/mock/carta";
 
-const STEPS = ['received', 'preparing', 'ready'] as const satisfies readonly CartaOrderStatusDemo[];
-
-const STEP_HINT: Record<(typeof STEPS)[number], string> = {
-  received: 'El bar ya tiene tu pedido.',
-  preparing: 'Están preparando tus productos.',
-  ready: 'Acércate a recogerlo mostrando tu código.',
-};
+const STEPS = [
+  "received",
+  "preparing",
+  "ready",
+] as const satisfies readonly CartaOrderStatusDemo[];
 
 /**
  * Timeline demo del pedido: avanza solo (temporizadores) para mostrar el flujo
@@ -19,6 +18,7 @@ const STEP_HINT: Record<(typeof STEPS)[number], string> = {
  * polling/websocket del módulo de pedidos.
  */
 export function OrderStatusTimeline() {
+  const t = useTranslations("carta.status");
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export function OrderStatusTimeline() {
   }, []);
 
   return (
-    <ol className="space-y-0" aria-label="Estado del pedido">
+    <ol className="space-y-0" aria-label={t("aria")}>
       {STEPS.map((step, i) => {
         const done = i < activeIndex;
         const active = i === activeIndex;
@@ -46,8 +46,8 @@ export function OrderStatusTimeline() {
               >
                 <span
                   className={cn(
-                    'block h-full w-full origin-top bg-primary transition-transform duration-700 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]',
-                    done ? 'scale-y-100' : 'scale-y-0',
+                    "block h-full w-full origin-top bg-primary transition-transform duration-700 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]",
+                    done ? "scale-y-100" : "scale-y-0",
                   )}
                 />
               </span>
@@ -56,10 +56,12 @@ export function OrderStatusTimeline() {
             {/* Punto de estado */}
             <span
               className={cn(
-                'relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full border-2 transition-[background-color,border-color,transform] duration-300',
-                done && 'border-primary bg-primary text-primary-foreground',
-                active && 'rv-breathe border-primary bg-accent text-rose',
-                !done && !active && 'border-border bg-surface text-muted-foreground',
+                "relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full border-2 transition-[background-color,border-color,transform] duration-300",
+                done && "border-primary bg-primary text-primary-foreground",
+                active && "rv-breathe border-primary bg-accent text-rose",
+                !done &&
+                  !active &&
+                  "border-border bg-surface text-muted-foreground",
               )}
             >
               {done ? (
@@ -67,8 +69,8 @@ export function OrderStatusTimeline() {
               ) : (
                 <span
                   className={cn(
-                    'size-2 rounded-full transition-colors duration-300',
-                    active ? 'bg-rose' : 'bg-border',
+                    "size-2 rounded-full transition-colors duration-300",
+                    active ? "bg-rose" : "bg-border",
                   )}
                 />
               )}
@@ -76,14 +78,16 @@ export function OrderStatusTimeline() {
 
             <div
               className={cn(
-                'transition-opacity duration-300',
-                !done && !active && 'opacity-50',
+                "transition-opacity duration-300",
+                !done && !active && "opacity-50",
               )}
             >
               <p className="font-heading text-sm font-bold">
-                {CARTA_ORDER_STATUS_LABEL[step]}
+                {t(`${step}.label`)}
               </p>
-              <p className="text-xs text-muted-foreground">{STEP_HINT[step]}</p>
+              <p className="text-xs text-muted-foreground">
+                {t(`${step}.hint`)}
+              </p>
             </div>
           </li>
         );

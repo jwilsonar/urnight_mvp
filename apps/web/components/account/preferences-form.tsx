@@ -1,25 +1,36 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { Button, Checkbox, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@urnight/ui';
-import { updatePreferences } from '@/lib/api/identity';
-import { queryKeys } from '@/lib/api/query-keys';
-import { useApiMutation } from '@/lib/api/use-api-mutation';
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import {
+  Button,
+  Checkbox,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@urnight/ui";
+import { LocaleSwitcher } from "@/components/shared/locale-switcher";
+import { updatePreferences } from "@/lib/api/identity";
+import { queryKeys } from "@/lib/api/query-keys";
+import { useApiMutation } from "@/lib/api/use-api-mutation";
 
-const STORAGE_KEY = 'ravenue:notification-preferences';
+const STORAGE_KEY = "ravenue:notification-preferences";
 
-type NotificationType = 'reminders' | 'eventUpdates' | 'promotions' | 'social';
+type NotificationType = "reminders" | "eventUpdates" | "promotions" | "social";
 
 interface NotificationSettings {
-  channel: 'email' | 'push';
-  scope: 'all' | 'favorites';
+  channel: "email" | "push";
+  scope: "all" | "favorites";
   types: Record<NotificationType, boolean>;
 }
 
 const DEFAULT_SETTINGS: NotificationSettings = {
-  channel: 'push',
-  scope: 'favorites',
+  channel: "push",
+  scope: "favorites",
   types: {
     reminders: true,
     eventUpdates: true,
@@ -28,36 +39,10 @@ const DEFAULT_SETTINGS: NotificationSettings = {
   },
 };
 
-const TYPE_OPTIONS: {
-  key: NotificationType;
-  label: string;
-  description: string;
-}[] = [
-  {
-    key: 'reminders',
-    label: 'Recordatorios de eventos',
-    description: 'Avisos antes de los eventos para los que tienes entradas.',
-  },
-  {
-    key: 'eventUpdates',
-    label: 'Cambios y novedades',
-    description: 'Horarios, ubicaciones y nuevos eventos según tu alcance.',
-  },
-  {
-    key: 'promotions',
-    label: 'Promociones y beneficios',
-    description: 'Ofertas, puntos y oportunidades de canje.',
-  },
-  {
-    key: 'social',
-    label: 'Invitaciones y amigos',
-    description: 'Actividad de grupos, pases e invitaciones.',
-  },
-];
-
 export function PreferencesForm() {
+  const t = useTranslations("account.preferences");
   const { data: session } = useSession();
-  const token = session?.accessToken ?? '';
+  const token = session?.accessToken ?? "";
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
 
   useEffect(() => {
@@ -66,8 +51,8 @@ export function PreferencesForm() {
       if (!stored) return;
       const parsed = JSON.parse(stored) as Partial<NotificationSettings>;
       setSettings({
-        channel: parsed.channel === 'email' ? 'email' : 'push',
-        scope: parsed.scope === 'all' ? 'all' : 'favorites',
+        channel: parsed.channel === "email" ? "email" : "push",
+        scope: parsed.scope === "all" ? "all" : "favorites",
         types: { ...DEFAULT_SETTINGS.types, ...parsed.types },
       });
     } catch {
@@ -84,7 +69,7 @@ export function PreferencesForm() {
         },
         token,
       ),
-    successMessage: 'Preferencias de notificaciones actualizadas.',
+    successMessage: t("success"),
     invalidateKeys: [queryKeys.me],
   });
 
@@ -103,14 +88,15 @@ export function PreferencesForm() {
   return (
     <div className="space-y-6">
       <div className="grid gap-5 sm:grid-cols-2">
+        <LocaleSwitcher id="account-language" showLabel />
         <div className="space-y-2">
-          <Label htmlFor="notification-channel">Canal principal</Label>
+          <Label htmlFor="notification-channel">{t("channel.label")}</Label>
           <Select
             value={settings.channel}
             onValueChange={(value) =>
               setSettings((current) => ({
                 ...current,
-                channel: value as NotificationSettings['channel'],
+                channel: value as NotificationSettings["channel"],
               }))
             }
           >
@@ -118,19 +104,19 @@ export function PreferencesForm() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="email">Correo</SelectItem>
-              <SelectItem value="push">Mensaje / push</SelectItem>
+              <SelectItem value="email">{t("channel.email")}</SelectItem>
+              <SelectItem value="push">{t("channel.push")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="notification-scope">Alcance</Label>
+          <Label htmlFor="notification-scope">{t("scope.label")}</Label>
           <Select
             value={settings.scope}
             onValueChange={(value) =>
               setSettings((current) => ({
                 ...current,
-                scope: value as NotificationSettings['scope'],
+                scope: value as NotificationSettings["scope"],
               }))
             }
           >
@@ -138,36 +124,48 @@ export function PreferencesForm() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Cada evento</SelectItem>
-              <SelectItem value="favorites">Solo favoritos</SelectItem>
+              <SelectItem value="all">{t("scope.all")}</SelectItem>
+              <SelectItem value="favorites">{t("scope.favorites")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
       <fieldset className="space-y-3">
-        <legend className="text-sm font-semibold text-foreground">Tipos de aviso</legend>
-        {TYPE_OPTIONS.map((option) => (
-          <label
-            key={option.key}
-            htmlFor={`notification-${option.key}`}
-            className="flex cursor-pointer items-start gap-3 rounded-md border bg-white/[0.02] p-3.5"
-          >
-            <Checkbox
-              id={`notification-${option.key}`}
-              checked={settings.types[option.key]}
-              onCheckedChange={(checked) => setType(option.key, checked === true)}
-            />
-            <span className="space-y-1 leading-snug">
-              <span className="block text-sm font-medium text-foreground">{option.label}</span>
-              <span className="block text-xs text-muted-foreground">{option.description}</span>
-            </span>
-          </label>
-        ))}
+        <legend className="text-sm font-semibold text-foreground">
+          {t("types.label")}
+        </legend>
+        {(["reminders", "eventUpdates", "promotions", "social"] as const).map(
+          (key) => (
+            <label
+              key={key}
+              htmlFor={`notification-${key}`}
+              className="flex cursor-pointer items-start gap-3 rounded-md border bg-white/[0.02] p-3.5"
+            >
+              <Checkbox
+                id={`notification-${key}`}
+                checked={settings.types[key]}
+                onCheckedChange={(checked) => setType(key, checked === true)}
+              />
+              <span className="space-y-1 leading-snug">
+                <span className="block text-sm font-medium text-foreground">
+                  {t(`types.${key}.label`)}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {t(`types.${key}.description`)}
+                </span>
+              </span>
+            </label>
+          ),
+        )}
       </fieldset>
 
-      <Button type="button" onClick={save} disabled={!token || mutation.isPending}>
-        {mutation.isPending ? 'Guardando…' : 'Guardar preferencias'}
+      <Button
+        type="button"
+        onClick={save}
+        disabled={!token || mutation.isPending}
+      >
+        {mutation.isPending ? t("saving") : t("save")}
       </Button>
     </div>
   );

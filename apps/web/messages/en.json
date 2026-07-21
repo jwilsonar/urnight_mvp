@@ -1,0 +1,2164 @@
+{
+  "common": {
+    "benefits": "Benefits",
+    "demo": "Demo",
+    "error": {
+      "title": "Something went wrong",
+      "description": "We couldn't load this section. Please try again.",
+      "retry": "Try again"
+    },
+    "favorites": {
+      "added": "Added to favorites.",
+      "removed": "Removed from favorites.",
+      "error": "We couldn't update your favorites.",
+      "saved": "Favorited",
+      "save": "Favorite"
+    },
+    "reviews": {
+      "empty": {
+        "title": "No reviews yet",
+        "description": "Be the first to share your experience!"
+      },
+      "count": "({count, plural, one {# review} other {# reviews}})",
+      "verifiedPurchase": "Verified purchase",
+      "ratingAria": "{value} out of 5 stars"
+    },
+    "reviewForm": {
+      "ratingRequired": "Choose a rating.",
+      "success": "Thanks for your review!",
+      "rating": "Rating",
+      "stars": "{count, plural, one {# star} other {# stars}}",
+      "comment": "Comment (optional)",
+      "placeholder": "How was your experience?",
+      "sending": "Sending…",
+      "submit": "Post review"
+    },
+    "report": {
+      "action": "Report",
+      "commentRequired": "Describe why you're reporting this.",
+      "success": "Report sent. Thanks for letting us know.",
+      "title": "Report {target}",
+      "target": {
+        "local": "venue",
+        "event": "event"
+      },
+      "description": "Tell us what's wrong. Our team will review it.",
+      "reasonLabel": "Reason",
+      "reason": {
+        "cancelled": "The event was cancelled",
+        "wrong_price": "Incorrect price",
+        "wrong_location": "Incorrect location",
+        "unsafe": "Unsafe situation",
+        "other": "Other"
+      },
+      "commentLabel": "Comment",
+      "commentOptional": "Comment (optional)",
+      "placeholder": "Describe the issue…",
+      "cancel": "Cancel",
+      "sending": "Sending…",
+      "submit": "Send report"
+    },
+    "language": {
+      "label": "Language",
+      "spanish": "ES · Español",
+      "english": "EN · English"
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "events": "Events",
+    "venues": "Venues",
+    "categories": "Categories",
+    "mainAria": "Main navigation",
+    "mobileAria": "Mobile navigation",
+    "openMenu": "Open menu",
+    "signIn": "Sign in",
+    "createAccount": "Create account",
+    "userMenu": "User menu",
+    "profile": "My profile",
+    "myTickets": "My tickets",
+    "saved": "Saved",
+    "invitations": "Invitations",
+    "signOut": "Sign out"
+  },
+  "search": {
+    "placeholder": "Search events and venues…",
+    "shortPlaceholder": "Search…",
+    "label": "Search",
+    "aria": "Search events and venues",
+    "clear": "Clear search",
+    "searching": "Searching…",
+    "events": "Events",
+    "venues": "Venues",
+    "viewAll": "View all results",
+    "noMatches": "No matches for “{query}”.",
+    "searchAnyway": "Search anyway",
+    "page": {
+      "metadata": {
+        "title": "Search",
+        "description": "Search nightlife events and venues in Peru."
+      },
+      "title": "Search",
+      "placeholder": "Search events, venues, or DJs…",
+      "initial": {
+        "title": "What are you looking for?",
+        "description": "Enter an event, venue, or DJ name to get started."
+      },
+      "error": {
+        "title": "We couldn't complete your search",
+        "description": "Please try again in a few minutes."
+      },
+      "empty": {
+        "title": "No results for “{term}”",
+        "description": "Try another term or check the spelling.",
+        "action": "Clear search"
+      },
+      "events": "Events",
+      "venues": "Venues"
+    }
+  },
+  "home": {
+    "viewAll": "View all",
+    "all": "All",
+    "hero": {
+      "eyebrow": "This season in Lima",
+      "titleAria": "Your next night out starts at RAVENUE",
+      "titleLine1": "Your next night out",
+      "titleLine2": "starts at",
+      "description": "Hundreds of events and verified venues. Find your spot for tonight, get your ticket, and make plans with your crew.",
+      "eventsCta": "See this week's events",
+      "venuesCta": "Explore venues",
+      "stats": {
+        "events": "Events this month",
+        "venues": "Verified venues",
+        "people": "Happy night owls"
+      }
+    },
+    "featured": {
+      "title": "Featured events",
+      "subtitle": "This week's hottest picks, chosen by our team."
+    },
+    "marquee": [
+      "Miraflores",
+      "Reggaeton",
+      "Barranco",
+      "Techno",
+      "San Isidro",
+      "House",
+      "Surco",
+      "Electronic"
+    ],
+    "popular": {
+      "title": "Most popular",
+      "subtitle": "The venues everyone is talking about this month."
+    },
+    "partner": {
+      "badge": "FEATURED PARTNER",
+      "fallbackDescription": "Lima's best music every weekend. Get ready for a night you won't forget.",
+      "viewVenue": "View venue",
+      "bookTable": "Book a table"
+    },
+    "upcoming": {
+      "title": "Coming up",
+      "subtitle": "What's happening over the next few weeks."
+    }
+  },
+  "events": {
+    "metadata": {
+      "title": "Events",
+      "description": "Upcoming parties, concerts, and nightlife events in Peru."
+    },
+    "title": "Events",
+    "description": "Get tickets to the next big nights out.",
+    "calendarLink": "Calendar",
+    "all": "All",
+    "loadError": {
+      "title": "We couldn't load the events",
+      "description": "Please try again in a few minutes."
+    },
+    "empty": {
+      "title": "No events yet",
+      "description": "There are no published events right now. Check back soon.",
+      "action": "Explore venues"
+    },
+    "pagination": {
+      "aria": "Pagination",
+      "previous": "Previous",
+      "page": "Page {page}",
+      "next": "Next"
+    },
+    "card": {
+      "status": {
+        "draft": "Draft",
+        "scheduled": "Coming soon",
+        "published": "On sale",
+        "cancelled": "Cancelled",
+        "finished": "Ended"
+      },
+      "flyerAlt": "Event flyer",
+      "soldOut": "Sold out",
+      "almostFull": "Almost full",
+      "noSpots": "No spots left",
+      "spots": "{count, plural, one {# spot} other {# spots}}",
+      "spotsAvailable": "Spots available",
+      "viewEvent": "View event",
+      "viewInformation": "View details",
+      "detail": "Event details",
+      "capacity": "Capacity",
+      "noCapacity": "Capacity not set",
+      "ticketsSoldAria": "Tickets sold: {sold} of {capacity}",
+      "flipBack": "Back to the front of the ticket"
+    },
+    "detail": {
+      "metadataDescription": "Tickets for {name} on RAVENUE.",
+      "heroPlaceholder": "Hero · {name}",
+      "back": "Back",
+      "onSale": "On sale",
+      "soldOut": "Sold out",
+      "almostFull": "Almost full",
+      "date": "Date",
+      "schedule": "Time",
+      "venue": "Venue",
+      "dressCode": "Dress code",
+      "description": "Description",
+      "where": "Where it is",
+      "venuePlaceholder": "Venue",
+      "viewVenue": "View venue",
+      "reviews": "Reviews",
+      "priceFrom": "Starting at",
+      "perPerson": "per person",
+      "tickets": "Tickets",
+      "bookTable": "Book a table",
+      "securePurchase": "Secure checkout · Verified by RAVENUE."
+    },
+    "tickets": {
+      "empty": {
+        "title": "No tickets on sale yet",
+        "description": "Check back soon to get yours."
+      },
+      "soldOut": "Sold out",
+      "available": "{count, plural, one {# available} other {# available}}",
+      "buy": "Buy tickets",
+      "unavailable": "Tickets aren't available right now."
+    },
+    "trending": {
+      "metadata": {
+        "title": "Trending",
+        "description": "The most popular nightlife events right now."
+      },
+      "title": "Trending",
+      "description": "The hottest nights out right now.",
+      "loadError": {
+        "title": "We couldn't load trending events",
+        "description": "Please try again in a few minutes."
+      },
+      "empty": {
+        "title": "Nothing is trending yet",
+        "description": "Popular events will show up here once ticket sales pick up."
+      }
+    },
+    "calendar": {
+      "metadataTitle": "Event calendar",
+      "title": "Calendar",
+      "description": "Upcoming events grouped by date.",
+      "viewList": "View list",
+      "empty": {
+        "title": "No upcoming events",
+        "description": "Check back soon for new dates."
+      }
+    }
+  },
+  "locals": {
+    "metadata": {
+      "title": "Venues",
+      "description": "Discover nightclubs and bars across Peru."
+    },
+    "title": "Venues",
+    "description": "Find the best places for your next night out.",
+    "filterAria": "Filter by area",
+    "allZones": "All areas",
+    "loadError": {
+      "title": "We couldn't load the venues",
+      "description": "Please try again in a few minutes."
+    },
+    "empty": {
+      "title": "No venues found",
+      "description": "We couldn't find venues in this area. Try another one.",
+      "action": "View all venues"
+    },
+    "affiliate": {
+      "title": "Own a venue?",
+      "description": "Join RAVENUE, publish your events, manage capacity, and reach thousands of people looking for tonight's plan.",
+      "action": "List my venue"
+    },
+    "card": {
+      "facade": "Venue exterior",
+      "verified": "Verified",
+      "features": "Events, menu, and reservations",
+      "viewVenue": "View venue",
+      "viewInformation": "View details",
+      "detail": "Venue information",
+      "fallbackDescription": "Explore upcoming events, the menu, and booking options.",
+      "flipBack": "Back to the front of the venue card"
+    },
+    "crowd": {
+      "title": "Crowd right now",
+      "demo": "Demo",
+      "level": {
+        "bajo": "Relaxed",
+        "medio": "Good energy",
+        "lleno": "Almost full"
+      },
+      "wait": "About a {minutes}-min wait",
+      "noLine": "No line",
+      "updated": "Updated {minutes} min ago"
+    },
+    "detail": {
+      "metadataDescription": "Discover {name} on RAVENUE.",
+      "verified": "Verified",
+      "venueType": "Nightclub · Bar",
+      "upcomingEvents": "{count, plural, =0 {Upcoming events} other {Upcoming events (#)}}",
+      "emptyEvents": {
+        "title": "No upcoming events",
+        "description": "This venue hasn't published its next dates yet."
+      },
+      "reviews": "{count, plural, =0 {Reviews} other {Reviews (#)}}",
+      "directionsFor": "Getting to {name}",
+      "mapPlaceholder": "Map · Location",
+      "directions": "Get directions",
+      "bookTable": "Book a table",
+      "viewMenu": "View venue menu",
+      "mapUnavailable": "Map unavailable"
+    },
+    "gallery": {
+      "photoAlt": "{name} — photo {number}",
+      "viewGallery": "View gallery ({count})",
+      "title": "{name} gallery",
+      "photoCount": "{count, plural, one {# photo} other {# photos}}",
+      "viewPhoto": "View photo",
+      "overview": "Gallery view",
+      "previous": "Previous photo",
+      "next": "Next photo",
+      "goTo": "Go to photo {number}"
+    }
+  },
+  "categories": {
+    "metadata": {
+      "title": "Categories",
+      "description": "Explore nightlife by area, music genre, and tag."
+    },
+    "title": "Categories",
+    "description": "Explore by area, music genre, and tag.",
+    "empty": {
+      "title": "No categories",
+      "description": "No areas, genres, or tags have been configured yet."
+    },
+    "zones": "Areas",
+    "genres": "Music genres",
+    "tags": "Tags"
+  },
+  "notificaciones": {
+    "title": "Notifications",
+    "loading": "Loading…",
+    "loadError": "We couldn't load your notifications.",
+    "retry": "Try again",
+    "empty": "No notifications",
+    "status": {
+      "queued": "Queued",
+      "sent": "Sent",
+      "failed": "Failed"
+    },
+    "viewAll": "View all and customize",
+    "customize": {
+      "title": "Customize your notifications",
+      "description": "Choose how and which event updates you'd like to receive."
+    },
+    "recent": "Recent activity",
+    "errorDescription": "Please try again in a few minutes.",
+    "emptyDescription": "Updates about your tickets and events will appear here.",
+    "channel": {
+      "email": "Email",
+      "push": "Push"
+    }
+  },
+  "faq": {
+    "page": {
+      "metadata": {
+        "title": "Frequently asked questions",
+        "description": "Answers to the most common questions about using RAVENUE."
+      },
+      "eyebrow": "Help",
+      "title": "Frequently asked questions",
+      "description": "Answers to the most common questions about using RAVENUE.",
+      "contact": {
+        "title": "Still need help?",
+        "description": "Our team responds within 24 hours, every day.",
+        "action": "Write to us"
+      }
+    },
+    "browser": {
+      "searchLabel": "Search for a question",
+      "searchPlaceholder": "Search questions…",
+      "categoriesAria": "Question categories",
+      "categories": {
+        "all": "All",
+        "purchases": "Tickets",
+        "reservations": "Reservations",
+        "account": "Account"
+      },
+      "empty": {
+        "title": "We couldn't find that question",
+        "description": "Try another keyword or browse a different category."
+      },
+      "items": [
+        {
+          "category": "purchases",
+          "question": "How do I buy a ticket?",
+          "answer": "Choose an event, select your ticket type and quantity, enter your details, and pay securely. Your QR code will appear under “My tickets”."
+        },
+        {
+          "category": "reservations",
+          "question": "Can I book a table?",
+          "answer": "Yes. From the venue or event page, choose “Book a table”, select your area, pay the deposit, and receive your QR confirmation."
+        },
+        {
+          "category": "purchases",
+          "question": "How does QR entry work?",
+          "answer": "Show the QR code from your ticket or reservation at the venue entrance. Each code is unique and non-transferable."
+        },
+        {
+          "category": "purchases",
+          "question": "Can I cancel a purchase?",
+          "answer": "Cancellations depend on each event's policy. You'll find the available options in your ticket or reservation details."
+        },
+        {
+          "category": "account",
+          "question": "Why do you ask for my ID?",
+          "answer": "RAVENUE is for adults 18 and over. We verify your ID automatically to help keep the community safe."
+        },
+        {
+          "category": "account",
+          "question": "How do I list my venue?",
+          "answer": "Open “List my venue”, enter your business details, and our team will review your application."
+        }
+      ]
+    }
+  },
+  "footer": {
+    "homeAria": "RAVENUE — home",
+    "tagline": "Where the night finds its place.",
+    "about": {
+      "title": "Discover",
+      "us": "About us",
+      "faq": "Frequently asked questions",
+      "affiliate": "List my venue"
+    },
+    "legal": {
+      "title": "Legal",
+      "terms": "Terms and conditions",
+      "privacy": "Privacy policy",
+      "cookies": "Cookie policy",
+      "beneficiary": "Ultimate Beneficial Owner Statement",
+      "additionalUses": "Additional use clauses"
+    },
+    "follow": "Follow us",
+    "comingSoonTitle": "{network} — coming soon",
+    "comingSoonAria": "{network} (coming soon)",
+    "help": "Help",
+    "contact": "Contact us",
+    "clearCookies": "Clear cookies",
+    "cookiesCleared": "Cookies cleared",
+    "complaintsBook": "Complaints Book",
+    "copyright": "Copyright © RAVENUE {year} · All rights reserved. Adults 18+ only."
+  },
+  "account": {
+    "title": "My account",
+    "nav": {
+      "aria": "Account navigation",
+      "profile": "Profile",
+      "tickets": "My tickets",
+      "saved": "Saved",
+      "reservations": "Reservations",
+      "wallet": "Wallet",
+      "levels": "Levels",
+      "points": "Points",
+      "referrals": "Referrals",
+      "notifications": "Notifications",
+      "invitations": "Invitations",
+      "friends": "Friends"
+    },
+    "profile": {
+      "metadataTitle": "Profile and settings",
+      "title": "Profile",
+      "description": "Review and edit your contact details.",
+      "name": "Name",
+      "rolesLabel": "Roles",
+      "roles": {
+        "user": "User",
+        "admin_local": "Venue admin",
+        "promoter": "Promoter",
+        "validator": "Validator",
+        "super_admin": "Super admin"
+      },
+      "favorites": {
+        "title": "Favorites",
+        "description": "Venues and events you saved."
+      },
+      "redemptions": {
+        "title": "Promo redemptions",
+        "description": "Promotional codes you've used."
+      },
+      "preferencesTitle": "Preferences",
+      "preferencesDescription": "Language, notifications, and account alerts.",
+      "form": {
+        "imageTypeError": "Choose a JPG, PNG, or WebP image.",
+        "imageSizeError": "Your photo must be under 5 MB.",
+        "emailError": "Enter a valid email address.",
+        "phoneError": "Enter a valid phone number.",
+        "success": "Profile details saved in demo mode.",
+        "previewAlt": "Profile photo preview",
+        "currentAlt": "Current profile photo",
+        "photo": "Profile photo",
+        "photoHint": "JPG, PNG, or WebP · 5 MB max.",
+        "choosePhoto": "Choose photo",
+        "email": "Email",
+        "phone": "Phone",
+        "save": "Save details"
+      }
+    },
+    "tickets": {
+      "metadataTitle": "My tickets",
+      "error": {
+        "title": "We couldn't load your tickets",
+        "description": "Please try again in a few minutes."
+      },
+      "empty": {
+        "title": "You don't have any tickets",
+        "description": "Tickets you buy will appear here with their QR code.",
+        "action": "Explore events"
+      },
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "review": {
+        "action": "Leave a review",
+        "title": "Review event",
+        "description": "Share your experience with other guests."
+      }
+    },
+    "saved": {
+      "title": "Saved",
+      "description": "Events and venues you marked as favorites.",
+      "events": "Events",
+      "venues": "Venues"
+    },
+    "favoritesList": {
+      "loading": "Loading favorites…",
+      "error": {
+        "title": "We couldn't load your favorites",
+        "description": "Please try again in a few minutes."
+      },
+      "empty": {
+        "venuesTitle": "You haven't saved any venues yet",
+        "title": "You don't have any favorites yet",
+        "description": "Save events and venues with the heart icon so they're easy to find later.",
+        "venuesAction": "Discover venues",
+        "eventsAction": "Discover events"
+      },
+      "savedOn": "Saved on {date}",
+      "venue": "Venue",
+      "event": "Event"
+    },
+    "invitations": {
+      "title": "Promoter invitations",
+      "description": "Invitations from companies that want you as a promoter. Accept one to activate your referral link and promoter dashboard.",
+      "accepted": "Association confirmed! You're now a promoter for this company.",
+      "rejected": "Invitation declined.",
+      "cardDescription": "A company invited you to become a promoter. Confirm to activate your referral link.",
+      "reject": "Decline",
+      "confirming": "Confirming…",
+      "accept": "Accept",
+      "loadError": "We couldn't load your invitations.",
+      "empty": {
+        "title": "No pending invitations",
+        "description": "When a company invites you to become a promoter, you'll see the request here."
+      }
+    },
+    "redemptionsList": {
+      "loading": "Loading redemptions…",
+      "empty": {
+        "title": "No redemptions yet",
+        "description": "Codes you redeem will appear here.",
+        "action": "Explore events"
+      },
+      "discount": "{amount} discount"
+    },
+    "sessionRecovery": {
+      "title": "We need to renew your session",
+      "description": "Sign in again to load your tickets without losing this page.",
+      "action": "Sign in again"
+    },
+    "friends": {
+      "title": "Friends",
+      "pageDescription": "Find your crew and look back on the nights you've shared.",
+      "demo": "Demo — coming with the social backend",
+      "kpis": {
+        "total": "Total friends",
+        "requests": "Pending requests",
+        "events": "Shared events"
+      },
+      "requests": "Requests",
+      "mutualFriends": "{count, plural, one {# mutual friend} other {# mutual friends}}",
+      "accept": "Accept",
+      "ignore": "Ignore",
+      "yourFriends": "Your friends",
+      "description": "People you've shared a RAVENUE night with.",
+      "searchLabel": "Search by name",
+      "searchPlaceholder": "E.g. Valentina",
+      "levels": {
+        "Bronce": "Bronze",
+        "Plata": "Silver",
+        "Oro": "Gold",
+        "Diamante": "Diamond"
+      },
+      "lastNight": "Last night out: {value}",
+      "nights": {
+        "mateo-rojas": "Nocturna Club · Jul 8",
+        "valentina-diaz": "Sky Lounge 360 · Jul 5",
+        "lucia-paredes": "Barranco Beats · Jun 28",
+        "carlos-nunez": "Nocturna Club · Jun 21",
+        "daniela-rios": "Karaoke Estelar · Jun 15",
+        "joaquin-bravo": "Sky Lounge 360 · Jun 8"
+      },
+      "eventsTogether": "{count, plural, one {# event together} other {# events together}}",
+      "emptySearch": "We couldn't find friends with that name."
+    },
+    "wallet": {
+      "title": "RAVENUE Wallet",
+      "description": "Your balance, refunds, and transactions in one place.",
+      "demo": "Demo — coming with the wallet backend",
+      "availableBalance": "Available balance",
+      "equivalence": "≈ 1 premium bottle · ≈ 2 general admission tickets",
+      "topUp": "Add funds",
+      "withdraw": "Withdraw to bank",
+      "recent": "Recent transactions",
+      "transactions": [
+        {
+          "date": "May 18, 23:42",
+          "concept": "Refund · Reggaeton Night cancelled"
+        },
+        { "date": "May 12, 19:08", "concept": "Purchase · Deep House Session" },
+        { "date": "May 10, 14:11", "concept": "Top-up · Yape ····8431" },
+        { "date": "May 8, 21:30", "concept": "Table booking · Nocturna Club" },
+        {
+          "date": "May 3, 11:55",
+          "concept": "Points redeemed (200 pts → PEN 20)"
+        },
+        { "date": "Apr 25, 18:42", "concept": "Purchase · Latin Pop Rooftop" }
+      ]
+    },
+    "reservations": {
+      "title": "My reservations",
+      "description": "Your table bookings: codes, statuses, and details.",
+      "demo": "Demo — coming with the reservations backend",
+      "status": {
+        "confirmada": "Confirmed",
+        "pendiente": "Payment pending",
+        "completada": "Completed"
+      },
+      "items": {
+        "r1": { "date": "Sat, Apr 19 · 11:00 PM", "table": "VIP Booth 01" },
+        "r2": {
+          "date": "Sat, Apr 26 · 11:30 PM",
+          "table": "Table 07 · Dance floor"
+        },
+        "r3": { "date": "Fri, Mar 21 · 10:30 PM", "table": "Premium Lounge" }
+      },
+      "people": "{count, plural, one {# person} other {# people}}",
+      "code": "Code",
+      "deposit": "{amount} deposit",
+      "bookAnother": "Book another table"
+    },
+    "referrals": {
+      "title": "Referral program",
+      "description": "Bring your friends. Earn points. Get a free VIP night.",
+      "demo": "Demo — coming with the referrals backend",
+      "inviteCode": "Your invitation code",
+      "copied": "Copied",
+      "copyLink": "Copy link",
+      "invitedFriends": "Friends invited",
+      "goal": "{count} for the reward",
+      "remaining": "You need <strong>{count, plural, one {# more friend} other {# more friends}}</strong> to unlock your <reward>free VIP night</reward>.",
+      "pointsEarned": "RAVENUE points earned",
+      "pointsShort": "pts",
+      "pointsDescription": "Every friend who signs up and buys their first ticket earns you <points>+30 pts</points>.",
+      "yourReferrals": "Your referrals",
+      "items": [
+        { "status": "+30 pts · Bought their first ticket", "date": "Apr 22" },
+        { "status": "+30 pts · Bought their first ticket", "date": "Apr 15" },
+        { "status": "+30 pts · Bought their first ticket", "date": "Apr 2" },
+        { "status": "Hasn't bought a ticket yet", "date": "Mar 28" }
+      ]
+    },
+    "preferences": {
+      "success": "Notification preferences updated.",
+      "channel": {
+        "label": "Primary channel",
+        "email": "Email",
+        "push": "Message / push"
+      },
+      "scope": {
+        "label": "Scope",
+        "all": "Every event",
+        "favorites": "Favorites only"
+      },
+      "types": {
+        "label": "Notification types",
+        "reminders": {
+          "label": "Event reminders",
+          "description": "Alerts before events you have tickets for."
+        },
+        "eventUpdates": {
+          "label": "Updates and changes",
+          "description": "Times, locations, and new events based on your selected scope."
+        },
+        "promotions": {
+          "label": "Promotions and perks",
+          "description": "Offers, points, and redemption opportunities."
+        },
+        "social": {
+          "label": "Invites and friends",
+          "description": "Group, pass, and invitation activity."
+        }
+      },
+      "saving": "Saving…",
+      "save": "Save preferences"
+    }
+  },
+  "puntos": {
+    "title": "Points",
+    "description": "Check your balance, choose rewards, and see how you earned your points.",
+    "demo": "Demo — coming with the loyalty backend",
+    "balance": "Available balance",
+    "pointsShort": "pts",
+    "equivalent": "Worth {amount}",
+    "validity": "Valid for 12 months from the date they're issued.",
+    "redeem": {
+      "title": "Redeem",
+      "description": "Redemptions are for demo purposes and don't deduct points yet."
+    },
+    "history": {
+      "title": "History",
+      "date": "Date",
+      "concept": "Activity",
+      "points": "Points",
+      "items": [
+        { "date": "Jul 12", "concept": "Ticket purchase · Neon Nights vol.5" },
+        { "date": "Jul 10", "concept": "In-venue order · Nocturna Club" },
+        { "date": "Jul 8", "concept": "Referral: Daniela Vega" },
+        { "date": "Jul 6", "concept": "Verified check-in · Sunset Rooftop" },
+        { "date": "Jul 3", "concept": "Redemption: PEN 20 to wallet" },
+        {
+          "date": "Jun 28",
+          "concept": "Group ticket purchase · Barranco Beats"
+        },
+        { "date": "Jun 21", "concept": "Group ticket purchase · Noche Latina" },
+        { "date": "Jun 14", "concept": "Group in-venue order · Sky Lounge 360" }
+      ]
+    },
+    "redemptionGrid": {
+      "pointsShort": "pts",
+      "successTitle": "Redeemed — enjoy!",
+      "missing": "You need {count} more pts",
+      "redeem": "Redeem",
+      "successDescription": "{item} is now available in your account.",
+      "done": "Done",
+      "confirmTitle": "Confirm redemption",
+      "confirmDescription": "Redeem {item} for {points} points?",
+      "cancel": "Cancel",
+      "confirm": "Yes, redeem",
+      "options": {
+        "wallet-20": {
+          "name": "PEN 20 in your wallet",
+          "description": "Credit toward your next RAVENUE purchase."
+        },
+        "trago-cortesia": {
+          "name": "Complimentary drink",
+          "description": "One selected drink at participating venues."
+        },
+        "cola-preferente": {
+          "name": "Priority entry x1",
+          "description": "Use the priority line once."
+        },
+        "botella-premium": {
+          "name": "20% off a premium bottle",
+          "description": "A discount on one selected premium bottle."
+        },
+        "mesa-vip": {
+          "name": "Guaranteed VIP table",
+          "description": "Priority booking at a participating venue."
+        }
+      }
+    },
+    "levels": {
+      "metadataTitle": "Levels and badges",
+      "title": "Your RAVENUE level",
+      "description": "Earn points to level up. Each level unlocks new perks.",
+      "demo": "Demo — coming with the points backend",
+      "currentLevel": "Current level",
+      "pointsShort": "pts",
+      "nextLevel": "Next level",
+      "remaining": "{count} to go",
+      "viewHistory": "View history",
+      "redeemPoints": "Redeem points",
+      "badgesTitle": "Your badges",
+      "unlocked": "{unlocked} of {total} unlocked",
+      "locked": "Locked",
+      "levelNames": {
+        "Bronce": "Bronze",
+        "Plata": "Silver",
+        "Oro": "Gold",
+        "Diamante": "Diamond"
+      },
+      "badges": [
+        { "name": "First time", "description": "Bought your first ticket" },
+        { "name": "VIP booking", "description": "Booked your first VIP table" },
+        {
+          "name": "10 nights in Barranco",
+          "description": "Attended 10 events in Barranco"
+        },
+        {
+          "name": "Early bird",
+          "description": "Bought before 8 PM five times"
+        },
+        { "name": "VIP table x3", "description": "Booked 3 VIP booths" },
+        {
+          "name": "RAVENUE birthday",
+          "description": "Celebrate your birthday with us"
+        },
+        { "name": "Around town", "description": "Visit 5 different districts" },
+        {
+          "name": "Nightlife marathon",
+          "description": "10 nights out in one month"
+        },
+        {
+          "name": "Lima connection",
+          "description": "Bring 10 friends to RAVENUE"
+        },
+        {
+          "name": "Favorite venue",
+          "description": "Visit the same venue 5 times"
+        },
+        { "name": "Taste maker", "description": "Write 10 reviews" },
+        {
+          "name": "Until sunrise",
+          "description": "Complete 5 after-hours events"
+        }
+      ]
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "homeAria": "RAVENUE — home",
+    "securePayment": "Secure checkout",
+    "eventUnavailable": "This event doesn't have tickets on sale right now.",
+    "ticketsLoadError": "We couldn't load the tickets right now. Please try again in a few minutes.",
+    "invalidPromoterCode": "The promoter code is invalid or expired, so the free ticket wasn't applied. You can continue with a regular purchase.",
+    "freeUnavailable": "The free ticket linked to this code is no longer available (sold out or paused).",
+    "noTickets": "There are no tickets available for this event.",
+    "freeOffer": "Your promoter {promoter} is giving you a <strong>FREE ticket</strong> to this event",
+    "savings": "You save <strong>{amount}</strong>",
+    "yourDetails": "Your details",
+    "total": "Total",
+    "free": "FREE",
+    "issuing": "Issuing…",
+    "receiveTicket": "Claim ticket",
+    "courtesyNote": "Courtesy of your promoter. You won't be charged.",
+    "ticket": "Ticket",
+    "ticketType": "Ticket type",
+    "select": "Select",
+    "quantity": "Quantity",
+    "removeTicket": "Remove ticket",
+    "addTicket": "Add ticket",
+    "attendees": "Attendees",
+    "payment": "Payment",
+    "paymentMethod": "Payment method",
+    "paymentMethods": {
+      "card": "Card",
+      "yape": "Yape",
+      "plin": "Plin"
+    },
+    "promoCode": "Promo code",
+    "optional": "(optional)",
+    "testPayment": "Test payment (MVP). You won't be charged.",
+    "processing": "Processing…",
+    "pay": "Pay {amount}",
+    "sessionExpired": "Your session expired. Sign in again.",
+    "checkoutError": "We couldn't process your purchase. Please try again.",
+    "validation": {
+      "ticketType": "Select a ticket type",
+      "fullName": "Enter the attendee's full name",
+      "document": "Enter a valid ID number between 8 and 20 characters",
+      "birthDate": "Enter a valid date of birth",
+      "adult": "You must be at least 18 years old"
+    },
+    "errorBoundary": {
+      "title": "Checkout error",
+      "description": "We couldn't load checkout. Please try again.",
+      "retry": "Try again"
+    },
+    "attendee": {
+      "title": "Attendee {number}",
+      "remove": "Remove",
+      "useMyDetails": "That's me — use my account details",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "First and last name",
+      "document": "ID document",
+      "documentTypes": {
+        "dni": "DNI",
+        "ce": "Foreign resident card",
+        "passport": "Passport"
+      },
+      "number": "Number",
+      "birthDate": "Date of birth"
+    },
+    "success": {
+      "confirmed": "Payment confirmed! Your order <strong>{code}</strong> is ready.",
+      "summary": "Summary",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "total": "Total",
+      "tickets": "Your tickets",
+      "viewTickets": "View my tickets"
+    }
+  },
+  "reserva": {
+    "metadata": {
+      "title": "Book a table",
+      "description": "Choose your table, plan your night, and secure your booth with RAVENUE."
+    },
+    "title": "Book your table",
+    "secure": "Secure booking",
+    "demo": "Demo — simulated booking",
+    "progress": "Booking progress",
+    "steps": {
+      "table": "Table",
+      "details": "Details",
+      "bottles": "Bottles",
+      "summary": "Review",
+      "done": "Done"
+    },
+    "remove": "Remove",
+    "add": "Add",
+    "people": "{count, plural, one {# person} other {# people}}",
+    "event": { "placeholder": "Event", "date": "Sat, Apr 19" },
+    "tables": {
+      "m1": { "label": "Table 04 · Dance floor" },
+      "m2": { "label": "Table 07 · Dance floor" },
+      "m3": { "label": "VIP Booth 01" },
+      "m4": { "label": "VIP Booth 02" },
+      "m5": { "label": "Premium Lounge" },
+      "m6": { "label": "VIP Booth 03" },
+      "m7": { "label": "Table 11 · Dance floor" },
+      "m8": { "label": "Table 12 · Dance floor" }
+    },
+    "confirmation": {
+      "title": "Your table is booked!",
+      "description": "{table} for {count} people · arrival at {time}. Show this code at the door:",
+      "creditActive": "Your {amount} spending credit is now active on the venue menu",
+      "noReentry": "This venue does not allow re-entry once you're inside",
+      "backendDemo": "Demo — live bookings and QR codes are coming with the backend",
+      "moreEvents": "See more events",
+      "home": "Back to home"
+    },
+    "table": {
+      "title": "Choose your table",
+      "view": { "lista": "List", "planta": "Floor plan" },
+      "placeholder": {
+        "Pista": "Table · Dance floor",
+        "VIP": "Booth · VIP",
+        "Lounge": "Lounge · Premium"
+      },
+      "zone": { "Pista": "Dance floor", "VIP": "VIP", "Lounge": "Lounge" },
+      "fewLeft": "Few left",
+      "reserved": "Reserved",
+      "available": "Available",
+      "selection": "Your selection",
+      "minimum": "Min. {amount}",
+      "deposit": "Deposit {amount}",
+      "depositTitle": "Your deposit is applied to your venue spend.",
+      "depositDescription": "It isn't an extra fee — if you spend above the minimum, you only pay the difference at the venue."
+    },
+    "floor": {
+      "aria": "Venue floor plan",
+      "danceFloor": "DANCE FLOOR",
+      "vip": "VIP BOOTHS",
+      "lounge": "LOUNGE",
+      "bar": "⬆ Bar",
+      "entrance": "⬇ Main entrance"
+    },
+    "details": {
+      "title": "Booking details",
+      "eventDate": "Event date",
+      "fixedByEvent": "Set by the event",
+      "arrival": "Estimated arrival time",
+      "groupSize": "Party size",
+      "maximum": "Up to {count} at this table",
+      "host": "Booking name",
+      "hostPlaceholder": "e.g. Piero Rivera",
+      "hostError": "Enter the name of the booking holder.",
+      "birthday": "It's my birthday",
+      "birthdayHint": "We'll let the venue know — they may have a surprise ready",
+      "birthdayBadge": "Birthday",
+      "notes": "Notes for the venue (optional)",
+      "notesPlaceholder": "e.g. We may arrive a little late; one friend has a peanut allergy…"
+    },
+    "bottles": {
+      "title": "Bottle pre-order",
+      "skip": "Skip",
+      "description": "Get pre-order prices. Your bottles will be waiting at the table when you arrive.",
+      "items": {
+        "b1": {
+          "name": "Johnnie Walker Black",
+          "brand": "Whisky",
+          "promo": "15% off when you pre-order"
+        },
+        "b2": {
+          "name": "Absolut Original",
+          "brand": "Vodka",
+          "promo": "10% off when you pre-order"
+        },
+        "b3": { "name": "Don Julio Reposado", "brand": "Tequila" },
+        "b4": {
+          "name": "Moët & Chandon Brut",
+          "brand": "Champagne",
+          "promo": "Bottle + 2 mixers"
+        },
+        "b5": { "name": "Bombay Sapphire", "brand": "Gin" },
+        "b6": { "name": "Red Bull (4-pack)", "brand": "Energy drink" }
+      }
+    },
+    "review": {
+      "title": "Review your booking",
+      "table": "Table",
+      "group": "Party",
+      "groupValue": "{count} people · arrival at {time}",
+      "host": "Host",
+      "birthday": "Birthday",
+      "yes": "Yes",
+      "bottles": "Pre-ordered bottles",
+      "advance": "Due today ({percent}%)",
+      "credit": "Spending credit ({percent}%)",
+      "creditHint": "Redeem it on the venue menu",
+      "serviceFee": "Service fee",
+      "total": "Total due at confirmation",
+      "demoNotice": "Demo view: deposit payments will be enabled when the booking backend is ready. Confirming does not create a charge."
+    },
+    "summary": {
+      "title": "Summary",
+      "capacity": "Up to {count} people · {amount} minimum spend",
+      "deposit": "Deposit",
+      "appliedToSpend": "Applied to venue spend",
+      "bottles": "Bottles",
+      "selectTable": "Choose a table to continue."
+    },
+    "confirm": "Confirm booking",
+    "continue": "Continue",
+    "back": "Back",
+    "passes": {
+      "copied": "Pass codes copied.",
+      "copyError": "We couldn't copy the passes. Please try again.",
+      "shareText": "Passes for booking {code}",
+      "shareTitle": "RAVENUE group passes",
+      "title": "Your group passes",
+      "description": "Share one pass with each guest.",
+      "share": "Share passes",
+      "counter": "Pass {current} of {total}",
+      "zones": { "general": "General", "vip": "VIP", "super-vip": "SUPER VIP" }
+    }
+  },
+  "carta": {
+    "page": {
+      "metadataTitle": "{name} menu",
+      "metadataDescription": "Order drinks and bites from {name} for pickup at {zone}.",
+      "demo": "Demo · in-venue menu",
+      "verifiedTicket": "Verified ticket",
+      "title": "{name} menu",
+      "pickup": "Pickup: {zone}",
+      "hours": "Order hours: {schedule}",
+      "description": "Order from your table or the dance floor. We'll let you know when it's ready for pickup.",
+      "unavailable": {
+        "title": "Menu unavailable",
+        "description": "This venue isn't taking RAVENUE orders yet."
+      },
+      "pickupZones": {
+        "nocturna-club": "Main bar",
+        "sky-lounge-360": "Terrace mini bar",
+        "barranco-beats": "Central bar",
+        "karaoke-estelar": "Room bar"
+      }
+    },
+    "searchPlaceholder": "Search the menu…",
+    "searchAria": "Search menu items",
+    "all": "All",
+    "categories": {
+      "cocteles": "Cocktails",
+      "botellas": "Bottles",
+      "cervezas": "Beer",
+      "shots": "Shots",
+      "sin-alcohol": "Non-alcoholic",
+      "piqueos": "Bites"
+    },
+    "tags": {
+      "2x1": "2-for-1",
+      "especialidad": "House specialty",
+      "nuevo": "New",
+      "popular": "Most popular"
+    },
+    "empty": {
+      "title": "No items found",
+      "description": "Try a different search or category.",
+      "action": "Clear filters"
+    },
+    "viewItem": "View {item}",
+    "soldOut": "Sold out",
+    "addAria": "Add {item}",
+    "addAnotherAria": "Add another {item}; {count} in cart",
+    "items": {
+      "i1": {
+        "name": "Pisco Sour",
+        "description": "A Peruvian classic with quebranta pisco, lime, syrup, and Angostura bitters."
+      },
+      "i2": {
+        "name": "Passion Fruit Chilcano",
+        "description": "Pisco, ginger ale, and passion fruit pulp. Refreshing with a kick."
+      },
+      "i3": {
+        "name": "Classic Mojito",
+        "description": "White rum, fresh mint, lime, and soda."
+      },
+      "i4": {
+        "name": "House Gin & Tonic",
+        "description": "Premium gin, craft tonic, and selected botanicals."
+      },
+      "i5": {
+        "name": "Blue Lagoon",
+        "description": "Vodka, blue curaçao, and lime. A dance-floor favorite."
+      },
+      "i6": {
+        "name": "Premium Vodka Bottle",
+        "description": "Includes 4 energy drinks and unlimited ice for your table."
+      },
+      "i7": {
+        "name": "12-Year Whisky Bottle",
+        "description": "Includes 2 ginger ales and ice, served at your table."
+      },
+      "i8": {
+        "name": "Aged Rum Bottle",
+        "description": "Includes 4 colas and limes. Great for groups."
+      },
+      "i9": {
+        "name": "Brut Champagne",
+        "description": "Bubbles for the celebration, with glasses for the whole table."
+      },
+      "i10": { "name": "Craft IPA", "description": "Local draft IPA, 473 ml." },
+      "i11": {
+        "name": "Classic Lager",
+        "description": "Ice-cold Peruvian lager, 355 ml."
+      },
+      "i12": {
+        "name": "Beer Bucket ×6",
+        "description": "Six classic lagers on ice, made for sharing."
+      },
+      "i13": {
+        "name": "Tequila Shots ×4",
+        "description": "Four shots with salt and lime."
+      },
+      "i14": {
+        "name": "Jäger Bomb",
+        "description": "The essential energy-drink combo."
+      },
+      "i15": {
+        "name": "Frozen Lemonade",
+        "description": "Ice-cold lemonade with fresh mint."
+      },
+      "i16": { "name": "Energy Drink", "description": "Ice-cold 355 ml can." },
+      "i17": {
+        "name": "Mineral Water",
+        "description": "Still or sparkling, 500 ml."
+      },
+      "i18": {
+        "name": "Tequeños ×8",
+        "description": "Cheese-filled sticks with house guacamole."
+      },
+      "i19": {
+        "name": "BBQ Wings ×10",
+        "description": "Coated in smoky BBQ sauce."
+      },
+      "i20": {
+        "name": "Peruvian Sharing Platter",
+        "description": "Crispy pork, Peruvian corn, and sauces to share."
+      }
+    },
+    "cart": {
+      "viewAria": "View order: {count} items, {total} total",
+      "pickup": "Pick up at <strong>{zone}</strong>",
+      "view": "View order",
+      "title": "Your order",
+      "each": "{amount} each",
+      "removeAria": "Remove {item}",
+      "addAria": "Add {item}",
+      "total": "Total",
+      "split": "Split the bill",
+      "confirm": "Review order",
+      "demoNote": "Demo: you won't be charged."
+    },
+    "product": {
+      "removeOne": "Remove one",
+      "addOne": "Add one",
+      "addWithPrice": "Add · {amount}",
+      "soldOutTonight": "Sold out tonight"
+    },
+    "credit": {
+      "creditAvailable": "You have {amount} in spending credit",
+      "creditNote": "It will be applied automatically when you confirm your order."
+    },
+    "order": {
+      "eyebrow": "In-venue order",
+      "summary": "Order summary",
+      "pickup": "Pickup at {zone}",
+      "orderTotal": "Order total",
+      "credit": "Credit applied",
+      "payTotal": "Balance due",
+      "confirm": "Place order",
+      "backToMenu": "Back to menu",
+      "pickupCode": "Pickup code",
+      "creditRedeemed": "You used {amount} of your spending credit",
+      "remainingBalance": "You have {amount} left",
+      "orderMore": "Order something else",
+      "demo": "Demo — status updates automatically"
+    },
+    "status": {
+      "aria": "Order status",
+      "received": {
+        "label": "Order received",
+        "hint": "The venue has your order."
+      },
+      "preparing": {
+        "label": "Preparing",
+        "hint": "Your order is being prepared."
+      },
+      "ready": {
+        "label": "Ready for pickup",
+        "hint": "Show your code at the pickup area."
+      }
+    },
+    "split": {
+      "title": "Split the bill",
+      "description": "Create a payment link for each person.",
+      "people": "People",
+      "range": "Between 2 and 8",
+      "removePerson": "Remove person",
+      "addPerson": "Add person",
+      "perPerson": "Each person pays {amount}",
+      "paid": "Paid",
+      "linkSent": "Link sent",
+      "sendLink": "Send link",
+      "demo": "Demo — links don't create real charges"
+    }
+  },
+  "affiliate": {
+    "metadata": {
+      "title": "List your venue",
+      "description": "Bring your nightclub or bar to RAVENUE and start selling tickets."
+    },
+    "eyebrow": "For venues",
+    "title": "A packed venue, without the chaos at the door",
+    "description": "Bring tickets, bookings, and promoters into one place so your team can run the night with clear information, from sale to entry.",
+    "stats": {
+      "venues": "Venues",
+      "events": "Events per month",
+      "nightOwls": "Night owls"
+    },
+    "benefits": {
+      "1": "Fast entry without the lines",
+      "2": "Verifiable bookings with fewer disputes",
+      "3": "Personal promoter links and clear goals",
+      "4": "A weekly report ready for your meeting"
+    },
+    "formTitle": "List your venue on RAVENUE",
+    "formDescription": "Sell tickets, manage events, and reach more people. Leave your details and we'll get in touch.",
+    "howItWorks": "How it works",
+    "stepsTitle": "From application to smoother operations",
+    "steps": {
+      "1": {
+        "title": "Apply",
+        "description": "Tell us about your venue and our team will review the application with you."
+      },
+      "2": {
+        "title": "Set your policies",
+        "description": "Define areas, bookings, and promoters around the way your operation actually works."
+      },
+      "3": {
+        "title": "Move beyond spreadsheets",
+        "description": "Manage sales, entry, and results through one shared workflow for your whole team."
+      }
+    },
+    "form": {
+      "errors": {
+        "commercialName": "Enter the venue name.",
+        "legalName": "Enter the registered business name.",
+        "ruc": "The RUC must be 11 digits",
+        "address": "Enter the venue address.",
+        "contactName": "Enter the contact person's name.",
+        "contactEmail": "Enter a contact email.",
+        "email": "Enter a valid email.",
+        "contactPhone": "Enter a contact phone number.",
+        "phoneLong": "The phone number is too long."
+      },
+      "successToast": "Application sent. We'll contact you soon.",
+      "successTitle": "Application received",
+      "successDescription": "The application for <strong>{venue}</strong> is <strong>{status}</strong>. An administrator will review it soon.",
+      "status": {
+        "pending": "pending",
+        "approved": "approved",
+        "rejected": "rejected"
+      },
+      "commercialName": "Venue name",
+      "commercialNamePlaceholder": "e.g. Nocturna Club",
+      "legalName": "Registered business name",
+      "legalNamePlaceholder": "Name registered with SUNAT",
+      "ruc": "RUC",
+      "rucPlaceholder": "11 digits",
+      "address": "Address",
+      "addressPlaceholder": "Street address and district",
+      "contact": "Contact person",
+      "contactPlaceholder": "Full name",
+      "phone": "Phone",
+      "email": "Contact email",
+      "emailPlaceholder": "contact@venue.com",
+      "socials": "Social media",
+      "optional": "(optional)",
+      "socialsPlaceholder": "https://instagram.com/yourvenue · @yourvenue on TikTok · yoursite.com",
+      "socialsHint": "Paste links or social handles, separated by commas.",
+      "sending": "Sending…",
+      "submit": "Send application"
+    }
+  },
+  "ayuda": {
+    "metadata": {
+      "title": "Help center",
+      "description": "Find answers and contact us if you need more help."
+    },
+    "eyebrow": "Help",
+    "title": "How can we help?",
+    "description": "Browse a topic or check the FAQs. If you can't find an answer, write to us.",
+    "topics": {
+      "tickets": {
+        "title": "Tickets and purchases",
+        "description": "How to buy, receive your QR code, and what to do if an event is canceled."
+      },
+      "payments": {
+        "title": "Payments and refunds",
+        "description": "Payment methods, refund timing, and your wallet balance."
+      },
+      "account": {
+        "title": "Account and verification",
+        "description": "Registration, age verification (18+), and account recovery."
+      },
+      "complaints": {
+        "title": "Complaints Book",
+        "description": "Formally submit a complaint or claim about the service."
+      }
+    },
+    "contact": {
+      "title": "Still need help?",
+      "description": "Our team responds within 24 hours, every day.",
+      "action": "Write to us"
+    }
+  },
+  "about": {
+    "metadata": {
+      "title": "About us",
+      "description": "RAVENUE was born in Lima to bring the best of nightlife together: verified events, bars, and nightclubs."
+    },
+    "eyebrow": "Get to know us",
+    "title": "Nightlife is better when everything flows",
+    "description": "RAVENUE was born in Lima to bring the best of nightlife together in one place: verified events, bars, and nightclubs.",
+    "stats": {
+      "events": "Events this month",
+      "venues": "Verified venues",
+      "nightOwls": "Happy night owls"
+    },
+    "history": { "eyebrow": "Our story", "title": "What drives us" },
+    "sections": {
+      "mission": {
+        "title": "Our mission",
+        "body": "Make going out simple and safe. We want you to discover where to go, buy tickets without scalpers, and make plans with friends in seconds."
+      },
+      "whatWeDo": {
+        "title": "What we do",
+        "body": "We connect night owls with verified venues. Tickets, table bookings, guest lists, and perks — all in an experience built for nightlife."
+      },
+      "venues": {
+        "title": "For venues",
+        "body": "We give nightclubs and bars the tools to publish events, manage capacity, sell tickets, and book tables while reaching thousands of people looking for a night out."
+      },
+      "commitment": {
+        "title": "Our commitment",
+        "body": "RAVENUE is only for adults 18 and over. We verify IDs, protect your data, and fight ticket scalping so you can enjoy the night with confidence."
+      }
+    }
+  },
+  "contacto": {
+    "metadata": {
+      "title": "Contact",
+      "description": "Get in touch with the RAVENUE team."
+    },
+    "eyebrow": "We're here to help",
+    "title": "Contact us",
+    "description": "Tell us what you need and we'll prepare your message for our support team.",
+    "support": {
+      "title": "RAVENUE support",
+      "description": "Submitting the form will open your email app so you can send the message."
+    },
+    "form": {
+      "errors": {
+        "name": "Enter your name.",
+        "email": "Enter a valid email.",
+        "subject": "Briefly tell us what this is about.",
+        "message": "Your message must be at least 10 characters."
+      },
+      "success": "Your message is ready. We'll open your email app to send it.",
+      "mailName": "Name",
+      "mailEmail": "Email",
+      "name": "Name",
+      "email": "Email",
+      "subject": "Subject",
+      "message": "Message",
+      "submit": "Send message"
+    }
+  },
+  "canjear": {
+    "metadataTitle": "Redeem code",
+    "freeTicket": "Free ticket",
+    "percentDiscount": "{value}% off",
+    "amountDiscount": "{amount} off",
+    "specialBenefit": "Special perk",
+    "invalid": {
+      "title": "Invalid code",
+      "description": "This code doesn't exist, has expired, or has already been used.",
+      "action": "Explore events"
+    },
+    "courtesy": "Courtesy of {promoter} · code <codeTag>{code}</codeTag>",
+    "promoterCode": "Promoter code · code <codeTag>{code}</codeTag>",
+    "savings": "You save <strong>{amount}</strong>",
+    "continue": "View event and continue"
+  },
+  "guest": { "metadataTitle": "Guest list" },
+  "complaints": {
+    "metadata": {
+      "title": "Complaints Book",
+      "description": "Submit a complaint or claim about RAVENUE services."
+    },
+    "eyebrow": "Help",
+    "title": "Complaints Book",
+    "description": "Under Peru's Consumer Protection and Defense Code (Law No. 29571), you can submit a complaint or claim here about RAVENUE services.",
+    "required": "All fields are required.",
+    "type": { "reclamo": "claim", "queja": "complaint" },
+    "success": {
+      "title": "Submission registered",
+      "description": "Your {type} was registered under code <strong>{code}</strong>. You'll receive a response at the email provided within 15 business days.",
+      "demo": "Demo — live submissions are coming with the support backend"
+    },
+    "form": {
+      "type": "Request type",
+      "claim": "Claim (product or service)",
+      "complaint": "Complaint (customer service)",
+      "document": "Identity document",
+      "documentPlaceholder": "DNI / resident card",
+      "name": "Full name",
+      "namePlaceholder": "Your name",
+      "email": "Email address",
+      "emailPlaceholder": "you@email.com",
+      "detail": "Complaint or claim details",
+      "detailPlaceholder": "Tell us what happened, including the date, event, or venue when relevant…",
+      "demo": "Demo — support backend not connected yet",
+      "submit": "Submit form"
+    }
+  },
+  "promoterApplication": {
+    "metadataTitle": "Apply as a promoter",
+    "eyebrow": "For promoters",
+    "title": "Grow your community and get paid with clear numbers",
+    "description": "Bring your crowd to the best nights with tools that track every guest, sale, and commission without manual work.",
+    "stats": {
+      "events": "Events per month",
+      "venues": "Venues",
+      "nightOwls": "Night owls"
+    },
+    "benefits": {
+      "1": "Your own link, so guests can claim codes themselves",
+      "2": "Clear goals and bonuses, without spreadsheet disputes",
+      "3": "Commission on booth and table sales",
+      "4": "Transparent payouts"
+    },
+    "formTitle": "Become a promoter",
+    "formDescription": "Apply to sell tickets and earn commission from referrals. A venue will review your application."
+  },
+  "legal": {
+    "fallbackTitle": "Legal",
+    "publishedVersion": "Version {version} · effective {date}",
+    "viewDocument": "View document",
+    "docs": {
+      "terms": {
+        "crumb": "Legal",
+        "title": "Terms and conditions",
+        "updated": "Last updated: May 2026",
+        "intro": "These terms govern your use of the RAVENUE platform and the services offered through it.",
+        "sections": [
+          [
+            "1. Acceptance",
+            "By creating an account or using RAVENUE, you accept these terms and conditions, along with our privacy and cookie policies."
+          ],
+          [
+            "2. Using the platform",
+            "RAVENUE is an adults-only platform for users aged 18 and over that connects people with events and venues. You must provide accurate information and keep your account secure."
+          ],
+          [
+            "3. Ticket purchases and bookings",
+            "Purchases and bookings are governed by each event and venue's terms. RAVENUE acts as the technology platform for their sale and management."
+          ],
+          [
+            "4. Responsibilities",
+            "Final admission to each venue is subject to its entry rules. Venues are responsible for delivering the service offered."
+          ],
+          [
+            "5. Intellectual property",
+            "All RAVENUE content, branding, and design are protected. They may not be reproduced without permission."
+          ]
+        ]
+      },
+      "privacy": {
+        "crumb": "Legal",
+        "title": "Privacy policy",
+        "updated": "Last updated: May 2026",
+        "intro": "We explain which data we collect, why we collect it, and how we protect it.",
+        "sections": [
+          [
+            "Data we collect",
+            "Registration data (name, email, ID, and phone number), purchase and booking information, and platform usage data."
+          ],
+          [
+            "How we use it",
+            "To manage your account, process purchases and bookings, verify that you're over 18, prevent fraud, and improve your experience."
+          ],
+          [
+            "Protection",
+            "Your data is stored in encrypted form and we apply security measures to prevent unauthorized access."
+          ],
+          [
+            "Your rights",
+            "You can access, correct, or request the deletion of your data by contacting us through the help center."
+          ]
+        ]
+      },
+      "cookies": {
+        "crumb": "Legal",
+        "title": "Cookie policy",
+        "updated": "Last updated: May 2026",
+        "intro": "We use cookies to keep the platform working properly and improve your experience.",
+        "sections": [
+          [
+            "What are cookies?",
+            "Small files stored on your device to remember your preferences and keep you signed in."
+          ],
+          [
+            "Types of cookies",
+            "Essential cookies (needed for the platform to work), performance cookies (anonymous analytics), and personalization cookies (to remember filters and preferences)."
+          ],
+          [
+            "Managing cookies",
+            "You can clear cookies from the footer or through your browser settings at any time."
+          ]
+        ]
+      },
+      "beneficiario": {
+        "crumb": "Legal",
+        "title": "Ultimate Beneficial Owner Statement",
+        "updated": "Last updated: May 2026",
+        "intro": "In compliance with applicable regulations, RAVENUE identifies its ultimate beneficial owners.",
+        "sections": [
+          [
+            "Definition",
+            "An ultimate beneficial owner is the individual who ultimately owns or controls the company that operates the platform."
+          ],
+          [
+            "Statement",
+            "RAVENUE keeps its ultimate beneficial owner information current in line with anti-money laundering regulations."
+          ],
+          [
+            "Transparency",
+            "This information is made available to the relevant authorities when required."
+          ]
+        ]
+      },
+      "clausulas": {
+        "crumb": "Legal",
+        "title": "Additional use clauses",
+        "updated": "Last updated: May 2026",
+        "intro": "Terms that apply when you consent to additional uses of your data.",
+        "sections": [
+          [
+            "Scope",
+            "By consenting to additional uses, you authorize us to send personalized perks, promotions, and discounts."
+          ],
+          [
+            "Optional consent",
+            "This consent is optional and does not affect your use of the platform or your ability to buy tickets or make bookings."
+          ],
+          [
+            "Withdrawal",
+            "You can withdraw your consent at any time in your account settings or by contacting us through the help center."
+          ]
+        ]
+      },
+      "refund_policy": {
+        "crumb": "Legal",
+        "title": "Refund policy",
+        "updated": "Last updated: May 2026",
+        "intro": "Terms that apply to refunds for tickets purchased through RAVENUE.",
+        "sections": [
+          [
+            "General rule",
+            "Unless an event is canceled, tickets purchased through RAVENUE are non-refundable. Before buying, check the date, venue, and event terms."
+          ],
+          [
+            "Event cancellation",
+            "If an organizer cancels an event, we'll arrange a refund of the ticket amount through the original payment method, subject to the processor's timing."
+          ],
+          [
+            "Venue-specific policies",
+            "Each venue and event may set additional refund or exchange terms. These appear in the event details before purchase."
+          ],
+          [
+            "How to request help",
+            "For questions or requests, contact us through the help center and include your order number."
+          ]
+        ]
+      }
+    }
+  },
+  "tickets": {
+    "card": {
+      "fallbackTitle": "Your ticket",
+      "status": {
+        "valid": "Valid",
+        "used": "Used",
+        "cancelled": "Canceled",
+        "expired": "Expired"
+      },
+      "issued": "Issued {date}",
+      "viewMenu": "View venue menu"
+    },
+    "qr": { "alt": "Ticket QR code" }
+  },
+  "screens": {
+    "metadata": {
+      "title": "System screens",
+      "description": "Visual index of every screen for review and QA."
+    },
+    "eyebrow": "Internal review",
+    "title": "System screens",
+    "summary": "{total} navigable routes for auditing the full frontend.",
+    "status": {
+      "real": "Live",
+      "demo": "Demo",
+      "mixta": "Mixed",
+      "realDescription": "= connected to the live backend;",
+      "demoDescription": "= visible frontend layer while its backend is being built. This internal page will be hidden in production."
+    },
+    "note": "Note: the prototype contains over 100 design screens, but several are steps in the same flow or modal views. Each route here groups its related states: booking and checkout contain their steps, while modals live within their pages.",
+    "storybook": "Storybook (design system components): run <code>pnpm --filter @urnight/web storybook</code> and open localhost:6006.",
+    "groups": [
+      {
+        "title": "1 · B2C — Discovery",
+        "screens": [
+          {
+            "route": "/",
+            "name": "Home",
+            "status": "real",
+            "note": "Hero and sections powered by API data"
+          },
+          {
+            "route": "/events",
+            "name": "Event listing",
+            "status": "real",
+            "note": "Genre filters and search"
+          },
+          {
+            "route": "/events/calendar",
+            "name": "Monthly calendar",
+            "status": "real"
+          },
+          {
+            "route": "/events/tendencias",
+            "name": "Trending",
+            "status": "real"
+          },
+          {
+            "route": "/locals",
+            "name": "Venue listing",
+            "status": "real",
+            "note": "Area filter"
+          },
+          {
+            "route": "/categorias",
+            "name": "Categories",
+            "status": "real",
+            "note": "Areas, genres, and tags"
+          },
+          { "route": "/search", "name": "Global search", "status": "real" },
+          {
+            "route": "/events",
+            "name": "Event details",
+            "status": "real",
+            "note": "Open any card in the listing"
+          },
+          {
+            "route": "/locals",
+            "name": "Venue details",
+            "status": "real",
+            "note": "Open any card in the listing"
+          },
+          {
+            "route": "/locals/nocturna-club",
+            "name": "Venue crowd meter",
+            "status": "demo",
+            "note": "Live capacity inside venue details"
+          }
+        ]
+      },
+      {
+        "title": "2 · Authentication and onboarding",
+        "screens": [
+          {
+            "route": "/login",
+            "name": "Sign in",
+            "status": "real",
+            "note": "Prototype split layout"
+          },
+          { "route": "/register", "name": "Create account", "status": "real" },
+          { "route": "/recover", "name": "Recover password", "status": "demo" },
+          {
+            "route": "/verify-email",
+            "name": "Verify email",
+            "status": "demo"
+          },
+          { "route": "/2fa", "name": "2FA verification", "status": "demo" },
+          {
+            "route": "/onboarding",
+            "name": "Initial preferences",
+            "status": "real",
+            "note": "Only shown for a new account"
+          }
+        ]
+      },
+      {
+        "title": "3 · Ticket purchases and table bookings",
+        "screens": [
+          {
+            "route": "/events",
+            "name": "Ticket checkout (T1–T4)",
+            "status": "real",
+            "note": "Open an event, choose tickets, and buy while signed in"
+          },
+          {
+            "route": "/reserva",
+            "name": "Table booking (R1–R5)",
+            "status": "demo",
+            "note": "Wizard: table, details, bottles, review, and done"
+          },
+          {
+            "route": "/locals/nocturna-club/carta",
+            "name": "Venue menu",
+            "status": "demo",
+            "note": "With a verified ticket: menu, order, and pickup"
+          },
+          {
+            "route": "/locals/nocturna-club/carta",
+            "name": "Split the bill",
+            "status": "demo",
+            "note": "Inside the order panel"
+          },
+          {
+            "route": "/canjear/ANDREA10",
+            "name": "Redeem promoter code",
+            "status": "real",
+            "note": "Seed-data code"
+          },
+          {
+            "route": "/p/ANDREA10",
+            "name": "Public promoter landing page",
+            "status": "real"
+          }
+        ]
+      },
+      {
+        "title": "4 · My account",
+        "description": "Sign in with the test user listed in the repository's seed data.",
+        "screens": [
+          { "route": "/account", "name": "Profile", "status": "real" },
+          {
+            "route": "/account/tickets",
+            "name": "My tickets (QR)",
+            "status": "real"
+          },
+          {
+            "route": "/account/guardados",
+            "name": "Saved items and favorites",
+            "status": "real"
+          },
+          {
+            "route": "/account/reservas",
+            "name": "My bookings (R6)",
+            "status": "demo"
+          },
+          {
+            "route": "/account/wallet",
+            "name": "RAVENUE Wallet",
+            "status": "demo"
+          },
+          {
+            "route": "/account/niveles",
+            "name": "Levels and badges",
+            "status": "demo"
+          },
+          {
+            "route": "/account/puntos",
+            "name": "Points history and rewards",
+            "status": "demo"
+          },
+          {
+            "route": "/account/referidos",
+            "name": "Referral program",
+            "status": "demo"
+          },
+          {
+            "route": "/account/notificaciones",
+            "name": "Notifications",
+            "status": "real"
+          },
+          {
+            "route": "/account/invitaciones",
+            "name": "Invitations",
+            "status": "real"
+          },
+          {
+            "route": "/account/amigos",
+            "name": "Friends and social profile",
+            "status": "demo"
+          }
+        ]
+      },
+      {
+        "title": "5 · Information, legal, and status pages",
+        "screens": [
+          { "route": "/nosotros", "name": "About us", "status": "real" },
+          {
+            "route": "/faq",
+            "name": "Frequently asked questions",
+            "status": "real"
+          },
+          { "route": "/ayuda", "name": "Help center", "status": "real" },
+          {
+            "route": "/reclamaciones",
+            "name": "Complaints Book",
+            "status": "demo"
+          },
+          {
+            "route": "/legal/terms",
+            "name": "Terms and conditions",
+            "status": "real"
+          },
+          {
+            "route": "/legal/privacy",
+            "name": "Privacy policy",
+            "status": "real"
+          },
+          {
+            "route": "/legal/cookies",
+            "name": "Cookie policy",
+            "status": "real"
+          },
+          {
+            "route": "/legal/beneficiario",
+            "name": "Ultimate Beneficial Owner",
+            "status": "real"
+          },
+          {
+            "route": "/legal/clausulas",
+            "name": "Additional clauses",
+            "status": "real"
+          },
+          { "route": "/afiliar", "name": "List my venue", "status": "real" },
+          {
+            "route": "/promotor/postular",
+            "name": "Apply as a promoter",
+            "status": "real"
+          },
+          {
+            "route": "/pagina-inexistente",
+            "name": "404 error",
+            "status": "real",
+            "note": "Branded screen"
+          }
+        ]
+      },
+      {
+        "title": "6 · Role-based panels",
+        "description": "Sign out and use the account for each role listed in the repository's seed data.",
+        "screens": [
+          {
+            "route": "/panel",
+            "name": "Panel selector",
+            "status": "real",
+            "note": "Any staff role"
+          },
+          { "route": "/panel/admin", "name": "Venue panel", "status": "real" },
+          {
+            "route": "/panel/admin/locals",
+            "name": "My venues",
+            "status": "real"
+          },
+          {
+            "route": "/panel/admin/locals",
+            "name": "Create-event wizard",
+            "status": "mixta",
+            "note": "Open a venue and choose Create event"
+          },
+          {
+            "route": "/panel/admin/promoters",
+            "name": "Promoters",
+            "status": "real"
+          },
+          {
+            "route": "/panel/admin/mesas",
+            "name": "Tables and floor plan",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/admin/carta",
+            "name": "Venue menu",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/admin/pedidos",
+            "name": "In-venue orders",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/admin/checkin",
+            "name": "Live check-in",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/superadmin",
+            "name": "Super Admin",
+            "status": "real"
+          },
+          {
+            "route": "/panel/superadmin/companies",
+            "name": "Companies",
+            "status": "real"
+          },
+          {
+            "route": "/panel/superadmin/affiliations",
+            "name": "Affiliations",
+            "status": "real"
+          },
+          {
+            "route": "/panel/superadmin/reviews",
+            "name": "Reviews and reports",
+            "status": "real"
+          },
+          {
+            "route": "/panel/superadmin/audit",
+            "name": "Audit log",
+            "status": "real"
+          },
+          {
+            "route": "/panel/superadmin/fidelizacion",
+            "name": "Loyalty",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/superadmin/reclamaciones",
+            "name": "Complaints",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/superadmin/antifraude",
+            "name": "Fraud prevention",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/superadmin/salud",
+            "name": "Product health",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/promoter",
+            "name": "Promoter panel",
+            "status": "real"
+          },
+          {
+            "route": "/panel/promoter/links",
+            "name": "My links",
+            "status": "real"
+          },
+          {
+            "route": "/panel/promoter/ventas",
+            "name": "Sales",
+            "status": "real"
+          },
+          {
+            "route": "/panel/promoter/liquidaciones",
+            "name": "Payouts",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/validator",
+            "name": "Validator panel",
+            "status": "real"
+          }
+        ]
+      }
+    ]
+  },
+  "brand": {
+    "metadataTitle": "Brand Lab",
+    "hero": {
+      "eyebrow": "Brand Lab — final identity",
+      "tagline": "Where nightlife finds its place."
+    },
+    "logo": {
+      "eyebrow": "01 — Logo system",
+      "title": "Final identity",
+      "description": "The wordmark and angular V form the definitive system for RAVENUE brand touchpoints.",
+      "primary": "Primary",
+      "usage": "Use",
+      "historyLabel": "Archive note",
+      "history": "the final identity brings together the selected D1 wordmark and D3 compact symbol directions.",
+      "assets": {
+        "wordmark": {
+          "title": "Primary wordmark",
+          "description": "For navigation, communication, and horizontal brand surfaces.",
+          "usage": "Header, campaigns, and editorial pieces"
+        },
+        "icon": {
+          "title": "Icon mark",
+          "description": "The angular V and its beam of light serve as RAVENUE's compact signature.",
+          "usage": "Favicon, avatar, and app"
+        }
+      }
+    },
+    "color": {
+      "eyebrow": "02 — Color",
+      "title": "Obsidian, moonlight, and crimson",
+      "description": "A restrained nighttime base where crimson is reserved for brand and action.",
+      "composition": "Composition rule",
+      "compositionAria": "70% dark tones, 20% whites and grays, 10% crimson",
+      "palette": {
+        "obsidian": { "name": "Obsidian", "use": "Base background" },
+        "charcoal": { "name": "Charcoal Carbon", "use": "Surfaces" },
+        "elevated": { "name": "Elevated", "use": "Elevated surfaces" },
+        "crimson": { "name": "Ravenue Crimson", "use": "Actions and brand" },
+        "wine": { "name": "Deep Wine", "use": "Pressed states and gradients" },
+        "white": { "name": "Moon White", "use": "Primary text" },
+        "smoke": { "name": "Smoke Gray", "use": "Secondary text" },
+        "steel": { "name": "Steel Border", "use": "Borders" },
+        "soft": { "name": "Border Soft", "use": "Strong borders and hover" }
+      }
+    },
+    "typography": {
+      "eyebrow": "03 — Typography",
+      "title": "Sora draws attention. Inter guides the way.",
+      "displaySample": "Nightlife finds its place.",
+      "displayUsage": "Sora 700 · headlines, campaigns, and brand moments.",
+      "bodySample": "Discover events, venues, and experiences through a clear interface, even when the night is just beginning.",
+      "scale": "Scale",
+      "usage": "Use",
+      "uiReading": "UI and reading",
+      "bodyUsage": "Inter 400–700 · navigation, data, forms, and body copy."
+    },
+    "components": {
+      "eyebrow": "04 — Components",
+      "title": "Tokens on the real product",
+      "description": "Design-system states rendered with the new palette.",
+      "actions": "Actions and states",
+      "default": "Default",
+      "hover": "Hover",
+      "disabled": "Disabled",
+      "secondary": "Secondary",
+      "invitationEmail": "Invitation email",
+      "emailPlaceholder": "partner@ravenue.pe",
+      "tonight": "Tonight",
+      "session": "RAVENUE Session",
+      "cardDescription": "A real card for validating surfaces, borders, and hierarchy.",
+      "location": "Downtown Lima · 11:30 PM",
+      "access": "Verified entry and limited capacity."
+    },
+    "semantics": {
+      "eyebrow": "05 — Semantics",
+      "title": "Brand crimson is not an error",
+      "error": "Error",
+      "description": "Brand actions use a cool, deep crimson. Error states keep a brighter red to distinguish brand intent from functional alerts."
+    },
+    "voice": {
+      "eyebrow": "06 — Voice",
+      "title": "Candidate messages",
+      "context": "Context",
+      "messages": "Messages",
+      "rows": [
+        {
+          "context": "Primary tagline",
+          "messages": ["Where nightlife finds its place."]
+        },
+        {
+          "context": "Alternative",
+          "messages": ["Nightlife, better connected."]
+        },
+        {
+          "context": "B2C",
+          "messages": [
+            "Find where the night comes alive.",
+            "Your night starts here."
+          ]
+        },
+        {
+          "context": "B2B",
+          "messages": [
+            "Turn venues into revenue.",
+            "More visibility. Bigger crowds. Better business."
+          ]
+        }
+      ]
+    },
+    "atmosphere": {
+      "eyebrow": "07 — Atmosphere",
+      "title": "Signature gradient",
+      "depth": "Nighttime depth without losing clarity.",
+      "luxury": "Luxury"
+    },
+    "motion": {
+      "eyebrow": "08 — Motion",
+      "title": "Fast, clear, and controlled",
+      "description": "Standard durations for feedback, component transitions, and page changes.",
+      "tokens": {
+        "fast": { "name": "Fast", "use": "Hover and press" },
+        "normal": { "name": "Normal", "use": "Panels and modals" },
+        "slow": { "name": "Slow", "use": "Page transitions" }
+      }
+    }
+  }
+}

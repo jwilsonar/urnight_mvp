@@ -8,6 +8,7 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Badge, Button, Card, CardContent } from "@urnight/ui";
 import { CrowdMeter } from "@/components/catalog/crowd-meter";
 import { EventCard } from "@/components/catalog/event-card";
@@ -42,9 +43,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const local = await loadLocal(slug);
+  const t = await getTranslations("locals.detail");
   return {
     title: local.name,
-    description: local.description ?? `Descubre ${local.name} en RAVENUE.`,
+    description:
+      local.description ?? t("metadataDescription", { name: local.name }),
     openGraph: local.mainImageUrl
       ? { images: [local.mainImageUrl] }
       : undefined,
@@ -56,6 +59,8 @@ export default async function LocalDetailPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  const t = await getTranslations("locals.detail");
+  const commonT = await getTranslations("common");
   const { slug } = await params;
   const local = await loadLocal(slug);
   // Datos secundarios: si fallan, la página del local (ya cargada) degrada a
@@ -87,10 +92,10 @@ export default async function LocalDetailPage({
             <div className="flex flex-wrap items-center gap-2">
               {local.isVerified ? (
                 <Badge variant="success" className="gap-1">
-                  <SealCheck className="size-3" weight="fill" /> Verificado
+                  <SealCheck className="size-3" weight="fill" /> {t("verified")}
                 </Badge>
               ) : null}
-              <Badge variant="secondary">Discoteca · Bar</Badge>
+              <Badge variant="secondary">{t("venueType")}</Badge>
             </div>
             <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
               <h1 className="font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
@@ -114,13 +119,13 @@ export default async function LocalDetailPage({
           <Reveal>
             <section className="mt-10">
               <h2 className="mb-4 font-heading text-xl font-extrabold">
-                Próximos eventos {events.length > 0 ? `(${events.length})` : ""}
+                {t("upcomingEvents", { count: events.length })}
               </h2>
               {events.length === 0 ? (
                 <EmptyState
                   icon={<CalendarBlank className="h-8 w-8" weight="duotone" />}
-                  title="Sin eventos próximos"
-                  description="Este local aún no publica sus siguientes fechas."
+                  title={t("emptyEvents.title")}
+                  description={t("emptyEvents.description")}
                 />
               ) : (
                 <div className="grid gap-5 sm:grid-cols-2">
@@ -137,7 +142,7 @@ export default async function LocalDetailPage({
           <Reveal>
             <section className="mt-10 pb-4">
               <h2 className="mb-4 font-heading text-xl font-extrabold">
-                Reseñas {reviews.length > 0 ? `(${reviews.length})` : ""}
+                {t("reviews", { count: reviews.length })}
               </h2>
               <ReviewList reviews={reviews} />
             </section>
@@ -149,7 +154,9 @@ export default async function LocalDetailPage({
           {crowd ? <CrowdMeter crowd={crowd} /> : null}
           <Card>
             <CardContent className="p-6">
-              <p className="rv-eyebrow mb-3">Para ir a {local.name}</p>
+              <p className="rv-eyebrow mb-3">
+                {t("directionsFor", { name: local.name })}
+              </p>
               {hasCoords ? (
                 <div className="mb-4 overflow-hidden rounded-md">
                   <LocalMap
@@ -160,7 +167,7 @@ export default async function LocalDetailPage({
                 </div>
               ) : (
                 <div className="rv-img-ph mb-4 h-40 rounded-md">
-                  <span>Mapa · Ubicación</span>
+                  <span>{t("mapPlaceholder")}</span>
                 </div>
               )}
               {local.address ? (
@@ -171,15 +178,16 @@ export default async function LocalDetailPage({
               {mapsUrl ? (
                 <Button className="w-full" asChild>
                   <a href={mapsUrl} target="_blank" rel="noopener noreferrer">
-                    <Compass className="size-4" weight="duotone" /> Cómo llegar
+                    <Compass className="size-4" weight="duotone" />{" "}
+                    {t("directions")}
                   </a>
                 </Button>
               ) : null}
               {/* Reservas de mesa: flujo demo del prototipo (sin backend aún). */}
               <Button variant="secondary" className="mt-2 w-full" asChild>
                 <Link href="/reserva">
-                  <WhatsappLogo className="size-4" weight="duotone" /> Reservar
-                  mesa
+                  <WhatsappLogo className="size-4" weight="duotone" />{" "}
+                  {t("bookTable")}
                 </Link>
               </Button>
               {/* Carta in-venue (demo): visible si el local la tiene habilitada. */}
@@ -188,13 +196,13 @@ export default async function LocalDetailPage({
               ) ? (
                 <Button variant="secondary" className="mt-2 w-full" asChild>
                   <Link href={`/locals/${slug}/carta`}>
-                    <BookOpenText className="size-4" weight="duotone" /> Ver
-                    carta del local
+                    <BookOpenText className="size-4" weight="duotone" />{" "}
+                    {t("viewMenu")}
                   </Link>
                 </Button>
               ) : null}
               <div className="mt-2 text-center">
-                <Badge variant="info">Demo</Badge>
+                <Badge variant="info">{commonT("demo")}</Badge>
               </div>
             </CardContent>
           </Card>

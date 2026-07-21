@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import { Buildings, Check, X } from '@phosphor-icons/react';
-import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
-import type { PromoterAssociationResponse } from '@urnight/contracts';
+import { Buildings, Check, X } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import type { PromoterAssociationResponse } from "@urnight/contracts";
 import {
   Button,
   Card,
@@ -12,16 +13,16 @@ import {
   CardHeader,
   CardTitle,
   Skeleton,
-} from '@urnight/ui';
+} from "@urnight/ui";
 import {
   confirmPromoterAssociation,
   listMyPromoterAssociations,
   rejectPromoterAssociation,
-} from '@/lib/api/promoters';
-import { queryKeys } from '@/lib/api/query-keys';
-import { useApiMutation } from '@/lib/api/use-api-mutation';
-import { EmptyState } from '@/components/shared/empty-state';
-import { ErrorState } from '@/components/shared/error-state';
+} from "@/lib/api/promoters";
+import { queryKeys } from "@/lib/api/query-keys";
+import { useApiMutation } from "@/lib/api/use-api-mutation";
+import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/error-state";
 
 function InvitationCard({
   invitation,
@@ -30,13 +31,14 @@ function InvitationCard({
   invitation: PromoterAssociationResponse;
   token: string;
 }) {
+  const t = useTranslations("account.invitations");
   // Tras confirmar, el backend otorga el rol `promoter`; refrescamos la sesión
   // para que el navbar/roles reflejen el nuevo acceso al panel.
   const { update } = useSession();
 
   const accept = useApiMutation({
     mutationFn: () => confirmPromoterAssociation(invitation.id, token),
-    successMessage: '¡Asociación confirmada! Ya eres promotor de esta empresa.',
+    successMessage: t("accepted"),
     invalidateKeys: [queryKeys.promoterAssociations],
     onSuccess: () => {
       void update();
@@ -45,7 +47,7 @@ function InvitationCard({
 
   const reject = useApiMutation({
     mutationFn: () => rejectPromoterAssociation(invitation.id, token),
-    successMessage: 'Invitación rechazada.',
+    successMessage: t("rejected"),
     invalidateKeys: [queryKeys.promoterAssociations],
   });
 
@@ -59,18 +61,25 @@ function InvitationCard({
         </div>
         <div className="min-w-0">
           <CardTitle className="text-base">{invitation.name}</CardTitle>
-          <CardDescription>
-            Una empresa te invitó a ser su promotor. Confirma para activar tu enlace de referido.
-          </CardDescription>
+          <CardDescription>{t("cardDescription")}</CardDescription>
         </div>
       </CardHeader>
       <CardContent className="flex flex-wrap justify-end gap-2">
-        <Button variant="outline" size="sm" onClick={() => reject.mutate(undefined)} disabled={busy}>
-          <X className="h-4 w-4" /> Rechazar
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => reject.mutate(undefined)}
+          disabled={busy}
+        >
+          <X className="h-4 w-4" /> {t("reject")}
         </Button>
-        <Button size="sm" onClick={() => accept.mutate(undefined)} disabled={busy}>
+        <Button
+          size="sm"
+          onClick={() => accept.mutate(undefined)}
+          disabled={busy}
+        >
           <Check className="h-4 w-4" weight="bold" />
-          {accept.isPending ? 'Confirmando…' : 'Aceptar'}
+          {accept.isPending ? t("confirming") : t("accept")}
         </Button>
       </CardContent>
     </Card>
@@ -83,26 +92,33 @@ function InvitationCard({
  * rechaza ANTES de quedar ligada a la empresa (consentimiento del promotor).
  */
 export function PromoterInvitations() {
+  const t = useTranslations("account.invitations");
   const { data: session, status } = useSession();
-  const token = session?.accessToken ?? '';
+  const token = session?.accessToken ?? "";
 
   const query = useQuery({
     queryKey: queryKeys.promoterAssociations,
     queryFn: () => listMyPromoterAssociations(token),
-    enabled: status === 'authenticated' && Boolean(token),
+    enabled: status === "authenticated" && Boolean(token),
   });
 
   if (query.isError) {
     return (
-      <ErrorState description="No pudimos cargar tus invitaciones." onRetry={() => query.refetch()} />
+      <ErrorState
+        description={t("loadError")}
+        onRetry={() => query.refetch()}
+      />
     );
   }
 
-  if (status === 'loading' || query.isPending) {
+  if (status === "loading" || query.isPending) {
     return (
       <div className="space-y-3">
         {Array.from({ length: 2 }).map((_, i) => (
-          <Skeleton key={`inv-skeleton-${i}`} className="h-28 w-full rounded-lg" />
+          <Skeleton
+            key={`inv-skeleton-${i}`}
+            className="h-28 w-full rounded-lg"
+          />
         ))}
       </div>
     );
@@ -113,8 +129,8 @@ export function PromoterInvitations() {
     return (
       <EmptyState
         icon={<Buildings className="h-8 w-8" weight="duotone" />}
-        title="Sin invitaciones pendientes"
-        description="Cuando una empresa te invite a ser su promotor, verás aquí la solicitud para aceptarla o rechazarla."
+        title={t("empty.title")}
+        description={t("empty.description")}
       />
     );
   }
@@ -122,7 +138,11 @@ export function PromoterInvitations() {
   return (
     <div className="space-y-3">
       {invitations.map((invitation) => (
-        <InvitationCard key={invitation.id} invitation={invitation} token={token} />
+        <InvitationCard
+          key={invitation.id}
+          invitation={invitation}
+          token={token}
+        />
       ))}
     </div>
   );

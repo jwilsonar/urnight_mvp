@@ -9,6 +9,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Badge, Button } from "@urnight/ui";
 import { EventCard } from "@/components/catalog/event-card";
 import { LocalCard } from "@/components/catalog/local-card";
@@ -46,10 +47,12 @@ function SectionHead({
   title,
   subtitle,
   href,
+  viewAll,
 }: {
   title: string;
   subtitle: string;
   href: string;
+  viewAll: string;
 }) {
   return (
     <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
@@ -61,7 +64,7 @@ function SectionHead({
       </div>
       <Button variant="secondary" size="sm" asChild>
         <Link href={href}>
-          Ver todos <ArrowRight className="size-3.5" />
+          {viewAll} <ArrowRight className="size-3.5" />
         </Link>
       </Button>
     </div>
@@ -69,6 +72,8 @@ function SectionHead({
 }
 
 export default async function HomePage() {
+  const t = await getTranslations("home");
+  const commonT = await getTranslations("common");
   // Heurística mínima (#9/#10): tendencia por popularidad, recomendados = próximos.
   const [trending, upcoming, genres, locals] = await Promise.all([
     getTrendingEvents().catch(() => []),
@@ -131,17 +136,17 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl px-4 pb-20 pt-20 sm:px-6 lg:px-8">
             <Reveal depth>
               <span className="rv-eyebrow inline-flex items-center gap-2 rounded-full border border-accent-border bg-accent px-4 py-2">
-                🔥 Esta temporada en Lima
+                🔥 {t("hero.eyebrow")}
               </span>
             </Reveal>
             <Reveal delay={80} depth>
               <h1
-                aria-label="Tu próxima noche empieza en RAVENUE"
+                aria-label={t("hero.titleAria")}
                 className="mt-6 max-w-3xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl"
               >
-                Tu próxima noche
+                {t("hero.titleLine1")}
                 <br />
-                empieza en
+                {t("hero.titleLine2")}
               </h1>
             </Reveal>
             <Image
@@ -154,19 +159,18 @@ export default async function HomePage() {
             />
             <Reveal delay={160} depth>
               <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Cientos de eventos y locales verificados. Encuentra dónde ir
-                esta noche, compra tu entrada y arma el plan con tus amigos.
+                {t("hero.description")}
               </p>
             </Reveal>
             <Reveal delay={240}>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button size="lg" asChild>
                   <Link href="/events">
-                    Ver eventos de esta semana <ArrowRight className="size-4" />
+                    {t("hero.eventsCta")} <ArrowRight className="size-4" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href="/locals">Explorar locales</Link>
+                  <Link href="/locals">{t("hero.venuesCta")}</Link>
                 </Button>
               </div>
             </Reveal>
@@ -176,19 +180,19 @@ export default async function HomePage() {
                   <dd className="font-heading text-3xl font-extrabold text-foreground">
                     320+
                   </dd>
-                  <dt>Eventos este mes</dt>
+                  <dt>{t("hero.stats.events")}</dt>
                 </div>
                 <div>
                   <dd className="font-heading text-3xl font-extrabold text-foreground">
                     85
                   </dd>
-                  <dt>Locales verificados</dt>
+                  <dt>{t("hero.stats.venues")}</dt>
                 </div>
                 <div>
                   <dd className="font-heading text-3xl font-extrabold text-foreground">
                     12k
                   </dd>
-                  <dt>Noctámbulos felices</dt>
+                  <dt>{t("hero.stats.people")}</dt>
                 </div>
               </dl>
             </Reveal>
@@ -202,16 +206,17 @@ export default async function HomePage() {
           <section className="pt-16">
             <Reveal>
               <SectionHead
-                title="Eventos destacados"
-                subtitle="Lo más hot para esta semana, elegido por nuestro equipo."
+                title={t("featured.title")}
+                subtitle={t("featured.subtitle")}
                 href="/events"
+                viewAll={t("viewAll")}
               />
             </Reveal>
             {genres.length > 0 ? (
               <Reveal delay={60}>
                 <div className="mb-7 flex flex-wrap gap-2.5">
                   <Link href="/events" className="rv-chip" data-active="true">
-                    <Sparkle className="size-4" weight="duotone" /> Todos
+                    <Sparkle className="size-4" weight="duotone" /> {t("all")}
                   </Link>
                   {genres.slice(0, 7).map((g) => (
                     <Link
@@ -240,16 +245,7 @@ export default async function HomePage() {
             <div className="flex shrink-0 items-center gap-4">
               {/* Intercalado distrito/género a propósito: leído al vuelo se
                   siente "dónde + qué", no dos listas pegadas. */}
-              {[
-                "Miraflores",
-                "Reggaetón",
-                "Barranco",
-                "Techno",
-                "San Isidro",
-                "House",
-                "Surco",
-                "Electrónica",
-              ].map((item) => (
+              {(t.raw("marquee") as string[]).map((item) => (
                 <span key={item} className="flex shrink-0 items-center gap-4">
                   <span className="rv-eyebrow shrink-0">{item}</span>
                   <span aria-hidden className="shrink-0 text-muted-foreground">
@@ -266,9 +262,10 @@ export default async function HomePage() {
           <section className="pt-16">
             <Reveal>
               <SectionHead
-                title="Los más populares"
-                subtitle="Locales que están rompiéndola este mes."
+                title={t("popular.title")}
+                subtitle={t("popular.subtitle")}
                 href="/locals"
+                viewAll={t("viewAll")}
               />
             </Reveal>
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -295,25 +292,26 @@ export default async function HomePage() {
                 <div className="grid min-h-[340px] lg:grid-cols-[1.2fr_1fr]">
                   <div className="flex flex-col justify-center p-8 sm:p-12">
                     <span className="inline-flex items-center gap-2 self-start rounded-full border border-warning-border bg-[linear-gradient(90deg,var(--warning-soft),var(--accent-soft-strong))] px-4 py-1.5 text-xs font-bold tracking-wide text-warning">
-                      <Star className="size-3.5" weight="fill" /> PARTNER
-                      DESTACADO
+                      <Star className="size-3.5" weight="fill" />{" "}
+                      {t("partner.badge")}
                     </span>
                     <h2 className="mt-5 font-display text-5xl font-black leading-[0.95] tracking-tight text-rose sm:text-6xl">
                       {partner.name}
                     </h2>
                     <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
-                      {partner.description ??
-                        "La mejor música de Lima cada fin de semana. Vive una noche que no vas a olvidar."}
+                      {partner.description ?? t("partner.fallbackDescription")}
                     </p>
                     <div className="mt-6 flex flex-wrap items-center gap-3">
                       <Button asChild>
-                        <Link href={`/locals/${partner.slug}`}>Ver local</Link>
+                        <Link href={`/locals/${partner.slug}`}>
+                          {t("partner.viewVenue")}
+                        </Link>
                       </Button>
                       {/* Reserva de mesa: flujo demo del prototipo (sin backend aún). */}
                       <Button variant="ghost" asChild>
-                        <Link href="/reserva">Reservar mesa</Link>
+                        <Link href="/reserva">{t("partner.bookTable")}</Link>
                       </Button>
-                      <Badge variant="info">Demo</Badge>
+                      <Badge variant="info">{commonT("demo")}</Badge>
                     </div>
                   </div>
                   {/* Imagen real del partner cuando existe; si no, placeholder
@@ -352,9 +350,10 @@ export default async function HomePage() {
           <section className="pt-16">
             <Reveal>
               <SectionHead
-                title="Próximas fechas"
-                subtitle="Lo que se viene en las siguientes semanas."
+                title={t("upcoming.title")}
+                subtitle={t("upcoming.subtitle")}
                 href="/events/calendar"
+                viewAll={t("viewAll")}
               />
             </Reveal>
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">

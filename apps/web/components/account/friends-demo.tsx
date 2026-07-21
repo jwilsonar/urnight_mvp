@@ -1,45 +1,52 @@
-'use client';
+"use client";
 
-import { useMemo, useState } from 'react';
-import { Badge, Button, Card, Input, Label } from '@urnight/ui';
-import { AMIGOS_DEMO, SOLICITUDES_DEMO } from '@/lib/mock/social';
+import { useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { Badge, Button, Card, Input, Label } from "@urnight/ui";
+import { AMIGOS_DEMO, SOLICITUDES_DEMO } from "@/lib/mock/social";
 
 const NIVEL_VARIANT = {
-  Bronce: 'secondary',
-  Plata: 'outline',
-  Oro: 'warning',
-  Diamante: 'info',
+  Bronce: "secondary",
+  Plata: "outline",
+  Oro: "warning",
+  Diamante: "info",
 } as const;
 
 function iniciales(nombre: string) {
   return nombre
-    .split(' ')
+    .split(" ")
     .map((parte) => parte.charAt(0))
     .slice(0, 2)
-    .join('');
+    .join("");
 }
 
 export function FriendsDemo() {
-  const [busqueda, setBusqueda] = useState('');
+  const t = useTranslations("account.friends");
+  const locale = useLocale();
+  const [busqueda, setBusqueda] = useState("");
   const [solicitudes, setSolicitudes] = useState(SOLICITUDES_DEMO);
   const amigos = useMemo(() => {
-    const termino = busqueda.trim().toLocaleLowerCase('es-PE');
+    const termino = busqueda.trim().toLocaleLowerCase(locale);
     if (!termino) return AMIGOS_DEMO;
     return AMIGOS_DEMO.filter((amigo) =>
-      amigo.nombre.toLocaleLowerCase('es-PE').includes(termino),
+      amigo.nombre.toLocaleLowerCase(locale).includes(termino),
     );
   }, [busqueda]);
 
   function quitarSolicitud(id: string) {
     // Aceptar e ignorar comparten el cierre visual porque ninguna acción persiste en la demo.
-    setSolicitudes((actuales) => actuales.filter((solicitud) => solicitud.id !== id));
+    setSolicitudes((actuales) =>
+      actuales.filter((solicitud) => solicitud.id !== id),
+    );
   }
 
   return (
     <div className="space-y-8">
       {solicitudes.length > 0 ? (
         <section>
-          <h2 className="font-heading text-xl font-extrabold">Solicitudes</h2>
+          <h2 className="font-heading text-xl font-extrabold">
+            {t("requests")}
+          </h2>
           <Card className="mt-4 overflow-hidden p-0">
             {solicitudes.map((solicitud) => (
               <div
@@ -52,12 +59,16 @@ export function FriendsDemo() {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-bold">{solicitud.nombre}</p>
                   <p className="text-xs text-muted-foreground">
-                    {solicitud.mutuos} amigos en común
+                    {t("mutualFriends", { count: solicitud.mutuos })}
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button type="button" size="sm" onClick={() => quitarSolicitud(solicitud.id)}>
-                    Aceptar
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => quitarSolicitud(solicitud.id)}
+                  >
+                    {t("accept")}
                   </Button>
                   <Button
                     type="button"
@@ -65,7 +76,7 @@ export function FriendsDemo() {
                     size="sm"
                     onClick={() => quitarSolicitud(solicitud.id)}
                   >
-                    Ignorar
+                    {t("ignore")}
                   </Button>
                 </div>
               </div>
@@ -77,18 +88,20 @@ export function FriendsDemo() {
       <section>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="font-heading text-xl font-extrabold">Tus amigos</h2>
+            <h2 className="font-heading text-xl font-extrabold">
+              {t("yourFriends")}
+            </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Personas con las que compartiste una noche RAVENUE.
+              {t("description")}
             </p>
           </div>
           <div className="w-full sm:max-w-xs">
-            <Label htmlFor="buscar-amigo">Buscar por nombre</Label>
+            <Label htmlFor="buscar-amigo">{t("searchLabel")}</Label>
             <Input
               id="buscar-amigo"
               type="search"
               className="mt-2"
-              placeholder="Ej. Valentina"
+              placeholder={t("searchPlaceholder")}
               value={busqueda}
               onChange={(event) => setBusqueda(event.target.value)}
             />
@@ -108,23 +121,30 @@ export function FriendsDemo() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-bold">{amigo.nombre}</p>
-                    <Badge variant={NIVEL_VARIANT[amigo.nivel as keyof typeof NIVEL_VARIANT]}>
-                      {amigo.nivel}
+                    <Badge
+                      variant={
+                        NIVEL_VARIANT[amigo.nivel as keyof typeof NIVEL_VARIANT]
+                      }
+                    >
+                      {t(`levels.${amigo.nivel}`)}
                     </Badge>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Última noche: {amigo.ultimaNoche}
+                    {t("lastNight", { value: t(`nights.${amigo.id}`) })}
                   </p>
                 </div>
                 <span className="text-right text-xs font-semibold text-muted-foreground">
-                  {amigo.eventosJuntos} eventos juntos
+                  {t("eventsTogether", { count: amigo.eventosJuntos })}
                 </span>
               </div>
             ))}
           </Card>
         ) : (
-          <Card className="mt-4 p-6 text-center text-sm text-muted-foreground" role="status">
-            No encontramos amigos con ese nombre.
+          <Card
+            className="mt-4 p-6 text-center text-sm text-muted-foreground"
+            role="status"
+          >
+            {t("emptySearch")}
           </Card>
         )}
       </section>

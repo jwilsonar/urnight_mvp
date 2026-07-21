@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   createContext,
@@ -8,9 +8,9 @@ import {
   useMemo,
   useState,
   type ReactNode,
-} from 'react';
-import { CARTA_ITEMS_DEMO } from '@/lib/mock/carta';
-import { consumirCreditoDemo, leerCreditoDemo } from '@/lib/mock/credito';
+} from "react";
+import { CARTA_ITEMS_DEMO } from "@/lib/mock/carta";
+import { consumirCreditoDemo, leerCreditoDemo } from "@/lib/mock/credito";
 
 /**
  * Carrito demo de la carta in-venue. Estado client-only persistido en
@@ -42,7 +42,7 @@ const priceOf = (itemId: string) =>
   CARTA_ITEMS_DEMO.find((i) => i.id === itemId)?.priceSoles ?? 0;
 
 export function CartProvider({
-  localSlug = 'nocturna-club',
+  localSlug = "nocturna-club",
   children,
 }: {
   localSlug?: string;
@@ -101,7 +101,10 @@ export function CartProvider({
   const clear = useCallback(() => setLines([]), []);
 
   const count = lines.reduce((sum, l) => sum + l.quantity, 0);
-  const totalSoles = lines.reduce((sum, l) => sum + l.quantity * priceOf(l.itemId), 0);
+  const totalSoles = lines.reduce(
+    (sum, l) => sum + l.quantity * priceOf(l.itemId),
+    0,
+  );
   const totalTrasCredito = Math.max(0, totalSoles - creditoDisponible);
 
   const canjearCredito = useCallback(() => {
@@ -142,6 +145,6 @@ export function CartProvider({
 
 export function useCart(): CartContextValue {
   const ctx = useContext(CartContext);
-  if (!ctx) throw new Error('useCart debe usarse dentro de <CartProvider>');
+  if (!ctx) throw new Error("useCart debe usarse dentro de <CartProvider>");
   return ctx;
 }

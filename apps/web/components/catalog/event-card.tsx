@@ -5,45 +5,19 @@ import {
   Ticket,
 } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
+import { useFormatter, useTranslations } from "next-intl";
 import type { EventResponse } from "@urnight/contracts";
 import { Badge, type BadgeProps, Card, CardContent, cn } from "@urnight/ui";
 import { HoloCard, HoloFlipButton } from "@/components/motion/holo-card";
 import { StorageImage } from "@/lib/storage/storage-context";
 
-const STATUS_LABEL: Record<
-  EventResponse["status"],
-  { label: string; variant: BadgeProps["variant"] }
-> = {
-  draft: { label: "Borrador", variant: "outline" },
-  scheduled: { label: "Próximamente", variant: "secondary" },
-  published: { label: "En venta", variant: "success" },
-  cancelled: { label: "Cancelado", variant: "destructive" },
-  finished: { label: "Finalizado", variant: "outline" },
+const STATUS_VARIANT: Record<EventResponse["status"], BadgeProps["variant"]> = {
+  draft: "outline",
+  scheduled: "secondary",
+  published: "success",
+  cancelled: "destructive",
+  finished: "outline",
 };
-
-/* Fecha corta estilo prototipo ("SÁB 19 ABR"); la hora va aparte en el rango. */
-const DATE = new Intl.DateTimeFormat("es-PE", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-});
-const TIME = new Intl.DateTimeFormat("es-PE", {
-  hour: "numeric",
-  minute: "2-digit",
-  hour12: true,
-});
-/* En el reverso sí hay sitio para la fecha sin abreviar. */
-const DATE_LONG = new Intl.DateTimeFormat("es-PE", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
-
-function timeRange(startsAt: string, endsAt: string | null): string {
-  const start = TIME.format(new Date(startsAt));
-  return endsAt ? `${start} – ${TIME.format(new Date(endsAt))}` : start;
-}
 
 /** Pill CTA compartido entre las cards del catálogo (evento y local). */
 export const CTA_CLASS =
@@ -54,7 +28,17 @@ export const ICON_BTN_CLASS =
   "inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-accent-border bg-deep/90 text-rose outline-none backdrop-blur-sm transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring";
 
 export function EventCard({ event }: { event: EventResponse }) {
-  const status = STATUS_LABEL[event.status];
+  const t = useTranslations("events.card");
+  const format = useFormatter();
+  const formatTime = (value: string) =>
+    format.dateTime(new Date(value), {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  const schedule = event.endsAt
+    ? `${formatTime(event.startsAt)} – ${formatTime(event.endsAt)}`
+    : formatTime(event.startsAt);
   const pct =
     event.totalCapacity > 0 ? event.ticketsSold / event.totalCapacity : 0;
   const soldOut =
@@ -85,15 +69,15 @@ export function EventCard({ event }: { event: EventResponse }) {
               />
             ) : (
               <div className="rv-img-ph absolute inset-0">
-                <span>Flyer del evento</span>
+                <span>{t("flyerAlt")}</span>
               </div>
             )}
             {/* Sobre fotografía: fondo oscuro sólido para que el tono no se lave. */}
             <Badge
-              variant={soldOut ? "destructive" : status.variant}
+              variant={soldOut ? "destructive" : STATUS_VARIANT[event.status]}
               className="absolute left-2 top-2 bg-deep/90 backdrop-blur-sm"
             >
-              {soldOut ? "Agotado" : status.label}
+              {soldOut ? t("soldOut") : t(`status.${event.status}`)}
             </Badge>
             {/* Heat del prototipo, calculado con aforo real (ticketsSold/totalCapacity). */}
             {almostFull ? (
@@ -101,7 +85,7 @@ export function EventCard({ event }: { event: EventResponse }) {
                 variant="warning"
                 className="absolute bottom-2 left-2 bg-deep/90 backdrop-blur-sm"
               >
-                🔥 Casi lleno
+                🔥 {t("almostFull")}
               </Badge>
             ) : null}
           </div>
@@ -109,8 +93,12 @@ export function EventCard({ event }: { event: EventResponse }) {
             <p className="rv-eyebrow flex min-w-0 items-center gap-1.5 whitespace-nowrap">
               <CalendarBlank className="size-3.5 shrink-0" weight="duotone" />
               <span className="truncate">
-                {DATE.format(new Date(event.startsAt))} ·{" "}
-                {timeRange(event.startsAt, event.endsAt)}
+                {format.dateTime(new Date(event.startsAt), {
+                  weekday: "short",
+                  day: "numeric",
+                  month: "short",
+                })}{" "}
+                · {schedule}
               </span>
             </p>
             <h3 className="mt-2 min-h-[2.5em] line-clamp-2 font-heading text-[17px] font-bold leading-tight">
@@ -130,10 +118,15 @@ export function EventCard({ event }: { event: EventResponse }) {
             <div className="mt-auto flex items-center justify-between border-t pt-3.5">
               <span className="text-xs text-muted-foreground">
                 {soldOut
-                  ? "Sin cupos"
+                  ? t("noSpots")
                   : event.totalCapacity > 0
-                    ? `${Math.max(event.totalCapacity - event.ticketsSold, 0)} cupos`
-                    : "Cupos disponibles"}
+                    ? t("spots", {
+                        count: Math.max(
+                          event.totalCapacity - event.ticketsSold,
+                          0,
+                        ),
+                      })
+                    : t("spotsAvailable")}
               </span>
               <Link
                 href={href}
@@ -142,13 +135,13 @@ export function EventCard({ event }: { event: EventResponse }) {
                   "outline-none transition-transform group-hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-ring",
                 )}
               >
-                Ver evento
+                {t("viewEvent")}
               </Link>
             </div>
           </CardContent>
         </Card>
         <HoloFlipButton
-          label="Ver información"
+          label={t("viewInformation")}
           className={cn(ICON_BTN_CLASS, "absolute right-2 top-2 z-[5]")}
         >
           <Info className="size-4" weight="duotone" />
@@ -166,6 +159,17 @@ function EventCardBack({
   event: EventResponse;
   href: string;
 }) {
+  const t = useTranslations("events.card");
+  const format = useFormatter();
+  const formatTime = (value: string) =>
+    format.dateTime(new Date(value), {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  const schedule = event.endsAt
+    ? `${formatTime(event.startsAt)} – ${formatTime(event.endsAt)}`
+    : formatTime(event.startsAt);
   const pct =
     event.totalCapacity > 0 ? event.ticketsSold / event.totalCapacity : 0;
   const soldOut =
@@ -178,7 +182,7 @@ function EventCardBack({
       <CardContent className="flex min-h-0 flex-1 flex-col p-4">
         <p className="rv-eyebrow flex items-center gap-1.5">
           <Ticket className="size-3.5" weight="duotone" />
-          Detalle del evento
+          {t("detail")}
         </p>
         <h3 className="mt-2 line-clamp-2 font-heading text-[17px] font-bold leading-tight">
           {event.name}
@@ -190,8 +194,13 @@ function EventCardBack({
           />
           {/* es-PE devuelve el día en minúscula ("sábado, 19 de abril de 2026"). */}
           <span className="first-letter:uppercase">
-            {DATE_LONG.format(new Date(event.startsAt))} ·{" "}
-            {timeRange(event.startsAt, event.endsAt)}
+            {format.dateTime(new Date(event.startsAt), {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}{" "}
+            · {schedule}
           </span>
         </p>
 
@@ -212,11 +221,11 @@ function EventCardBack({
 
         <div className="mt-3">
           <div className="flex items-baseline justify-between gap-2 text-xs">
-            <span className="text-muted-foreground">Aforo</span>
+            <span className="text-muted-foreground">{t("capacity")}</span>
             <span className="font-semibold tabular-nums">
               {event.totalCapacity > 0
                 ? `${event.ticketsSold} / ${event.totalCapacity}`
-                : "Sin aforo definido"}
+                : t("noCapacity")}
             </span>
           </div>
           {event.totalCapacity > 0 ? (
@@ -225,7 +234,10 @@ function EventCardBack({
               aria-valuemin={0}
               aria-valuemax={event.totalCapacity}
               aria-valuenow={event.ticketsSold}
-              aria-label={`Entradas vendidas: ${event.ticketsSold} de ${event.totalCapacity}`}
+              aria-label={t("ticketsSoldAria", {
+                sold: event.ticketsSold,
+                capacity: event.totalCapacity,
+              })}
               className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-elevated"
             >
               <div
@@ -244,10 +256,7 @@ function EventCardBack({
         </div>
 
         <div className="mt-3 flex items-center gap-2 border-t pt-3.5">
-          <HoloFlipButton
-            label="Volver al frente del ticket"
-            className={ICON_BTN_CLASS}
-          >
+          <HoloFlipButton label={t("flipBack")} className={ICON_BTN_CLASS}>
             <ArrowUUpLeft className="size-4" weight="bold" />
           </HoloFlipButton>
           <Link
@@ -257,7 +266,7 @@ function EventCardBack({
               "flex-1 outline-none focus-visible:ring-2 focus-visible:ring-ring",
             )}
           >
-            Ver evento
+            {t("viewEvent")}
           </Link>
         </div>
       </CardContent>

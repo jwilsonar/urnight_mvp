@@ -2,69 +2,41 @@
 
 import { CaretDown, MagnifyingGlass } from "@phosphor-icons/react";
 import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { Input, Tabs, TabsContent, TabsList, TabsTrigger } from "@urnight/ui";
 import { Reveal } from "@/components/shared/reveal";
 
-const CATEGORIES = ["Todas", "Compras", "Reservas", "Cuenta"] as const;
+const CATEGORIES = ["all", "purchases", "reservations", "account"] as const;
+type FaqCategory = (typeof CATEGORIES)[number];
+type FaqItem = {
+  category: Exclude<FaqCategory, "all">;
+  question: string;
+  answer: string;
+};
 
-/** Las seis preguntas originales, clasificadas para navegación por pestañas. */
-const FAQS = [
-  {
-    category: "Compras",
-    question: "¿Cómo compro una entrada?",
-    answer:
-      "Elige el evento, selecciona el tipo de entrada y la cantidad, ingresa tus datos y paga de forma segura. Recibirás tu QR en “Mis entradas”.",
-  },
-  {
-    category: "Reservas",
-    question: "¿Puedo reservar una mesa?",
-    answer:
-      "Sí. En el detalle del local o evento elige “Reservar mesa”, selecciona la zona, paga el depósito y recibe tu confirmación con QR.",
-  },
-  {
-    category: "Compras",
-    question: "¿Cómo funciona el ingreso con QR?",
-    answer:
-      "Muestra el código QR de tu entrada o reserva en la puerta del local. Es único e intransferible.",
-  },
-  {
-    category: "Compras",
-    question: "¿Puedo cancelar una compra?",
-    answer:
-      "Las cancelaciones dependen de la política de cada evento. Encuentra la opción en el detalle de tu entrada o reserva.",
-  },
-  {
-    category: "Cuenta",
-    question: "¿Por qué piden mi documento?",
-    answer:
-      "RAVENUE es solo para mayores de 18 años. Validamos tu documento automáticamente por la seguridad de la comunidad.",
-  },
-  {
-    category: "Cuenta",
-    question: "¿Cómo afilio mi local?",
-    answer:
-      "Ingresa a “Afiliar mi local”, completa los datos de tu negocio y nuestro equipo revisará tu solicitud.",
-  },
-] as const;
-
-function normalize(value: string) {
+function normalize(value: string, locale: string) {
   return value
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase("es");
+    .toLocaleLowerCase(locale);
 }
 
 function FaqList({
   category,
   query,
+  faqs,
+  locale,
 }: {
-  category: (typeof CATEGORIES)[number];
+  category: FaqCategory;
   query: string;
+  faqs: FaqItem[];
+  locale: string;
 }) {
-  const normalizedQuery = normalize(query.trim());
-  const results = FAQS.filter((faq) => {
-    const inCategory = category === "Todas" || faq.category === category;
-    const searchableText = normalize(`${faq.question} ${faq.answer}`);
+  const t = useTranslations("faq.browser");
+  const normalizedQuery = normalize(query.trim(), locale);
+  const results = faqs.filter((faq) => {
+    const inCategory = category === "all" || faq.category === category;
+    const searchableText = normalize(`${faq.question} ${faq.answer}`, locale);
     return inCategory && searchableText.includes(normalizedQuery);
   });
 
@@ -79,11 +51,9 @@ function FaqList({
           weight="duotone"
           aria-hidden
         />
-        <p className="mt-3 font-heading font-bold">
-          No encontramos esa pregunta
-        </p>
+        <p className="mt-3 font-heading font-bold">{t("empty.title")}</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Prueba con otra palabra o revisa una categoría diferente.
+          {t("empty.description")}
         </p>
       </div>
     );
@@ -110,13 +80,16 @@ function FaqList({
 
 /** Búsqueda y categorías cliente; el acordeón conserva details/summary nativo. */
 export function FaqBrowser() {
+  const t = useTranslations("faq.browser");
+  const locale = useLocale();
   const [query, setQuery] = useState("");
+  const faqs = t.raw("items") as FaqItem[];
 
   return (
     <Reveal>
       <div className="relative">
         <label htmlFor="faq-search" className="sr-only">
-          Buscar una pregunta
+          {t("searchLabel")}
         </label>
         <MagnifyingGlass
           className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -127,15 +100,15 @@ export function FaqBrowser() {
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Busca una pregunta…"
+          placeholder={t("searchPlaceholder")}
           className="pl-10"
         />
       </div>
 
-      <Tabs defaultValue="Todas" className="mt-5">
+      <Tabs defaultValue="all" className="mt-5">
         <TabsList
           className="grid h-auto w-full grid-cols-4"
-          aria-label="Categorías de preguntas"
+          aria-label={t("categoriesAria")}
         >
           {CATEGORIES.map((category) => (
             <TabsTrigger
@@ -143,14 +116,19 @@ export function FaqBrowser() {
               value={category}
               className="px-2 text-xs sm:text-sm"
             >
-              {category}
+              {t(`categories.${category}`)}
             </TabsTrigger>
           ))}
         </TabsList>
 
         {CATEGORIES.map((category) => (
           <TabsContent key={category} value={category} className="mt-6">
-            <FaqList category={category} query={query} />
+            <FaqList
+              category={category}
+              query={query}
+              faqs={faqs}
+              locale={locale}
+            />
           </TabsContent>
         ))}
       </Tabs>

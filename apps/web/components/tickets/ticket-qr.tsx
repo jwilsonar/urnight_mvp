@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import { QrCode as QrIcon } from '@phosphor-icons/react';
-import Image from 'next/image';
-import QRCode from 'qrcode';
-import { useEffect, useState } from 'react';
-import { StorageImage } from '@/lib/storage/storage-context';
+import { QrCode as QrIcon } from "@phosphor-icons/react";
+import Image from "next/image";
+import QRCode from "qrcode";
+import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { StorageImage } from "@/lib/storage/storage-context";
 
 /**
  * QR de una entrada. Preferimos el PNG ya guardado en S3 (`qrImageKey`,
@@ -22,6 +23,7 @@ export function TicketQr({
   qrCode: string;
   size?: number;
 }) {
+  const t = useTranslations("tickets.qr");
   const [dataUrl, setDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export function TicketQr({
     QRCode.toDataURL(qrCode, {
       margin: 1,
       width: size * 2,
-      errorCorrectionLevel: 'M',
+      errorCorrectionLevel: "M",
     })
       .then((url) => {
         if (active) setDataUrl(url);
@@ -47,7 +49,7 @@ export function TicketQr({
     return (
       <StorageImage
         src={qrImageKey}
-        alt="Código QR de la entrada"
+        alt={t("alt")}
         width={size}
         height={size}
         className="aspect-square shrink-0 rounded-md bg-white object-contain p-1"
@@ -59,7 +61,7 @@ export function TicketQr({
     return (
       <Image
         src={dataUrl}
-        alt="Código QR de la entrada"
+        alt={t("alt")}
         width={size}
         height={size}
         unoptimized

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Moon, Sun } from '@phosphor-icons/react';
-import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
-import { Button } from '@urnight/ui';
+import { Moon, Sun } from "@phosphor-icons/react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+import { Button } from "@urnight/ui";
 
 /** Alterna claro/oscuro. Evita mismatch de hidratación esperando el montaje. */
 export function ThemeToggle() {
@@ -11,7 +11,7 @@ export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const isDark = resolvedTheme === 'dark';
+  const isDark = resolvedTheme === "dark";
 
   // Antes de montar no conocemos el tema resuelto: placeholder neutro (icono
   // oculto pero con el mismo tamaño) para no mostrar el icono equivocado 1 frame.
@@ -27,8 +27,8 @@ export function ThemeToggle() {
     <Button
       variant="ghost"
       size="icon"
-      aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
-      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      aria-label={isDark ? "Activar modo claro" : "Activar modo oscuro"}
+      onClick={() => setTheme(isDark ? "light" : "dark")}
     >
       {isDark ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
     </Button>

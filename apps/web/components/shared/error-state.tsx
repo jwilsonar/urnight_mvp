@@ -1,18 +1,20 @@
-'use client';
+"use client";
 
-import { Warning } from '@phosphor-icons/react';
-import { Alert, AlertDescription, AlertTitle, Button } from '@urnight/ui';
+import { Warning } from "@phosphor-icons/react";
+import { Alert, AlertDescription, AlertTitle, Button } from "@urnight/ui";
 
 interface ErrorStateProps {
   title?: string;
   description?: string;
+  retryLabel?: string;
   onRetry?: () => void;
 }
 
 /** Estado de error reutilizable para error boundaries (error.tsx). */
 export function ErrorState({
-  title = 'Algo salió mal',
-  description = 'No pudimos cargar esta sección. Inténtalo de nuevo.',
+  title = "Algo salió mal",
+  description = "No pudimos cargar esta sección. Inténtalo de nuevo.",
+  retryLabel = "Reintentar",
   onRetry,
 }: ErrorStateProps) {
   return (
@@ -24,7 +26,7 @@ export function ErrorState({
       </Alert>
       {onRetry ? (
         <Button onClick={onRetry} variant="outline">
-          Reintentar
+          {retryLabel}
         </Button>
       ) : null}
     </div>

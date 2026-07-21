@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { usePathname } from 'next/navigation';
-import { SiteFooter } from '@/components/shared/site-footer';
+import { usePathname } from "next/navigation";
+import { SiteFooter } from "@/components/shared/site-footer";
 
 /**
  * Elige la variante del pie según la ruta. En flujos transaccionales (reserva
@@ -17,5 +17,5 @@ const TRANSACTIONAL = [/^\/reserva(\/|$)/, /^\/locals\/[^/]+\/carta(\/|$)/];
 export function ConditionalFooter() {
   const pathname = usePathname();
   const slim = TRANSACTIONAL.some((re) => re.test(pathname));
-  return <SiteFooter variant={slim ? 'slim' : 'full'} />;
+  return <SiteFooter variant={slim ? "slim" : "full"} />;
 }

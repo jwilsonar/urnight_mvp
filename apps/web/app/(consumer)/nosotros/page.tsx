@@ -6,66 +6,61 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import type { CSSProperties } from "react";
 import { Card } from "@urnight/ui";
 import { Reveal } from "@/components/shared/reveal";
 
-export const metadata: Metadata = {
-  title: "Sobre nosotros",
-  description:
-    "RAVENUE nació en Lima para reunir en un solo lugar lo mejor de la noche: eventos, bares y discotecas verificados.",
-};
-
-const STATS = [
-  { value: "320+", label: "Eventos este mes" },
-  { value: "85", label: "Locales verificados" },
-  { value: "12k", label: "Noctámbulos felices" },
-] as const;
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("about.metadata");
+  return { title: t("title"), description: t("description") };
+}
 
 /** Historia de RAVENUE: el texto original se conserva y cambia su jerarquía visual. */
 const SECTIONS = [
   {
     icon: Target,
-    title: "Nuestra misión",
-    body: "Hacer que salir sea simple y seguro. Queremos que descubras dónde ir, compres tu entrada sin reventa y armes el plan con tus amigos en segundos.",
+    key: "mission",
   },
   {
     icon: UsersThree,
-    title: "Qué hacemos",
-    body: "Conectamos a los noctámbulos con locales verificados. Compra de entradas, reserva de mesas, listas y beneficios — todo dentro de una experiencia pensada para la noche.",
+    key: "whatWeDo",
   },
   {
     icon: Buildings,
-    title: "Para los locales",
-    body: "Damos a discotecas y bares herramientas para publicar eventos, gestionar su aforo, vender entradas y reservar mesas, llegando a miles de personas que buscan dónde salir.",
+    key: "venues",
   },
   {
     icon: ShieldCheck,
-    title: "Compromiso",
-    body: "Plataforma solo para mayores de 18 años. Verificamos documentos, protegemos tus datos y combatimos la reventa para que vivas la noche con tranquilidad.",
+    key: "commitment",
   },
 ] as const;
 
-export default function NosotrosPage() {
+export default async function NosotrosPage() {
+  const t = await getTranslations("about");
+  const stats = ["events", "venues", "nightOwls"].map((key, index) => ({
+    value: ["320+", "85", "12k"][index]!,
+    label: t(`stats.${key}`),
+  }));
+
   return (
     <div>
       <section className="rv-hero-glow border-b">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
           <div>
             <Reveal>
-              <p className="rv-eyebrow">Conócenos</p>
+              <p className="rv-eyebrow">{t("eyebrow")}</p>
               <h1 className="mt-3 max-w-4xl font-display text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-                La noche se vive mejor cuando todo fluye
+                {t("title")}
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                RAVENUE nació en Lima para reunir en un solo lugar lo mejor de
-                la noche: eventos, bares y discotecas verificados.
+                {t("description")}
               </p>
             </Reveal>
 
             <Reveal delay={120}>
               <dl className="mt-14 flex flex-wrap gap-x-12 gap-y-6 text-sm text-muted-foreground">
-                {STATS.map((stat) => (
+                {stats.map((stat) => (
                   <div key={stat.label}>
                     <dd className="font-heading text-3xl font-extrabold text-foreground">
                       {stat.value}
@@ -139,12 +134,12 @@ export default function NosotrosPage() {
         aria-labelledby="nuestra-historia"
       >
         <Reveal>
-          <p className="rv-eyebrow">Nuestra historia</p>
+          <p className="rv-eyebrow">{t("history.eyebrow")}</p>
           <h2
             id="nuestra-historia"
             className="mt-2 font-heading text-3xl font-extrabold sm:text-4xl"
           >
-            Lo que nos mueve
+            {t("history.title")}
           </h2>
         </Reveal>
 
@@ -152,16 +147,16 @@ export default function NosotrosPage() {
           {SECTIONS.map((section, index) => {
             const Icon = section.icon;
             return (
-              <Reveal key={section.title} delay={index * 80} className="h-full">
+              <Reveal key={section.key} delay={index * 80} className="h-full">
                 <Card className="h-full p-6 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-[var(--rv-border-soft)] motion-reduce:transform-none">
                   <span className="flex size-11 items-center justify-center rounded-md border border-accent-border bg-accent text-rose">
                     <Icon className="size-5" weight="duotone" aria-hidden />
                   </span>
                   <h3 className="mt-4 font-heading text-xl font-bold">
-                    {section.title}
+                    {t(`sections.${section.key}.title`)}
                   </h3>
                   <p className="mt-2 leading-relaxed text-muted-foreground">
-                    {section.body}
+                    {t(`sections.${section.key}.body`)}
                   </p>
                 </Card>
               </Reveal>

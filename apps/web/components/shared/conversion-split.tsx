@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import {
   Card,
   CardContent,
@@ -40,6 +41,8 @@ export function ConversionSplit({
   formDescription,
   children,
 }: ConversionSplitProps) {
+  const t = useTranslations("common");
+
   return (
     <section className="rv-hero-glow border-b">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
@@ -64,7 +67,7 @@ export function ConversionSplit({
               ))}
             </dl>
 
-            <ul className="mt-10 space-y-4" aria-label="Beneficios">
+            <ul className="mt-10 space-y-4" aria-label={t("benefits")}>
               {benefits.map((benefit) => (
                 <li key={benefit.label} className="flex items-start gap-3">
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-md border border-accent-border bg-accent text-rose">

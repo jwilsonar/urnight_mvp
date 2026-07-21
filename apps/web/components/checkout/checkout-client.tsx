@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import { Gift, Minus, Plus } from '@phosphor-icons/react';
+import { Gift, Minus, Plus } from "@phosphor-icons/react";
 import type {
   EventResponse,
   ResolveRedemptionCodeResponse,
   TicketTypeResponse,
-} from '@urnight/contracts';
+} from "@urnight/contracts";
+import { useFormatter, useTranslations } from "next-intl";
 import {
   Alert,
   AlertDescription,
@@ -28,13 +29,12 @@ import {
   SelectTrigger,
   SelectValue,
   Separator,
-} from '@urnight/ui';
-import { StorageImage } from '@/lib/storage/storage-context';
-import { formatDate, formatPEN } from '@/lib/utils';
-import { AttendeeFieldset } from './attendee-fieldset';
-import { emptyAttendee, PAYMENT_METHODS } from './checkout-form';
-import { CheckoutSuccess } from './checkout-success';
-import { useCheckoutForm } from './use-checkout-form';
+} from "@urnight/ui";
+import { StorageImage } from "@/lib/storage/storage-context";
+import { AttendeeFieldset } from "./attendee-fieldset";
+import { emptyAttendee, PAYMENT_METHODS } from "./checkout-form";
+import { CheckoutSuccess } from "./checkout-success";
+import { useCheckoutForm } from "./use-checkout-form";
 
 /**
  * Orquestador VISUAL del checkout (la lógica vive en `useCheckoutForm`).
@@ -55,6 +55,10 @@ export function CheckoutClient({
   presetCode?: string;
   freeOffer?: ResolveRedemptionCodeResponse | null;
 }) {
+  const t = useTranslations("checkout");
+  const format = useFormatter();
+  const money = (value: number) =>
+    format.number(value, { style: "currency", currency: "PEN" });
   const {
     form,
     fields,
@@ -80,9 +84,7 @@ export function CheckoutClient({
   if (freeOffer?.valid && freeOffer.isFree && !freeTicket) {
     return (
       <Alert>
-        <AlertDescription>
-          La entrada gratis de este código ya no está disponible (agotada o pausada).
-        </AlertDescription>
+        <AlertDescription>{t("freeUnavailable")}</AlertDescription>
       </Alert>
     );
   }
@@ -90,7 +92,7 @@ export function CheckoutClient({
   if (available.length === 0) {
     return (
       <Alert>
-        <AlertDescription>No hay entradas disponibles para este evento.</AlertDescription>
+        <AlertDescription>{t("noTickets")}</AlertDescription>
       </Alert>
     );
   }
@@ -99,7 +101,11 @@ export function CheckoutClient({
   if (isFreeFlow && freeTicket) {
     return (
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" noValidate>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6"
+          noValidate
+        >
           {formError ? (
             <Alert variant="destructive">
               <AlertDescription>{formError}</AlertDescription>
@@ -110,8 +116,12 @@ export function CheckoutClient({
             <div className="flex items-center gap-2 bg-primary/10 px-4 py-3">
               <Gift className="h-5 w-5 text-primary" weight="duotone" />
               <p className="text-sm font-medium">
-                Tu promotor {freeOffer?.promoterName ?? 'RAVENUE'} te brinda una{' '}
-                <span className="font-semibold text-rose">entrada GRATIS</span> al evento
+                {t.rich("freeOffer", {
+                  promoter: freeOffer?.promoterName ?? "RAVENUE",
+                  strong: (chunks: React.ReactNode) => (
+                    <span className="font-semibold text-rose">{chunks}</span>
+                  ),
+                })}
               </p>
             </div>
             <div className="flex gap-4 p-4">
@@ -127,14 +137,23 @@ export function CheckoutClient({
                 </div>
               ) : null}
               <div className="min-w-0 space-y-1">
-                <h2 className="truncate font-heading text-lg font-bold">{event.name}</h2>
-                <p className="text-sm text-muted-foreground">{formatDate(event.startsAt)}</p>
+                <h2 className="truncate font-heading text-lg font-bold">
+                  {event.name}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {format.dateTime(new Date(event.startsAt), {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
+                </p>
                 <Badge variant="secondary">{freeTicket.name}</Badge>
                 <p className="pt-1 text-sm">
-                  Ahorras{' '}
-                  <span className="font-semibold">
-                    {formatPEN(freeOffer?.savings ?? freeTicket.price)}
-                  </span>
+                  {t.rich("savings", {
+                    amount: money(freeOffer?.savings ?? freeTicket.price),
+                    strong: (chunks: React.ReactNode) => (
+                      <span className="font-semibold">{chunks}</span>
+                    ),
+                  })}
                 </p>
               </div>
             </div>
@@ -142,28 +161,32 @@ export function CheckoutClient({
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Tus datos</CardTitle>
+              <CardTitle className="text-lg">{t("yourDetails")}</CardTitle>
             </CardHeader>
             <CardContent>
               <AttendeeFieldset
                 control={form.control}
                 index={0}
-                self={canBeSelf ? { checked: selfBuyer, onCheckedChange: applySelf } : undefined}
+                self={
+                  canBeSelf
+                    ? { checked: selfBuyer, onCheckedChange: applySelf }
+                    : undefined
+                }
                 locked={selfBuyer}
               />
             </CardContent>
           </Card>
 
           <div className="flex items-center justify-between text-base font-semibold">
-            <span>Total</span>
-            <span className="text-rose">GRATIS</span>
+            <span>{t("total")}</span>
+            <span className="text-rose">{t("free")}</span>
           </div>
 
           <Button type="submit" className="w-full" size="lg" disabled={pending}>
-            {pending ? 'Emitiendo…' : 'Recibir entrada'}
+            {pending ? t("issuing") : t("receiveTicket")}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
-            Cortesía del promotor. No se realizará ningún cargo.
+            {t("courtesyNote")}
           </p>
         </form>
       </Form>
@@ -173,7 +196,11 @@ export function CheckoutClient({
   // ── Modo estándar ────────────────────────────────────────────────────────
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" noValidate>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-6"
+        noValidate
+      >
         {formError ? (
           <Alert variant="destructive">
             <AlertDescription>{formError}</AlertDescription>
@@ -182,7 +209,7 @@ export function CheckoutClient({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Entrada</CardTitle>
+            <CardTitle className="text-lg">{t("ticket")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -190,17 +217,17 @@ export function CheckoutClient({
               name="ticketTypeId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tipo de entrada</FormLabel>
+                  <FormLabel>{t("ticketType")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecciona" />
+                        <SelectValue placeholder={t("select")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {available.map((tt) => (
                         <SelectItem key={tt.id} value={tt.id}>
-                          {tt.name} — {formatPEN(tt.price)}
+                          {tt.name} — {money(tt.price)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -211,7 +238,7 @@ export function CheckoutClient({
             />
 
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Cantidad</span>
+              <span className="text-sm font-medium">{t("quantity")}</span>
               <div className="flex items-center gap-2">
                 <Button
                   type="button"
@@ -219,11 +246,13 @@ export function CheckoutClient({
                   size="icon"
                   disabled={fields.length <= 1}
                   onClick={() => remove(fields.length - 1)}
-                  aria-label="Quitar entrada"
+                  aria-label={t("removeTicket")}
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
-                <span className="w-8 text-center font-medium">{fields.length}</span>
+                <span className="w-8 text-center font-medium">
+                  {fields.length}
+                </span>
                 <Button
                   type="button"
                   variant="outline"
@@ -233,8 +262,10 @@ export function CheckoutClient({
                   // campo del asistente nuevo y el navegador baja el scroll
                   // hasta él. Piero quiere quedarse arriba (en el contador) y
                   // bajar a llenar datos cuando quiera.
-                  onClick={() => append(emptyAttendee(), { shouldFocus: false })}
-                  aria-label="Agregar entrada"
+                  onClick={() =>
+                    append(emptyAttendee(), { shouldFocus: false })
+                  }
+                  aria-label={t("addTicket")}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -245,7 +276,7 @@ export function CheckoutClient({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Asistentes</CardTitle>
+            <CardTitle className="text-lg">{t("attendees")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {fields.map((fieldItem, index) => (
@@ -267,7 +298,7 @@ export function CheckoutClient({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Pago</CardTitle>
+            <CardTitle className="text-lg">{t("payment")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -275,7 +306,7 @@ export function CheckoutClient({
               name="method"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Método de pago</FormLabel>
+                  <FormLabel>{t("paymentMethod")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
@@ -285,7 +316,7 @@ export function CheckoutClient({
                     <SelectContent>
                       {PAYMENT_METHODS.map((method) => (
                         <SelectItem key={method.value} value={method.value}>
-                          {method.label}
+                          {t(`paymentMethods.${method.value}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -300,7 +331,10 @@ export function CheckoutClient({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Código promocional <span className="text-muted-foreground">(opcional)</span>
+                    {t("promoCode")}{" "}
+                    <span className="text-muted-foreground">
+                      {t("optional")}
+                    </span>
                   </FormLabel>
                   <FormControl>
                     <Input placeholder="PROMO2026" {...field} />
@@ -311,17 +345,15 @@ export function CheckoutClient({
             />
             <Separator />
             <div className="flex items-center justify-between text-base font-semibold">
-              <span>Total</span>
-              <span>{formatPEN(subtotal)}</span>
+              <span>{t("total")}</span>
+              <span>{money(subtotal)}</span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Pago de prueba (MVP). No se realizará ningún cargo real.
-            </p>
+            <p className="text-xs text-muted-foreground">{t("testPayment")}</p>
           </CardContent>
         </Card>
 
         <Button type="submit" className="w-full" size="lg" disabled={pending}>
-          {pending ? 'Procesando…' : `Pagar ${formatPEN(subtotal)}`}
+          {pending ? t("processing") : t("pay", { amount: money(subtotal) })}
         </Button>
       </form>
     </Form>

@@ -4,7 +4,7 @@
  * agregado y la espera estimada de cada local.
  */
 
-export type CrowdNivelDemo = 'bajo' | 'medio' | 'lleno';
+export type CrowdNivelDemo = "bajo" | "medio" | "lleno";
 
 export interface CrowdDemo {
   localSlug: string;
@@ -12,41 +12,41 @@ export interface CrowdDemo {
   capacidad: number;
   nivel: CrowdNivelDemo;
   esperaMin: number;
-  actualizadoLabel: string;
+  actualizadoMin: number;
 }
 
 export const CROWD_DEMO: CrowdDemo[] = [
   {
-    localSlug: 'nocturna-club',
+    localSlug: "nocturna-club",
     dentro: 312,
     capacidad: 450,
-    nivel: 'medio',
+    nivel: "medio",
     esperaMin: 5,
-    actualizadoLabel: 'hace 2 min',
+    actualizadoMin: 2,
   },
   {
-    localSlug: 'sky-lounge-360',
+    localSlug: "sky-lounge-360",
     dentro: 88,
     capacidad: 150,
-    nivel: 'medio',
+    nivel: "medio",
     esperaMin: 0,
-    actualizadoLabel: 'hace 2 min',
+    actualizadoMin: 2,
   },
   {
-    localSlug: 'barranco-beats',
+    localSlug: "barranco-beats",
     dentro: 395,
     capacidad: 420,
-    nivel: 'lleno',
+    nivel: "lleno",
     esperaMin: 20,
-    actualizadoLabel: 'hace 2 min',
+    actualizadoMin: 2,
   },
   {
-    localSlug: 'karaoke-estelar',
+    localSlug: "karaoke-estelar",
     dentro: 40,
     capacidad: 200,
-    nivel: 'bajo',
+    nivel: "bajo",
     esperaMin: 0,
-    actualizadoLabel: 'hace 2 min',
+    actualizadoMin: 2,
   },
 ];
 

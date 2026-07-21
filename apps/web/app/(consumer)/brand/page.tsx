@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import {
   Badge,
   Button,
@@ -12,89 +13,66 @@ import {
 } from "@urnight/ui";
 import { LogoDirections } from "./logo-directions";
 
-export const metadata: Metadata = { title: "Brand Lab" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("brand");
+  return { title: t("metadataTitle") };
+}
 
 const PALETTE = [
   {
-    name: "Obsidian",
+    key: "obsidian",
     hex: "#0B0B0D",
-    use: "Fondo base",
     swatch: "bg-[var(--rv-obsidian)]",
   },
   {
-    name: "Charcoal Carbon",
+    key: "charcoal",
     hex: "#1A1A1D",
-    use: "Superficies",
     swatch: "bg-surface",
   },
   {
-    name: "Elevated",
+    key: "elevated",
     hex: "#23222A",
-    use: "Superficies elevadas",
     swatch: "bg-elevated",
   },
   {
-    name: "Ravenue Crimson",
+    key: "crimson",
     hex: "#B21E45",
-    use: "Acciones y marca",
     swatch: "bg-primary",
   },
   {
-    name: "Deep Wine",
+    key: "wine",
     hex: "#6E1833",
-    use: "Pressed y degradados",
     swatch: "bg-[var(--rv-wine)]",
   },
   {
-    name: "Moon White",
+    key: "white",
     hex: "#F4F0F2",
-    use: "Texto primario",
     swatch: "bg-foreground",
   },
   {
-    name: "Smoke Gray",
+    key: "smoke",
     hex: "#A8A4AE",
-    use: "Texto secundario",
     swatch: "bg-[var(--rv-smoke)]",
   },
   {
-    name: "Steel Border",
+    key: "steel",
     hex: "#302E38",
-    use: "Bordes",
     swatch: "bg-[var(--rv-steel)]",
   },
   {
-    name: "Border Soft",
+    key: "soft",
     hex: "#44414D",
-    use: "Bordes fuertes y hover",
     swatch: "bg-[var(--rv-border-soft)]",
   },
 ] as const;
 
 const MOTION = [
-  { name: "Fast", value: "120ms", use: "Hover y press" },
-  { name: "Normal", value: "220ms", use: "Paneles y modales" },
-  { name: "Slow", value: "360ms", use: "Transiciones de página" },
+  { key: "fast", value: "120ms" },
+  { key: "normal", value: "220ms" },
+  { key: "slow", value: "360ms" },
 ] as const;
 
-const MESSAGES = [
-  {
-    context: "Eslogan principal",
-    messages: ["Donde la noche encuentra su lugar."],
-  },
-  { context: "Alternativa", messages: ["La noche, mejor conectada."] },
-  {
-    context: "B2C",
-    messages: ["Encuentra dónde vibra la noche.", "Tu noche empieza aquí."],
-  },
-  {
-    context: "B2B",
-    messages: [
-      "Turn venues into revenue.",
-      "Más visibilidad. Más público. Más negocio.",
-    ],
-  },
-] as const;
+type VoiceRow = { context: string; messages: string[] };
 
 function SectionHeading({
   eyebrow,
@@ -120,12 +98,14 @@ function SectionHeading({
   );
 }
 
-export default function BrandLabPage() {
+export default async function BrandLabPage() {
+  const t = await getTranslations("brand");
+  const messages = t.raw("voice.rows") as VoiceRow[];
   return (
     <div className="bg-root">
       <section className="border-b bg-[image:var(--gradient-brand)]">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-          <p className="rv-eyebrow">Brand Lab — identidad final</p>
+          <p className="rv-eyebrow">{t("hero.eyebrow")}</p>
           <h1 className="sr-only">RAVENUE</h1>
           <Image
             src="/brand/lockup-horizontal.png"
@@ -136,7 +116,7 @@ export default function BrandLabPage() {
             className="mt-8 h-auto w-full max-w-3xl"
           />
           <p className="mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            Donde la noche encuentra su lugar.
+            {t("hero.tagline")}
           </p>
         </div>
       </section>
@@ -147,9 +127,9 @@ export default function BrandLabPage() {
       >
         <div id="logos-title">
           <SectionHeading
-            eyebrow="01 — Sistema de logo"
-            title="Identidad final"
-            description="El wordmark y la V angular forman el sistema definitivo para los puntos de contacto de RAVENUE."
+            eyebrow={t("logo.eyebrow")}
+            title={t("logo.title")}
+            description={t("logo.description")}
           />
         </div>
         <LogoDirections />
@@ -159,15 +139,15 @@ export default function BrandLabPage() {
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <div id="palette-title">
             <SectionHeading
-              eyebrow="02 — Color"
-              title="Obsidiana, luna y carmín"
-              description="Una base nocturna sobria donde el carmín se reserva para marca y acción."
+              eyebrow={t("color.eyebrow")}
+              title={t("color.title")}
+              description={t("color.description")}
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {PALETTE.map((color) => (
               <article
-                key={color.name}
+                key={color.key}
                 className="overflow-hidden rounded-lg border bg-card"
               >
                 <div
@@ -175,12 +155,14 @@ export default function BrandLabPage() {
                   aria-hidden="true"
                 />
                 <div className="p-4">
-                  <h3 className="font-bold">{color.name}</h3>
+                  <h3 className="font-bold">
+                    {t(`color.palette.${color.key}.name`)}
+                  </h3>
                   <p className="mt-1 font-mono text-xs text-[var(--rv-rose)]">
                     {color.hex}
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    {color.use}
+                    {t(`color.palette.${color.key}.use`)}
                   </p>
                 </div>
               </article>
@@ -188,12 +170,12 @@ export default function BrandLabPage() {
           </div>
           <div className="mt-8 rounded-lg border bg-card p-5">
             <div className="flex items-center justify-between gap-4 text-sm">
-              <strong>Regla de composición</strong>
+              <strong>{t("color.composition")}</strong>
               <span className="text-muted-foreground">70 / 20 / 10</span>
             </div>
             <div
               className="mt-4 flex h-5 overflow-hidden rounded-full"
-              aria-label="70% oscuros, 20% blancos y grises, 10% carmín"
+              aria-label={t("color.compositionAria")}
             >
               <span className="w-[70%] bg-[var(--rv-obsidian)]" />
               <span className="w-[20%] bg-foreground" />
@@ -209,36 +191,35 @@ export default function BrandLabPage() {
       >
         <div id="type-title">
           <SectionHeading
-            eyebrow="03 — Tipografía"
-            title="Sora para atraer. Inter para orientar."
+            eyebrow={t("typography.eyebrow")}
+            title={t("typography.title")}
           />
         </div>
         <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <Card className="p-6 sm:p-8">
             <p className="font-display text-4xl font-bold leading-tight sm:text-6xl">
-              La noche encuentra su lugar.
+              {t("typography.displaySample")}
             </p>
             <p className="mt-5 text-sm text-muted-foreground">
-              Sora 700 · titulares, campañas y momentos de marca.
+              {t("typography.displayUsage")}
             </p>
           </Card>
           <Card className="p-6 sm:p-8">
             <p className="text-lg leading-relaxed">
-              Descubre eventos, locales y experiencias con una interfaz clara
-              incluso cuando la noche apenas comienza.
+              {t("typography.bodySample")}
             </p>
             <div className="mt-6 overflow-hidden rounded-md border text-sm">
               <div className="grid grid-cols-2 border-b bg-surface px-4 py-3 font-bold">
-                <span>Escala</span>
-                <span>Uso</span>
+                <span>{t("typography.scale")}</span>
+                <span>{t("typography.usage")}</span>
               </div>
               <div className="grid grid-cols-2 px-4 py-3 text-muted-foreground">
                 <span>Inter 14–16</span>
-                <span>UI y lectura</span>
+                <span>{t("typography.uiReading")}</span>
               </div>
             </div>
             <p className="mt-5 text-sm text-muted-foreground">
-              Inter 400–700 · navegación, datos, formularios y cuerpo.
+              {t("typography.bodyUsage")}
             </p>
           </Card>
         </div>
@@ -248,21 +229,23 @@ export default function BrandLabPage() {
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <div id="components-title">
             <SectionHeading
-              eyebrow="04 — Componentes"
-              title="Tokens sobre producto real"
-              description="Estados del design system renderizados con la nueva paleta."
+              eyebrow={t("components.eyebrow")}
+              title={t("components.title")}
+              description={t("components.description")}
             />
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             <Card className="p-6">
               <h3 className="font-heading text-lg font-bold">
-                Acciones y estados
+                {t("components.actions")}
               </h3>
               <div className="mt-5 flex flex-wrap items-center gap-3">
-                <Button>Default</Button>
-                <Button className="bg-primary-hover">Hover</Button>
-                <Button disabled>Disabled</Button>
-                <Button variant="secondary">Secundaria</Button>
+                <Button>{t("components.default")}</Button>
+                <Button className="bg-primary-hover">
+                  {t("components.hover")}
+                </Button>
+                <Button disabled>{t("components.disabled")}</Button>
+                <Button variant="secondary">{t("components.secondary")}</Button>
                 <Badge>RAVENUE Select</Badge>
               </div>
               <div className="mt-7">
@@ -270,28 +253,30 @@ export default function BrandLabPage() {
                   htmlFor="brand-lab-email"
                   className="mb-2 block text-sm font-bold"
                 >
-                  Correo de invitación
+                  {t("components.invitationEmail")}
                 </label>
                 <Input
                   id="brand-lab-email"
                   type="email"
-                  placeholder="socio@ravenue.pe"
+                  placeholder={t("components.emailPlaceholder")}
                 />
               </div>
             </Card>
             <Card>
               <CardHeader>
-                <Badge className="w-fit">Esta noche</Badge>
-                <CardTitle className="pt-3">Sesión RAVENUE</CardTitle>
+                <Badge className="w-fit">{t("components.tonight")}</Badge>
+                <CardTitle className="pt-3">
+                  {t("components.session")}
+                </CardTitle>
                 <CardDescription>
-                  Una tarjeta real para validar superficie, borde y jerarquía.
+                  {t("components.cardDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="rounded-md border bg-surface p-4">
-                  <p className="font-bold">Centro de Lima · 11:30 p. m.</p>
+                  <p className="font-bold">{t("components.location")}</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Acceso verificado y cupos limitados.
+                    {t("components.access")}
                   </p>
                 </div>
               </CardContent>
@@ -306,8 +291,8 @@ export default function BrandLabPage() {
       >
         <div id="contrast-title">
           <SectionHeading
-            eyebrow="05 — Semántica"
-            title="Carmín de marca no es error"
+            eyebrow={t("semantics.eyebrow")}
+            title={t("semantics.title")}
           />
         </div>
         <div className="grid overflow-hidden rounded-lg border sm:grid-cols-2">
@@ -316,36 +301,39 @@ export default function BrandLabPage() {
             <p className="mt-2 font-mono text-sm">--primary · #B21E45</p>
           </div>
           <div className="bg-error p-8 text-white">
-            <p className="font-display text-2xl font-bold">Error</p>
+            <p className="font-display text-2xl font-bold">
+              {t("semantics.error")}
+            </p>
             <p className="mt-2 font-mono text-sm">--error · #EF4444</p>
           </div>
         </div>
         <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-          La acción de marca usa un carmín frío y profundo. El estado de error
-          conserva un rojo brillante para distinguir intención de marca y alerta
-          funcional.
+          {t("semantics.description")}
         </p>
       </section>
 
       <section className="border-y bg-deep" aria-labelledby="messages-title">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <div id="messages-title">
-            <SectionHeading eyebrow="06 — Voz" title="Mensajes candidatos" />
+            <SectionHeading
+              eyebrow={t("voice.eyebrow")}
+              title={t("voice.title")}
+            />
           </div>
           <div className="overflow-x-auto rounded-lg border bg-card">
             <table className="w-full min-w-2xl border-collapse text-left text-sm">
               <thead className="bg-surface text-foreground">
                 <tr>
                   <th scope="col" className="px-5 py-4 font-bold">
-                    Contexto
+                    {t("voice.context")}
                   </th>
                   <th scope="col" className="px-5 py-4 font-bold">
-                    Mensajes
+                    {t("voice.messages")}
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {MESSAGES.map((row) => (
+                {messages.map((row) => (
                   <tr key={row.context} className="border-t">
                     <th
                       scope="row"
@@ -370,14 +358,14 @@ export default function BrandLabPage() {
       >
         <div id="gradient-title">
           <SectionHeading
-            eyebrow="07 — Atmósfera"
-            title="Gradiente institucional"
+            eyebrow={t("atmosphere.eyebrow")}
+            title={t("atmosphere.title")}
           />
         </div>
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="rounded-xl border bg-[image:var(--gradient-brand)] p-8 sm:p-12">
             <p className="max-w-xl font-display text-3xl font-bold sm:text-4xl">
-              Profundidad nocturna sin perder claridad.
+              {t("atmosphere.depth")}
             </p>
             <code className="mt-8 block overflow-x-auto rounded-md border bg-root/80 p-4 text-xs text-[var(--rv-rose)]">
               --gradient-brand: linear-gradient(135deg, #0B0B0D 0%, #1A1A1D 55%,
@@ -386,7 +374,7 @@ export default function BrandLabPage() {
           </div>
           <div className="rounded-xl border bg-[image:var(--gradient-luxury)] p-8 sm:p-12">
             <p className="max-w-xl font-display text-3xl font-bold sm:text-4xl">
-              Luxury
+              {t("atmosphere.luxury")}
             </p>
             <code className="mt-8 block overflow-x-auto rounded-md border bg-root/80 p-4 text-xs text-[var(--rv-rose)]">
               --gradient-luxury: linear-gradient(90deg, #0B0B0D 0%, #6E1833
@@ -400,20 +388,22 @@ export default function BrandLabPage() {
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <div id="motion-title">
             <SectionHeading
-              eyebrow="08 — Motion"
-              title="Rápido, claro y controlado"
-              description="Duraciones canónicas para feedback, transiciones de componentes y cambios de página."
+              eyebrow={t("motion.eyebrow")}
+              title={t("motion.title")}
+              description={t("motion.description")}
             />
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {MOTION.map((token) => (
-              <Card key={token.name} className="p-6">
-                <p className="rv-eyebrow">{token.name}</p>
+              <Card key={token.key} className="p-6">
+                <p className="rv-eyebrow">
+                  {t(`motion.tokens.${token.key}.name`)}
+                </p>
                 <p className="mt-3 font-mono text-2xl font-medium text-foreground">
                   {token.value}
                 </p>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {token.use}
+                  {t(`motion.tokens.${token.key}.use`)}
                 </p>
               </Card>
             ))}

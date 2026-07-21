@@ -1,19 +1,24 @@
-import { Ticket } from '@phosphor-icons/react/dist/ssr';
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import type { TicketResponse } from '@urnight/contracts';
-import { AccountTicketItem } from '@/components/account/account-ticket-item';
-import { SessionRecoveryState } from '@/components/account/session-recovery-state';
-import { EmptyState } from '@/components/shared/empty-state';
-import { ErrorState } from '@/components/shared/error-state';
-import { Button } from '@urnight/ui';
-import { getMyTickets } from '@/lib/api/tickets';
-import { requireSession } from '@/lib/auth-helpers';
+import { Ticket } from "@phosphor-icons/react/dist/ssr";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import type { TicketResponse } from "@urnight/contracts";
+import { AccountTicketItem } from "@/components/account/account-ticket-item";
+import { SessionRecoveryState } from "@/components/account/session-recovery-state";
+import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/error-state";
+import { Button } from "@urnight/ui";
+import { getMyTickets } from "@/lib/api/tickets";
+import { requireSession } from "@/lib/auth-helpers";
 
-export const metadata: Metadata = { title: 'Mis entradas' };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("account.tickets");
+  return { title: t("metadataTitle") };
+}
 
 export default async function MyTicketsPage() {
-  const session = await requireSession('/account/tickets');
+  const t = await getTranslations("account.tickets");
+  const session = await requireSession("/account/tickets");
   if (!session.accessToken || session.error) {
     return <SessionRecoveryState />;
   }
@@ -25,18 +30,23 @@ export default async function MyTicketsPage() {
   try {
     tickets = await getMyTickets(token);
   } catch {
-    return <ErrorState title="No pudimos cargar tus entradas" description="Inténtalo de nuevo en unos minutos." />;
+    return (
+      <ErrorState
+        title={t("error.title")}
+        description={t("error.description")}
+      />
+    );
   }
 
   if (tickets.length === 0) {
     return (
       <EmptyState
         icon={<Ticket className="h-10 w-10" weight="duotone" />}
-        title="No tienes entradas"
-        description="Cuando compres entradas aparecerán aquí con su código QR."
+        title={t("empty.title")}
+        description={t("empty.description")}
         action={
           <Button asChild>
-            <Link href="/events">Explorar eventos</Link>
+            <Link href="/events">{t("empty.action")}</Link>
           </Button>
         }
       />
@@ -46,19 +56,30 @@ export default async function MyTicketsPage() {
   // Próximas (evento aún por venir o sin fecha) vs. pasadas. La query ya ordena
   // por fecha ascendente; las pasadas se muestran de más reciente a más antigua.
   const now = Date.now();
-  const isUpcoming = (t: TicketResponse) => !t.eventStartsAt || new Date(t.eventStartsAt).getTime() >= now;
+  const isUpcoming = (t: TicketResponse) =>
+    !t.eventStartsAt || new Date(t.eventStartsAt).getTime() >= now;
   const upcoming = tickets.filter(isUpcoming);
   const past = tickets.filter((t) => !isUpcoming(t)).reverse();
 
   return (
     <div className="space-y-8">
-      {upcoming.length > 0 ? <TicketSection title="Próximas" tickets={upcoming} /> : null}
-      {past.length > 0 ? <TicketSection title="Pasadas" tickets={past} /> : null}
+      {upcoming.length > 0 ? (
+        <TicketSection title={t("upcoming")} tickets={upcoming} />
+      ) : null}
+      {past.length > 0 ? (
+        <TicketSection title={t("past")} tickets={past} />
+      ) : null}
     </div>
   );
 }
 
-function TicketSection({ title, tickets }: { title: string; tickets: TicketResponse[] }) {
+function TicketSection({
+  title,
+  tickets,
+}: {
+  title: string;
+  tickets: TicketResponse[];
+}) {
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">

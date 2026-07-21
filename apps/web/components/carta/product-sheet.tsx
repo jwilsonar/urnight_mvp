@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import { Lock, Minus, Plus } from '@phosphor-icons/react';
-import { useEffect, useState } from 'react';
+import { Lock, Minus, Plus } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
+import { useFormatter, useTranslations } from "next-intl";
 import {
   Badge,
   Button,
@@ -10,11 +11,10 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from '@urnight/ui';
-import { useCart } from '@/components/carta/cart-provider';
-import { StorageImage } from '@/lib/storage/storage-context';
-import { formatPEN } from '@/lib/utils';
-import { CARTA_TAG_LABEL, type CartaItemDemo } from '@/lib/mock/carta';
+} from "@urnight/ui";
+import { useCart } from "@/components/carta/cart-provider";
+import { StorageImage } from "@/lib/storage/storage-context";
+import { type CartaItemDemo } from "@/lib/mock/carta";
 
 /** Detalle de producto en Sheet (in-venue friendly: se abre sin salir de la carta). */
 export function ProductSheet({
@@ -26,6 +26,9 @@ export function ProductSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const t = useTranslations("carta");
+  const productT = useTranslations("carta.product");
+  const format = useFormatter();
   const cart = useCart();
   const [quantity, setQuantity] = useState(1);
 
@@ -44,11 +47,14 @@ export function ProductSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="mx-auto max-w-lg rounded-t-2xl border-t p-0 sm:rounded-t-2xl">
+      <SheetContent
+        side="bottom"
+        className="mx-auto max-w-lg rounded-t-2xl border-t p-0 sm:rounded-t-2xl"
+      >
         <div className="relative aspect-[16/9] w-full overflow-hidden rounded-t-2xl">
           <StorageImage
             src={item.imageUrl}
-            alt={item.name}
+            alt={t(`items.${item.id}.name`)}
             fill
             sizes="(max-width: 640px) 100vw, 512px"
             className="object-cover"
@@ -59,13 +65,15 @@ export function ProductSheet({
             <div className="flex flex-wrap items-center gap-2">
               {item.tags.map((tag) => (
                 <Badge key={tag} variant="info">
-                  {CARTA_TAG_LABEL[tag]}
+                  {t(`tags.${tag}`)}
                 </Badge>
               ))}
             </div>
-            <SheetTitle className="font-heading text-xl font-extrabold">{item.name}</SheetTitle>
+            <SheetTitle className="font-heading text-xl font-extrabold">
+              {t(`items.${item.id}.name`)}
+            </SheetTitle>
             <SheetDescription className="text-sm leading-relaxed">
-              {item.description}
+              {t(`items.${item.id}.description`)}
             </SheetDescription>
           </SheetHeader>
 
@@ -77,7 +85,7 @@ export function ProductSheet({
                   variant="ghost"
                   size="icon"
                   className="size-8 rounded-full"
-                  aria-label="Quitar uno"
+                  aria-label={productT("removeOne")}
                   disabled={quantity <= 1}
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                 >
@@ -90,7 +98,7 @@ export function ProductSheet({
                   variant="ghost"
                   size="icon"
                   className="size-8 rounded-full"
-                  aria-label="Agregar uno"
+                  aria-label={productT("addOne")}
                   disabled={quantity >= 20}
                   onClick={() => setQuantity((q) => Math.min(20, q + 1))}
                 >
@@ -103,14 +111,25 @@ export function ProductSheet({
                  reservadas del wizard de reserva. */
               <div className="flex items-center gap-2 rounded-full border bg-surface px-4 py-2 text-muted-foreground">
                 <Lock className="size-4" weight="fill" />
-                <span className="min-w-6 text-center font-heading text-base font-bold tabular-nums">0</span>
+                <span className="min-w-6 text-center font-heading text-base font-bold tabular-nums">
+                  0
+                </span>
               </div>
             )}
 
-            <Button className="flex-1" disabled={!item.available} onClick={addAndClose}>
+            <Button
+              className="flex-1"
+              disabled={!item.available}
+              onClick={addAndClose}
+            >
               {item.available
-                ? `Agregar · ${formatPEN(item.priceSoles * quantity)}`
-                : 'Agotado esta noche'}
+                ? productT("addWithPrice", {
+                    amount: format.number(item.priceSoles * quantity, {
+                      style: "currency",
+                      currency: "PEN",
+                    }),
+                  })
+                : productT("soldOutTonight")}
             </Button>
           </div>
         </div>

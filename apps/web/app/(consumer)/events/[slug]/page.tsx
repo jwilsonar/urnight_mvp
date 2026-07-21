@@ -9,6 +9,7 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { Badge, Button, Card, CardContent } from "@urnight/ui";
 import { TicketTypeList } from "@/components/events/ticket-type-list";
 import { FavoriteButton } from "@/components/favorites/favorite-button";
@@ -29,17 +30,6 @@ import { getReviews } from "@/lib/api/trust";
 // la frescura del inventario de entradas en la página pública del evento.
 export const revalidate = 30;
 
-const DATE_LONG = new Intl.DateTimeFormat("es-PE", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-});
-const TIME = new Intl.DateTimeFormat("es-PE", {
-  hour: "numeric",
-  minute: "2-digit",
-  hour12: true,
-});
-
 async function loadEvent(slug: string) {
   try {
     return await getEventBySlug(slug);
@@ -56,9 +46,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const event = await loadEvent(slug);
+  const t = await getTranslations("events.detail");
   return {
     title: event.name,
-    description: event.description ?? `Entradas para ${event.name} en RAVENUE.`,
+    description:
+      event.description ?? t("metadataDescription", { name: event.name }),
     openGraph: event.flyerUrl
       ? { images: [resolveStorageUrl(event.flyerUrl)] }
       : undefined,
@@ -93,6 +85,11 @@ export default async function EventDetailPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  const [t, commonT, format] = await Promise.all([
+    getTranslations("events.detail"),
+    getTranslations("common"),
+    getFormatter(),
+  ]);
   const { slug } = await params;
   const event = await loadEvent(slug);
   // Datos secundarios: degradan a vacío si fallan (el evento ya cargó).
@@ -116,9 +113,11 @@ export default async function EventDetailPage({
     .map((t) => t.price);
   const priceFrom = activePrices.length > 0 ? Math.min(...activePrices) : null;
   const starts = new Date(event.startsAt);
+  const formatTime = (date: Date) =>
+    format.dateTime(date, { hour: "numeric", minute: "2-digit", hour12: true });
   const schedule = event.endsAt
-    ? `${TIME.format(starts)} – ${TIME.format(new Date(event.endsAt))}`
-    : TIME.format(starts);
+    ? `${formatTime(starts)} – ${formatTime(new Date(event.endsAt))}`
+    : formatTime(starts);
 
   return (
     <div>
@@ -135,14 +134,14 @@ export default async function EventDetailPage({
           />
         ) : (
           <div className="rv-img-ph absolute inset-0">
-            <span>Hero · {event.name}</span>
+            <span>{t("heroPlaceholder", { name: event.name })}</span>
           </div>
         )}
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,10,0.2)_35%,var(--bg-root)_100%)]" />
         <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <Button variant="secondary" size="sm" asChild>
             <Link href="/events">
-              <ArrowLeft className="size-3.5" /> Volver
+              <ArrowLeft className="size-3.5" /> {t("back")}
             </Link>
           </Button>
         </div>
@@ -153,7 +152,7 @@ export default async function EventDetailPage({
           <div>
             <Reveal>
               <div className="mb-4 flex flex-wrap gap-2">
-                {canBuy ? <Badge variant="success">En venta</Badge> : null}
+                {canBuy ? <Badge variant="success">{t("onSale")}</Badge> : null}
                 {event.minAgeNote ? (
                   <Badge variant="destructive">{event.minAgeNote}</Badge>
                 ) : null}
@@ -163,9 +162,9 @@ export default async function EventDetailPage({
                   </Badge>
                 ))}
                 {soldOut ? (
-                  <Badge variant="destructive">Agotado</Badge>
+                  <Badge variant="destructive">{t("soldOut")}</Badge>
                 ) : pct >= 0.8 ? (
-                  <Badge variant="warning">🔥 Casi lleno</Badge>
+                  <Badge variant="warning">🔥 {t("almostFull")}</Badge>
                 ) : null}
               </div>
               <h1 className="font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl">
@@ -178,18 +177,22 @@ export default async function EventDetailPage({
               <div className="mt-7 flex max-w-xl flex-col gap-2.5">
                 <InfoRow
                   icon={<CalendarBlank weight="duotone" />}
-                  label="Fecha"
-                  value={DATE_LONG.format(starts)}
+                  label={t("date")}
+                  value={format.dateTime(starts, {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                  })}
                 />
                 <InfoRow
                   icon={<Clock weight="duotone" />}
-                  label="Horario"
+                  label={t("schedule")}
                   value={schedule}
                 />
                 {local ? (
                   <InfoRow
                     icon={<MapPin weight="duotone" />}
-                    label="Lugar"
+                    label={t("venue")}
                     // La dirección completa vive únicamente en "Dónde es".
                     value={local.name}
                   />
@@ -197,7 +200,7 @@ export default async function EventDetailPage({
                 {event.dressCode ? (
                   <InfoRow
                     icon={<TShirt weight="duotone" />}
-                    label="Dress code"
+                    label={t("dressCode")}
                     value={event.dressCode}
                   />
                 ) : null}
@@ -208,7 +211,7 @@ export default async function EventDetailPage({
               <Reveal>
                 <section className="mt-9">
                   <h2 className="mb-3 font-heading text-xl font-extrabold">
-                    Descripción
+                    {t("description")}
                   </h2>
                   <p className="max-w-2xl whitespace-pre-line leading-relaxed text-muted-foreground">
                     {event.description}
@@ -222,7 +225,7 @@ export default async function EventDetailPage({
               <Reveal>
                 <section className="mt-9">
                   <h2 className="mb-4 font-heading text-xl font-extrabold">
-                    Dónde es
+                    {t("where")}
                   </h2>
                   <Card>
                     <CardContent className="flex flex-wrap items-center gap-5 p-5">
@@ -237,7 +240,7 @@ export default async function EventDetailPage({
                           />
                         ) : (
                           <div className="rv-img-ph absolute inset-0">
-                            <span>Local</span>
+                            <span>{t("venuePlaceholder")}</span>
                           </div>
                         )}
                       </div>
@@ -258,7 +261,9 @@ export default async function EventDetailPage({
                         ) : null}
                       </div>
                       <Button variant="outline" asChild>
-                        <Link href={`/locals/${local.slug}`}>Ver local</Link>
+                        <Link href={`/locals/${local.slug}`}>
+                          {t("viewVenue")}
+                        </Link>
                       </Button>
                     </CardContent>
                   </Card>
@@ -269,7 +274,7 @@ export default async function EventDetailPage({
             <Reveal>
               <section className="mt-9 pb-4">
                 <h2 className="mb-4 font-heading text-xl font-extrabold">
-                  Reseñas
+                  {t("reviews")}
                 </h2>
                 <ReviewList reviews={reviews} />
               </section>
@@ -287,21 +292,25 @@ export default async function EventDetailPage({
                 {priceFrom !== null ? (
                   <div className="mt-4 border-y py-4">
                     <p className="text-xs text-muted-foreground">
-                      Precio desde
+                      {t("priceFrom")}
                     </p>
                     <p className="flex items-baseline gap-2">
                       <span className="font-heading text-4xl font-extrabold">
-                        S/ {priceFrom.toFixed(0)}
+                        {format.number(priceFrom, {
+                          style: "currency",
+                          currency: "PEN",
+                          maximumFractionDigits: 0,
+                        })}
                       </span>
                       <span className="text-sm text-muted-foreground">
-                        por persona
+                        {t("perPerson")}
                       </span>
                     </p>
                   </div>
                 ) : null}
                 <div className="mt-5">
                   <h2 className="mb-3 font-heading text-lg font-extrabold">
-                    Entradas
+                    {t("tickets")}
                   </h2>
                   <TicketTypeList
                     ticketTypes={ticketTypes}
@@ -312,17 +321,17 @@ export default async function EventDetailPage({
                 {/* Reserva de mesa desde el evento (feedback). Demo hasta tener
                     backend; a futuro cada local/evento decidirá si la ofrece. */}
                 <Button variant="secondary" className="mt-4 w-full" asChild>
-                  <Link href="/reserva">Reservar mesa</Link>
+                  <Link href="/reserva">{t("bookTable")}</Link>
                 </Button>
                 <div className="mt-2 text-center">
-                  <Badge variant="info">Demo</Badge>
+                  <Badge variant="info">{commonT("demo")}</Badge>
                 </div>
                 <div className="mt-4 flex items-start gap-2.5 rounded-md border border-success-border bg-success-soft px-3.5 py-3 text-xs leading-relaxed text-success">
                   <ShieldCheck
                     className="mt-0.5 size-4 shrink-0"
                     weight="duotone"
                   />
-                  <span>Compra segura · Verificado por RAVENUE.</span>
+                  <span>{t("securePurchase")}</span>
                 </div>
               </CardContent>
             </Card>

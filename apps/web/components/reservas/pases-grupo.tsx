@@ -1,22 +1,20 @@
-'use client';
+"use client";
 
-import { ShareNetwork } from '@phosphor-icons/react';
-import { Badge, Button, cn } from '@urnight/ui';
-import { toast } from 'sonner';
-import type { PaseReservaDemo } from '@/lib/mock/reservas';
+import { ShareNetwork } from "@phosphor-icons/react";
+import { Badge, Button, cn } from "@urnight/ui";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import type { PaseReservaDemo } from "@/lib/mock/reservas";
 
 interface PasesGrupoProps {
   pases: PaseReservaDemo[];
 }
 
-const ZONA_LABEL: Record<string, string> = {
-  general: 'General',
-  vip: 'VIP',
-  'super-vip': 'SUPER VIP',
-};
-
 function PseudoQr({ codigo }: { codigo: string }) {
-  const semilla = Array.from(codigo).reduce((total, caracter) => total + caracter.charCodeAt(0), 0);
+  const semilla = Array.from(codigo).reduce(
+    (total, caracter) => total + caracter.charCodeAt(0),
+    0,
+  );
 
   return (
     <div
@@ -31,12 +29,16 @@ function PseudoQr({ codigo }: { codigo: string }) {
           (fila < 3 && columna < 3) ||
           (fila < 3 && columna > 3) ||
           (fila > 3 && columna < 3);
-        const activo = esMarca || (semilla + indice * 7 + fila * columna) % 3 !== 0;
+        const activo =
+          esMarca || (semilla + indice * 7 + fila * columna) % 3 !== 0;
 
         return (
           <span
             key={indice}
-            className={cn('aspect-square rounded-[1px]', activo ? 'bg-foreground' : 'bg-muted')}
+            className={cn(
+              "aspect-square rounded-[1px]",
+              activo ? "bg-foreground" : "bg-muted",
+            )}
           />
         );
       })}
@@ -45,25 +47,28 @@ function PseudoQr({ codigo }: { codigo: string }) {
 }
 
 export function PasesGrupo({ pases }: PasesGrupoProps) {
+  const t = useTranslations("reserva.passes");
+
   async function copiarCodigos(texto: string) {
     try {
       await navigator.clipboard.writeText(texto);
-      toast.success('Códigos de los pases copiados.');
+      toast.success(t("copied"));
     } catch {
-      toast.error('No se pudieron copiar los pases. Inténtalo nuevamente.');
+      toast.error(t("copyError"));
     }
   }
 
   async function compartirPases() {
-    const codigos = pases.map((pase) => pase.codigo).join('\n');
-    const texto = `Pases de la reserva UR-DEMO-4821\n${codigos}`;
+    const codigos = pases.map((pase) => pase.codigo).join("\n");
+    const texto = `${t("shareText", { code: "UR-DEMO-4821" })}\n${codigos}`;
 
-    if (typeof navigator.share === 'function') {
+    if (typeof navigator.share === "function") {
       try {
-        await navigator.share({ title: 'Pases de grupo RAVENUE', text: texto });
+        await navigator.share({ title: t("shareTitle"), text: texto });
         return;
       } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') return;
+        if (error instanceof DOMException && error.name === "AbortError")
+          return;
       }
     }
 
@@ -74,21 +79,34 @@ export function PasesGrupo({ pases }: PasesGrupoProps) {
     <section className="mt-8 text-left" aria-labelledby="pases-grupo-titulo">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 id="pases-grupo-titulo" className="font-heading text-xl font-extrabold">
-            Pases de tu grupo
+          <h3
+            id="pases-grupo-titulo"
+            className="font-heading text-xl font-extrabold"
+          >
+            {t("title")}
           </h3>
-          <p className="mt-1 text-sm text-muted-foreground">Comparte un pase con cada invitado.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t("description")}
+          </p>
         </div>
-        <Button type="button" variant="outline" size="sm" onClick={compartirPases}>
-          <ShareNetwork className="size-4" weight="duotone" /> Compartir pases
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={compartirPases}
+        >
+          <ShareNetwork className="size-4" weight="duotone" /> {t("share")}
         </Button>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {pases.map((pase) => (
-          <article key={pase.id} className="min-w-0 rounded-md border bg-card p-3">
+          <article
+            key={pase.id}
+            className="min-w-0 rounded-md border bg-card p-3"
+          >
             <p className="rv-eyebrow !text-muted-foreground">
-              Pase {pase.indice} de {pases.length}
+              {t("counter", { current: pase.indice, total: pases.length })}
             </p>
             <div className="mt-3 flex flex-col items-center gap-3">
               <PseudoQr codigo={pase.codigo} />
@@ -97,8 +115,15 @@ export function PasesGrupo({ pases }: PasesGrupoProps) {
               </code>
             </div>
             <div className="mt-3 flex flex-col items-start gap-2 border-t pt-3">
-              <Badge variant="secondary">{ZONA_LABEL[pase.zonaId] ?? pase.zonaId}</Badge>
-              <p className="w-full truncate text-xs text-muted-foreground" title={pase.titular}>
+              <Badge variant="secondary">
+                {t.has(`zones.${pase.zonaId}`)
+                  ? t(`zones.${pase.zonaId}`)
+                  : pase.zonaId}
+              </Badge>
+              <p
+                className="w-full truncate text-xs text-muted-foreground"
+                title={pase.titular}
+              >
                 {pase.titular}
               </p>
             </div>

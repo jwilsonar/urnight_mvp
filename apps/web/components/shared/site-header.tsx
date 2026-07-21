@@ -1,12 +1,14 @@
-import { SearchSuggest } from '@/components/catalog/search-suggest';
-import { Logo3D } from './logo-3d';
-import { MainNav } from './main-nav';
-import { MobileNav } from './mobile-nav';
-import { NotificationBellConsumer } from './notification-bell-consumer';
-import { UserMenu } from './user-menu';
+import { SearchSuggest } from "@/components/catalog/search-suggest";
+import { Logo3D } from "./logo-3d";
+import { MainNav } from "./main-nav";
+import { MobileNav } from "./mobile-nav";
+import { NotificationBellConsumer } from "./notification-bell-consumer";
+import { UserMenu } from "./user-menu";
 
 /** Cabecera del sitio público. Server Component con islas cliente para sesión/tema. */
-export function SiteHeader() {
+export async function SiteHeader() {
+  const t = await getTranslations("search");
+
   return (
     /* Navbar DS: fill oscuro casi opaco + blur, hairline inferior. El 95% evita
        que el contenido al scrollear se lea a través y ensucie la navegación. */
@@ -25,7 +27,7 @@ export function SiteHeader() {
             perfil cerca de él (§ feedback), sin hueco muerto a la derecha. */}
         <div className="hidden w-64 lg:block xl:w-72 lg:ml-auto">
           {/* Buscador con sugerencias en vivo (eventos + locales). */}
-          <SearchSuggest placeholder="Buscar eventos, locales…" />
+          <SearchSuggest placeholder={t("placeholder")} />
         </div>
         <div className="ml-auto flex items-center gap-1 lg:ml-0 lg:mr-auto">
           <NotificationBellConsumer />
@@ -35,3 +37,4 @@ export function SiteHeader() {
     </header>
   );
 }
+import { getTranslations } from "next-intl/server";

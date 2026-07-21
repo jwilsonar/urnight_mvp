@@ -1,30 +1,34 @@
-'use client';
+"use client";
 
-import type { FormEvent } from 'react';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { Button, Input, Label, Textarea } from '@urnight/ui';
+import type { FormEvent } from "react";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { Button, Input, Label, Textarea } from "@urnight/ui";
 
-const CONTACT_EMAIL = 'soporte@ravenue.pe';
+const CONTACT_EMAIL = "soporte@ravenue.pe";
 
-type ContactErrors = Partial<Record<'name' | 'email' | 'subject' | 'message', string>>;
+type ContactErrors = Partial<
+  Record<"name" | "email" | "subject" | "message", string>
+>;
 
 export function ContactForm() {
+  const t = useTranslations("contacto.form");
   const [errors, setErrors] = useState<ContactErrors>({});
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const name = String(form.get('name') ?? '').trim();
-    const email = String(form.get('email') ?? '').trim();
-    const subject = String(form.get('subject') ?? '').trim();
-    const message = String(form.get('message') ?? '').trim();
+    const name = String(form.get("name") ?? "").trim();
+    const email = String(form.get("email") ?? "").trim();
+    const subject = String(form.get("subject") ?? "").trim();
+    const message = String(form.get("message") ?? "").trim();
     const nextErrors: ContactErrors = {};
 
-    if (name.length < 2) nextErrors.name = 'Ingresa tu nombre.';
-    if (!/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = 'Ingresa un correo válido.';
-    if (subject.length < 3) nextErrors.subject = 'Cuéntanos brevemente el asunto.';
-    if (message.length < 10) nextErrors.message = 'El mensaje debe tener al menos 10 caracteres.';
+    if (name.length < 2) nextErrors.name = t("errors.name");
+    if (!/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = t("errors.email");
+    if (subject.length < 3) nextErrors.subject = t("errors.subject");
+    if (message.length < 10) nextErrors.message = t("errors.message");
 
     setErrors(nextErrors);
     const firstError = Object.keys(nextErrors)[0];
@@ -33,14 +37,18 @@ export function ContactForm() {
       return;
     }
 
-    toast.success('Mensaje listo. Abriremos tu correo para enviarlo.');
-    const body = `Nombre: ${name}\nCorreo: ${email}\n\n${message}`;
+    toast.success(t("success"));
+    const body = `${t("mailName")}: ${name}\n${t("mailEmail")}: ${email}\n\n${message}`;
     window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
   const fieldError = (field: keyof ContactErrors) =>
     errors[field] ? (
-      <p id={`contact-${field}-error`} className="text-sm text-destructive" role="alert">
+      <p
+        id={`contact-${field}-error`}
+        className="text-sm text-destructive"
+        role="alert"
+      >
         {errors[field]}
       </p>
     ) : null;
@@ -49,56 +57,60 @@ export function ContactForm() {
     <form className="space-y-5" noValidate onSubmit={submit}>
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="contact-name">Nombre</Label>
+          <Label htmlFor="contact-name">{t("name")}</Label>
           <Input
             id="contact-name"
             name="name"
             autoComplete="name"
-            aria-describedby={errors.name ? 'contact-name-error' : undefined}
+            aria-describedby={errors.name ? "contact-name-error" : undefined}
             aria-invalid={Boolean(errors.name)}
             required
           />
-          {fieldError('name')}
+          {fieldError("name")}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="contact-email">Email</Label>
+          <Label htmlFor="contact-email">{t("email")}</Label>
           <Input
             id="contact-email"
             name="email"
             type="email"
             autoComplete="email"
-            aria-describedby={errors.email ? 'contact-email-error' : undefined}
+            aria-describedby={errors.email ? "contact-email-error" : undefined}
             aria-invalid={Boolean(errors.email)}
             required
           />
-          {fieldError('email')}
+          {fieldError("email")}
         </div>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="contact-subject">Asunto</Label>
+        <Label htmlFor="contact-subject">{t("subject")}</Label>
         <Input
           id="contact-subject"
           name="subject"
-          aria-describedby={errors.subject ? 'contact-subject-error' : undefined}
+          aria-describedby={
+            errors.subject ? "contact-subject-error" : undefined
+          }
           aria-invalid={Boolean(errors.subject)}
           required
         />
-        {fieldError('subject')}
+        {fieldError("subject")}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="contact-message">Mensaje</Label>
+        <Label htmlFor="contact-message">{t("message")}</Label>
         <Textarea
           id="contact-message"
           name="message"
           className="min-h-36 resize-y"
-          aria-describedby={errors.message ? 'contact-message-error' : undefined}
+          aria-describedby={
+            errors.message ? "contact-message-error" : undefined
+          }
           aria-invalid={Boolean(errors.message)}
           required
         />
-        {fieldError('message')}
+        {fieldError("message")}
       </div>
       <Button type="submit" className="w-full sm:w-auto">
-        Enviar mensaje
+        {t("submit")}
       </Button>
     </form>
   );

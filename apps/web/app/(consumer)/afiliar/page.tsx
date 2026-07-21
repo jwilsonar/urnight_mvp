@@ -5,79 +5,46 @@ import {
   ShieldCheck,
 } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { Badge, Card } from "@urnight/ui";
 import { AffiliateForm } from "@/components/affiliate/affiliate-form";
 import { ConversionSplit } from "@/components/shared/conversion-split";
 import { Reveal } from "@/components/shared/reveal";
 
-export const metadata: Metadata = {
-  title: "Afilia tu local",
-  description: "Suma tu discoteca o bar a RAVENUE y empieza a vender entradas.",
-};
-
-const STATS = [
-  { value: "85+", label: "Locales" },
-  { value: "320+", label: "Eventos al mes" },
-  { value: "12k", label: "Noctámbulos" },
-] as const;
-
-const BENEFITS = [
-  {
-    icon: <QrCode className="size-5" weight="duotone" aria-hidden />,
-    label: "Puerta rápida sin colas",
-  },
-  {
-    icon: <ShieldCheck className="size-5" weight="duotone" aria-hidden />,
-    label: "Reservas verificables sin reclamos",
-  },
-  {
-    icon: <LinkSimple className="size-5" weight="duotone" aria-hidden />,
-    label: "Promotores con link propio y metas claras",
-  },
-  {
-    icon: <ChartLineUp className="size-5" weight="duotone" aria-hidden />,
-    label: "Reporte semanal listo para tu reunión",
-  },
-] as const;
-
-const STEPS = [
-  {
-    number: "1",
-    title: "Afíliate",
-    description:
-      "Cuéntanos sobre tu local y nuestro equipo revisará la solicitud contigo.",
-  },
-  {
-    number: "2",
-    title: "Configura tu política",
-    description:
-      "Define zonas, reservas y promotores según cómo funciona realmente tu operación.",
-  },
-  {
-    number: "3",
-    title: "Opera sin Excel",
-    description:
-      "Controla ventas, accesos y resultados desde un flujo compartido por todo tu equipo.",
-  },
-] as const;
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("affiliate.metadata");
+  return { title: t("title"), description: t("description") };
+}
 
 /** Solicitud pública de afiliación de un local a RAVENUE. */
-export default function AfiliarPage() {
+export default async function AfiliarPage() {
+  const t = await getTranslations("affiliate");
+  const stats = ["venues", "events", "nightOwls"].map((key, index) => ({
+    value: ["85+", "320+", "12k"][index]!,
+    label: t(`stats.${key}`),
+  }));
+  const benefits = [QrCode, ShieldCheck, LinkSimple, ChartLineUp].map(
+    (Icon, index) => ({
+      icon: <Icon className="size-5" weight="duotone" aria-hidden />,
+      label: t(`benefits.${index + 1}`),
+    }),
+  );
+  const steps = [1, 2, 3].map((number) => ({
+    number: String(number),
+    title: t(`steps.${number}.title`),
+    description: t(`steps.${number}.description`),
+  }));
+
   return (
     <div>
       <ConversionSplit
-        eyebrow="Para locales"
-        title="Tu discoteca, llena y sin caos en la puerta"
-        description="Centraliza entradas, reservas y promotores para que tu equipo opere la noche con información clara, desde la venta hasta el ingreso."
-        stats={STATS}
-        benefits={BENEFITS}
-        formTitle="Afilia tu local a RAVENUE"
-        formDescription={
-          <>
-            Vende entradas, gestiona eventos y llega a más gente. Déjanos tus
-            datos y te contactamos.
-          </>
-        }
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        description={t("description")}
+        stats={stats}
+        benefits={benefits}
+        formTitle={t("formTitle")}
+        formDescription={<>{t("formDescription")}</>}
       >
         <AffiliateForm />
       </ConversionSplit>
@@ -87,17 +54,17 @@ export default function AfiliarPage() {
         aria-labelledby="como-funciona"
       >
         <Reveal>
-          <p className="rv-eyebrow">Cómo funciona</p>
+          <p className="rv-eyebrow">{t("howItWorks")}</p>
           <h2
             id="como-funciona"
             className="mt-2 font-heading text-3xl font-extrabold sm:text-4xl"
           >
-            De la solicitud a una operación ordenada
+            {t("stepsTitle")}
           </h2>
         </Reveal>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {STEPS.map((step, index) => (
+          {steps.map((step, index) => (
             <Reveal key={step.number} delay={index * 70} className="h-full">
               <Card className="h-full p-6 transition-[border-color,transform,box-shadow] hover:-translate-y-0.5 hover:border-accent-border hover:shadow-float">
                 <Badge aria-hidden>{step.number}</Badge>

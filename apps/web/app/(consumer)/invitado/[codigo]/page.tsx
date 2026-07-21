@@ -1,9 +1,11 @@
-import type { Metadata } from 'next';
-import { InvitadoLanding } from '@/components/promoter/invitado-landing';
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { InvitadoLanding } from "@/components/promoter/invitado-landing";
 
-export const metadata: Metadata = {
-  title: 'Lista de invitados',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("guest");
+  return { title: t("metadataTitle") };
+}
 
 export default async function InvitadoPage({
   params,

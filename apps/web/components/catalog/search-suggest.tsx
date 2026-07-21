@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Buscador global del header con sugerencias en vivo (feedback UX):
@@ -7,20 +7,26 @@
  * Escape o click fuera cierran. Reemplaza al SearchBar plano del header.
  */
 
-import { CalendarBlank, MagnifyingGlass, MapPin, X } from '@phosphor-icons/react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import type { EventResponse, LocalResponse } from '@urnight/contracts';
-import { Input } from '@urnight/ui';
-import { getEvents, getLocals } from '@/lib/api/catalog';
+import {
+  CalendarBlank,
+  MagnifyingGlass,
+  MapPin,
+  X,
+} from "@phosphor-icons/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useFormatter, useTranslations } from "next-intl";
+import type { EventResponse, LocalResponse } from "@urnight/contracts";
+import { Input } from "@urnight/ui";
+import { getEvents, getLocals } from "@/lib/api/catalog";
 
-const DATE = new Intl.DateTimeFormat('es-PE', { day: 'numeric', month: 'short' });
-
-export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { placeholder?: string }) {
+export function SearchSuggest({ placeholder }: { placeholder?: string }) {
+  const t = useTranslations("search");
+  const format = useFormatter();
   const router = useRouter();
   const rootRef = useRef<HTMLDivElement>(null);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState<EventResponse[]>([]);
@@ -51,14 +57,15 @@ export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { 
   // Cierra al hacer click fuera.
   useEffect(() => {
     function onPointerDown(event: PointerEvent) {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
+      if (rootRef.current && !rootRef.current.contains(event.target as Node))
+        setOpen(false);
     }
-    document.addEventListener('pointerdown', onPointerDown);
-    return () => document.removeEventListener('pointerdown', onPointerDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
   }, []);
 
   function clear() {
-    setQuery('');
+    setQuery("");
     setOpen(false);
   }
 
@@ -82,7 +89,7 @@ export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { 
         type="search"
         role="combobox"
         aria-expanded={showPanel}
-        aria-label="Buscar eventos y locales"
+        aria-label={t("aria")}
         value={query}
         onChange={(event) => {
           setQuery(event.target.value);
@@ -90,16 +97,16 @@ export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { 
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={(event) => {
-          if (event.key === 'Enter') goToSearch();
-          if (event.key === 'Escape') setOpen(false);
+          if (event.key === "Enter") goToSearch();
+          if (event.key === "Escape") setOpen(false);
         }}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t("placeholder")}
         className="h-10 pl-9 pr-9 [&::-webkit-search-cancel-button]:hidden"
       />
       {query ? (
         <button
           type="button"
-          aria-label="Limpiar búsqueda"
+          aria-label={t("clear")}
           onClick={clear}
           className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
         >
@@ -110,12 +117,14 @@ export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { 
       {showPanel ? (
         <div className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-md border bg-popover shadow-overlay">
           {loading && !hasResults ? (
-            <p className="px-4 py-3 text-sm text-muted-foreground">Buscando…</p>
+            <p className="px-4 py-3 text-sm text-muted-foreground">
+              {t("searching")}
+            </p>
           ) : hasResults ? (
             <div className="max-h-[420px] overflow-y-auto py-2">
               {events.length > 0 ? (
                 <div className="px-2">
-                  <p className="rv-eyebrow px-2 pb-1 pt-1.5">Eventos</p>
+                  <p className="rv-eyebrow px-2 pb-1 pt-1.5">{t("events")}</p>
                   {events.map((event) => (
                     <Link
                       key={event.id}
@@ -123,10 +132,18 @@ export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { 
                       onClick={clear}
                       className="flex items-center gap-2.5 rounded-sm px-2 py-2 text-sm transition-colors hover:bg-accent"
                     >
-                      <CalendarBlank className="size-4 shrink-0 text-rose" weight="duotone" />
-                      <span className="min-w-0 flex-1 truncate font-medium">{event.name}</span>
+                      <CalendarBlank
+                        className="size-4 shrink-0 text-rose"
+                        weight="duotone"
+                      />
+                      <span className="min-w-0 flex-1 truncate font-medium">
+                        {event.name}
+                      </span>
                       <span className="shrink-0 text-xs text-muted-foreground">
-                        {DATE.format(new Date(event.startsAt))}
+                        {format.dateTime(new Date(event.startsAt), {
+                          day: "numeric",
+                          month: "short",
+                        })}
                       </span>
                     </Link>
                   ))}
@@ -134,7 +151,7 @@ export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { 
               ) : null}
               {locals.length > 0 ? (
                 <div className="px-2">
-                  <p className="rv-eyebrow px-2 pb-1 pt-2.5">Locales</p>
+                  <p className="rv-eyebrow px-2 pb-1 pt-2.5">{t("venues")}</p>
                   {locals.map((local) => (
                     <Link
                       key={local.id}
@@ -142,8 +159,13 @@ export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { 
                       onClick={clear}
                       className="flex items-center gap-2.5 rounded-sm px-2 py-2 text-sm transition-colors hover:bg-accent"
                     >
-                      <MapPin className="size-4 shrink-0 text-rose" weight="duotone" />
-                      <span className="min-w-0 flex-1 truncate font-medium">{local.name}</span>
+                      <MapPin
+                        className="size-4 shrink-0 text-rose"
+                        weight="duotone"
+                      />
+                      <span className="min-w-0 flex-1 truncate font-medium">
+                        {local.name}
+                      </span>
                     </Link>
                   ))}
                 </div>
@@ -153,18 +175,18 @@ export function SearchSuggest({ placeholder = 'Buscar eventos, locales…' }: { 
                 onClick={goToSearch}
                 className="mt-1 block w-full border-t px-4 py-2.5 text-left text-sm font-semibold text-rose transition-colors hover:bg-accent"
               >
-                Ver todos los resultados →
+                {t("viewAll")} →
               </button>
             </div>
           ) : (
             <div className="px-4 py-3 text-sm text-muted-foreground">
-              Sin coincidencias para “{query.trim()}”.
+              {t("noMatches", { query: query.trim() })}
               <button
                 type="button"
                 onClick={goToSearch}
                 className="ml-1.5 font-semibold text-rose hover:underline"
               >
-                Buscar igual →
+                {t("searchAnyway")} →
               </button>
             </div>
           )}

@@ -1,5 +1,5 @@
-import { CatalogGridSkeleton } from '@/components/catalog/card-skeleton';
-import { Skeleton } from '@urnight/ui';
+import { CatalogGridSkeleton } from "@/components/catalog/card-skeleton";
+import { Skeleton } from "@urnight/ui";
 
 export default function LocalsLoading() {
   return (

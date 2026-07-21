@@ -5,6 +5,7 @@ import {
   SealCheck,
 } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import type { LocalResponse } from "@urnight/contracts";
 import { Badge, Card, CardContent, cn } from "@urnight/ui";
 import { CTA_CLASS, ICON_BTN_CLASS } from "@/components/catalog/event-card";
@@ -12,6 +13,7 @@ import { HoloCard, HoloFlipButton } from "@/components/motion/holo-card";
 import { StorageImage } from "@/lib/storage/storage-context";
 
 export function LocalCard({ local }: { local: LocalResponse }) {
+  const t = useTranslations("locals.card");
   const href = `/locals/${local.slug}`;
 
   return (
@@ -34,7 +36,7 @@ export function LocalCard({ local }: { local: LocalResponse }) {
               />
             ) : (
               <div className="rv-img-ph absolute inset-0">
-                <span>Fachada del local</span>
+                <span>{t("facade")}</span>
               </div>
             )}
             {local.isVerified ? (
@@ -42,7 +44,7 @@ export function LocalCard({ local }: { local: LocalResponse }) {
                 variant="success"
                 className="absolute left-2 top-2 gap-1 bg-deep/90 backdrop-blur-sm"
               >
-                <SealCheck className="h-3 w-3" weight="fill" /> Verificado
+                <SealCheck className="h-3 w-3" weight="fill" /> {t("verified")}
               </Badge>
             ) : null}
           </div>
@@ -63,7 +65,7 @@ export function LocalCard({ local }: { local: LocalResponse }) {
             ) : null}
             <div className="!mt-auto flex items-center justify-between border-t pt-3.5">
               <span className="text-xs text-muted-foreground">
-                Eventos, carta y reservas
+                {t("features")}
               </span>
               <Link
                 href={href}
@@ -72,13 +74,13 @@ export function LocalCard({ local }: { local: LocalResponse }) {
                   "outline-none transition-transform group-hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-ring",
                 )}
               >
-                Ver local
+                {t("viewVenue")}
               </Link>
             </div>
           </CardContent>
         </Card>
         <HoloFlipButton
-          label="Ver información"
+          label={t("viewInformation")}
           className={cn(ICON_BTN_CLASS, "absolute right-2 top-2 z-[5]")}
         >
           <Info className="size-4" weight="duotone" />
@@ -95,19 +97,21 @@ function LocalCardBack({
   local: LocalResponse;
   href: string;
 }) {
+  const t = useTranslations("locals.card");
+
   return (
     <Card className="flex h-full flex-col overflow-hidden border-accent-border">
       <CardContent className="flex min-h-0 flex-1 flex-col p-4">
         <p className="rv-eyebrow flex items-center gap-1.5">
           <MapPin className="size-3.5" weight="duotone" />
-          Información del local
+          {t("detail")}
         </p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <h3 className="font-heading text-[17px] font-bold leading-tight">
             {local.name}
           </h3>
           {local.isVerified ? (
-            <Badge variant="success">Verificado</Badge>
+            <Badge variant="success">{t("verified")}</Badge>
           ) : null}
         </div>
         {local.address ? (
@@ -118,15 +122,11 @@ function LocalCardBack({
         ) : null}
         <div className="mt-3 min-h-0 flex-1 overflow-y-auto">
           <p className="text-sm leading-relaxed text-muted-foreground">
-            {local.description ??
-              "Descubre sus próximos eventos, carta y opciones de reserva."}
+            {local.description ?? t("fallbackDescription")}
           </p>
         </div>
         <div className="mt-3 flex items-center gap-2 border-t pt-3.5">
-          <HoloFlipButton
-            label="Volver al frente del local"
-            className={ICON_BTN_CLASS}
-          >
+          <HoloFlipButton label={t("flipBack")} className={ICON_BTN_CLASS}>
             <ArrowUUpLeft className="size-4" weight="bold" />
           </HoloFlipButton>
           <Link
@@ -136,7 +136,7 @@ function LocalCardBack({
               "flex-1 outline-none focus-visible:ring-2 focus-visible:ring-ring",
             )}
           >
-            Ver local
+            {t("viewVenue")}
           </Link>
         </div>
       </CardContent>

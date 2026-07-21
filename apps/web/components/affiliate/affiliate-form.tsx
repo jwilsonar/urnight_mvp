@@ -2,8 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 import {
   submitAffiliationSchema,
@@ -34,30 +35,41 @@ function blank(value?: string): string | undefined {
 }
 
 /** El API admite estos datos vacíos, pero el formulario público los necesita para dar seguimiento. */
-const affiliateFormSchema = submitAffiliationSchema.extend({
-  address: z.string().trim().min(1, "Indica la dirección del local.").max(255),
-  contactName: z
-    .string()
-    .trim()
-    .min(1, "Indica el nombre del responsable.")
-    .max(160),
-  contactEmail: z
-    .string()
-    .trim()
-    .min(1, "Indica un correo de contacto.")
-    .email("Ingresa un correo válido.")
-    .max(160),
-  contactPhone: z
-    .string()
-    .trim()
-    .min(6, "Indica un teléfono de contacto.")
-    .max(20, "El teléfono es demasiado largo."),
-});
+function createAffiliateFormSchema(
+  t: ReturnType<typeof useTranslations<"affiliate.form">>,
+) {
+  return submitAffiliationSchema.extend({
+    commercialName: z
+      .string()
+      .trim()
+      .min(2, t("errors.commercialName"))
+      .max(200),
+    legalName: z.string().trim().min(2, t("errors.legalName")).max(200),
+    ruc: z.string().regex(/^\d{11}$/, t("errors.ruc")),
+    address: z.string().trim().min(1, t("errors.address")).max(255),
+    contactName: z.string().trim().min(1, t("errors.contactName")).max(160),
+    contactEmail: z
+      .string()
+      .trim()
+      .min(1, t("errors.contactEmail"))
+      .email(t("errors.email"))
+      .max(160),
+    contactPhone: z
+      .string()
+      .trim()
+      .min(6, t("errors.contactPhone"))
+      .max(20, t("errors.phoneLong")),
+  });
+}
 
-type AffiliateFormValues = z.output<typeof affiliateFormSchema>;
+type AffiliateFormValues = z.output<
+  ReturnType<typeof createAffiliateFormSchema>
+>;
 
 /** Formulario público de solicitud de afiliación (POST /affiliation-requests). */
 export function AffiliateForm() {
+  const t = useTranslations("affiliate.form");
+  const affiliateFormSchema = useMemo(() => createAffiliateFormSchema(t), [t]);
   const [submitted, setSubmitted] = useState<AffiliationResponse | null>(null);
 
   const form = useForm<
@@ -81,7 +93,7 @@ export function AffiliateForm() {
   const mutation = useApiMutation({
     mutationFn: (values: SubmitAffiliationDto) => submitAffiliation(values),
     setError: form.setError,
-    successMessage: "Solicitud enviada. Te contactaremos pronto.",
+    successMessage: t("successToast"),
     onSuccess: (affiliation) => setSubmitted(affiliation),
   });
 
@@ -96,12 +108,15 @@ export function AffiliateForm() {
     return (
       <Alert>
         <CheckCircle className="h-4 w-4" />
-        <AlertTitle>Solicitud recibida</AlertTitle>
+        <AlertTitle>{t("successTitle")}</AlertTitle>
         <AlertDescription>
-          La afiliación de{" "}
-          <span className="font-medium">{submitted.commercialName}</span> está
-          en estado <span className="font-medium">{submitted.status}</span>. Un
-          administrador la revisará pronto.
+          {t.rich("successDescription", {
+            venue: submitted.commercialName,
+            status: t(`status.${submitted.status}`),
+            strong: (chunks: React.ReactNode) => (
+              <span className="font-medium">{chunks}</span>
+            ),
+          })}
         </AlertDescription>
       </Alert>
     );
@@ -120,9 +135,12 @@ export function AffiliateForm() {
             name="commercialName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nombre del Local</FormLabel>
+                <FormLabel>{t("commercialName")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="ej. Nocturna Club" {...field} />
+                  <Input
+                    placeholder={t("commercialNamePlaceholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -133,9 +151,9 @@ export function AffiliateForm() {
             name="legalName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Razón social</FormLabel>
+                <FormLabel>{t("legalName")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="Nombre registrado en SUNAT" {...field} />
+                  <Input placeholder={t("legalNamePlaceholder")} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -148,11 +166,11 @@ export function AffiliateForm() {
           name="ruc"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>RUC</FormLabel>
+              <FormLabel>{t("ruc")}</FormLabel>
               <FormControl>
                 <Input
                   inputMode="numeric"
-                  placeholder="11 dígitos"
+                  placeholder={t("rucPlaceholder")}
                   {...field}
                 />
               </FormControl>
@@ -166,10 +184,10 @@ export function AffiliateForm() {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Dirección</FormLabel>
+              <FormLabel>{t("address")}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Av. / Calle, distrito"
+                  placeholder={t("addressPlaceholder")}
                   {...field}
                   value={field.value ?? ""}
                 />
@@ -185,10 +203,10 @@ export function AffiliateForm() {
             name="contactName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Contacto</FormLabel>
+                <FormLabel>{t("contact")}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Nombre del responsable"
+                    placeholder={t("contactPlaceholder")}
                     {...field}
                     value={field.value ?? ""}
                   />
@@ -202,7 +220,7 @@ export function AffiliateForm() {
             name="contactPhone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Teléfono</FormLabel>
+                <FormLabel>{t("phone")}</FormLabel>
                 <FormControl>
                   <Input
                     type="tel"
@@ -222,11 +240,11 @@ export function AffiliateForm() {
           name="contactEmail"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Correo de contacto</FormLabel>
+              <FormLabel>{t("email")}</FormLabel>
               <FormControl>
                 <Input
                   type="email"
-                  placeholder="contacto@local.com"
+                  placeholder={t("emailPlaceholder")}
                   {...field}
                   value={field.value ?? ""}
                 />
@@ -242,27 +260,25 @@ export function AffiliateForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>
-                Redes sociales{" "}
-                <span className="text-muted-foreground">(opcional)</span>
+                {t("socials")}{" "}
+                <span className="text-muted-foreground">{t("optional")}</span>
               </FormLabel>
               <FormControl>
                 <Textarea
                   rows={2}
-                  placeholder="https://instagram.com/tulocal · @tulocal en TikTok · tuweb.com"
+                  placeholder={t("socialsPlaceholder")}
                   {...field}
                   value={field.value ?? ""}
                 />
               </FormControl>
-              <FormDescription>
-                Pega los links o @usuarios de tus redes, separados por comas.
-              </FormDescription>
+              <FormDescription>{t("socialsHint")}</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
         <Button type="submit" className="w-full" disabled={mutation.isPending}>
-          {mutation.isPending ? "Enviando…" : "Enviar solicitud"}
+          {mutation.isPending ? t("sending") : t("submit")}
         </Button>
       </form>
     </Form>

@@ -1,16 +1,16 @@
-import { CaretDown, CaretUp } from '@phosphor-icons/react/dist/ssr';
-import type { ReactNode } from 'react';
-import { Card, Skeleton, cn } from '@urnight/ui';
+import { CaretDown, CaretUp } from "@phosphor-icons/react/dist/ssr";
+import type { ReactNode } from "react";
+import { Card, Skeleton, cn } from "@urnight/ui";
 
 /** Tono del texto de apoyo (hint) y del delta. */
-type StatTone = 'muted' | 'accent' | 'success' | 'warning' | 'destructive';
+type StatTone = "muted" | "accent" | "success" | "warning" | "destructive";
 
 const TONE: Record<StatTone, string> = {
-  muted: 'text-muted-foreground',
-  accent: 'text-rose',
-  success: 'text-success',
-  warning: 'text-warning',
-  destructive: 'text-destructive',
+  muted: "text-muted-foreground",
+  accent: "text-rose",
+  success: "text-success",
+  warning: "text-warning",
+  destructive: "text-destructive",
 };
 
 export interface StatCardProps {
@@ -25,7 +25,7 @@ export interface StatCardProps {
   /** Tono del hint. */
   tone?: StatTone;
   /** Tendencia opcional (flecha + %). `up` = bueno por defecto. */
-  delta?: { value: string; direction: 'up' | 'down' };
+  delta?: { value: string; direction: "up" | "down" };
   className?: string;
 }
 
@@ -36,9 +36,17 @@ export interface StatCardProps {
  * componente. Estructura tomada del patrón 21st "metric card with trend",
  * revestida con tokens del DS (rv-eyebrow, text-rose/success/warning).
  */
-export function StatCard({ label, value, icon, hint, tone = 'muted', delta, className }: StatCardProps) {
+export function StatCard({
+  label,
+  value,
+  icon,
+  hint,
+  tone = "muted",
+  delta,
+  className,
+}: StatCardProps) {
   return (
-    <Card className={cn('p-5', className)}>
+    <Card className={cn("p-5", className)}>
       <div className="flex items-start justify-between gap-3">
         <p className="rv-eyebrow !text-muted-foreground">{label}</p>
         {icon ? (
@@ -47,16 +55,18 @@ export function StatCard({ label, value, icon, hint, tone = 'muted', delta, clas
           </span>
         ) : null}
       </div>
-      <p className="mt-2 font-heading text-3xl font-extrabold tracking-tight tabular-nums">{value}</p>
+      <p className="mt-2 font-heading text-3xl font-extrabold tracking-tight tabular-nums">
+        {value}
+      </p>
       <div className="mt-1 flex items-center gap-2">
         {delta ? (
           <span
             className={cn(
-              'inline-flex items-center gap-0.5 text-xs font-bold',
-              delta.direction === 'up' ? 'text-success' : 'text-destructive',
+              "inline-flex items-center gap-0.5 text-xs font-bold",
+              delta.direction === "up" ? "text-success" : "text-destructive",
             )}
           >
-            {delta.direction === 'up' ? (
+            {delta.direction === "up" ? (
               <CaretUp className="size-3" weight="bold" />
             ) : (
               <CaretDown className="size-3" weight="bold" />
@@ -64,7 +74,9 @@ export function StatCard({ label, value, icon, hint, tone = 'muted', delta, clas
             {delta.value}
           </span>
         ) : null}
-        {hint ? <p className={cn('text-xs font-semibold', TONE[tone])}>{hint}</p> : null}
+        {hint ? (
+          <p className={cn("text-xs font-semibold", TONE[tone])}>{hint}</p>
+        ) : null}
       </div>
     </Card>
   );

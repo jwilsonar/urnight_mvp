@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, type ReactNode } from 'react';
-import { cn } from '@urnight/ui';
+import { useEffect, useRef, type ReactNode } from "react";
+import { cn } from "@urnight/ui";
 
 /**
  * Reveal on-scroll: aplica .rv-reveal y agrega .is-visible cuando el bloque
@@ -29,12 +29,12 @@ export function Reveal({
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
+            entry.target.classList.add("is-visible");
             observer.unobserve(entry.target);
           }
         }
       },
-      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' },
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
     );
     observer.observe(node);
     return () => observer.disconnect();
@@ -43,8 +43,12 @@ export function Reveal({
   return (
     <div
       ref={ref}
-      className={cn(depth ? 'rv-reveal-3d' : 'rv-reveal', className)}
-      style={delay ? ({ '--reveal-delay': `${delay}ms` } as React.CSSProperties) : undefined}
+      className={cn(depth ? "rv-reveal-3d" : "rv-reveal", className)}
+      style={
+        delay
+          ? ({ "--reveal-delay": `${delay}ms` } as React.CSSProperties)
+          : undefined
+      }
     >
       {children}
     </div>

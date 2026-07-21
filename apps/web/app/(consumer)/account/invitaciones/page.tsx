@@ -1,18 +1,26 @@
-import type { Metadata } from 'next';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@urnight/ui';
-import { PromoterInvitations } from '@/components/account/promoter-invitations';
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@urnight/ui";
+import { PromoterInvitations } from "@/components/account/promoter-invitations";
 
-export const metadata: Metadata = { title: 'Invitaciones de promotor' };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("account.invitations");
+  return { title: t("title") };
+}
 
-export default function AccountInvitationsPage() {
+export default async function AccountInvitationsPage() {
+  const t = await getTranslations("account.invitations");
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Invitaciones de promotor</CardTitle>
-        <CardDescription>
-          Solicitudes de empresas para que seas su promotor. Acéptalas para activar tu enlace de
-          referido y tu panel de promotor.
-        </CardDescription>
+        <CardTitle className="text-lg">{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <PromoterInvitations />

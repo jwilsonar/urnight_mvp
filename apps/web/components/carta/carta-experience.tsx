@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { Wallet } from '@phosphor-icons/react';
-import { Card } from '@urnight/ui';
-import { useState } from 'react';
-import { CartProvider, useCart } from '@/components/carta/cart-provider';
-import { CartaBrowser } from '@/components/carta/carta-browser';
-import { CartFab } from '@/components/carta/cart-fab';
-import { OrderFlow } from '@/components/carta/order-flow';
-import { formatPEN } from '@/lib/utils';
+import { Wallet } from "@phosphor-icons/react";
+import { Card } from "@urnight/ui";
+import { useState } from "react";
+import { useFormatter, useTranslations } from "next-intl";
+import { CartProvider, useCart } from "@/components/carta/cart-provider";
+import { CartaBrowser } from "@/components/carta/carta-browser";
+import { CartFab } from "@/components/carta/cart-fab";
+import { OrderFlow } from "@/components/carta/order-flow";
 
 /**
  * Orquesta la experiencia in-venue: navegar la carta → confirmar pedido demo →
@@ -29,6 +29,8 @@ export function CartaExperience({
 }
 
 function CartaFlow({ pickupZone }: { pickupZone: string }) {
+  const t = useTranslations("carta.credit");
+  const format = useFormatter();
   const cart = useCart();
   const [reviewingOrder, setReviewingOrder] = useState(false);
   const [pickupCode, setPickupCode] = useState<string | null>(null);
@@ -39,7 +41,7 @@ function CartaFlow({ pickupZone }: { pickupZone: string }) {
     // Código demo estilo UN-###; en backend lo emite el módulo de pedidos.
     setPickupCode(`UN-${Math.floor(100 + Math.random() * 900)}`);
     cart.clear();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (reviewingOrder || pickupCode) {
@@ -62,19 +64,30 @@ function CartaFlow({ pickupZone }: { pickupZone: string }) {
     <>
       {cart.creditoDisponible > 0 ? (
         <Card className="mb-5 flex items-start gap-3 border-success-border bg-success-soft p-4">
-          <Wallet className="mt-0.5 size-5 shrink-0 text-success" weight="duotone" />
+          <Wallet
+            className="mt-0.5 size-5 shrink-0 text-success"
+            weight="duotone"
+          />
           <div>
             <p className="text-sm font-semibold text-success">
-              Tienes {formatPEN(cart.creditoDisponible)} de crédito de consumo por tu reserva
+              {t("creditAvailable", {
+                amount: format.number(cart.creditoDisponible, {
+                  style: "currency",
+                  currency: "PEN",
+                }),
+              })}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Se descuenta solo al confirmar tu pedido
+              {t("creditNote")}
             </p>
           </div>
         </Card>
       ) : null}
       <CartaBrowser />
-      <CartFab pickupZone={pickupZone} onConfirm={() => setReviewingOrder(true)} />
+      <CartFab
+        pickupZone={pickupZone}
+        onConfirm={() => setReviewingOrder(true)}
+      />
       {/* Espacio para que el FAB no tape el final del grid */}
       {cart.count > 0 ? <div aria-hidden className="h-20" /> : null}
     </>

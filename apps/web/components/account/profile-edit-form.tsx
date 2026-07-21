@@ -1,13 +1,14 @@
-'use client';
+"use client";
 
-import { UploadSimple, UserCircle } from '@phosphor-icons/react';
-import type { FormEvent } from 'react';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
-import { Button, Input, Label } from '@urnight/ui';
-import { StorageImage } from '@/lib/storage/storage-context';
+import { UploadSimple, UserCircle } from "@phosphor-icons/react";
+import type { FormEvent } from "react";
+import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { Button, Input, Label } from "@urnight/ui";
+import { StorageImage } from "@/lib/storage/storage-context";
 
-const STORAGE_KEY = 'ravenue:profile-draft';
+const STORAGE_KEY = "ravenue:profile-draft";
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 
 interface ProfileEditFormProps {
@@ -16,7 +17,12 @@ interface ProfileEditFormProps {
   initialImage?: string | null;
 }
 
-export function ProfileEditForm({ initialEmail, initialPhone, initialImage }: ProfileEditFormProps) {
+export function ProfileEditForm({
+  initialEmail,
+  initialPhone,
+  initialImage,
+}: ProfileEditFormProps) {
+  const t = useTranslations("account.profile.form");
   const [email, setEmail] = useState(initialEmail);
   const [phone, setPhone] = useState(initialPhone);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -43,12 +49,12 @@ export function ProfileEditForm({ initialEmail, initialPhone, initialImage }: Pr
 
   function selectPhoto(file?: File) {
     if (!file) return;
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      toast.error('Elige una imagen JPG, PNG o WebP.');
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error(t("imageTypeError"));
       return;
     }
     if (file.size > MAX_AVATAR_BYTES) {
-      toast.error('La foto no debe superar 5 MB.');
+      toast.error(t("imageSizeError"));
       return;
     }
     setPreviewUrl((current) => {
@@ -62,15 +68,18 @@ export function ProfileEditForm({ initialEmail, initialPhone, initialImage }: Pr
     const cleanEmail = email.trim();
     const cleanPhone = phone.trim();
     const nextErrors: { email?: string; phone?: string } = {};
-    if (!/^\S+@\S+\.\S+$/.test(cleanEmail)) nextErrors.email = 'Ingresa un correo válido.';
+    if (!/^\S+@\S+\.\S+$/.test(cleanEmail)) nextErrors.email = t("emailError");
     if (cleanPhone && cleanPhone.length < 6) {
-      nextErrors.phone = 'Ingresa un teléfono válido.';
+      nextErrors.phone = t("phoneError");
     }
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ email: cleanEmail, phone: cleanPhone }));
-    toast.success('Datos de perfil guardados en modo demo.');
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ email: cleanEmail, phone: cleanPhone }),
+    );
+    toast.success(t("success"));
   }
 
   return (
@@ -78,19 +87,32 @@ export function ProfileEditForm({ initialEmail, initialPhone, initialImage }: Pr
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative size-24 shrink-0 overflow-hidden rounded-full border border-accent-border bg-accent">
           {previewUrl ? (
-            <img src={previewUrl} alt="Vista previa de la foto de perfil" className="h-full w-full object-cover" />
+            <img
+              src={previewUrl}
+              alt={t("previewAlt")}
+              className="h-full w-full object-cover"
+            />
           ) : initialImage ? (
-            <StorageImage src={initialImage} alt="Foto de perfil actual" fill sizes="96px" className="object-cover" />
+            <StorageImage
+              src={initialImage}
+              alt={t("currentAlt")}
+              fill
+              sizes="96px"
+              className="object-cover"
+            />
           ) : (
-            <UserCircle className="h-full w-full p-5 text-muted-foreground" weight="duotone" />
+            <UserCircle
+              className="h-full w-full p-5 text-muted-foreground"
+              weight="duotone"
+            />
           )}
         </div>
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-foreground">Foto de perfil</p>
-          <p className="text-xs text-muted-foreground">JPG, PNG o WebP · máximo 5 MB.</p>
+          <p className="text-sm font-semibold text-foreground">{t("photo")}</p>
+          <p className="text-xs text-muted-foreground">{t("photoHint")}</p>
           <Button variant="outline" size="sm" asChild>
             <label htmlFor="profile-photo" className="cursor-pointer">
-              <UploadSimple className="size-4" /> Elegir foto
+              <UploadSimple className="size-4" /> {t("choosePhoto")}
             </label>
           </Button>
           <input
@@ -105,7 +127,7 @@ export function ProfileEditForm({ initialEmail, initialPhone, initialImage }: Pr
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="profile-email">Correo</Label>
+          <Label htmlFor="profile-email">{t("email")}</Label>
           <Input
             id="profile-email"
             type="email"
@@ -118,17 +140,21 @@ export function ProfileEditForm({ initialEmail, initialPhone, initialImage }: Pr
             }}
             autoComplete="email"
             aria-invalid={Boolean(errors.email)}
-            aria-describedby={errors.email ? 'profile-email-error' : undefined}
+            aria-describedby={errors.email ? "profile-email-error" : undefined}
             required
           />
           {errors.email ? (
-            <p id="profile-email-error" className="text-sm text-destructive" role="alert">
+            <p
+              id="profile-email-error"
+              className="text-sm text-destructive"
+              role="alert"
+            >
               {errors.email}
             </p>
           ) : null}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="profile-phone">Teléfono</Label>
+          <Label htmlFor="profile-phone">{t("phone")}</Label>
           <Input
             id="profile-phone"
             type="tel"
@@ -140,17 +166,21 @@ export function ProfileEditForm({ initialEmail, initialPhone, initialImage }: Pr
             autoComplete="tel"
             placeholder="+51 999 999 999"
             aria-invalid={Boolean(errors.phone)}
-            aria-describedby={errors.phone ? 'profile-phone-error' : undefined}
+            aria-describedby={errors.phone ? "profile-phone-error" : undefined}
           />
           {errors.phone ? (
-            <p id="profile-phone-error" className="text-sm text-destructive" role="alert">
+            <p
+              id="profile-phone-error"
+              className="text-sm text-destructive"
+              role="alert"
+            >
               {errors.phone}
             </p>
           ) : null}
         </div>
       </div>
 
-      <Button type="submit">Guardar datos</Button>
+      <Button type="submit">{t("save")}</Button>
     </form>
   );
 }

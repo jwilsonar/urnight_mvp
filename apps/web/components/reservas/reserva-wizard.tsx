@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Flujo de reserva de mesa del prototipo v3 (R1–R5) como wizard de una ruta.
@@ -17,9 +17,10 @@ import {
   Minus,
   Plus,
   Users,
-} from '@phosphor-icons/react';
-import Link from 'next/link';
-import { useState } from 'react';
+} from "@phosphor-icons/react";
+import Link from "next/link";
+import { useFormatter, useTranslations } from "next-intl";
+import { useState } from "react";
 import {
   Badge,
   Button,
@@ -32,10 +33,10 @@ import {
   SelectValue,
   Textarea,
   cn,
-} from '@urnight/ui';
-import { PasesGrupo } from '@/components/reservas/pases-grupo';
-import { otorgarCreditoDemo } from '@/lib/mock/credito';
-import { leerPoliticaDemo } from '@/lib/mock/politica';
+} from "@urnight/ui";
+import { PasesGrupo } from "@/components/reservas/pases-grupo";
+import { otorgarCreditoDemo } from "@/lib/mock/credito";
+import { leerPoliticaDemo } from "@/lib/mock/politica";
 import {
   BOTELLAS_DEMO,
   calcularDesgloseDemo,
@@ -46,57 +47,73 @@ import {
   type DesgloseReservaDemo,
   type MesaDemo,
   type PaseReservaDemo,
-} from '@/lib/mock/reservas';
-import { formatPEN } from '@/lib/utils';
+} from "@/lib/mock/reservas";
 
-const STEPS = ['Mesa', 'Detalles', 'Botellas', 'Resumen', 'Listo'];
-const RESERVA_ID_DEMO = 'reserva-demo-4821';
+const STEPS = ["table", "details", "bottles", "summary", "done"] as const;
+const RESERVA_ID_DEMO = "reserva-demo-4821";
 
 function Stepper({ current }: { current: number }) {
+  const t = useTranslations("reserva");
+
   return (
-    <ol className="flex items-center justify-center gap-2 sm:gap-3" aria-label="Progreso de la reserva">
-      {STEPS.map((label, i) => (
-        <li key={label} className="flex items-center gap-2 sm:gap-3">
+    <ol
+      className="flex items-center justify-center gap-2 sm:gap-3"
+      aria-label={t("progress")}
+    >
+      {STEPS.map((step, i) => (
+        <li key={step} className="flex items-center gap-2 sm:gap-3">
           <span
             className={cn(
-              'flex size-7 items-center justify-center rounded-full border text-xs font-bold transition-colors',
+              "flex size-7 items-center justify-center rounded-full border text-xs font-bold transition-colors",
               i < current
-                ? 'border-primary bg-primary text-primary-foreground'
+                ? "border-primary bg-primary text-primary-foreground"
                 : i === current
-                  ? 'border-primary bg-accent text-rose'
-                  : 'border-border text-muted-foreground',
+                  ? "border-primary bg-accent text-rose"
+                  : "border-border text-muted-foreground",
             )}
           >
             {i < current ? <Check className="size-3.5" /> : i + 1}
           </span>
           <span
             className={cn(
-              'hidden text-xs font-semibold sm:inline',
-              i === current ? 'text-foreground' : 'text-muted-foreground',
+              "hidden text-xs font-semibold sm:inline",
+              i === current ? "text-foreground" : "text-muted-foreground",
             )}
           >
-            {label}
+            {t(`steps.${step}`)}
           </span>
-          {i < STEPS.length - 1 ? <span className="h-px w-4 bg-border sm:w-8" /> : null}
+          {i < STEPS.length - 1 ? (
+            <span className="h-px w-4 bg-border sm:w-8" />
+          ) : null}
         </li>
       ))}
     </ol>
   );
 }
 
-function QtyStepper({ value, onChange }: { value: number; onChange: (delta: number) => void }) {
+function QtyStepper({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (delta: number) => void;
+}) {
+  const t = useTranslations("reserva");
+
   return (
     <div className="flex items-center rounded-sm border bg-white/[0.04] p-0.5">
       <button
         type="button"
-        aria-label="Quitar"
+        aria-label={t("remove")}
         onClick={() => onChange(-1)}
         disabled={value === 0}
         className={cn(
-          'flex size-7 items-center justify-center rounded-[6px] transition-colors',
+          "flex size-7 items-center justify-center rounded-[6px] transition-colors",
           // Solo tiene sentido cuando hay algo que quitar; deshabilitado sin
           // que "0 → 0" haga nada. El hover ilumina para dar feedback táctil.
-          value > 0 ? 'text-foreground hover:bg-white/10' : 'text-foreground opacity-40',
+          value > 0
+            ? "text-foreground hover:bg-white/10"
+            : "text-foreground opacity-40",
         )}
       >
         <Minus className="size-3.5" />
@@ -104,7 +121,7 @@ function QtyStepper({ value, onChange }: { value: number; onChange: (delta: numb
       <span className="w-6 text-center text-[13px] font-bold">{value}</span>
       <button
         type="button"
-        aria-label="Agregar"
+        aria-label={t("add")}
         onClick={() => onChange(1)}
         // El "+" es la acción primaria del stepper: se mantiene morado SIEMPRE
         // (aunque ya haya botellas elegidas) como ancla visual estable de "así
@@ -118,18 +135,20 @@ function QtyStepper({ value, onChange }: { value: number; onChange: (delta: numb
 }
 
 function SummaryCard({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("reserva");
+
   return (
     <aside className="lg:sticky lg:top-24 lg:self-start">
       <div className="rounded-lg border bg-card p-5">
-        <p className="rv-eyebrow mb-3">Resumen</p>
+        <p className="rv-eyebrow mb-3">{t("summary.title")}</p>
         <div className="mb-3.5 flex gap-3 border-b pb-3.5">
           <div className="rv-img-ph size-16 shrink-0 rounded-sm">
-            <span>Evento</span>
+            <span>{t("event.placeholder")}</span>
           </div>
           <div className="min-w-0 text-sm">
             <p className="font-bold">{EVENTO_DEMO.title}</p>
             <p className="text-xs text-muted-foreground">
-              {EVENTO_DEMO.date} · {EVENTO_DEMO.time}
+              {t("event.date")} · {EVENTO_DEMO.time}
             </p>
             <p className="text-xs text-muted-foreground">{EVENTO_DEMO.venue}</p>
           </div>
@@ -141,30 +160,43 @@ function SummaryCard({ children }: { children: React.ReactNode }) {
 }
 
 export function ReservaWizard() {
-  const politica = leerPoliticaDemo('nocturna-club');
+  const t = useTranslations("reserva");
+  const format = useFormatter();
+  const politica = leerPoliticaDemo("nocturna-club");
   const [step, setStep] = useState(0);
-  const [view, setView] = useState<'lista' | 'planta'>('lista');
+  const [view, setView] = useState<"lista" | "planta">("lista");
   const [mesa, setMesa] = useState<MesaDemo | null>(null);
   const [size, setSize] = useState(4);
-  const [time, setTime] = useState('11:30 PM');
+  const [time, setTime] = useState("11:30 PM");
   const [birthday, setBirthday] = useState(false);
-  const [host, setHost] = useState('');
-  const [hostError, setHostError] = useState('');
-  const [notes, setNotes] = useState('');
+  const [host, setHost] = useState("");
+  const [hostError, setHostError] = useState("");
+  const [notes, setNotes] = useState("");
   const [cart, setCart] = useState<Record<string, number>>({});
   const [confirmacion, setConfirmacion] = useState<{
     desglose: DesgloseReservaDemo;
     pases: PaseReservaDemo[];
   } | null>(null);
 
-  const bottlesTotal = BOTELLAS_DEMO.reduce((sum, b) => sum + (cart[b.id] ?? 0) * b.price, 0);
+  const bottlesTotal = BOTELLAS_DEMO.reduce(
+    (sum, b) => sum + (cart[b.id] ?? 0) * b.price,
+    0,
+  );
   const inCart = BOTELLAS_DEMO.filter((b) => (cart[b.id] ?? 0) > 0);
   const total = (mesa?.deposit ?? 0) + bottlesTotal;
   const desglose = calcularDesgloseDemo(total, politica);
-  const setQty = (id: string, delta: number) => setCart((c) => ({ ...c, [id]: Math.max(0, (c[id] ?? 0) + delta) }));
+  const money = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: "PEN",
+      currencyDisplay: "narrowSymbol",
+    });
+  const tableLabel = (table: MesaDemo) => t(`tables.${table.id}.label`);
+  const setQty = (id: string, delta: number) =>
+    setCart((c) => ({ ...c, [id]: Math.max(0, (c[id] ?? 0) + delta) }));
 
   function pickMesa(m: MesaDemo) {
-    if (m.status === 'reserved') return;
+    if (m.status === "reserved") return;
     setMesa(m);
     setSize(Math.min(4, m.cap));
   }
@@ -173,22 +205,31 @@ export function ReservaWizard() {
     if (!mesa) return;
     const cleanHost = host.trim();
     if (!cleanHost) {
-      setHostError('Ingresa el nombre de la persona titular de la reserva.');
+      setHostError(t("details.hostError"));
       setStep(1);
       return;
     }
 
-    otorgarCreditoDemo(RESERVA_ID_DEMO, 'nocturna-club', desglose.creditoConsumo);
+    otorgarCreditoDemo(
+      RESERVA_ID_DEMO,
+      "nocturna-club",
+      desglose.creditoConsumo,
+    );
     setConfirmacion({
       desglose,
-      pases: emitirPasesDemo(RESERVA_ID_DEMO, mesa.zonaId ?? 'general', cleanHost, size),
+      pases: emitirPasesDemo(
+        RESERVA_ID_DEMO,
+        mesa.zonaId ?? "general",
+        cleanHost,
+        size,
+      ),
     });
     setStep(4);
   }
 
   function continuar() {
     if (step === 1 && !host.trim()) {
-      setHostError('Ingresa el nombre de la persona titular de la reserva.');
+      setHostError(t("details.hostError"));
       return;
     }
     setStep((current) => current + 1);
@@ -198,10 +239,12 @@ export function ReservaWizard() {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Cabecera del flujo: título + candado de reserva segura + stepper */}
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-heading text-2xl font-extrabold tracking-tight sm:text-3xl">Reserva tu mesa</h1>
+        <h1 className="font-heading text-2xl font-extrabold tracking-tight sm:text-3xl">
+          {t("title")}
+        </h1>
         <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-          <Lock className="size-3.5" /> Reserva segura
-          <Badge variant="info">Demo — reserva simulada</Badge>
+          <Lock className="size-3.5" /> {t("secure")}
+          <Badge variant="info">{t("demo")}</Badge>
         </span>
       </div>
       <div className="mb-9 border-b pb-6">
@@ -214,9 +257,17 @@ export function ReservaWizard() {
           <div className="mx-auto mb-6 flex size-24 items-center justify-center rounded-3xl border border-success-border bg-success-soft">
             <Check className="size-10 text-success" weight="bold" />
           </div>
-          <h2 className="font-heading text-3xl font-extrabold sm:text-4xl">¡Mesa reservada!</h2>
+          <h2 className="font-heading text-3xl font-extrabold sm:text-4xl">
+            {t("confirmation.title")}
+          </h2>
           <p className="mt-3 leading-relaxed text-muted-foreground">
-            {mesa?.label} para {size} personas · llegada {time}. Presenta el código al ingresar:
+            {mesa
+              ? t("confirmation.description", {
+                  table: tableLabel(mesa),
+                  count: size,
+                  time,
+                })
+              : null}
           </p>
           <p className="mt-5 rounded-md border border-accent-border bg-accent px-6 py-4 font-mono text-2xl font-bold tracking-[0.2em] text-rose">
             UR-DEMO-4821
@@ -224,26 +275,28 @@ export function ReservaWizard() {
           {confirmacion ? (
             <>
               <div className="mt-5 rounded-md border border-success-border bg-success-soft p-4 text-sm font-semibold text-success">
-                Tu crédito de consumo de {formatPEN(confirmacion.desglose.creditoConsumo)} ya está activo en la carta
-                del local
+                {t("confirmation.creditActive", {
+                  amount: money(confirmacion.desglose.creditoConsumo),
+                })}
               </div>
               {!politica.reingresoPermitido ? (
                 <p className="mt-3 flex items-center justify-center gap-2 text-sm text-info">
-                  <Info className="size-4 shrink-0" weight="duotone" /> Este local no permite reingreso una vez dentro
+                  <Info className="size-4 shrink-0" weight="duotone" />{" "}
+                  {t("confirmation.noReentry")}
                 </p>
               ) : null}
               <PasesGrupo pases={confirmacion.pases} />
             </>
           ) : null}
           <div className="mt-4">
-            <Badge variant="info">Demo — la reserva real y el QR llegan con el backend</Badge>
+            <Badge variant="info">{t("confirmation.backendDemo")}</Badge>
           </div>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Button asChild>
-              <Link href="/events">Ver más eventos</Link>
+              <Link href="/events">{t("confirmation.moreEvents")}</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/">Volver al inicio</Link>
+              <Link href="/">{t("confirmation.home")}</Link>
             </Button>
           </div>
         </div>
@@ -254,58 +307,78 @@ export function ReservaWizard() {
             {step === 0 ? (
               <>
                 <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-                  <h2 className="font-heading text-xl font-extrabold">Elige tu mesa</h2>
+                  <h2 className="font-heading text-xl font-extrabold">
+                    {t("table.title")}
+                  </h2>
                   <div className="flex gap-1 rounded-md border bg-white/[0.04] p-1">
-                    {(['lista', 'planta'] as const).map((v) => (
+                    {(["lista", "planta"] as const).map((v) => (
                       <button
                         key={v}
                         type="button"
                         onClick={() => setView(v)}
                         className={cn(
-                          'rounded-sm px-3.5 py-2 text-xs font-semibold capitalize transition-colors',
-                          view === v ? 'bg-primary text-primary-foreground' : 'text-muted-foreground',
+                          "rounded-sm px-3.5 py-2 text-xs font-semibold capitalize transition-colors",
+                          view === v
+                            ? "bg-primary text-primary-foreground"
+                            : "text-muted-foreground",
                         )}
                       >
-                        {v === 'planta' ? 'Vista de planta' : 'Lista'}
+                        {t(`table.view.${v}`)}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {view === 'lista' ? (
+                {view === "lista" ? (
                   <div className="grid gap-3.5 sm:grid-cols-2">
                     {MESAS_DEMO.map((m) => (
                       <button
                         key={m.id}
                         type="button"
-                        disabled={m.status === 'reserved'}
+                        disabled={m.status === "reserved"}
                         onClick={() => pickMesa(m)}
                         className={cn(
-                          'overflow-hidden rounded-md border bg-card text-left transition-[border-color,box-shadow,opacity]',
-                          mesa?.id === m.id && 'border-primary shadow-glow',
-                          m.status === 'reserved' && 'cursor-not-allowed opacity-40',
+                          "overflow-hidden rounded-md border bg-card text-left transition-[border-color,box-shadow,opacity]",
+                          mesa?.id === m.id && "border-primary shadow-glow",
+                          m.status === "reserved" &&
+                            "cursor-not-allowed opacity-40",
                         )}
                       >
                         <div className="rv-img-ph h-[110px]">
-                          <span>
-                            {m.zone === 'Pista' ? 'Mesa · Pista' : m.zone === 'VIP' ? 'Box · VIP' : 'Lounge · Premium'}
-                          </span>
+                          <span>{t(`table.placeholder.${m.zone}`)}</span>
                         </div>
                         <div className="p-3.5">
                           <div className="flex items-start justify-between gap-2">
                             <div>
-                              <p className="rv-eyebrow">{m.zone}</p>
-                              <p className="mt-0.5 text-[15px] font-bold">{m.label}</p>
+                              <p className="rv-eyebrow">
+                                {t(`table.zone.${m.zone}`)}
+                              </p>
+                              <p className="mt-0.5 text-[15px] font-bold">
+                                {tableLabel(m)}
+                              </p>
                             </div>
-                            {m.hot && m.status === 'available' ? <Badge variant="warning">{m.hot}</Badge> : null}
-                            {m.status === 'reserved' ? <Badge variant="outline">Reservada</Badge> : null}
+                            {m.hot && m.status === "available" ? (
+                              <Badge variant="warning">
+                                {t("table.fewLeft")}
+                              </Badge>
+                            ) : null}
+                            {m.status === "reserved" ? (
+                              <Badge variant="outline">
+                                {t("table.reserved")}
+                              </Badge>
+                            ) : null}
                           </div>
                           <div className="mt-2.5 flex flex-wrap gap-x-3.5 gap-y-1 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
-                              <Users className="size-3" /> {m.cap} pax
+                              <Users className="size-3" />{" "}
+                              {t("people", { count: m.cap })}
                             </span>
-                            <span>Mín. S/ {m.min}</span>
-                            <span>Depósito S/ {m.deposit}</span>
+                            <span>
+                              {t("table.minimum", { amount: money(m.min) })}
+                            </span>
+                            <span>
+                              {t("table.deposit", { amount: money(m.deposit) })}
+                            </span>
                           </div>
                         </div>
                       </button>
@@ -315,24 +388,27 @@ export function ReservaWizard() {
                   <div className="rounded-lg border bg-card p-5">
                     <div className="mb-4 flex flex-wrap gap-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1.5">
-                        <span className="size-3 rounded-[3px] border border-success-border bg-success-soft" />{' '}
-                        Disponible
+                        <span className="size-3 rounded-[3px] border border-success-border bg-success-soft" />{" "}
+                        {t("table.available")}
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <span className="size-3 rounded-[3px] border border-warning-border bg-warning-soft" /> Pocas
+                        <span className="size-3 rounded-[3px] border border-warning-border bg-warning-soft" />{" "}
+                        {t("table.fewLeft")}
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <span className="size-3 rounded-[3px] border bg-white/10" /> Reservada
+                        <span className="size-3 rounded-[3px] border bg-white/10" />{" "}
+                        {t("table.reserved")}
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <span className="size-3 rounded-[3px] bg-primary" /> Tu selección
+                        <span className="size-3 rounded-[3px] bg-primary" />{" "}
+                        {t("table.selection")}
                       </span>
                     </div>
                     <svg
                       viewBox="0 0 600 400"
                       className="w-full rounded-md border bg-background"
                       role="img"
-                      aria-label="Plano del local"
+                      aria-label={t("floor.aria")}
                     >
                       <rect
                         x="20"
@@ -351,7 +427,7 @@ export function ReservaWizard() {
                         fontWeight="700"
                         letterSpacing="2"
                       >
-                        PISTA
+                        {t("floor.danceFloor")}
                       </text>
                       <rect
                         x="320"
@@ -362,8 +438,15 @@ export function ReservaWizard() {
                         fill="rgba(245,158,11,0.06)"
                         stroke="rgba(245,158,11,0.2)"
                       />
-                      <text x="332" y="42" fill="rgba(252,211,77,0.8)" fontSize="11" fontWeight="700" letterSpacing="2">
-                        BOX VIP
+                      <text
+                        x="332"
+                        y="42"
+                        fill="rgba(252,211,77,0.8)"
+                        fontSize="11"
+                        fontWeight="700"
+                        letterSpacing="2"
+                      >
+                        {t("floor.vip")}
                       </text>
                       <rect
                         x="20"
@@ -382,35 +465,49 @@ export function ReservaWizard() {
                         fontWeight="700"
                         letterSpacing="2"
                       >
-                        LOUNGE
+                        {t("floor.lounge")}
                       </text>
-                      <text x="536" y="42" fill="rgba(160,160,176,0.8)" fontSize="10">
-                        ⬆ Barra
+                      <text
+                        x="536"
+                        y="42"
+                        fill="rgba(160,160,176,0.8)"
+                        fontSize="10"
+                      >
+                        {t("floor.bar")}
                       </text>
-                      <text x="270" y="395" fill="rgba(160,160,176,0.8)" fontSize="10">
-                        ⬇ Entrada principal
+                      <text
+                        x="270"
+                        y="395"
+                        fill="rgba(160,160,176,0.8)"
+                        fontSize="10"
+                      >
+                        {t("floor.entrance")}
                       </text>
                       {MESAS_DEMO.map((m) => {
                         const isSel = mesa?.id === m.id;
                         const fill = isSel
-                          ? 'var(--color-primary)'
-                          : m.status === 'reserved'
-                            ? 'rgba(255,255,255,0.05)'
+                          ? "var(--color-primary)"
+                          : m.status === "reserved"
+                            ? "rgba(255,255,255,0.05)"
                             : m.hot
-                              ? 'rgba(245,158,11,0.3)'
-                              : 'rgba(34,197,94,0.3)';
+                              ? "rgba(245,158,11,0.3)"
+                              : "rgba(34,197,94,0.3)";
                         const stroke = isSel
-                          ? 'var(--text-accent)'
-                          : m.status === 'reserved'
-                            ? 'rgba(255,255,255,0.12)'
+                          ? "var(--text-accent)"
+                          : m.status === "reserved"
+                            ? "rgba(255,255,255,0.12)"
                             : m.hot
-                              ? 'rgba(245,158,11,0.8)'
-                              : 'rgba(34,197,94,0.8)';
+                              ? "rgba(245,158,11,0.8)"
+                              : "rgba(34,197,94,0.8)";
                         return (
                           <g
                             key={m.id}
                             onClick={() => pickMesa(m)}
-                            className={m.status === 'reserved' ? 'cursor-not-allowed' : 'cursor-pointer'}
+                            className={
+                              m.status === "reserved"
+                                ? "cursor-not-allowed"
+                                : "cursor-pointer"
+                            }
                           >
                             <rect
                               x={m.layout.x}
@@ -430,7 +527,11 @@ export function ReservaWizard() {
                               fontSize="11"
                               fontWeight="700"
                             >
-                              {(m.label.split(' · ')[0] ?? m.label).replace(/Mesa |Box /, '')}
+                              {
+                                tableLabel(m)
+                                  .replace(/Mesa |Table |Box |Booth /, "")
+                                  .split(" · ")[0]
+                              }
                             </text>
                           </g>
                         );
@@ -444,8 +545,10 @@ export function ReservaWizard() {
                     <Info className="size-4 text-rose" weight="duotone" />
                   </span>
                   <p>
-                    <strong className="text-foreground">Tu depósito se descuenta del consumo en el local.</strong> No es
-                    un cargo extra — si consumes más del mínimo, solo pagas la diferencia en caja.
+                    <strong className="text-foreground">
+                      {t("table.depositTitle")}
+                    </strong>{" "}
+                    {t("table.depositDescription")}
                   </p>
                 </div>
               </>
@@ -454,21 +557,26 @@ export function ReservaWizard() {
             {/* ===== R2 · Detalles ===== */}
             {step === 1 && mesa ? (
               <>
-                <h2 className="mb-6 font-heading text-xl font-extrabold">Detalles de tu reserva</h2>
+                <h2 className="mb-6 font-heading text-xl font-extrabold">
+                  {t("details.title")}
+                </h2>
                 <div className="space-y-5 rounded-lg border bg-card p-6">
                   <div className="flex flex-col gap-2">
-                    <Label>Fecha del evento</Label>
+                    <Label>{t("details.eventDate")}</Label>
                     <div className="flex h-[46px] items-center gap-2.5 rounded-md border bg-white/[0.02] px-3.5 text-sm text-muted-foreground">
-                      <CalendarBlank className="size-4 text-rose" weight="duotone" />
-                      {EVENTO_DEMO.date} · {EVENTO_DEMO.time}
+                      <CalendarBlank
+                        className="size-4 text-rose"
+                        weight="duotone"
+                      />
+                      {t("event.date")} · {EVENTO_DEMO.time}
                       <span className="ml-auto flex items-center gap-1 text-[11px]">
-                        <Lock className="size-3" /> Fijada por el evento
+                        <Lock className="size-3" /> {t("details.fixedByEvent")}
                       </span>
                     </div>
                   </div>
                   <div className="grid gap-5 sm:grid-cols-2">
                     <div className="flex flex-col gap-2">
-                      <Label>Hora estimada de llegada</Label>
+                      <Label>{t("details.arrival")}</Label>
                       <Select value={time} onValueChange={setTime}>
                         <SelectTrigger>
                           <SelectValue />
@@ -483,7 +591,7 @@ export function ReservaWizard() {
                       </Select>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <Label htmlFor="rw-size">Tamaño del grupo</Label>
+                      <Label htmlFor="rw-size">{t("details.groupSize")}</Label>
                       <div className="flex h-[46px] items-center gap-3.5 rounded-md border bg-white/[0.04] px-3.5">
                         <input
                           id="rw-size"
@@ -494,36 +602,46 @@ export function ReservaWizard() {
                           onChange={(e) => setSize(Number(e.target.value))}
                           className="flex-1 accent-primary"
                         />
-                        <span className="min-w-14 text-right text-sm font-bold">{size} pax</span>
+                        <span className="min-w-14 text-right text-sm font-bold">
+                          {t("people", { count: size })}
+                        </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">Máx. {mesa.cap} para esta mesa</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("details.maximum", { count: mesa.cap })}
+                      </p>
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="rw-host">A nombre de quién</Label>
+                    <Label htmlFor="rw-host">{t("details.host")}</Label>
                     <Input
                       id="rw-host"
                       value={host}
                       onChange={(e) => {
                         setHost(e.target.value);
-                        if (e.target.value.trim()) setHostError('');
+                        if (e.target.value.trim()) setHostError("");
                       }}
-                      placeholder="ej. Piero Rivera"
+                      placeholder={t("details.hostPlaceholder")}
                       autoComplete="name"
                       required
                       aria-invalid={Boolean(hostError)}
-                      aria-describedby={hostError ? 'rw-host-error' : undefined}
+                      aria-describedby={hostError ? "rw-host-error" : undefined}
                     />
                     {hostError ? (
-                      <p id="rw-host-error" className="text-sm text-destructive" role="alert">
+                      <p
+                        id="rw-host-error"
+                        className="text-sm text-destructive"
+                        role="alert"
+                      >
                         {hostError}
                       </p>
                     ) : null}
                   </div>
                   <label
                     className={cn(
-                      'flex cursor-pointer items-center gap-3 rounded-md border p-3.5 transition-colors',
-                      birthday ? 'border-primary bg-accent-soft' : 'bg-white/[0.02]',
+                      "flex cursor-pointer items-center gap-3 rounded-md border p-3.5 transition-colors",
+                      birthday
+                        ? "border-primary bg-accent-soft"
+                        : "bg-white/[0.02]",
                     )}
                   >
                     <input
@@ -534,21 +652,26 @@ export function ReservaWizard() {
                     />
                     <span className="flex-1">
                       <span className="flex items-center gap-1.5 text-sm font-bold">
-                        <Cake className="size-4 text-rose" weight="duotone" /> Es mi cumpleaños
+                        <Cake className="size-4 text-rose" weight="duotone" />{" "}
+                        {t("details.birthday")}
                       </span>
                       <span className="mt-0.5 block text-xs text-muted-foreground">
-                        Avisamos al local — pueden tener una sorpresa preparada
+                        {t("details.birthdayHint")}
                       </span>
                     </span>
-                    {birthday ? <Badge variant="warning">🎂 Birthday</Badge> : null}
+                    {birthday ? (
+                      <Badge variant="warning">
+                        🎂 {t("details.birthdayBadge")}
+                      </Badge>
+                    ) : null}
                   </label>
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="rw-notes">Notas para el venue (opcional)</Label>
+                    <Label htmlFor="rw-notes">{t("details.notes")}</Label>
                     <Textarea
                       id="rw-notes"
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      placeholder="ej. Llegamos un poco tarde, tenemos un amigo alérgico al maní…"
+                      placeholder={t("details.notesPlaceholder")}
                     />
                   </div>
                 </div>
@@ -559,7 +682,9 @@ export function ReservaWizard() {
             {step === 2 ? (
               <>
                 <div className="mb-1 flex items-baseline justify-between gap-3">
-                  <h2 className="font-heading text-xl font-extrabold">Preventa de botellas</h2>
+                  <h2 className="font-heading text-xl font-extrabold">
+                    {t("bottles.title")}
+                  </h2>
                   {/* Borde visible en vez de subrayado: define los límites del
                       botón y mantiene el lenguaje del DS (ghost/outline). */}
                   <button
@@ -567,35 +692,44 @@ export function ReservaWizard() {
                     onClick={() => setStep(3)}
                     className="rounded-sm border border-accent-border px-3 py-1.5 text-sm font-bold text-rose transition-colors hover:bg-accent-soft"
                   >
-                    Saltar →
+                    {t("bottles.skip")} →
                   </button>
                 </div>
                 <p className="mb-6 text-sm text-muted-foreground">
-                  Aprovecha precios de preventa. Las dejan listas en tu mesa cuando llegues.
+                  {t("bottles.description")}
                 </p>
                 <div className="grid gap-3.5 sm:grid-cols-2">
                   {BOTELLAS_DEMO.map((b) => (
                     <div
                       key={b.id}
                       className={cn(
-                        'flex gap-3.5 rounded-md border bg-card p-3.5 transition-colors',
-                        (cart[b.id] ?? 0) > 0 && 'border-primary',
+                        "flex gap-3.5 rounded-md border bg-card p-3.5 transition-colors",
+                        (cart[b.id] ?? 0) > 0 && "border-primary",
                       )}
                     >
                       <div className="rv-img-ph h-[86px] w-20 shrink-0 rounded-sm">
-                        <span>{b.brand}</span>
+                        <span>{t(`bottles.items.${b.id}.brand`)}</span>
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="rv-eyebrow">{b.brand}</p>
-                        <p className="mt-0.5 text-sm font-bold">{b.name}</p>
+                        <p className="rv-eyebrow">
+                          {t(`bottles.items.${b.id}.brand`)}
+                        </p>
+                        <p className="mt-0.5 text-sm font-bold">
+                          {t(`bottles.items.${b.id}.name`)}
+                        </p>
                         {b.promo ? (
                           <Badge variant="success" className="mt-1.5">
-                            🎁 {b.promo}
+                            🎁 {t(`bottles.items.${b.id}.promo`)}
                           </Badge>
                         ) : null}
                         <div className="mt-2.5 flex items-center justify-between">
-                          <span className="text-[15px] font-extrabold">S/ {b.price}</span>
-                          <QtyStepper value={cart[b.id] ?? 0} onChange={(d) => setQty(b.id, d)} />
+                          <span className="text-[15px] font-extrabold">
+                            {money(b.price)}
+                          </span>
+                          <QtyStepper
+                            value={cart[b.id] ?? 0}
+                            onChange={(d) => setQty(b.id, d)}
+                          />
                         </div>
                       </div>
                     </div>
@@ -607,73 +741,98 @@ export function ReservaWizard() {
             {/* ===== R4 · Resumen (sin pago real) ===== */}
             {step === 3 && mesa ? (
               <>
-                <h2 className="mb-6 font-heading text-xl font-extrabold">Revisa tu reserva</h2>
+                <h2 className="mb-6 font-heading text-xl font-extrabold">
+                  {t("review.title")}
+                </h2>
                 <div className="space-y-4 rounded-lg border bg-card p-6 text-sm">
                   <div className="flex justify-between border-b pb-3">
-                    <span className="text-muted-foreground">Mesa</span>
-                    <strong>{mesa.label}</strong>
+                    <span className="text-muted-foreground">
+                      {t("review.table")}
+                    </span>
+                    <strong>{tableLabel(mesa)}</strong>
                   </div>
                   <div className="flex justify-between border-b pb-3">
-                    <span className="text-muted-foreground">Grupo</span>
+                    <span className="text-muted-foreground">
+                      {t("review.group")}
+                    </span>
                     <strong>
-                      {size} pax · llegada {time}
+                      {t("review.groupValue", { count: size, time })}
                     </strong>
                   </div>
                   {host ? (
                     <div className="flex justify-between border-b pb-3">
-                      <span className="text-muted-foreground">Anfitrión</span>
+                      <span className="text-muted-foreground">
+                        {t("review.host")}
+                      </span>
                       <strong>{host}</strong>
                     </div>
                   ) : null}
                   {birthday ? (
                     <div className="flex justify-between border-b pb-3">
-                      <span className="text-muted-foreground">Cumpleaños</span>
-                      <strong className="text-warning">🎂 Sí</strong>
+                      <span className="text-muted-foreground">
+                        {t("review.birthday")}
+                      </span>
+                      <strong className="text-warning">
+                        🎂 {t("review.yes")}
+                      </strong>
                     </div>
                   ) : null}
                   {inCart.length > 0 ? (
                     <div className="border-b pb-3">
-                      <p className="mb-2 text-muted-foreground">Botellas en preventa</p>
+                      <p className="mb-2 text-muted-foreground">
+                        {t("review.bottles")}
+                      </p>
                       {inCart.map((b) => (
                         <div key={b.id} className="flex justify-between py-0.5">
                           <span>
-                            {cart[b.id] ?? 0}× {b.name}
+                            {cart[b.id] ?? 0}× {t(`bottles.items.${b.id}.name`)}
                           </span>
-                          <span>S/ {(cart[b.id] ?? 0) * b.price}</span>
+                          <span>{money((cart[b.id] ?? 0) * b.price)}</span>
                         </div>
                       ))}
                     </div>
                   ) : null}
                   <div className="flex items-start justify-between gap-4 text-base">
-                    <span>Adelanto a pagar hoy ({politica.adelantoPct}%)</span>
-                    <strong className="shrink-0 tabular-nums">{formatPEN(desglose.adelanto)}</strong>
+                    <span>
+                      {t("review.advance", { percent: politica.adelantoPct })}
+                    </span>
+                    <strong className="shrink-0 tabular-nums">
+                      {money(desglose.adelanto)}
+                    </strong>
                   </div>
                   <div className="flex items-start justify-between gap-4 text-base">
                     <span>
-                      <span className="block text-success">Crédito de consumo ({politica.splitConsumoPct}%)</span>
+                      <span className="block text-success">
+                        {t("review.credit", {
+                          percent: politica.splitConsumoPct,
+                        })}
+                      </span>
                       <span className="mt-0.5 block text-xs text-muted-foreground">
-                        Se canjea en la carta del local
+                        {t("review.creditHint")}
                       </span>
                     </span>
-                    <strong className="shrink-0 tabular-nums text-success">{formatPEN(desglose.creditoConsumo)}</strong>
+                    <strong className="shrink-0 tabular-nums text-success">
+                      {money(desglose.creditoConsumo)}
+                    </strong>
                   </div>
                   {desglose.comisionServicio > 0 ? (
                     <div className="flex items-start justify-between gap-4 text-base">
-                      <span>Comisión de servicio</span>
-                      <strong className="shrink-0 tabular-nums">{formatPEN(desglose.comisionServicio)}</strong>
+                      <span>{t("review.serviceFee")}</span>
+                      <strong className="shrink-0 tabular-nums">
+                        {money(desglose.comisionServicio)}
+                      </strong>
                     </div>
                   ) : null}
                   <div className="flex justify-between border-t pt-3 font-heading text-lg font-extrabold">
-                    <span>Total al confirmar</span>
-                    <span className="tabular-nums">{formatPEN(desglose.adelanto)}</span>
+                    <span>{t("review.total")}</span>
+                    <span className="tabular-nums">
+                      {money(desglose.adelanto)}
+                    </span>
                   </div>
                 </div>
                 <div className="mt-5 flex items-start gap-3 rounded-md border border-info-border bg-info-soft p-4 text-sm leading-relaxed text-info">
                   <Info className="mt-0.5 size-4 shrink-0" weight="duotone" />
-                  <p>
-                    Vista de demostración: el cobro del depósito se habilitará cuando exista el backend de reservas.
-                    Confirmar no genera ningún cargo.
-                  </p>
+                  <p>{t("review.demoNotice")}</p>
                 </div>
               </>
             ) : null}
@@ -683,44 +842,55 @@ export function ReservaWizard() {
           <SummaryCard>
             {mesa ? (
               <>
-                <p className="text-sm font-bold">{mesa.label}</p>
+                <p className="text-sm font-bold">{tableLabel(mesa)}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  {mesa.cap} personas máx · Mínimo S/ {mesa.min}
+                  {t("summary.capacity", {
+                    count: mesa.cap,
+                    amount: money(mesa.min),
+                  })}
                 </p>
                 <div className="my-3.5 space-y-1.5 border-y py-3.5 text-[13px]">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Depósito</span>
-                    <strong>S/ {mesa.deposit}</strong>
+                    <span className="text-muted-foreground">
+                      {t("summary.deposit")}
+                    </span>
+                    <strong>{money(mesa.deposit)}</strong>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
-                    <span>Aplicable a consumo</span>
-                    <span>S/ {mesa.deposit}</span>
+                    <span>{t("summary.appliedToSpend")}</span>
+                    <span>{money(mesa.deposit)}</span>
                   </div>
                   {bottlesTotal > 0 ? (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Botellas</span>
-                      <strong>S/ {bottlesTotal}</strong>
+                      <span className="text-muted-foreground">
+                        {t("summary.bottles")}
+                      </span>
+                      <strong>{money(bottlesTotal)}</strong>
                     </div>
                   ) : null}
                 </div>
               </>
             ) : (
               <p className="mb-3.5 text-sm leading-relaxed text-muted-foreground">
-                Selecciona una mesa para continuar.
+                {t("summary.selectTable")}
               </p>
             )}
             {step === 3 ? (
               <Button className="w-full" onClick={confirmarReserva}>
-                Confirmar reserva <Check className="size-4" />
+                {t("confirm")} <Check className="size-4" />
               </Button>
             ) : (
               <Button className="w-full" disabled={!mesa} onClick={continuar}>
-                Continuar <ArrowRight className="size-4" />
+                {t("continue")} <ArrowRight className="size-4" />
               </Button>
             )}
             {step > 0 ? (
-              <Button variant="secondary" className="mt-2 w-full" onClick={() => setStep((s) => s - 1)}>
-                <ArrowLeft className="size-4" /> Volver
+              <Button
+                variant="secondary"
+                className="mt-2 w-full"
+                onClick={() => setStep((s) => s - 1)}
+              >
+                <ArrowLeft className="size-4" /> {t("back")}
               </Button>
             ) : null}
           </SummaryCard>

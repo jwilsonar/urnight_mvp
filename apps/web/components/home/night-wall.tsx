@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Muro de Noches: el hero deja de ser texto sobre un gradiente y pasa a ser un
@@ -11,14 +11,20 @@
  * orquesta el movimiento.
  */
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import Link from 'next/link';
-import { m, useScroll, useSpring, useTransform } from 'framer-motion';
-import type { EventResponse } from '@urnight/contracts';
-import { cn } from '@urnight/ui';
-import { Stage } from '@/components/motion/stage';
-import { StorageImage } from '@/lib/storage/storage-context';
-import { formatDate } from '@/lib/utils/format';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
+import Link from "next/link";
+import { m, useScroll, useSpring, useTransform } from "framer-motion";
+import { useFormatter } from "next-intl";
+import type { EventResponse } from "@urnight/contracts";
+import { cn } from "@urnight/ui";
+import { Stage } from "@/components/motion/stage";
+import { StorageImage } from "@/lib/storage/storage-context";
 
 const ROWS = 3;
 /** Mínimo de tiles por fila para que el muro no deje huecos con pocos eventos. */
@@ -31,7 +37,8 @@ const POSTER_HUE_MIN = 238;
 const POSTER_HUE_SPAN = 42;
 
 /** Las filas nacen y mueren difuminadas: sin esto se ve el borde del último tile. */
-const EDGE_MASK = 'linear-gradient(to right, transparent, #000 14%, #000 86%, transparent)';
+const EDGE_MASK =
+  "linear-gradient(to right, transparent, #000 14%, #000 86%, transparent)";
 
 const SPRING = { stiffness: 90, damping: 24, mass: 0.4 } as const;
 
@@ -107,7 +114,14 @@ function buildRows(events: EventResponse[]): Tile[][] {
   );
 }
 
-export function NightWall({ events, className }: { events: EventResponse[]; className?: string }) {
+export function NightWall({
+  events,
+  className,
+}: {
+  events: EventResponse[];
+  className?: string;
+}) {
+  const format = useFormatter();
   const ref = useRef<HTMLDivElement>(null);
   const [reduced, setReduced] = useState(false);
 
@@ -115,22 +129,37 @@ export function NightWall({ events, className }: { events: EventResponse[]; clas
   // reducedMotion="user"` (no son props animadas), así que hay que
   // neutralizarlos a mano.
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const sync = () => setReduced(mq.matches);
     sync();
-    mq.addEventListener('change', sync);
-    return () => mq.removeEventListener('change', sync);
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
   }, []);
 
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
 
   // El plano se endereza hacia la cámara mientras entras.
-  const rotateX = useSpring(useTransform(scrollYProgress, [0, 0.6], [18, 0]), SPRING);
+  const rotateX = useSpring(
+    useTransform(scrollYProgress, [0, 0.6], [18, 0]),
+    SPRING,
+  );
   // Tramo no lineal: las filas corren al principio y frenan al final.
-  const xA = useSpring(useTransform(scrollYProgress, [0, 0.5, 1], [0, -150, -200]), SPRING);
-  const xB = useSpring(useTransform(scrollYProgress, [0, 0.5, 1], [0, 150, 200]), SPRING);
+  const xA = useSpring(
+    useTransform(scrollYProgress, [0, 0.5, 1], [0, -150, -200]),
+    SPRING,
+  );
+  const xB = useSpring(
+    useTransform(scrollYProgress, [0, 0.5, 1], [0, 150, 200]),
+    SPRING,
+  );
 
-  const rows = useMemo(() => (events.length ? buildRows(events) : []), [events]);
+  const rows = useMemo(
+    () => (events.length ? buildRows(events) : []),
+    [events],
+  );
   if (!rows.length) return null;
 
   return (
@@ -149,14 +178,16 @@ export function NightWall({ events, className }: { events: EventResponse[]; clas
     <div
       ref={ref}
       aria-hidden="true"
-      className={cn('relative overflow-hidden', className)}
+      className={cn("relative overflow-hidden", className)}
       style={{ maskImage: EDGE_MASK, WebkitMaskImage: EDGE_MASK }}
     >
       <Stage perspective={1400} origin="50% 30%">
         <m.div
           className="rv-wall flex flex-col items-center gap-5"
           style={
-            reduced ? { transformStyle: 'preserve-3d' } : { rotateX, transformStyle: 'preserve-3d' }
+            reduced
+              ? { transformStyle: "preserve-3d" }
+              : { rotateX, transformStyle: "preserve-3d" }
           }
         >
           {rows.map((row, r) => (
@@ -168,8 +199,8 @@ export function NightWall({ events, className }: { events: EventResponse[]; clas
               // del poster contra el plano de la fila.
               style={
                 reduced
-                  ? { transformStyle: 'preserve-3d' }
-                  : { x: r === 1 ? xB : xA, transformStyle: 'preserve-3d' }
+                  ? { transformStyle: "preserve-3d" }
+                  : { x: r === 1 ? xB : xA, transformStyle: "preserve-3d" }
               }
             >
               {row.map(({ key, event, background }) => (
@@ -181,7 +212,7 @@ export function NightWall({ events, className }: { events: EventResponse[]; clas
                   // desde las grillas de abajo, que son la ruta real.
                   tabIndex={-1}
                   className="rv-poster aspect-[3/4] w-[168px] shrink-0 sm:w-[224px]"
-                  style={{ '--poster-bg': background } as CSSProperties}
+                  style={{ "--poster-bg": background } as CSSProperties}
                 >
                   {event.flyerUrl ? (
                     // Sin `priority`: son ~24 imágenes y precargarlas todas
@@ -205,7 +236,12 @@ export function NightWall({ events, className }: { events: EventResponse[]; clas
                     <p className="font-display line-clamp-2 text-sm leading-tight text-white">
                       {event.name}
                     </p>
-                    <p className="mt-1 text-[11px] text-white/70">{formatDate(event.startsAt)}</p>
+                    <p className="mt-1 text-[11px] text-white/70">
+                      {format.dateTime(new Date(event.startsAt), {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
+                    </p>
                   </div>
                 </Link>
               ))}

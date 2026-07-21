@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import { Trash, UserCircle } from '@phosphor-icons/react';
-import type { Control } from 'react-hook-form';
-import { DOCUMENT_TYPES } from '@urnight/contracts';
+import { Trash, UserCircle } from "@phosphor-icons/react";
+import type { Control } from "react-hook-form";
+import { useTranslations } from "next-intl";
+import { DOCUMENT_TYPES } from "@urnight/contracts";
 import {
   Button,
   Checkbox,
@@ -17,8 +18,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@urnight/ui';
-import { DOCUMENT_LABELS, type CheckoutFormInput } from './checkout-form';
+} from "@urnight/ui";
+import { type CheckoutFormInput } from "./checkout-form";
 
 interface AttendeeFieldsetProps {
   control: Control<CheckoutFormInput>;
@@ -34,14 +35,23 @@ interface AttendeeFieldsetProps {
 }
 
 /** Campos de un asistente del checkout (nombre, documento, fecha de nacimiento). */
-export function AttendeeFieldset({ control, index, onRemove, self, locked }: AttendeeFieldsetProps) {
+export function AttendeeFieldset({
+  control,
+  index,
+  onRemove,
+  self,
+  locked,
+}: AttendeeFieldsetProps) {
+  const t = useTranslations("checkout.attendee");
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold">Asistente {index + 1}</p>
+        <p className="text-sm font-semibold">
+          {t("title", { number: index + 1 })}
+        </p>
         {onRemove ? (
           <Button type="button" variant="ghost" size="sm" onClick={onRemove}>
-            <Trash className="h-4 w-4" /> Quitar
+            <Trash className="h-4 w-4" /> {t("remove")}
           </Button>
         ) : null}
       </div>
@@ -54,7 +64,7 @@ export function AttendeeFieldset({ control, index, onRemove, self, locked }: Att
           />
           <span className="flex items-center gap-1.5 text-sm font-medium">
             <UserCircle className="h-4 w-4 text-primary" weight="duotone" />
-            Soy yo — usar los datos de mi cuenta
+            {t("useMyDetails")}
           </span>
         </label>
       ) : null}
@@ -64,9 +74,13 @@ export function AttendeeFieldset({ control, index, onRemove, self, locked }: Att
         name={`attendees.${index}.fullName`}
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Nombre completo</FormLabel>
+            <FormLabel>{t("fullName")}</FormLabel>
             <FormControl>
-              <Input placeholder="Nombre y apellido" {...field} disabled={locked} />
+              <Input
+                placeholder={t("fullNamePlaceholder")}
+                {...field}
+                disabled={locked}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -79,8 +93,12 @@ export function AttendeeFieldset({ control, index, onRemove, self, locked }: Att
           name={`attendees.${index}.documentType`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Documento</FormLabel>
-              <Select value={field.value} onValueChange={field.onChange} disabled={locked}>
+              <FormLabel>{t("document")}</FormLabel>
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={locked}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue />
@@ -89,7 +107,7 @@ export function AttendeeFieldset({ control, index, onRemove, self, locked }: Att
                 <SelectContent>
                   {DOCUMENT_TYPES.map((type) => (
                     <SelectItem key={type} value={type}>
-                      {DOCUMENT_LABELS[type]}
+                      {t(`documentTypes.${type}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -103,7 +121,7 @@ export function AttendeeFieldset({ control, index, onRemove, self, locked }: Att
           name={`attendees.${index}.documentNumber`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Número</FormLabel>
+              <FormLabel>{t("number")}</FormLabel>
               <FormControl>
                 <Input inputMode="numeric" {...field} disabled={locked} />
               </FormControl>
@@ -118,7 +136,7 @@ export function AttendeeFieldset({ control, index, onRemove, self, locked }: Att
         name={`attendees.${index}.birthDate`}
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Fecha de nacimiento</FormLabel>
+            <FormLabel>{t("birthDate")}</FormLabel>
             <FormControl>
               <Input type="date" {...field} disabled={locked} />
             </FormControl>

@@ -1,25 +1,34 @@
-import type { Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
-import { CheckoutClient } from '@/components/checkout/checkout-client';
-import type { ResolveRedemptionCodeResponse, TicketTypeListResponse } from '@urnight/contracts';
-import { Alert, AlertDescription } from '@urnight/ui';
-import { ApiError } from '@/lib/api/client';
-import { getEventBySlug, getEventTicketTypes } from '@/lib/api/catalog';
-import { resolveRedemptionCode } from '@/lib/api/promoters';
-import { requireAccessToken } from '@/lib/auth-helpers';
-import { formatDate } from '@/lib/utils';
-
-export const metadata: Metadata = { title: 'Checkout' };
+import type { Metadata } from "next";
+import { notFound, redirect } from "next/navigation";
+import { getFormatter, getTranslations } from "next-intl/server";
+import { CheckoutClient } from "@/components/checkout/checkout-client";
+import type {
+  ResolveRedemptionCodeResponse,
+  TicketTypeListResponse,
+} from "@urnight/contracts";
+import { Alert, AlertDescription } from "@urnight/ui";
+import { ApiError } from "@/lib/api/client";
+import { getEventBySlug, getEventTicketTypes } from "@/lib/api/catalog";
+import { resolveRedemptionCode } from "@/lib/api/promoters";
+import { requireAccessToken } from "@/lib/auth-helpers";
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("checkout");
+  return { title: t("title") };
+}
 
 export default async function CheckoutPage({
   searchParams,
 }: {
   searchParams: Promise<{ event?: string; code?: string }>;
 }) {
+  const [t, format] = await Promise.all([
+    getTranslations("checkout"),
+    getFormatter(),
+  ]);
   const { event: slug, code } = await searchParams;
-  if (!slug) redirect('/events');
+  if (!slug) redirect("/events");
 
-  const checkoutPath = `/checkout?event=${slug}${code ? `&code=${encodeURIComponent(code)}` : ''}`;
+  const checkoutPath = `/checkout?event=${slug}${code ? `&code=${encodeURIComponent(code)}` : ""}`;
   // requireAccessToken (no requireSession): con la sesión expirada re-autenticamos en
   // vez de dejar llenar el formulario para que el POST falle con 401.
   const { session } = await requireAccessToken(checkoutPath);
@@ -36,10 +45,10 @@ export default async function CheckoutPage({
     throw error;
   }
 
-  if (event.status !== 'published') {
+  if (event.status !== "published") {
     return (
       <Alert>
-        <AlertDescription>Este evento no tiene entradas a la venta en este momento.</AlertDescription>
+        <AlertDescription>{t("eventUnavailable")}</AlertDescription>
       </Alert>
     );
   }
@@ -50,9 +59,7 @@ export default async function CheckoutPage({
   } catch {
     return (
       <Alert variant="destructive">
-        <AlertDescription>
-          No pudimos cargar las entradas en este momento. Inténtalo de nuevo en unos minutos.
-        </AlertDescription>
+        <AlertDescription>{t("ticketsLoadError")}</AlertDescription>
       </Alert>
     );
   }
@@ -78,16 +85,20 @@ export default async function CheckoutPage({
     <div className="space-y-6">
       {codeFailed ? (
         <Alert>
-          <AlertDescription>
-            El código de promotor no es válido o expiró, así que la entrada gratis no se aplicó.
-            Puedes continuar con la compra normal.
-          </AlertDescription>
+          <AlertDescription>{t("invalidPromoterCode")}</AlertDescription>
         </Alert>
       ) : null}
       {showHeader ? (
         <div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">{event.name}</h1>
-          <p className="text-sm text-muted-foreground">{formatDate(event.startsAt)}</p>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">
+            {event.name}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {format.dateTime(new Date(event.startsAt), {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })}
+          </p>
         </div>
       ) : null}
       <CheckoutClient
