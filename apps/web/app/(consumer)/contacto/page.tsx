@@ -41,7 +41,7 @@ export default async function ContactoPage() {
               <h2 className="font-heading text-lg font-bold text-foreground">
                 {t("support.title")}
               </h2>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-1 min-h-[4.5rem] text-sm leading-relaxed text-muted-foreground">
                 {t("support.description")}
               </p>
             </div>

@@ -50,7 +50,7 @@ export default function ReferidosPage() {
           {REFERIDOS_DEMO.codigo}
         </p>
         <div className="mt-5 flex flex-wrap justify-center gap-2.5">
-          <Button onClick={copyLink}>
+          <Button onClick={copyLink} className="min-w-36 justify-center">
             {copied ? (
               <Check className="size-4" />
             ) : (

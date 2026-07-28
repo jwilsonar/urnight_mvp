@@ -71,6 +71,8 @@ function buildRequest(input?: { ruc?: string; zoneId?: string | null; submittedB
     contactName: 'Juan Perez',
     contactEmail: 'juan@negocio.pe',
     contactPhone: '987654321',
+    termsAccepted: true,
+    legalDeclarationAccepted: true,
     submittedBy: input?.submittedBy ?? null,
   });
 }
@@ -88,6 +90,10 @@ describe('DrizzleAffiliationRequestRepository (integration)', () => {
     expect(found?.ruc).toBe('20555555501');
     expect(found?.zoneId).toBe(zoneId);
     expect(found?.contactEmail).toBe('juan@negocio.pe');
+    expect(found?.termsAccepted).toBe(true);
+    expect(found?.termsAcceptedAt).toBeInstanceOf(Date);
+    expect(found?.legalDeclarationAccepted).toBe(true);
+    expect(found?.legalDeclarationAcceptedAt).toBeInstanceOf(Date);
     expect(found?.status).toBe('pending');
     expect(found?.companyId).toBeNull();
     expect(found?.localId).toBeNull();

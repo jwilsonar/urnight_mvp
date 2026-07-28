@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@urnight/ui';
 import { PanelNavbar } from './panel-navbar';
 import { PanelSidebar } from './panel-sidebar';
@@ -25,17 +25,13 @@ export function PanelShell({ user, children }: { user: PanelShellUser; children:
   const section = sectionFromPath(pathname);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-  }, [pathname]);
-
   return (
     <div className="min-h-dvh">
       <PanelNavbar user={user} showMenu={Boolean(section)} onMenuClick={() => setMobileOpen(true)} />
 
       <div className="mx-auto flex w-full max-w-screen-2xl">
         {section ? (
-          <aside className="sticky top-16 hidden h-[calc(100dvh-4rem)] w-60 shrink-0 overflow-hidden border-r bg-card/40 p-4 lg:flex">
+          <aside className="sticky top-16 hidden h-[calc(100dvh-4rem)] w-60 shrink-0 overflow-hidden border-r bg-sidebar p-4 lg:flex">
             <PanelSidebar section={section} />
           </aside>
         ) : null}

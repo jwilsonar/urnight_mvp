@@ -52,11 +52,11 @@ export function UserMenu() {
 
   if (!session?.user) {
     return (
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" asChild>
+      <div className="flex items-center gap-1 xl:gap-2">
+        <Button variant="ghost" size="sm" className="lg:max-xl:px-2.5" asChild>
           <Link href="/login">{t("signIn")}</Link>
         </Button>
-        <Button size="sm" asChild>
+        <Button size="sm" className="lg:max-xl:px-2.5" asChild>
           <Link href="/register">{t("createAccount")}</Link>
         </Button>
       </div>

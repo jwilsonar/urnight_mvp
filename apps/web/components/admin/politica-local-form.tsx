@@ -43,7 +43,7 @@ function RadioChoice({
     <label
       className={cn(
         'flex cursor-pointer items-start gap-3 rounded-md border p-3.5 transition-colors',
-        checked ? 'border-primary bg-accent-soft' : 'bg-white/[0.02] hover:border-accent-border',
+        checked ? 'border-primary bg-accent-soft' : 'bg-muted/30 hover:border-accent-border',
       )}
     >
       <input
@@ -76,7 +76,7 @@ function ToggleRow({
   children: ReactNode;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-md border bg-white/[0.02] p-3.5">
+    <label className="flex cursor-pointer items-center gap-3 rounded-md border bg-muted/30 p-3.5">
       <Checkbox
         checked={checked}
         onCheckedChange={(value) => onCheckedChange(value === true)}

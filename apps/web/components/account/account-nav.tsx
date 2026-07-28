@@ -17,6 +17,7 @@ const LINKS = [
   { href: "/account/notificaciones", key: "notifications" },
   { href: "/account/invitaciones", key: "invitations" },
   { href: "/account/amigos", key: "friends" },
+  { href: "/account/apariencia", key: "appearance" },
 ] as const;
 
 export function AccountNav() {
@@ -25,7 +26,7 @@ export function AccountNav() {
   return (
     /* flex-wrap (no scroll): evita tabs cortados al borde como "Notificacio…" */
     <nav
-      className="flex flex-wrap justify-center gap-1 border-b"
+      className="grid grid-cols-4 gap-1 border-b sm:flex sm:flex-wrap sm:justify-center"
       aria-label={t("aria")}
     >
       {LINKS.map((link) => {
@@ -36,7 +37,11 @@ export function AccountNav() {
             href={link.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "-mb-px shrink-0 whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium transition-colors",
+              /* En móvil el texto puede envolver: con `whitespace-nowrap` la
+                 etiqueta más larga ("Notificaciones") se sale de la celda de
+                 ~75px a 360px y pisa las pestañas vecinas. Desde `sm` la
+                 pestaña mide 144px y ahí sí cabe en una línea. */
+              "-mb-px flex w-full min-w-0 items-center justify-center border-b-2 px-0.5 py-2 text-center text-[11px] font-medium leading-tight tracking-tight transition-colors sm:w-36 sm:shrink-0 sm:whitespace-nowrap sm:px-3 sm:text-sm sm:leading-normal sm:tracking-normal",
               active
                 ? "border-primary text-foreground"
                 : "border-transparent text-muted-foreground hover:text-foreground",

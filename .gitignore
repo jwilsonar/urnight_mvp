@@ -54,3 +54,6 @@ skills-lock.json
 
 # graphify: grafo de conocimiento local (se regenera con "graphify update .")
 graphify-out/
+
+# artefactos temporales del companion de Codex (perfiles de Chrome, capturas)
+.codex-tmp/

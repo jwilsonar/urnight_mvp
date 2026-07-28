@@ -175,6 +175,8 @@ describe('Companies HTTP (e2e)', () => {
       commercialName: 'La Noche',
       contactEmail: 'hola@lanoche.pe',
       contactPhone: '999111222',
+      termsAccepted: true,
+      legalDeclarationAccepted: true,
     };
 
     it('POST /affiliation-requests → 201 público envía solicitud (+ DTO)', async () => {

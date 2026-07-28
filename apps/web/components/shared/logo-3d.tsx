@@ -107,23 +107,59 @@ export function Logo3D({
       onPointerLeave={handleLeave}
       onFocus={triggerSweep}
       className={cn("rv-logo3d inline-flex items-center", className)}
+      data-rv-logo-lockup
     >
       {/* El contenido cambia al asset final; los handlers y el tilt permanecen intactos. */}
-      <span className="rv-logo3d__mark inline-flex">
-        <Image
-          src="/brand/wordmark.png"
-          alt="RAVENUE"
-          width={1168}
-          height={104}
-          priority
-          className="h-5 w-auto sm:h-6"
-        />
-        {/* Al acabar soltamos el atributo para poder volver a disparar el barrido. */}
+      <span className="rv-logo3d__mark inline-flex items-center gap-2">
         <span
           aria-hidden="true"
-          className="rv-logo3d__sweep"
-          onAnimationEnd={() => setSweeping(false)}
-        />
+          className="relative inline-flex shrink-0 overflow-hidden"
+          data-rv-logo-icon
+        >
+          <Image
+            src="/brand/icon-mark-light.png"
+            alt=""
+            width={831}
+            height={688}
+            priority
+            className="h-6 w-auto dark:hidden xl:h-7"
+          />
+          <Image
+            src="/brand/icon-mark.png"
+            alt=""
+            width={831}
+            height={681}
+            priority
+            className="hidden h-6 w-auto dark:block xl:h-7"
+          />
+          {/* Al acabar soltamos el atributo para poder volver a disparar el barrido. */}
+          <span
+            aria-hidden="true"
+            className="rv-logo3d__sweep"
+            onAnimationEnd={() => setSweeping(false)}
+          />
+        </span>
+        <span
+          className="rv-logo3d__word inline-flex shrink-0"
+          data-rv-logo-wordmark
+        >
+          <Image
+            src="/brand/wordmark-light.png"
+            alt="RAVENUE"
+            width={1611}
+            height={121}
+            priority
+            className="h-[13px] w-auto dark:hidden xl:h-3.5"
+          />
+          <Image
+            src="/brand/wordmark.png"
+            alt="RAVENUE"
+            width={1611}
+            height={121}
+            priority
+            className="hidden h-[13px] w-auto dark:block xl:h-3.5"
+          />
+        </span>
       </span>
     </Link>
   );

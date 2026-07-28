@@ -1,5 +1,6 @@
 import { ChatCircleText, EnvelopeSimple } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@urnight/ui";
 import { FaqBrowser } from "@/components/shared/faq-browser";
@@ -37,10 +38,10 @@ export default async function FaqPage() {
             {t("contact.description")}
           </p>
           <Button asChild>
-            <a href="mailto:soporte@ravenue.pe">
+            <Link href="/contacto">
               <EnvelopeSimple className="size-4" weight="duotone" />{" "}
               {t("contact.action")}
-            </a>
+            </Link>
           </Button>
         </div>
       </Reveal>

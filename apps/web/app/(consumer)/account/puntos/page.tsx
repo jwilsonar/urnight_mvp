@@ -30,7 +30,7 @@ export default async function PuntosPage() {
   return (
     <div className="space-y-8">
       <Reveal>
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex min-h-[5.5rem] flex-wrap items-center justify-between gap-2">
           <div>
             <h1 className="font-heading text-2xl font-extrabold tracking-tight">
               {t("title")}

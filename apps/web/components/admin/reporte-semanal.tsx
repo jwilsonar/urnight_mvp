@@ -111,7 +111,10 @@ export function ReporteSemanal() {
             </TableHeader>
             <TableBody>
               {reporte.ingresosPorPromotor.map((promotor) => (
-                <TableRow key={promotor.promotorNombre}>
+                <TableRow
+                  key={promotor.promotorNombre}
+                  className="even:bg-muted/30 hover:bg-accent"
+                >
                   <TableCell className="font-semibold">{promotor.promotorNombre}</TableCell>
                   <TableCell className="text-right tabular-nums">{promotor.porCodigos}</TableCell>
                   <TableCell className="text-right tabular-nums">{promotor.porLink}</TableCell>

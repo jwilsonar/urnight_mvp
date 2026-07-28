@@ -64,7 +64,7 @@ export function ReclamacionesInbox() {
             {items.map((r) => (
               <TableRow
                 key={r.id}
-                className="cursor-pointer transition-colors"
+                className="cursor-pointer even:bg-muted/30 hover:bg-accent transition-colors"
                 onClick={() => setSelected(r)}
               >
                 <TableCell className="font-mono text-xs">{r.codigo}</TableCell>
@@ -72,7 +72,9 @@ export function ReclamacionesInbox() {
                 <TableCell className="font-semibold">{r.usuario}</TableCell>
                 <TableCell>{r.local}</TableCell>
                 <TableCell className="capitalize">{r.tipo}</TableCell>
-                <TableCell className="max-w-52 truncate">{r.resumen}</TableCell>
+                <TableCell className="max-w-52 whitespace-normal break-words leading-snug">
+                  {r.resumen}
+                </TableCell>
                 <TableCell>
                   <Badge variant={ESTADO_VARIANT[r.estado]}>
                     {RECLAMACION_ESTADO_LABEL[r.estado]}

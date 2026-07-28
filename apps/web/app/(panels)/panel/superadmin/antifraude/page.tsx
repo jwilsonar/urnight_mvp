@@ -40,7 +40,7 @@ export default function AntifraudePage() {
                     ? 'border-destructive/40 bg-destructive/10 text-destructive'
                     : alerta.severidad === 'media'
                       ? 'border-warning-border bg-warning-soft text-warning'
-                      : 'border-border bg-white/[0.04] text-muted-foreground'
+                      : 'border-border bg-muted text-muted-foreground'
                 }`}
               >
                 <ShieldWarning className="size-5" weight="duotone" />

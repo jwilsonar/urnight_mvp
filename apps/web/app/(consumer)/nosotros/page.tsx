@@ -78,11 +78,18 @@ export default async function NosotrosPage() {
           >
             <div className="absolute inset-12 rounded-full bg-primary/10 blur-3xl" />
             <Image
+              src="/brand/icon-mark-light.png"
+              alt=""
+              width={831}
+              height={688}
+              className="absolute left-1/2 top-1/2 w-full max-w-[420px] -translate-x-1/2 -translate-y-1/2 -rotate-6 opacity-10 dark:hidden"
+            />
+            <Image
               src="/brand/icon-mark.png"
               alt=""
-              width={632}
-              height={622}
-              className="absolute left-1/2 top-1/2 w-full max-w-[420px] -translate-x-1/2 -translate-y-1/2 -rotate-6 opacity-10"
+              width={831}
+              height={681}
+              className="absolute left-1/2 top-1/2 hidden w-full max-w-[420px] -translate-x-1/2 -translate-y-1/2 -rotate-6 opacity-10 dark:block"
             />
             <div
               className="rv-float absolute right-[8%] top-[8%] h-48 w-36 rounded-xl border border-accent-border bg-[linear-gradient(150deg,var(--rv-wine),var(--bg-card))] p-4 shadow-glow"

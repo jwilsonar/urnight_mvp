@@ -12,6 +12,8 @@ const dto = {
   legalName: 'Discoteca Aurora S.A.C.',
   ruc: '20512345678',
   commercialName: 'Aurora Club',
+  termsAccepted: true as const,
+  legalDeclarationAccepted: true as const,
 };
 
 describe('SubmitAffiliationUseCase', () => {
@@ -25,6 +27,10 @@ describe('SubmitAffiliationUseCase', () => {
     expect(request.ruc).toBe('20512345678');
     expect(request.companyId).toBeNull();
     expect(request.localId).toBeNull();
+    expect(request.termsAccepted).toBe(true);
+    expect(request.termsAcceptedAt).toBeInstanceOf(Date);
+    expect(request.legalDeclarationAccepted).toBe(true);
+    expect(request.legalDeclarationAcceptedAt).toBeInstanceOf(Date);
     expect(requests.size).toBe(1);
   });
 

@@ -100,7 +100,7 @@ export default async function HomePage() {
     <div>
       {/* ===== Hero del prototipo: gradiente carmín→obsidian, glow respirando,
           titular Sora con la marca en glow y strip de stats ===== */}
-      <section className="relative overflow-hidden bg-[linear-gradient(180deg,var(--surface-3)_0%,var(--bg-root)_85%)]">
+      <section className="relative min-h-[calc(100svh-4rem)] overflow-hidden bg-[linear-gradient(180deg,var(--bg-surface)_0%,var(--bg-root)_85%)]">
         {/* Glow de fondo con parallax lento (capa profunda) */}
         <HeroParallax>
           <div
@@ -129,73 +129,100 @@ export default async function HomePage() {
             derecha para que el muro respire. */}
         <div
           aria-hidden
-          className="absolute inset-0 z-[1] bg-[linear-gradient(90deg,var(--bg-root)_0%,rgba(5,5,10,0.96)_40%,rgba(5,5,10,0.78)_68%,rgba(5,5,10,0.6)_100%)]"
+          className="absolute inset-0 z-[1] bg-[image:var(--hero-scrim)]"
         />
         {/* Spotlight: luz de club que sigue al cursor por todo el hero. */}
-        <Spotlight size={700} className="relative z-10">
-          <div className="mx-auto max-w-7xl px-4 pb-20 pt-20 sm:px-6 lg:px-8">
-            <Reveal depth>
-              <span className="rv-eyebrow inline-flex items-center gap-2 rounded-full border border-accent-border bg-accent px-4 py-2">
-                🔥 {t("hero.eyebrow")}
-              </span>
-            </Reveal>
-            <Reveal delay={80} depth>
-              <h1
-                aria-label={t("hero.titleAria")}
-                className="mt-6 max-w-3xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl"
-              >
-                {t("hero.titleLine1")}
-                <br />
-                {t("hero.titleLine2")}
-              </h1>
-            </Reveal>
-            <Image
-              src="/brand/lockup-horizontal.png"
-              alt="RAVENUE"
-              width={1292}
-              height={252}
-              priority
-              className="mt-5 h-auto w-[70vw] max-w-[420px]"
-            />
-            <Reveal delay={160} depth>
-              <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                {t("hero.description")}
-              </p>
-            </Reveal>
-            <Reveal delay={240}>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Button size="lg" asChild>
-                  <Link href="/events">
-                    {t("hero.eventsCta")} <ArrowRight className="size-4" />
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/locals">{t("hero.venuesCta")}</Link>
-                </Button>
-              </div>
-            </Reveal>
-            <Reveal delay={320}>
-              <dl className="mt-14 flex flex-wrap gap-x-12 gap-y-6 text-sm text-muted-foreground">
-                <div>
-                  <dd className="font-heading text-3xl font-extrabold text-foreground">
-                    320+
-                  </dd>
-                  <dt>{t("hero.stats.events")}</dt>
+        <Spotlight
+          size={700}
+          className="relative z-10 flex min-h-[calc(100svh-4rem)]"
+        >
+          <div className="mx-auto flex w-full max-w-7xl items-center px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-6 lg:px-8">
+            <div className="w-full max-w-3xl">
+              <Reveal depth>
+                <span className="rv-eyebrow inline-flex items-center gap-2 rounded-full border border-accent-border bg-accent px-4 py-2">
+                  🔥 {t("hero.eyebrow")}
+                </span>
+              </Reveal>
+              <Reveal delay={80} depth>
+                <h1 className="mt-[clamp(0.75rem,2svh,1.25rem)] max-w-3xl font-display text-[clamp(2.25rem,6svh,4rem)] font-black leading-[0.95] tracking-tight">
+                  <span className="block">{t("hero.titleLine1")}</span>
+                  <span className="block">
+                    {t("hero.titleLine2")}
+                    <span className="sr-only"> RAVENUE</span>
+                  </span>
+                </h1>
+              </Reveal>
+              <Reveal delay={120} depth>
+                <div
+                  aria-hidden
+                  className="mt-[clamp(0.625rem,1.5svh,1rem)] max-w-3xl"
+                >
+                  <Image
+                    src="/brand/wordmark-light.png"
+                    alt=""
+                    width={1611}
+                    height={121}
+                    priority
+                    className="h-[clamp(2.5rem,8svh,4rem)] w-auto max-w-full object-contain object-left dark:hidden"
+                  />
+                  <Image
+                    src="/brand/wordmark.png"
+                    alt=""
+                    width={1611}
+                    height={121}
+                    priority
+                    className="hidden h-[clamp(2.5rem,8svh,4rem)] w-auto max-w-full object-contain object-left dark:block"
+                  />
                 </div>
-                <div>
-                  <dd className="font-heading text-3xl font-extrabold text-foreground">
-                    85
-                  </dd>
-                  <dt>{t("hero.stats.venues")}</dt>
+              </Reveal>
+              <Reveal delay={160} depth>
+                <p className="mt-[clamp(0.75rem,2svh,1.25rem)] max-w-[60ch] text-[clamp(1rem,1.25vw,1.125rem)] leading-relaxed text-muted-foreground">
+                  {t("hero.description")}
+                </p>
+              </Reveal>
+              <Reveal delay={240}>
+                <div className="mt-[clamp(1rem,2.5svh,1.75rem)] grid w-full max-w-sm gap-2 sm:flex sm:max-w-none sm:flex-wrap sm:gap-3">
+                  <Button size="lg" asChild>
+                    <Link
+                      href="/events"
+                      className="w-full justify-center sm:w-64"
+                    >
+                      {t("hero.eventsCta")} <ArrowRight className="size-4" />
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="outline" asChild>
+                    <Link
+                      href="/locals"
+                      className="w-full justify-center sm:w-40"
+                    >
+                      {t("hero.venuesCta")}
+                    </Link>
+                  </Button>
                 </div>
-                <div>
-                  <dd className="font-heading text-3xl font-extrabold text-foreground">
-                    12k
-                  </dd>
-                  <dt>{t("hero.stats.people")}</dt>
-                </div>
-              </dl>
-            </Reveal>
+              </Reveal>
+              <Reveal delay={320}>
+                <dl className="mt-[clamp(1.25rem,3svh,2rem)] grid w-full max-w-xl grid-cols-2 gap-x-6 gap-y-3 text-sm text-muted-foreground sm:flex sm:flex-wrap sm:gap-x-12 sm:gap-y-4">
+                  <div>
+                    <dd className="font-heading text-[clamp(1.5rem,4vw,1.875rem)] font-extrabold leading-none tabular-nums text-foreground">
+                      320+
+                    </dd>
+                    <dt className="mt-1">{t("hero.stats.events")}</dt>
+                  </div>
+                  <div>
+                    <dd className="font-heading text-[clamp(1.5rem,4vw,1.875rem)] font-extrabold leading-none tabular-nums text-foreground">
+                      85
+                    </dd>
+                    <dt className="mt-1">{t("hero.stats.venues")}</dt>
+                  </div>
+                  <div>
+                    <dd className="font-heading text-[clamp(1.5rem,4vw,1.875rem)] font-extrabold leading-none tabular-nums text-foreground">
+                      12k
+                    </dd>
+                    <dt className="mt-1">{t("hero.stats.people")}</dt>
+                  </div>
+                </dl>
+              </Reveal>
+            </div>
           </div>
         </Spotlight>
       </section>
@@ -215,7 +242,11 @@ export default async function HomePage() {
             {genres.length > 0 ? (
               <Reveal delay={60}>
                 <div className="mb-7 flex flex-wrap gap-2.5">
-                  <Link href="/events" className="rv-chip" data-active="true">
+                  <Link
+                    href="/events"
+                    className="rv-chip w-[5.8125rem] justify-center"
+                    data-active="true"
+                  >
                     <Sparkle className="size-4" weight="duotone" /> {t("all")}
                   </Link>
                   {genres.slice(0, 7).map((g) => (
@@ -288,7 +319,7 @@ export default async function HomePage() {
                 Ojo: nunca en la última sección de la página (si no llega a
                 centrarse en el viewport se queda atenuada para siempre). */}
             <NightCamera>
-              <div className="overflow-hidden rounded-2xl border border-accent-border bg-[linear-gradient(110deg,var(--bg-elevated)_0%,var(--bg-base)_100%)]">
+              <div className="overflow-hidden rounded-2xl border border-accent-border bg-[linear-gradient(110deg,var(--bg-elevated)_0%,var(--bg-base)_100%)] shadow-float">
                 <div className="grid min-h-[340px] lg:grid-cols-[1.2fr_1fr]">
                   <div className="flex flex-col justify-center p-8 sm:p-12">
                     <span className="inline-flex items-center gap-2 self-start rounded-full border border-warning-border bg-[linear-gradient(90deg,var(--warning-soft),var(--accent-soft-strong))] px-4 py-1.5 text-xs font-bold tracking-wide text-warning">
@@ -303,13 +334,21 @@ export default async function HomePage() {
                     </p>
                     <div className="mt-6 flex flex-wrap items-center gap-3">
                       <Button asChild>
-                        <Link href={`/locals/${partner.slug}`}>
+                        <Link
+                          href={`/locals/${partner.slug}`}
+                          className="w-36 justify-center"
+                        >
                           {t("partner.viewVenue")}
                         </Link>
                       </Button>
                       {/* Reserva de mesa: flujo demo del prototipo (sin backend aún). */}
-                      <Button variant="ghost" asChild>
-                        <Link href="/reserva">{t("partner.bookTable")}</Link>
+                      <Button variant="outline" asChild>
+                        <Link
+                          href="/reserva"
+                          className="w-36 justify-center"
+                        >
+                          {t("partner.bookTable")}
+                        </Link>
                       </Button>
                       <Badge variant="info">{commonT("demo")}</Badge>
                     </div>

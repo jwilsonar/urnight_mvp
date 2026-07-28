@@ -44,7 +44,7 @@ export function ChipSelect({
                 aria-pressed={active}
                 onClick={() => onToggle(o.id)}
                 className={cn(
-                  "rounded-full border px-3 py-1 text-sm transition-colors",
+                  "whitespace-nowrap rounded-full border px-3 py-1 text-sm transition-colors",
                   active
                     ? "border-primary bg-primary text-primary-foreground"
                     : "bg-card text-muted-foreground hover:border-primary hover:text-foreground",

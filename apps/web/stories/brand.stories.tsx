@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { Logo } from '../components/shared/logo';
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { Logo } from "../components/shared/logo";
 
 /** Piezas de marca y paleta provisional del DS RAVENUE. */
 const meta = {
-  title: 'RAVENUE/Marca',
+  title: "RAVENUE/Marca",
 } satisfies Meta;
 
 export default meta;
@@ -26,22 +26,29 @@ export const PlaceholderImagen: Story = {
 };
 
 const PALETTE = [
-  { name: 'Obsidian Night', hex: '#09090D', token: 'var(--rv-obsidian)' },
-  { name: 'Midnight Carbon', hex: '#15151C', token: 'var(--bg-surface)' },
-  { name: 'Ravenue Crimson', hex: '#B21E45', token: 'var(--rv-crimson)' },
-  { name: 'Deep Wine', hex: '#6E1833', token: 'var(--rv-wine)' },
-  { name: 'Moon White', hex: '#F4F0F2', token: 'var(--rv-moon)' },
-  { name: 'Smoke Gray', hex: '#A8A4AE', token: 'var(--rv-smoke)' },
-  { name: 'Steel Border', hex: '#302E38', token: 'var(--rv-steel)' },
-  { name: 'Rose', hex: '#E8A2B8', token: 'var(--rv-rose)' },
+  { name: "Obsidian Night", hex: "#0A0A0D", token: "var(--rv-obsidian)" },
+  { name: "Charcoal Carbon", hex: "#16181B", token: "var(--bg-surface)" },
+  { name: "Ravenue Crimson", hex: "#E31732", token: "var(--rv-crimson)" },
+  { name: "Deep Wine", hex: "#7A0F1F", token: "var(--rv-wine)" },
+  { name: "Moon White", hex: "#F5F5F7", token: "var(--rv-moon)" },
+  { name: "Smoke Gray", hex: "#A3A8B3", token: "var(--rv-smoke)" },
+  { name: "Steel Border", hex: "#2F3440", token: "var(--rv-steel)" },
+  { name: "Soft Border", hex: "#3A404D", token: "var(--rv-border-soft)" },
 ] as const;
 
 export const Paleta: Story = {
   render: () => (
     <div className="grid max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {PALETTE.map((color) => (
-        <article key={color.name} className="overflow-hidden rounded-lg border bg-card">
-          <div className="h-24 border-b" style={{ backgroundColor: color.token }} aria-hidden="true" />
+        <article
+          key={color.name}
+          className="overflow-hidden rounded-lg border bg-card"
+        >
+          <div
+            className="h-24 border-b"
+            style={{ backgroundColor: color.token }}
+            aria-hidden="true"
+          />
           <div className="p-4">
             <p className="font-bold">{color.name}</p>
             <p className="mt-1 font-mono text-xs text-rose">{color.hex}</p>

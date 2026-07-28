@@ -14,9 +14,9 @@ export interface ZonaLocalDemo {
 
 export interface ReglaMetaDemo {
   id: string;
-  tipo: 'por_evento' | 'acumulada_mes';
+  tipo: "por_evento" | "acumulada_mes";
   umbral: number;
-  recompensaTipo: 'efectivo' | 'especie';
+  recompensaTipo: "efectivo" | "especie";
   recompensaValor: number;
   recompensaDetalle?: string;
   activa: boolean;
@@ -34,32 +34,44 @@ export interface PoliticaLocalDemo {
 }
 
 export const POLITICA_DEFAULT: PoliticaLocalDemo = {
-  localSlug: 'nocturna-club',
+  localSlug: "nocturna-club",
   adelantoPct: 50,
   splitConsumoPct: 90,
   reingresoPermitido: false,
   paloteoHabilitado: true,
   cupoCodigosPorPromotor: 30,
   zonas: [
-    { id: 'general', nombre: 'General', orden: 1, color: '#c62850', activa: true },
-    { id: 'vip', nombre: 'VIP', orden: 2, color: '#f59e0b', activa: true },
-    { id: 'super-vip', nombre: 'SUPER VIP', orden: 3, color: '#ef4444', activa: true },
+    {
+      id: "general",
+      nombre: "General",
+      orden: 1,
+      color: "#ff1f3d",
+      activa: true,
+    },
+    { id: "vip", nombre: "VIP", orden: 2, color: "#f59e0b", activa: true },
+    {
+      id: "super-vip",
+      nombre: "SUPER VIP",
+      orden: 3,
+      color: "#ef4444",
+      activa: true,
+    },
   ],
   metas: [
     {
-      id: 'meta-evento-20',
-      tipo: 'por_evento',
+      id: "meta-evento-20",
+      tipo: "por_evento",
       umbral: 20,
-      recompensaTipo: 'efectivo',
+      recompensaTipo: "efectivo",
       recompensaValor: 100,
-      recompensaDetalle: '+ 1 botella',
+      recompensaDetalle: "+ 1 botella",
       activa: true,
     },
     {
-      id: 'meta-mes-40',
-      tipo: 'acumulada_mes',
+      id: "meta-mes-40",
+      tipo: "acumulada_mes",
       umbral: 40,
-      recompensaTipo: 'efectivo',
+      recompensaTipo: "efectivo",
       recompensaValor: 150,
       activa: true,
     },
@@ -77,7 +89,7 @@ function politicaDefaultPara(localSlug: string): PoliticaLocalDemo {
 
 export function leerPoliticaDemo(localSlug: string): PoliticaLocalDemo {
   const fallback = politicaDefaultPara(localSlug);
-  if (typeof window === 'undefined') return fallback;
+  if (typeof window === "undefined") return fallback;
 
   try {
     const raw = localStorage.getItem(`ravenue.politica.${localSlug}`);
@@ -88,10 +100,13 @@ export function leerPoliticaDemo(localSlug: string): PoliticaLocalDemo {
 }
 
 export function guardarPoliticaDemo(politica: PoliticaLocalDemo): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
 
   try {
-    localStorage.setItem(`ravenue.politica.${politica.localSlug}`, JSON.stringify(politica));
+    localStorage.setItem(
+      `ravenue.politica.${politica.localSlug}`,
+      JSON.stringify(politica),
+    );
   } catch {
     /* storage bloqueado: la política conserva el estado en memoria del consumidor */
   }

@@ -39,8 +39,10 @@ export function PanelSidebar({
             aria-current={active ? 'page' : undefined}
             className={cn(
               'inline-flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-              // Item activo DS: tinte carmín + texto rosa.
-              active ? 'bg-accent text-rose' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground',
+              // Item activo DS: tinte carmín + texto de alto contraste.
+              active
+                ? 'bg-accent text-foreground'
+                : 'text-muted-foreground hover:bg-accent hover:text-foreground',
             )}
           >
             <Icon className="h-4 w-4" weight={active ? 'fill' : 'regular'} />

@@ -23,8 +23,12 @@ export default async function SavedPage() {
 
       <Tabs defaultValue="events">
         <TabsList>
-          <TabsTrigger value="events">{t("events")}</TabsTrigger>
-          <TabsTrigger value="locals">{t("venues")}</TabsTrigger>
+          <TabsTrigger value="events" className="min-w-28 justify-center">
+            {t("events")}
+          </TabsTrigger>
+          <TabsTrigger value="locals" className="min-w-28 justify-center">
+            {t("venues")}
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="events" className="pt-4">
           <FavoritesList filter="event" />

@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle } from "@phosphor-icons/react";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
@@ -16,6 +17,7 @@ import {
   AlertDescription,
   AlertTitle,
   Button,
+  Checkbox,
   Form,
   FormControl,
   FormDescription,
@@ -59,6 +61,18 @@ function createAffiliateFormSchema(
       .trim()
       .min(6, t("errors.contactPhone"))
       .max(20, t("errors.phoneLong")),
+    termsAccepted: z.preprocess(
+      (value) => value,
+      z.literal(true, {
+        errorMap: () => ({ message: t("errors.termsAccepted") }),
+      }),
+    ),
+    legalDeclarationAccepted: z.preprocess(
+      (value) => value,
+      z.literal(true, {
+        errorMap: () => ({ message: t("errors.legalDeclarationAccepted") }),
+      }),
+    ),
   });
 }
 
@@ -71,6 +85,7 @@ export function AffiliateForm() {
   const t = useTranslations("affiliate.form");
   const affiliateFormSchema = useMemo(() => createAffiliateFormSchema(t), [t]);
   const [submitted, setSubmitted] = useState<AffiliationResponse | null>(null);
+  const [legalAttempted, setLegalAttempted] = useState(false);
 
   const form = useForm<
     z.input<typeof affiliateFormSchema>,
@@ -87,8 +102,14 @@ export function AffiliateForm() {
       contactName: "",
       contactEmail: "",
       contactPhone: "",
+      termsAccepted: false,
+      legalDeclarationAccepted: false,
     },
   });
+  const termsAccepted = form.watch("termsAccepted") === true;
+  const legalDeclarationAccepted =
+    form.watch("legalDeclarationAccepted") === true;
+  const legalReady = termsAccepted && legalDeclarationAccepted;
 
   const mutation = useApiMutation({
     mutationFn: (values: SubmitAffiliationDto) => submitAffiliation(values),
@@ -98,10 +119,22 @@ export function AffiliateForm() {
   });
 
   function onSubmit(values: AffiliateFormValues) {
-    mutation.mutate({
+    const payload = submitAffiliationSchema.parse({
       ...values,
       socials: blank(values.socials),
     });
+    mutation.mutate(payload);
+  }
+
+  function revealLegalErrors() {
+    setLegalAttempted(true);
+    void form
+      .trigger(["termsAccepted", "legalDeclarationAccepted"])
+      .then(() => {
+        form.setFocus(
+          termsAccepted ? "legalDeclarationAccepted" : "termsAccepted",
+        );
+      });
   }
 
   if (submitted) {
@@ -125,7 +158,14 @@ export function AffiliateForm() {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={(event) => {
+          if (!legalReady) {
+            event.preventDefault();
+            revealLegalErrors();
+            return;
+          }
+          void form.handleSubmit(onSubmit)(event);
+        }}
         className="space-y-4"
         noValidate
       >
@@ -277,7 +317,97 @@ export function AffiliateForm() {
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={mutation.isPending}>
+        <div className="space-y-3">
+          <FormField
+            control={form.control}
+            name="termsAccepted"
+            render={({ field }) => (
+              <FormItem className="flex min-h-[5.75rem] flex-row items-start gap-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    className="mt-1"
+                    checked={field.value === true}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked === true);
+                      if (legalAttempted) {
+                        void form.trigger("termsAccepted");
+                      }
+                    }}
+                    onBlur={field.onBlur}
+                    name={field.name}
+                    ref={field.ref}
+                  />
+                </FormControl>
+                <div className="min-w-0 flex-1">
+                  <FormLabel className="block min-h-[5.75rem] cursor-pointer font-normal leading-relaxed text-muted-foreground">
+                    {t.rich("legal.termsConsent", {
+                      terms: (chunks) => (
+                        <Link
+                          href="/legal/terms"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-foreground underline underline-offset-4"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          {chunks}
+                        </Link>
+                      ),
+                      privacy: (chunks) => (
+                        <Link
+                          href="/legal/privacy"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-foreground underline underline-offset-4"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          {chunks}
+                        </Link>
+                      ),
+                    })}
+                  </FormLabel>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="legalDeclarationAccepted"
+            render={({ field }) => (
+              <FormItem className="flex min-h-[5.75rem] flex-row items-start gap-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    className="mt-1"
+                    checked={field.value === true}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked === true);
+                      if (legalAttempted) {
+                        void form.trigger("legalDeclarationAccepted");
+                      }
+                    }}
+                    onBlur={field.onBlur}
+                    name={field.name}
+                    ref={field.ref}
+                  />
+                </FormControl>
+                <div className="min-w-0 flex-1">
+                  <FormLabel className="block min-h-[5.75rem] cursor-pointer font-normal leading-relaxed text-muted-foreground">
+                    {t("legal.declaration")}
+                  </FormLabel>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+          disabled={mutation.isPending}
+          aria-disabled={!legalReady}
+        >
           {mutation.isPending ? t("sending") : t("submit")}
         </Button>
       </form>

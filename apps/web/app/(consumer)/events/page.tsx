@@ -91,7 +91,7 @@ export default async function EventsPage({
         <div className="mb-8 flex flex-wrap gap-2.5">
           <Link
             href={chipHref()}
-            className="rv-chip"
+            className="rv-chip w-[5.8125rem] justify-center"
             data-active={!filters.genreId}
           >
             <Sparkle className="size-4" weight="duotone" /> {t("all")}

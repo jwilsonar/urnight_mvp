@@ -26,7 +26,7 @@ export function PanelNavbar({
 }) {
   return (
     /* Navbar DS: fill oscuro translúcido + blur, hairline inferior. */
-    <header className="sticky top-0 z-40 w-full border-b bg-background/70 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-xl">
       <div className="flex h-16 items-center gap-3 px-4 sm:px-6">
         {showMenu ? (
           <Button

@@ -6,16 +6,16 @@ const FINAL_ASSETS = [
   {
     key: "wordmark",
     src: "/brand/wordmark.png",
-    width: 1168,
-    height: 104,
+    width: 1611,
+    height: 121,
     imageClassName: "h-auto w-full max-w-xl",
     primary: true,
   },
   {
     key: "icon",
     src: "/brand/icon-mark.png",
-    width: 632,
-    height: 622,
+    width: 831,
+    height: 681,
     imageClassName: "size-32 object-contain sm:size-40",
     primary: false,
   },
@@ -32,7 +32,7 @@ export function LogoDirections() {
             key={asset.key}
             className="flex h-full flex-col overflow-hidden"
           >
-            <div className="flex min-h-56 items-center justify-center border-b bg-surface px-8 py-10">
+            <div className="flex min-h-56 items-center justify-center border-b bg-[var(--rv-obsidian)] px-8 py-10">
               <Image
                 src={asset.src}
                 alt={t(`assets.${asset.key}.title`)}

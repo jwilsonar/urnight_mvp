@@ -68,7 +68,7 @@ function InfoRow({
   value: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-md border bg-white/[0.03] px-4 py-3.5">
+    <div className="flex items-center gap-4 rounded-md border bg-field px-4 py-3.5">
       <div className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-accent text-rose [&_svg]:size-4">
         {icon}
       </div>
@@ -137,9 +137,14 @@ export default async function EventDetailPage({
             <span>{t("heroPlaceholder", { name: event.name })}</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,10,0.2)_35%,var(--bg-root)_100%)]" />
+        <div className="absolute inset-0 bg-[image:var(--detail-scrim)]" />
         <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <Button variant="secondary" size="sm" asChild>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="bg-background/90 shadow-sm backdrop-blur hover:bg-background"
+            asChild
+          >
             <Link href="/events">
               <ArrowLeft className="size-3.5" /> {t("back")}
             </Link>

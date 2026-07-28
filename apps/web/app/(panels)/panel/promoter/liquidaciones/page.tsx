@@ -76,7 +76,7 @@ export default function LiquidacionesPage() {
             {LIQUIDACIONES_DEMO.map((l) => {
               const estado = ESTADO[l.estado] ?? ESTADO.pagada!;
               return (
-                <TableRow key={l.periodo}>
+                <TableRow key={l.periodo} className="even:bg-muted/30 hover:bg-accent">
                   <TableCell className="font-semibold">{l.periodo}</TableCell>
                   <TableCell>{l.ventas}</TableCell>
                   <TableCell className="font-bold">{l.comision}</TableCell>

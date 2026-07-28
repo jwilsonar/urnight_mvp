@@ -62,6 +62,11 @@
       "label": "Language",
       "spanish": "ES · Español",
       "english": "EN · English"
+    },
+    "theme": {
+      "change": "Change theme",
+      "activateLight": "Switch to light mode",
+      "activateDark": "Switch to dark mode"
     }
   },
   "nav": {
@@ -131,7 +136,7 @@
       "stats": {
         "events": "Events this month",
         "venues": "Verified venues",
-        "people": "Happy night owls"
+        "people": "Happy guests"
       }
     },
     "featured": {
@@ -201,13 +206,7 @@
       "noSpots": "No spots left",
       "spots": "{count, plural, one {# spot} other {# spots}}",
       "spotsAvailable": "Spots available",
-      "viewEvent": "View event",
-      "viewInformation": "View details",
-      "detail": "Event details",
-      "capacity": "Capacity",
-      "noCapacity": "Capacity not set",
-      "ticketsSoldAria": "Tickets sold: {sold} of {capacity}",
-      "flipBack": "Back to the front of the ticket"
+      "viewEvent": "View event"
     },
     "detail": {
       "metadataDescription": "Tickets for {name} on RAVENUE.",
@@ -295,11 +294,7 @@
       "facade": "Venue exterior",
       "verified": "Verified",
       "features": "Events, menu, and reservations",
-      "viewVenue": "View venue",
-      "viewInformation": "View details",
-      "detail": "Venue information",
-      "fallbackDescription": "Explore upcoming events, the menu, and booking options.",
-      "flipBack": "Back to the front of the venue card"
+      "viewVenue": "View venue"
     },
     "crowd": {
       "title": "Crowd right now",
@@ -331,7 +326,7 @@
       "mapUnavailable": "Map unavailable"
     },
     "gallery": {
-      "photoAlt": "{name} — photo {number}",
+      "photoAlt": "{name}, photo {number}",
       "viewGallery": "View gallery ({count})",
       "title": "{name} gallery",
       "photoCount": "{count, plural, one {# photo} other {# photos}}",
@@ -445,7 +440,7 @@
     }
   },
   "footer": {
-    "homeAria": "RAVENUE — home",
+    "homeAria": "RAVENUE, home",
     "tagline": "Where the night finds its place.",
     "about": {
       "title": "Discover",
@@ -462,7 +457,7 @@
       "additionalUses": "Additional use clauses"
     },
     "follow": "Follow us",
-    "comingSoonTitle": "{network} — coming soon",
+    "comingSoonTitle": "{network}: coming soon",
     "comingSoonAria": "{network} (coming soon)",
     "help": "Help",
     "contact": "Contact us",
@@ -470,6 +465,24 @@
     "cookiesCleared": "Cookies cleared",
     "complaintsBook": "Complaints Book",
     "copyright": "Copyright © RAVENUE {year} · All rights reserved. Adults 18+ only."
+  },
+  "register": {
+    "form": {
+      "passwordHelper": "Use at least 8 characters with uppercase and lowercase letters, numbers, and symbols.",
+      "phoneHint": "9 digits, starting with 9.",
+      "errors": {
+        "passwordLength": "The password must be at least 8 characters long.",
+        "passwordLong": "The password cannot exceed 72 characters.",
+        "passwordUppercase": "The password must include at least one uppercase letter.",
+        "passwordLowercase": "The password must include at least one lowercase letter.",
+        "passwordNumber": "The password must include at least one number.",
+        "passwordSymbol": "The password must include at least one symbol.",
+        "phoneRequired": "Enter your mobile number.",
+        "phone": "The phone number must have 9 digits and start with 9.",
+        "dni": "The DNI must have 8 digits.",
+        "document": "The ID number must have between 8 and 20 characters."
+      }
+    }
   },
   "account": {
     "title": "My account",
@@ -485,7 +498,19 @@
       "referrals": "Referrals",
       "notifications": "Notifications",
       "invitations": "Invitations",
-      "friends": "Friends"
+      "friends": "Friends",
+      "appearance": "Appearance"
+    },
+    "appearance": {
+      "metadataTitle": "Appearance",
+      "title": "Appearance",
+      "description": "Choose how RAVENUE looks on this device.",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark",
+      "systemHint": "Use your device setting.",
+      "lightHint": "Light backgrounds and dark text.",
+      "darkHint": "The default RAVENUE experience."
     },
     "profile": {
       "metadataTitle": "Profile and settings",
@@ -600,7 +625,7 @@
     "friends": {
       "title": "Friends",
       "pageDescription": "Find your crew and look back on the nights you've shared.",
-      "demo": "Demo — coming with the social backend",
+      "demo": "Demo: coming with the social backend",
       "kpis": {
         "total": "Total friends",
         "requests": "Pending requests",
@@ -635,7 +660,7 @@
     "wallet": {
       "title": "RAVENUE Wallet",
       "description": "Your balance, refunds, and transactions in one place.",
-      "demo": "Demo — coming with the wallet backend",
+      "demo": "Demo: coming with the wallet backend",
       "availableBalance": "Available balance",
       "equivalence": "≈ 1 premium bottle · ≈ 2 general admission tickets",
       "topUp": "Add funds",
@@ -659,7 +684,7 @@
     "reservations": {
       "title": "My reservations",
       "description": "Your table bookings: codes, statuses, and details.",
-      "demo": "Demo — coming with the reservations backend",
+      "demo": "Demo: coming with the reservations backend",
       "status": {
         "confirmada": "Confirmed",
         "pendiente": "Payment pending",
@@ -681,7 +706,7 @@
     "referrals": {
       "title": "Referral program",
       "description": "Bring your friends. Earn points. Get a free VIP night.",
-      "demo": "Demo — coming with the referrals backend",
+      "demo": "Demo: coming with the referrals backend",
       "inviteCode": "Your invitation code",
       "copied": "Copied",
       "copyLink": "Copy link",
@@ -737,7 +762,7 @@
   "puntos": {
     "title": "Points",
     "description": "Check your balance, choose rewards, and see how you earned your points.",
-    "demo": "Demo — coming with the loyalty backend",
+    "demo": "Demo: coming with the loyalty backend",
     "balance": "Available balance",
     "pointsShort": "pts",
     "equivalent": "Worth {amount}",
@@ -767,7 +792,7 @@
     },
     "redemptionGrid": {
       "pointsShort": "pts",
-      "successTitle": "Redeemed — enjoy!",
+      "successTitle": "Redeemed. Enjoy!",
       "missing": "You need {count} more pts",
       "redeem": "Redeem",
       "successDescription": "{item} is now available in your account.",
@@ -803,7 +828,7 @@
       "metadataTitle": "Levels and badges",
       "title": "Your RAVENUE level",
       "description": "Earn points to level up. Each level unlocks new perks.",
-      "demo": "Demo — coming with the points backend",
+      "demo": "Demo: coming with the points backend",
       "currentLevel": "Current level",
       "pointsShort": "pts",
       "nextLevel": "Next level",
@@ -858,7 +883,7 @@
   },
   "checkout": {
     "title": "Checkout",
-    "homeAria": "RAVENUE — home",
+    "homeAria": "RAVENUE, home",
     "securePayment": "Secure checkout",
     "eventUnavailable": "This event doesn't have tickets on sale right now.",
     "ticketsLoadError": "We couldn't load the tickets right now. Please try again in a few minutes.",
@@ -909,7 +934,7 @@
     "attendee": {
       "title": "Attendee {number}",
       "remove": "Remove",
-      "useMyDetails": "That's me — use my account details",
+      "useMyDetails": "That's me: use my account details",
       "fullName": "Full name",
       "fullNamePlaceholder": "First and last name",
       "document": "ID document",
@@ -938,7 +963,7 @@
     },
     "title": "Book your table",
     "secure": "Secure booking",
-    "demo": "Demo — simulated booking",
+    "demo": "Demo: simulated booking",
     "progress": "Booking progress",
     "steps": {
       "table": "Table",
@@ -966,7 +991,7 @@
       "description": "{table} for {count} people · arrival at {time}. Show this code at the door:",
       "creditActive": "Your {amount} spending credit is now active on the venue menu",
       "noReentry": "This venue does not allow re-entry once you're inside",
-      "backendDemo": "Demo — live bookings and QR codes are coming with the backend",
+      "backendDemo": "Demo: live bookings and QR codes are coming with the backend",
       "moreEvents": "See more events",
       "home": "Back to home"
     },
@@ -986,7 +1011,7 @@
       "minimum": "Min. {amount}",
       "deposit": "Deposit {amount}",
       "depositTitle": "Your deposit is applied to your venue spend.",
-      "depositDescription": "It isn't an extra fee — if you spend above the minimum, you only pay the difference at the venue."
+      "depositDescription": "It isn't an extra fee. If you spend above the minimum, you only pay the difference at the venue."
     },
     "floor": {
       "aria": "Venue floor plan",
@@ -1007,7 +1032,7 @@
       "hostPlaceholder": "e.g. Piero Rivera",
       "hostError": "Enter the name of the booking holder.",
       "birthday": "It's my birthday",
-      "birthdayHint": "We'll let the venue know — they may have a surprise ready",
+      "birthdayHint": "We'll let the venue know; they may have a surprise ready",
       "birthdayBadge": "Birthday",
       "notes": "Notes for the venue (optional)",
       "notesPlaceholder": "e.g. We may arrive a little late; one friend has a peanut allergy…"
@@ -1235,7 +1260,7 @@
       "creditRedeemed": "You used {amount} of your spending credit",
       "remainingBalance": "You have {amount} left",
       "orderMore": "Order something else",
-      "demo": "Demo — status updates automatically"
+      "demo": "Demo: status updates automatically"
     },
     "status": {
       "aria": "Order status",
@@ -1263,7 +1288,7 @@
       "paid": "Paid",
       "linkSent": "Link sent",
       "sendLink": "Send link",
-      "demo": "Demo — links don't create real charges"
+      "demo": "Demo: links don't create real charges"
     }
   },
   "affiliate": {
@@ -1277,7 +1302,7 @@
     "stats": {
       "venues": "Venues",
       "events": "Events per month",
-      "nightOwls": "Night owls"
+      "nightOwls": "People"
     },
     "benefits": {
       "1": "Fast entry without the lines",
@@ -1299,8 +1324,8 @@
         "description": "Define areas, bookings, and promoters around the way your operation actually works."
       },
       "3": {
-        "title": "Move beyond spreadsheets",
-        "description": "Manage sales, entry, and results through one shared workflow for your whole team."
+        "title": "Operate with ease",
+        "description": "Keep bookings, guest lists, and comps in one dashboard, always up to date."
       }
     },
     "form": {
@@ -1313,7 +1338,9 @@
         "contactEmail": "Enter a contact email.",
         "email": "Enter a valid email.",
         "contactPhone": "Enter a contact phone number.",
-        "phoneLong": "The phone number is too long."
+        "phoneLong": "The phone number is too long.",
+        "termsAccepted": "You must accept the Terms and Conditions and Privacy Policy.",
+        "legalDeclarationAccepted": "You must confirm that the venue has all current permits required to operate."
       },
       "successToast": "Application sent. We'll contact you soon.",
       "successTitle": "Application received",
@@ -1340,6 +1367,11 @@
       "optional": "(optional)",
       "socialsPlaceholder": "https://instagram.com/yourvenue · @yourvenue on TikTok · yoursite.com",
       "socialsHint": "Paste links or social handles, separated by commas.",
+      "legal": {
+        "termsConsent": "I accept RAVENUE's venue affiliation <terms>Terms and Conditions</terms> and <privacy>Privacy Policy</privacy>.",
+        "declaration": "I declare that the venue has all current permits required to operate: a business operating license, authorization to sell alcoholic beverages, a safety inspection certificate (ITSE), and all other requirements under Peruvian law.",
+        "required": "You must accept both legal consents before sending the application."
+      },
       "sending": "Sending…",
       "submit": "Send application"
     }
@@ -1387,17 +1419,17 @@
     "stats": {
       "events": "Events this month",
       "venues": "Verified venues",
-      "nightOwls": "Happy night owls"
+      "nightOwls": "Happy guests"
     },
     "history": { "eyebrow": "Our story", "title": "What drives us" },
     "sections": {
       "mission": {
         "title": "Our mission",
-        "body": "Make going out simple and safe. We want you to discover where to go, buy tickets without scalpers, and make plans with friends in seconds."
+        "body": "Make going out simple and safe. We want you to discover where to go, buy your ticket, and make plans with friends in seconds."
       },
       "whatWeDo": {
         "title": "What we do",
-        "body": "We connect night owls with verified venues. Tickets, table bookings, guest lists, and perks — all in an experience built for nightlife."
+        "body": "We connect you with verified venues. Tickets, table bookings, guest lists, and perks, all in an experience built for nightlife."
       },
       "venues": {
         "title": "For venues",
@@ -1456,7 +1488,7 @@
   },
   "guest": { "metadataTitle": "Guest list" },
   "invitado": {
-    "demoBadge": "Demo — guest list",
+    "demoBadge": "Demo: guest list",
     "invalid": {
       "title": "Invalid or expired link",
       "description": "Ask the promoter for an active link to join their guest list."
@@ -1494,7 +1526,7 @@
     "success": {
       "title": "Submission registered",
       "description": "Your {type} was registered under code <strong>{code}</strong>. You'll receive a response at the email provided within 15 business days.",
-      "demo": "Demo — live submissions are coming with the support backend"
+      "demo": "Demo: live submissions are coming with the support backend"
     },
     "form": {
       "type": "Request type",
@@ -1508,7 +1540,7 @@
       "emailPlaceholder": "you@email.com",
       "detail": "Complaint or claim details",
       "detailPlaceholder": "Tell us what happened, including the date, event, or venue when relevant…",
-      "demo": "Demo — support backend not connected yet",
+      "demo": "Demo: support backend not connected yet",
       "submit": "Submit form"
     }
   },
@@ -1520,11 +1552,11 @@
     "stats": {
       "events": "Events per month",
       "venues": "Venues",
-      "nightOwls": "Night owls"
+      "nightOwls": "People"
     },
     "benefits": {
       "1": "Your own link, so guests can claim codes themselves",
-      "2": "Clear goals and bonuses, without spreadsheet disputes",
+      "2": "Clear goals and bonuses, without disputes.",
       "3": "Commission on booth and table sales",
       "4": "Transparent payouts"
     },
@@ -1554,7 +1586,7 @@
       },
       "socials": {
         "label": "Social media",
-        "placeholder": "Instagram, TikTok, etc. — tell us about your reach.",
+        "placeholder": "Instagram, TikTok, etc. Tell us about your reach.",
         "description": "Share links that showcase your community."
       }
     },
@@ -1737,7 +1769,7 @@
     "storybook": "Storybook (design system components): run <code>pnpm --filter @urnight/web storybook</code> and open localhost:6006.",
     "groups": [
       {
-        "title": "1 · B2C — Discovery",
+        "title": "1 · B2C: Discovery",
         "screens": [
           {
             "route": "/",
@@ -2094,13 +2126,14 @@
   "brand": {
     "metadataTitle": "Brand Lab",
     "hero": {
-      "eyebrow": "Brand Lab — final identity",
+      "eyebrow": "Brand Lab: final identity",
       "tagline": "Where nightlife finds its place."
     },
     "logo": {
-      "eyebrow": "01 — Logo system",
+      "eyebrow": "01 · Logo system",
       "title": "Final identity",
       "description": "The wordmark and angular V form the definitive system for RAVENUE brand touchpoints.",
+      "darkBackground": "On a dark background",
       "primary": "Primary",
       "usage": "Use",
       "historyLabel": "Archive note",
@@ -2119,7 +2152,7 @@
       }
     },
     "color": {
-      "eyebrow": "02 — Color",
+      "eyebrow": "02 · Color",
       "title": "Obsidian, moonlight, and crimson",
       "description": "A restrained nighttime base where crimson is reserved for brand and action.",
       "composition": "Composition rule",
@@ -2137,7 +2170,7 @@
       }
     },
     "typography": {
-      "eyebrow": "03 — Typography",
+      "eyebrow": "03 · Typography",
       "title": "Sora draws attention. Inter guides the way.",
       "displaySample": "Nightlife finds its place.",
       "displayUsage": "Sora 700 · headlines, campaigns, and brand moments.",
@@ -2148,7 +2181,7 @@
       "bodyUsage": "Inter 400–700 · navigation, data, forms, and body copy."
     },
     "components": {
-      "eyebrow": "04 — Components",
+      "eyebrow": "04 · Components",
       "title": "Tokens on the real product",
       "description": "Design-system states rendered with the new palette.",
       "actions": "Actions and states",
@@ -2165,13 +2198,13 @@
       "access": "Verified entry and limited capacity."
     },
     "semantics": {
-      "eyebrow": "05 — Semantics",
+      "eyebrow": "05 · Semantics",
       "title": "Brand crimson is not an error",
       "error": "Error",
       "description": "Brand actions use a cool, deep crimson. Error states keep a brighter red to distinguish brand intent from functional alerts."
     },
     "voice": {
-      "eyebrow": "06 — Voice",
+      "eyebrow": "06 · Voice",
       "title": "Candidate messages",
       "context": "Context",
       "messages": "Messages",
@@ -2201,13 +2234,13 @@
       ]
     },
     "atmosphere": {
-      "eyebrow": "07 — Atmosphere",
+      "eyebrow": "07 · Atmosphere",
       "title": "Signature gradient",
       "depth": "Nighttime depth without losing clarity.",
       "luxury": "Luxury"
     },
     "motion": {
-      "eyebrow": "08 — Motion",
+      "eyebrow": "08 · Motion",
       "title": "Fast, clear, and controlled",
       "description": "Standard durations for feedback, component transitions, and page changes.",
       "tokens": {

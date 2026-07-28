@@ -178,7 +178,10 @@ export default function PlMesasPage() {
               {RESERVAS_DIA_DEMO.map((r) => {
                 const estado = ESTADO_RESERVA[r.estado] ?? ESTADO_RESERVA.confirmada!;
                 return (
-                  <TableRow key={`${r.hora}-${r.mesa}`}>
+                  <TableRow
+                    key={`${r.hora}-${r.mesa}`}
+                    className="even:bg-muted/30 hover:bg-accent"
+                  >
                     <TableCell className="font-mono text-xs">{r.hora}</TableCell>
                     <TableCell className="font-semibold">{r.mesa}</TableCell>
                     <TableCell>

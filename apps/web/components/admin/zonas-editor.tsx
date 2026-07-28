@@ -1,11 +1,23 @@
-'use client';
+"use client";
 
-import { CaretDown, CaretUp, MapPinArea, Plus, Trash } from '@phosphor-icons/react';
-import { Button, Checkbox, Input, cn } from '@urnight/ui';
-import { EmptyState } from '@/components/shared/empty-state';
-import type { ZonaLocalDemo } from '@/lib/mock/politica';
+import {
+  CaretDown,
+  CaretUp,
+  MapPinArea,
+  Plus,
+  Trash,
+} from "@phosphor-icons/react";
+import { Button, Checkbox, Input, cn } from "@urnight/ui";
+import { EmptyState } from "@/components/shared/empty-state";
+import type { ZonaLocalDemo } from "@/lib/mock/politica";
 
-const COLORES_ZONA = ['#c62850', '#f59e0b', '#ef4444', '#22c55e', '#38bdf8'] as const;
+const COLORES_ZONA = [
+  "#ff1f3d",
+  "#f59e0b",
+  "#ef4444",
+  "#22c55e",
+  "#38bdf8",
+] as const;
 
 interface ZonasEditorProps {
   value: ZonaLocalDemo[];
@@ -18,7 +30,9 @@ function conOrden(zonas: ZonaLocalDemo[]): ZonaLocalDemo[] {
 
 export function ZonasEditor({ value, onChange }: ZonasEditorProps) {
   function actualizar(id: string, cambio: Partial<ZonaLocalDemo>) {
-    onChange(value.map((zona) => (zona.id === id ? { ...zona, ...cambio } : zona)));
+    onChange(
+      value.map((zona) => (zona.id === id ? { ...zona, ...cambio } : zona)),
+    );
   }
 
   function mover(indice: number, delta: -1 | 1) {
@@ -40,9 +54,9 @@ export function ZonasEditor({ value, onChange }: ZonasEditorProps) {
       ...value,
       {
         id,
-        nombre: 'Nueva zona',
+        nombre: "Nueva zona",
         orden: value.length + 1,
-        color: COLORES_ZONA[value.length % COLORES_ZONA.length] ?? '#c62850',
+        color: COLORES_ZONA[value.length % COLORES_ZONA.length] ?? "#ff1f3d",
         activa: true,
       },
     ]);
@@ -74,15 +88,20 @@ export function ZonasEditor({ value, onChange }: ZonasEditorProps) {
         {value.map((zona, indice) => (
           <div
             key={zona.id}
-            className="grid gap-3 rounded-md border bg-white/[0.02] p-3.5 lg:grid-cols-[minmax(180px,1fr)_auto_auto_auto] lg:items-center"
+            className="grid gap-3 rounded-md border bg-muted/30 p-3.5 lg:grid-cols-[minmax(180px,1fr)_auto_auto_auto] lg:items-center"
           >
             <Input
               value={zona.nombre}
-              onChange={(event) => actualizar(zona.id, { nombre: event.target.value })}
+              onChange={(event) =>
+                actualizar(zona.id, { nombre: event.target.value })
+              }
               aria-label={`Nombre de la zona ${indice + 1}`}
             />
 
-            <div className="flex items-center gap-1.5" aria-label={`Color de ${zona.nombre}`}>
+            <div
+              className="flex items-center gap-1.5"
+              aria-label={`Color de ${zona.nombre}`}
+            >
               {COLORES_ZONA.map((color) => (
                 <button
                   key={color}
@@ -91,8 +110,8 @@ export function ZonasEditor({ value, onChange }: ZonasEditorProps) {
                   aria-pressed={zona.color === color}
                   onClick={() => actualizar(zona.id, { color })}
                   className={cn(
-                    'size-7 rounded-full border-2 border-background ring-offset-2 ring-offset-background transition-shadow',
-                    zona.color === color && 'ring-2 ring-primary',
+                    "size-7 rounded-full border-2 border-background ring-offset-2 ring-offset-background transition-shadow",
+                    zona.color === color && "ring-2 ring-primary",
                   )}
                   style={{ backgroundColor: color }}
                 />
@@ -102,7 +121,9 @@ export function ZonasEditor({ value, onChange }: ZonasEditorProps) {
             <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold">
               <Checkbox
                 checked={zona.activa}
-                onCheckedChange={(checked) => actualizar(zona.id, { activa: checked === true })}
+                onCheckedChange={(checked) =>
+                  actualizar(zona.id, { activa: checked === true })
+                }
               />
               Activa
             </label>

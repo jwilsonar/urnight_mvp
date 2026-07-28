@@ -129,6 +129,12 @@ export const affiliationRequest = pgTable(
     contactName: varchar('contact_name', { length: 160 }),
     contactEmail: varchar('contact_email', { length: 160 }),
     contactPhone: varchar('contact_phone', { length: 20 }),
+    termsAccepted: boolean('terms_accepted').notNull().default(false),
+    termsAcceptedAt: timestamp('terms_accepted_at', { withTimezone: true }),
+    legalDeclarationAccepted: boolean('legal_declaration_accepted').notNull().default(false),
+    legalDeclarationAcceptedAt: timestamp('legal_declaration_accepted_at', {
+      withTimezone: true,
+    }),
     status: varchar('status', { length: 12 }).notNull().default('pending'),
     rejectionReason: varchar('rejection_reason', { length: 255 }),
     submittedBy: uuid('submitted_by').references(() => user.id, { onDelete: 'set null' }),
@@ -142,6 +148,14 @@ export const affiliationRequest = pgTable(
     check(
       'affiliation_request_status_check',
       sql`${t.status} in ('pending','approved','rejected')`,
+    ),
+    check(
+      'affiliation_request_terms_acceptance_check',
+      sql`(${t.termsAccepted} = false and ${t.termsAcceptedAt} is null) or (${t.termsAccepted} = true and ${t.termsAcceptedAt} is not null)`,
+    ),
+    check(
+      'affiliation_request_legal_declaration_acceptance_check',
+      sql`(${t.legalDeclarationAccepted} = false and ${t.legalDeclarationAcceptedAt} is null) or (${t.legalDeclarationAccepted} = true and ${t.legalDeclarationAcceptedAt} is not null)`,
     ),
   ],
 );

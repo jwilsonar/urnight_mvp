@@ -41,9 +41,9 @@ export default function PlCheckinPage() {
           </div>
           <Badge variant={pct >= 90 ? 'warning' : 'success'}>{pct}% del aforo</Badge>
         </div>
-        <div className="mt-4 h-3 overflow-hidden rounded-full bg-white/[0.06]">
+        <div className="mt-4 h-3 overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full rounded-full bg-[linear-gradient(90deg,var(--color-primary),#f59e0b)]"
+            className="h-full rounded-full bg-[linear-gradient(90deg,var(--color-primary),var(--color-warning))]"
             style={{ width: `${pct}%` }}
           />
         </div>

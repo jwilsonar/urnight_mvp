@@ -228,7 +228,10 @@ export function CartaManager() {
             {visible.map((item) => (
               <TableRow
                 key={item.id}
-                className={cn('transition-opacity duration-200', !item.available && 'opacity-50')}
+                className={cn(
+                  'even:bg-muted/30 hover:bg-accent transition-opacity duration-200',
+                  !item.available && 'opacity-50',
+                )}
               >
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -243,7 +246,7 @@ export function CartaManager() {
                     </div>
                     <div className="min-w-0">
                       <p className="truncate font-semibold">{item.name}</p>
-                      <p className="max-w-56 truncate text-xs text-muted-foreground">
+                      <p className="line-clamp-2 max-w-64 text-xs leading-relaxed text-muted-foreground">
                         {item.description}
                       </p>
                     </div>

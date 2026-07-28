@@ -88,10 +88,10 @@ export default async function AyudaPage() {
             {t("contact.description")}
           </p>
           <Button asChild>
-            <a href="mailto:soporte@ravenue.pe">
+            <Link href="/contacto">
               <EnvelopeSimple className="size-4" weight="duotone" />{" "}
               {t("contact.action")}
-            </a>
+            </Link>
           </Button>
         </div>
       </Reveal>

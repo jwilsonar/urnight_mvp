@@ -1,23 +1,19 @@
 'use client';
 
 /**
- * Ticket holográfico: la card se inclina bajo el puntero, el foil difracta según
- * esa inclinación y (opcional) se voltea para enseñar el reverso.
+ * Ticket holográfico: la card se inclina bajo el puntero y el foil difracta
+ * según esa inclinación.
  *
  * Todo el aspecto vive en `.rv-holo*` (globals.css); aquí solo alimentamos sus
- * variables CSS. Nunca con setState: un re-render por frame multiplicado por una
- * grilla de cards se come el scroll. El estado de React es solo `flipped`, que es
- * discreto.
+ * variables CSS. Nunca con setState por frame: multiplicado por una grilla de
+ * cards se comería el scroll.
  */
 
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useRef,
   useState,
-  type KeyboardEvent,
   type PointerEvent,
   type ReactNode,
 } from 'react';
@@ -29,14 +25,6 @@ import { cn } from '@urnight/ui';
  * lee como "holograma" y no como "un gradiente que se mueve".
  */
 const FOIL_GAIN = 1.8;
-
-const LABELS = {
-  toBack: 'Ver el reverso del ticket',
-  toFront: 'Volver al frente del ticket',
-};
-
-type FlipApi = { flipped: boolean; toggle: () => void };
-const FlipContext = createContext<FlipApi | null>(null);
 
 /**
  * `true` mientras el usuario no pida menos movimiento. Arranca en `false` para
@@ -60,45 +48,18 @@ function useMotionOk(): boolean {
 
 export function HoloCard({
   children,
-  back,
   max = 10,
   className,
-  trigger = 'card',
-  flipLabels = LABELS,
 }: {
-  /** Cara frontal. */
   children: ReactNode;
-  /** Cara trasera. Si viene, se habilita el flip. */
-  back?: ReactNode;
   /** Grados máximos de inclinación por eje. El rango real es -max..+max. */
   max?: number;
   className?: string;
-  /**
-   * Quién dispara el flip:
-   * - `card`: la card entera es el botón. Solo válido si su contenido NO es
-   *   interactivo — un `role="button"` no puede contener links ni botones.
-   * - `slot`: lo dispara un `<HoloFlipButton>` que renderiza el consumidor.
-   */
-  trigger?: 'card' | 'slot';
-  /** aria-label de la card en modo `trigger="card"`. */
-  flipLabels?: { toBack: string; toFront: string };
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const flipRef = useRef<HTMLDivElement>(null);
   const frame = useRef(0);
   const point = useRef({ x: 0, y: 0 });
-  const userFlipped = useRef(false);
   const motionOk = useMotionOk();
-  const [flipped, setFlipped] = useState(false);
-
-  const canFlip = back != null;
-  /** La card entera actúa de botón solo si nadie más va a disparar el flip. */
-  const cardIsTrigger = canFlip && trigger === 'card';
-
-  const toggle = useCallback(() => {
-    userFlipped.current = true;
-    setFlipped((v) => !v);
-  }, []);
 
   const paint = useCallback(() => {
     frame.current = 0;
@@ -163,138 +124,28 @@ export function HoloCard({
     el.style.setProperty('--holo-shine-op', '0');
   }, []);
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLDivElement>) => {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      e.preventDefault(); // Espacio scrollearía la página.
-      toggle();
-    },
-    [toggle],
-  );
-
   useEffect(() => {
     return () => {
       if (frame.current) cancelAnimationFrame(frame.current);
     };
   }, []);
 
-  /**
-   * Rescata el foco tras voltear. `inert` desenfoca lo que contiene, así que en
-   * modo `slot` el propio botón que disparó el flip se queda inerte y el foco
-   * cae al `<body>`: el usuario de teclado tendría que volver a tabular desde el
-   * principio del documento para llegar al reverso (WCAG 2.4.3).
-   *
-   * Solo actuamos si el foco SE PERDIÓ de verdad. Eso deja fuera, sin
-   * condicionar por modo, el caso `trigger="card"` (ahí el foco vive en la card,
-   * que es padre de las caras y nunca se vuelve inerte) y cualquier flip
-   * programático que no venía del usuario.
-   */
-  useEffect(() => {
-    if (!userFlipped.current) return;
-    const active = document.activeElement;
-    if (active && active !== document.body) return;
-
-    const face = flipRef.current?.querySelector<HTMLElement>(
-      flipped ? '.rv-holo-flip__face--back' : '.rv-holo-flip__face',
-    );
-    face
-      ?.querySelector<HTMLElement>(
-        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      )
-      // La cara entra rotando; sin esto el navegador saltaría el scroll al vuelo.
-      ?.focus({ preventScroll: true });
-  }, [flipped]);
-
-  const triggerProps = cardIsTrigger
-    ? ({
-        role: 'button',
-        tabIndex: 0,
-        'aria-pressed': flipped,
-        'aria-label': flipped ? flipLabels.toFront : flipLabels.toBack,
-        onClick: toggle,
-        onKeyDown: handleKeyDown,
-      } as const)
-    : null;
-
   return (
     <div
       ref={ref}
-      className={cn(
-        'rv-holo rounded-lg',
-        cardIsTrigger && 'cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring',
-        className,
-      )}
+      className={cn('rv-holo rounded-lg', className)}
       onPointerEnter={motionOk ? handleEnter : undefined}
       onPointerMove={motionOk ? handleMove : undefined}
       onPointerLeave={motionOk ? handleLeave : undefined}
       onPointerCancel={motionOk ? handleLeave : undefined}
-      {...triggerProps}
     >
-      <FlipContext.Provider value={{ flipped, toggle }}>
-        <div ref={flipRef} className="rv-holo-flip h-full rounded-lg" data-flipped={flipped ? 'true' : undefined}>
-          {/* `relative` ancla el foil/shine (inset:0) y `rounded-lg` es de donde
-              heredan su border-radius. */}
-          <div
-            className="rv-holo-flip__face relative h-full rounded-lg"
-            aria-hidden={canFlip && flipped}
-            inert={canFlip && flipped}
-          >
-            {children}
-            <span className="rv-holo__foil" aria-hidden="true" />
-            <span className="rv-holo__shine" aria-hidden="true" />
-          </div>
-          {canFlip ? (
-            // Cada cara se oculta al teclado y al lector mientras no está de
-            // frente: si no, se tabula "a través" de algo que no está en pantalla.
-            <div
-              className="rv-holo-flip__face rv-holo-flip__face--back rounded-lg"
-              aria-hidden={!flipped}
-              inert={!flipped}
-            >
-              {back}
-            </div>
-          ) : null}
-        </div>
-      </FlipContext.Provider>
+      {/* `relative` ancla el foil/shine (inset:0) y `rounded-lg` es de donde
+          heredan su border-radius. */}
+      <div className="relative h-full rounded-lg">
+        {children}
+        <span className="rv-holo__foil" aria-hidden="true" />
+        <span className="rv-holo__shine" aria-hidden="true" />
+      </div>
     </div>
-  );
-}
-
-/**
- * Dispara el flip desde dentro de la card. Existe para el caso `trigger="slot"`:
- * cuando la cara ya tiene links propios no podemos hacer botón la card entera,
- * así que el control es un botón hermano del link y no anidado (HTML válido).
- */
-export function HoloFlipButton({
-  children,
-  className,
-  label,
-}: {
-  children: ReactNode;
-  className?: string;
-  /** Qué hace el botón, en español. Obligatorio: el icono solo no lo dice. */
-  label: string;
-}) {
-  const ctx = useContext(FlipContext);
-  if (!ctx) return null;
-
-  return (
-    <button
-      type="button"
-      onPointerDown={(event) => event.stopPropagation()}
-      onClick={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        ctx.toggle();
-      }}
-      aria-pressed={ctx.flipped}
-      aria-label={label}
-      // Tooltip nativo: el icono solo no explica qué hace el botón, y el
-      // aria-label no le llega a quien navega con mouse.
-      title={label}
-      className={className}
-    >
-      {children}
-    </button>
   );
 }

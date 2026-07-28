@@ -25,14 +25,25 @@ export function ClearCookiesButton() {
   }
 
   return (
-    <Button variant="secondary" size="sm" onClick={clearCookies}>
-      {cleared ? (
-        <>
-          <Check className="size-3.5" /> {t("cookiesCleared")}
-        </>
-      ) : (
-        t("clearCookies")
-      )}
+    <Button
+      variant="secondary"
+      size="sm"
+      className="w-40 shrink-0"
+      onClick={clearCookies}
+    >
+      <span
+        aria-live="polite"
+        aria-atomic="true"
+        className="inline-flex h-5 items-center justify-center gap-1.5"
+      >
+        {cleared ? (
+          <>
+            <Check className="size-3.5" /> {t("cookiesCleared")}
+          </>
+        ) : (
+          t("clearCookies")
+        )}
+      </span>
     </Button>
   );
 }

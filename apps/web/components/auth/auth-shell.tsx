@@ -1,5 +1,5 @@
-import type { CSSProperties, ReactNode } from 'react';
-import { Logo } from '@/components/shared/logo';
+import type { CSSProperties, ReactNode } from "react";
+import { Logo } from "@/components/shared/logo";
 
 /**
  * Shell de auth del prototipo (AuthStandalone): logo arriba-izquierda,
@@ -8,7 +8,7 @@ import { Logo } from '@/components/shared/logo';
  */
 export function AuthShell({
   hero,
-  heroLabel = 'RAVENUE · Night life',
+  heroLabel = "RAVENUE · Night life",
   children,
 }: {
   hero?: ReactNode;
@@ -48,18 +48,39 @@ export function AuthShell({
                   vacío y flota lento (lenguaje de movimiento del home, sin
                   cargar imágenes). aria-hidden: decorativo. Va detrás del scrim
                   y del claim, así que nunca compite con el texto. */}
-              <div aria-hidden className="pointer-events-none absolute inset-0">
+              <div
+                aria-hidden
+                className="rv-auth-art pointer-events-none absolute inset-0"
+              >
                 <div
                   className="rv-float absolute right-10 top-14 h-44 w-32 rounded-2xl border border-white/10 bg-[linear-gradient(150deg,var(--accent-deep),var(--bg-card))] opacity-70 shadow-2xl"
-                  style={{ '--drift-rot': '6deg', '--drift-y': '-16px', '--drift-dur': '9s' } as CSSProperties}
+                  style={
+                    {
+                      "--drift-rot": "6deg",
+                      "--drift-y": "-16px",
+                      "--drift-dur": "9s",
+                    } as CSSProperties
+                  }
                 />
                 <div
                   className="rv-float absolute right-32 top-40 h-40 w-28 rounded-2xl border border-white/10 bg-[linear-gradient(150deg,var(--accent-hover),var(--bg-elevated))] opacity-60 shadow-2xl"
-                  style={{ '--drift-rot': '-8deg', '--drift-y': '12px', '--drift-dur': '11s' } as CSSProperties}
+                  style={
+                    {
+                      "--drift-rot": "-8deg",
+                      "--drift-y": "12px",
+                      "--drift-dur": "11s",
+                    } as CSSProperties
+                  }
                 />
                 <div
                   className="rv-float absolute bottom-16 right-16 h-36 w-52 rounded-2xl border border-warning-border/30 bg-[linear-gradient(150deg,#4a2f14,var(--bg-elevated))] opacity-50 shadow-2xl"
-                  style={{ '--drift-rot': '3deg', '--drift-y': '-10px', '--drift-dur': '13s' } as CSSProperties}
+                  style={
+                    {
+                      "--drift-rot": "3deg",
+                      "--drift-y": "-10px",
+                      "--drift-dur": "13s",
+                    } as CSSProperties
+                  }
                 />
               </div>
               <span className="absolute right-4 top-4 z-10 rounded-md border border-white/10 bg-black/50 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-white/50">
@@ -71,7 +92,7 @@ export function AuthShell({
             </div>
             {/* z-10: por encima del collage y el scrim. La sombra de texto
                 asegura contraste del claim sobre el fondo animado. */}
-            <div className="relative z-10 max-w-md p-12 text-foreground [text-shadow:0_1px_16px_rgba(0,0,0,0.55)]">
+            <div className="rv-auth-copy relative z-10 max-w-md p-12 text-foreground">
               {hero}
             </div>
           </div>

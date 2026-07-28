@@ -7,12 +7,12 @@ import {
   XLogo,
   YoutubeLogo,
 } from "@phosphor-icons/react";
-import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "@urnight/ui";
 import { ClearCookiesButton } from "./clear-cookies-button";
 import { LocaleSwitcher } from "./locale-switcher";
+import { Logo } from "./logo";
 
 /* Redes aún sin perfiles publicados: iconos visibles pero sin navegación. */
 const REDES = [
@@ -90,18 +90,10 @@ export function SiteFooter({
 
   return (
     <footer className="border-t bg-deep">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.2fr_1fr_1fr_1fr] lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.9fr_1.3fr] lg:px-8">
         {/* Marca + tagline */}
         <div className="space-y-4">
-          <Link href="/" className="inline-flex" aria-label={t("homeAria")}>
-            <Image
-              src="/brand/lockup-horizontal.png"
-              alt="RAVENUE"
-              width={1292}
-              height={252}
-              className="h-7 w-auto"
-            />
-          </Link>
+          <Logo ariaLabel={t("homeAria")} />
           <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
             {t("tagline")}
           </p>
@@ -114,13 +106,13 @@ export function SiteFooter({
         <div className="space-y-6">
           <div>
             <p className="rv-eyebrow mb-4">{t("follow")}</p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {REDES.map(({ icon: Icon, label }) => (
                 <span
                   key={label}
                   title={t("comingSoonTitle", { network: label })}
                   aria-label={t("comingSoonAria", { network: label })}
-                  className="flex size-10 cursor-default items-center justify-center rounded-sm border bg-white/[0.03] text-muted-foreground transition-colors hover:border-accent-border hover:text-foreground"
+                  className="flex size-10 cursor-default items-center justify-center rounded-sm border bg-field text-muted-foreground transition-colors hover:border-accent-border hover:text-foreground"
                 >
                   <Icon className="size-4.5" weight="fill" />
                 </span>
@@ -151,15 +143,21 @@ function FooterBottomBar() {
 
   return (
     <div className="border-t">
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-5 sm:px-6 md:flex-row lg:px-8">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-4 px-4 py-5 sm:px-6 md:grid-cols-[minmax(0,1fr)_10rem_minmax(0,1fr)] lg:px-8">
         <Link
           href="/reclamaciones"
-          className="inline-flex items-center gap-2 rounded-sm bg-white px-4 py-2 text-sm font-bold text-neutral-900 transition-opacity hover:opacity-90"
+          className="inline-flex items-center justify-self-center gap-2 rounded-sm bg-white px-4 py-2 text-sm font-bold text-neutral-900 transition-opacity hover:opacity-90 md:justify-self-start"
+          data-footer-complaints
         >
           📖 {t("complaintsBook")}
         </Link>
-        <LocaleSwitcher id="footer-language" />
-        <p className="text-xs text-muted-foreground">
+        <div className="justify-self-center" data-footer-locale>
+          <LocaleSwitcher id="footer-language" />
+        </div>
+        <p
+          className="justify-self-center text-center text-xs text-muted-foreground md:justify-self-end md:text-right"
+          data-footer-copyright
+        >
           {t("copyright", { year: new Date().getFullYear() })}
         </p>
       </div>

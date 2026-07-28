@@ -55,6 +55,7 @@ function CartaFlow({ pickupZone }: { pickupZone: string }) {
           setReviewingOrder(false);
           setPickupCode(null);
           setCreditoCanjeado(0);
+          window.scrollTo({ top: 0 });
         }}
       />
     );
@@ -86,7 +87,10 @@ function CartaFlow({ pickupZone }: { pickupZone: string }) {
       <CartaBrowser />
       <CartFab
         pickupZone={pickupZone}
-        onConfirm={() => setReviewingOrder(true)}
+        onConfirm={() => {
+          setReviewingOrder(true);
+          window.scrollTo({ top: 0 });
+        }}
       />
       {/* Espacio para que el FAB no tape el final del grid */}
       {cart.count > 0 ? <div aria-hidden className="h-20" /> : null}

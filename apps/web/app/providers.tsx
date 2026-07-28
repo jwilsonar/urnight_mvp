@@ -1,14 +1,23 @@
-'use client';
+"use client";
 
-import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { Session } from 'next-auth';
-import { SessionProvider, useSession } from 'next-auth/react';
-import { ThemeProvider } from 'next-themes';
-import { useEffect, useState, type ReactNode } from 'react';
-import { Toaster } from 'sonner';
-import { MotionProvider } from '@/components/motion/motion-provider';
-import { handleSessionExpired, isSessionExpiredError } from '@/lib/auth/session-expiry';
-import { StorageProvider } from '@/lib/storage/storage-context';
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+import type { Session } from "next-auth";
+import { SessionProvider, useSession } from "next-auth/react";
+import { ThemeProvider } from "next-themes";
+import { useEffect, useState, type ReactNode } from "react";
+import { Toaster } from "sonner";
+import { MotionProvider } from "@/components/motion/motion-provider";
+import { NavigationScrollManager } from "@/components/shared/navigation-scroll-manager";
+import {
+  handleSessionExpired,
+  isSessionExpiredError,
+} from "@/lib/auth/session-expiry";
+import { StorageProvider } from "@/lib/storage/storage-context";
 
 /**
  * Providers de cliente: sesión (NextAuth), tema (next-themes), caché (TanStack
@@ -38,12 +47,18 @@ const onApiError = (err: unknown): void => {
 function SessionExpiryWatcher() {
   const { data: session } = useSession();
   useEffect(() => {
-    if (session?.error === 'RefreshAccessTokenError') handleSessionExpired();
+    if (session?.error === "RefreshAccessTokenError") handleSessionExpired();
   }, [session?.error]);
   return null;
 }
 
-export function Providers({ session, children }: { session?: Session | null; children: ReactNode }) {
+export function Providers({
+  session,
+  children,
+}: {
+  session?: Session | null;
+  children: ReactNode;
+}) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -58,8 +73,13 @@ export function Providers({ session, children }: { session?: Session | null; chi
   return (
     <SessionProvider session={session}>
       <SessionExpiryWatcher />
-      {/* DS RAVENUE es dark-first y no define tema claro: se fuerza dark. */}
-      <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" disableTransitionOnChange>
+      <NavigationScrollManager />
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="dark"
+        enableSystem
+        disableTransitionOnChange
+      >
         <QueryClientProvider client={queryClient}>
           <StorageProvider>
             <MotionProvider>{children}</MotionProvider>

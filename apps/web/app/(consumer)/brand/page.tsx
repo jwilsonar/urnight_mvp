@@ -21,47 +21,47 @@ export async function generateMetadata(): Promise<Metadata> {
 const PALETTE = [
   {
     key: "obsidian",
-    hex: "#0B0B0D",
+    hex: "#0A0A0D",
     swatch: "bg-[var(--rv-obsidian)]",
   },
   {
     key: "charcoal",
-    hex: "#1A1A1D",
+    hex: "#16181B",
     swatch: "bg-surface",
   },
   {
     key: "elevated",
-    hex: "#23222A",
+    hex: "#1D2127",
     swatch: "bg-elevated",
   },
   {
     key: "crimson",
-    hex: "#B21E45",
+    hex: "#E31732",
     swatch: "bg-primary",
   },
   {
     key: "wine",
-    hex: "#6E1833",
+    hex: "#7A0F1F",
     swatch: "bg-[var(--rv-wine)]",
   },
   {
     key: "white",
-    hex: "#F4F0F2",
+    hex: "#F5F5F7",
     swatch: "bg-foreground",
   },
   {
     key: "smoke",
-    hex: "#A8A4AE",
+    hex: "#A3A8B3",
     swatch: "bg-[var(--rv-smoke)]",
   },
   {
     key: "steel",
-    hex: "#302E38",
+    hex: "#2F3440",
     swatch: "bg-[var(--rv-steel)]",
   },
   {
     key: "soft",
-    hex: "#44414D",
+    hex: "#3A404D",
     swatch: "bg-[var(--rv-border-soft)]",
   },
 ] as const;
@@ -107,14 +107,19 @@ export default async function BrandLabPage() {
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
           <p className="rv-eyebrow">{t("hero.eyebrow")}</p>
           <h1 className="sr-only">RAVENUE</h1>
-          <Image
-            src="/brand/lockup-horizontal.png"
-            alt="RAVENUE"
-            width={1292}
-            height={252}
-            priority
-            className="mt-8 h-auto w-full max-w-3xl"
-          />
+          <div className="mt-8 w-full max-w-3xl rounded-xl border border-white/15 bg-[var(--rv-obsidian)] p-6 shadow-overlay sm:p-8">
+            <p className="text-xs font-bold uppercase tracking-wider text-white/70">
+              {t("logo.darkBackground")}
+            </p>
+            <Image
+              src="/brand/lockup-horizontal.png"
+              alt="RAVENUE"
+              width={1274}
+              height={235}
+              priority
+              className="mt-4 h-auto w-full"
+            />
+          </div>
           <p className="mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
             {t("hero.tagline")}
           </p>
@@ -298,7 +303,7 @@ export default async function BrandLabPage() {
         <div className="grid overflow-hidden rounded-lg border sm:grid-cols-2">
           <div className="bg-primary p-8 text-primary-foreground">
             <p className="font-display text-2xl font-bold">Ravenue Crimson</p>
-            <p className="mt-2 font-mono text-sm">--primary · #B21E45</p>
+            <p className="mt-2 font-mono text-sm">--primary · #E31732</p>
           </div>
           <div className="bg-error p-8 text-white">
             <p className="font-display text-2xl font-bold">
@@ -368,8 +373,8 @@ export default async function BrandLabPage() {
               {t("atmosphere.depth")}
             </p>
             <code className="mt-8 block overflow-x-auto rounded-md border bg-root/80 p-4 text-xs text-[var(--rv-rose)]">
-              --gradient-brand: linear-gradient(135deg, #0B0B0D 0%, #1A1A1D 55%,
-              #6E1833 100%);
+              --gradient-brand: linear-gradient(135deg, #0A0A0D 0%, #16181B 55%,
+              #7A0F1F 100%);
             </code>
           </div>
           <div className="rounded-xl border bg-[image:var(--gradient-luxury)] p-8 sm:p-12">
@@ -377,7 +382,7 @@ export default async function BrandLabPage() {
               {t("atmosphere.luxury")}
             </p>
             <code className="mt-8 block overflow-x-auto rounded-md border bg-root/80 p-4 text-xs text-[var(--rv-rose)]">
-              --gradient-luxury: linear-gradient(90deg, #0B0B0D 0%, #6E1833
+              --gradient-luxury: linear-gradient(90deg, #0A0A0D 0%, #7A0F1F
               100%);
             </code>
           </div>

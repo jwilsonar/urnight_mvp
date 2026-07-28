@@ -65,7 +65,7 @@ export function MetasEditor({ value, onChange }: MetasEditorProps) {
         {value.map((meta, indice) => (
           <div
             key={meta.id}
-            className="grid gap-4 rounded-md border bg-white/[0.02] p-4 md:grid-cols-2 xl:grid-cols-[1.15fr_0.65fr_0.9fr_1fr_auto_auto] xl:items-end"
+            className="grid gap-4 rounded-md border bg-muted/30 p-4 md:grid-cols-2 xl:grid-cols-[1.15fr_0.65fr_0.9fr_1fr_auto_auto] xl:items-end"
           >
             <div className="space-y-2">
               <Label>Tipo de meta</Label>

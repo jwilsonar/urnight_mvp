@@ -11,6 +11,8 @@ export const submitAffiliationSchema = z.object({
   contactName: z.string().max(160).optional(),
   contactEmail: z.string().email().max(160).optional(),
   contactPhone: z.string().trim().min(6).max(20).optional(),
+  termsAccepted: z.literal(true),
+  legalDeclarationAccepted: z.literal(true),
 });
 export type SubmitAffiliationDto = z.infer<typeof submitAffiliationSchema>;
 

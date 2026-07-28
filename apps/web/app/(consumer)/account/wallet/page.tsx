@@ -41,10 +41,10 @@ export default async function WalletPage() {
         </p>
         <p className="mt-1 text-sm text-muted-foreground">{t("equivalence")}</p>
         <div className="mt-5 flex flex-wrap gap-2.5">
-          <Button disabled>
+          <Button disabled className="w-44 justify-center">
             <Plus className="size-4" /> {t("topUp")}
           </Button>
-          <Button variant="secondary" disabled>
+          <Button variant="secondary" disabled className="w-44 justify-center">
             <Bank className="size-4" weight="duotone" /> {t("withdraw")}
           </Button>
         </div>

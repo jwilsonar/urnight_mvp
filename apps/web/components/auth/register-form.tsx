@@ -1,11 +1,16 @@
-'use client';
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useTransition } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { DOCUMENT_TYPES, registerSchema, type RegisterDto } from '@urnight/contracts';
-import { zodErrorMapEs } from '@/lib/validation/zod-es';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo, useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { useTranslations } from "next-intl";
+import { z } from "zod";
+import {
+  DOCUMENT_TYPES,
+  registerSchema,
+  type RegisterDto,
+} from "@urnight/contracts";
+import { zodErrorMapEs } from "@/lib/validation/zod-es";
 import {
   Alert,
   AlertDescription,
@@ -26,19 +31,31 @@ import {
   SelectTrigger,
   SelectValue,
   cn,
-} from '@urnight/ui';
-import { registerAction } from '@/lib/auth-actions';
+} from "@urnight/ui";
+import { registerAction } from "@/lib/auth-actions";
 
 const DOCUMENT_LABELS: Record<(typeof DOCUMENT_TYPES)[number], string> = {
-  dni: 'DNI',
-  ce: 'Carné de extranjería',
-  passport: 'Pasaporte',
+  dni: "DNI",
+  ce: "Carné de extranjería",
+  passport: "Pasaporte",
 };
 
 /** Deja solo dígitos y quita el prefijo país 51 si viene pegado. */
 function nationalDigits(raw: string): string {
-  const d = raw.replace(/\D/g, '');
-  return d.length === 11 && d.startsWith('51') ? d.slice(2) : d;
+  const d = raw.replace(/\D/g, "");
+  return d.length === 11 && d.startsWith("51") ? d.slice(2) : d;
+}
+
+function sanitizeDocument(
+  raw: string,
+  documentType: (typeof DOCUMENT_TYPES)[number],
+): string {
+  return documentType === "dni"
+    ? raw.replace(/\D/g, "").slice(0, 8)
+    : raw
+        .replace(/[^A-Za-z0-9]/g, "")
+        .toUpperCase()
+        .slice(0, 20);
 }
 
 /**
@@ -48,34 +65,75 @@ function nationalDigits(raw: string): string {
  * las hereda de `registerSchema` (source of truth). El valor que se envía al API
  * sigue siendo un string válido para su regla min(6)-max(20).
  */
-const registerFormSchema = registerSchema.extend({
-  phone: z
-    .string()
-    .trim()
-    .min(1, 'Ingresa tu número de celular.')
-    .refine((v) => /^9\d{8}$/.test(nationalDigits(v)), 'El celular debe tener 9 dígitos y empezar con 9.'),
-});
-type RegisterFormInput = z.input<typeof registerFormSchema>;
-type RegisterFormOutput = z.output<typeof registerFormSchema>;
+function createRegisterFormSchema(
+  t: ReturnType<typeof useTranslations<"register.form">>,
+) {
+  return registerSchema
+    .extend({
+      password: z
+        .string()
+        .min(8, t("errors.passwordLength"))
+        .max(72, t("errors.passwordLong"))
+        .regex(/[A-Z]/, t("errors.passwordUppercase"))
+        .regex(/[a-z]/, t("errors.passwordLowercase"))
+        .regex(/\d/, t("errors.passwordNumber"))
+        .regex(/[^A-Za-z0-9\s]/, t("errors.passwordSymbol")),
+      documentNumber: z.string().trim(),
+      phone: z
+        .string()
+        .trim()
+        .min(1, t("errors.phoneRequired"))
+        .regex(/^9\d{8}$/, t("errors.phone")),
+    })
+    .superRefine((values, context) => {
+      const documentIsValid =
+        values.documentType === "dni"
+          ? /^\d{8}$/.test(values.documentNumber)
+          : /^[A-Za-z0-9]{8,20}$/.test(values.documentNumber);
 
-export function RegisterForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
+      if (!documentIsValid) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["documentNumber"],
+          message:
+            values.documentType === "dni"
+              ? t("errors.dni")
+              : t("errors.document"),
+        });
+      }
+    });
+}
+
+export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
+  const t = useTranslations("register.form");
+  const registerFormSchema = useMemo(() => createRegisterFormSchema(t), [t]);
   const [pending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
   // Nombres y apellidos separados (feedback): permitirá comparar contra el
   // documento en la validación de identidad. El API recibe fullName compuesto.
-  const [nombres, setNombres] = useState('');
-  const [apellidos, setApellidos] = useState('');
+  const [nombres, setNombres] = useState("");
+  const [apellidos, setApellidos] = useState("");
 
-  const form = useForm<RegisterFormInput, unknown, RegisterFormOutput>({
-    resolver: zodResolver(registerFormSchema, { errorMap: zodErrorMapEs, path: [], async: true }),
+  const form = useForm<
+    z.input<typeof registerFormSchema>,
+    unknown,
+    z.output<typeof registerFormSchema>
+  >({
+    resolver: zodResolver(registerFormSchema, {
+      errorMap: zodErrorMapEs,
+      path: [],
+      async: true,
+    }),
+    mode: "onBlur",
+    reValidateMode: "onBlur",
     defaultValues: {
-      fullName: '',
-      email: '',
-      password: '',
-      birthDate: '',
-      documentType: 'dni',
-      documentNumber: '',
-      phone: '',
+      fullName: "",
+      email: "",
+      password: "",
+      birthDate: "",
+      documentType: "dni",
+      documentNumber: "",
+      phone: "",
       acceptsMarketing: false,
     },
   });
@@ -83,20 +141,28 @@ export function RegisterForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
   // El error de fullName lo dispara el submit; marcamos en rojo el subcampo
   // vacío que lo causó.
   const fullNameError = Boolean(form.formState.errors.fullName);
-  const nombresError = fullNameError && nombres.trim() === '';
-  const apellidosError = fullNameError && apellidos.trim() === '';
+  const nombresError = fullNameError && nombres.trim() === "";
+  const apellidosError = fullNameError && apellidos.trim() === "";
+  const documentType = form.watch("documentType");
 
-  function onSubmit(values: RegisterFormOutput) {
+  function onSubmit(values: z.output<typeof registerFormSchema>) {
     setFormError(null);
     // Se envía el número normalizado a 9 dígitos (nacional), válido para el
     // contrato (min 6, max 20).
-    const payload: RegisterDto = { ...values, phone: nationalDigits(values.phone ?? '') };
+    const payload: RegisterDto = {
+      ...values,
+      phone: nationalDigits(values.phone ?? ""),
+    };
     startTransition(async () => {
       const result = await registerAction(payload);
       if (!result.ok) {
-        setFormError(result.error ?? 'No pudimos crear tu cuenta.');
-        for (const [field, messages] of Object.entries(result.fieldErrors ?? {})) {
-          form.setError(field as keyof RegisterDto, { message: messages[0] ?? 'Dato inválido' });
+        setFormError(result.error ?? "No pudimos crear tu cuenta.");
+        for (const [field, messages] of Object.entries(
+          result.fieldErrors ?? {},
+        )) {
+          form.setError(field as keyof RegisterDto, {
+            message: messages[0] ?? "Dato inválido",
+          });
         }
         return;
       }
@@ -111,7 +177,10 @@ export function RegisterForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
       <form
         onSubmit={(event) => {
           // Compone fullName desde los dos campos antes de que valide el schema.
-          form.setValue('fullName', `${nombres.trim()} ${apellidos.trim()}`.trim());
+          form.setValue(
+            "fullName",
+            `${nombres.trim()} ${apellidos.trim()}`.trim(),
+          );
           void form.handleSubmit(onSubmit)(event);
         }}
         className="space-y-4"
@@ -136,7 +205,10 @@ export function RegisterForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
               value={nombres}
               onChange={(event) => setNombres(event.target.value)}
               aria-invalid={nombresError}
-              className={cn(nombresError && 'border-destructive focus-visible:ring-destructive')}
+              className={cn(
+                nombresError &&
+                  "border-destructive focus-visible:ring-destructive",
+              )}
             />
           </div>
           <div className="space-y-2">
@@ -148,15 +220,19 @@ export function RegisterForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
               value={apellidos}
               onChange={(event) => setApellidos(event.target.value)}
               aria-invalid={apellidosError}
-              className={cn(apellidosError && 'border-destructive focus-visible:ring-destructive')}
+              className={cn(
+                apellidosError &&
+                  "border-destructive focus-visible:ring-destructive",
+              )}
             />
           </div>
         </div>
         {form.formState.errors.fullName ? (
           <p className="text-sm font-medium text-destructive">
             {nombresError || apellidosError
-              ? 'Nombres y apellidos son obligatorios.'
-              : (form.formState.errors.fullName.message ?? 'Ingresa tus nombres y apellidos.')}
+              ? "Nombres y apellidos son obligatorios."
+              : (form.formState.errors.fullName.message ??
+                "Ingresa tus nombres y apellidos.")}
           </p>
         ) : null}
 
@@ -167,7 +243,12 @@ export function RegisterForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
             <FormItem>
               <FormLabel>Correo</FormLabel>
               <FormControl>
-                <Input type="email" autoComplete="email" placeholder="tu@correo.com" {...field} />
+                <Input
+                  type="email"
+                  autoComplete="email"
+                  placeholder="tu@correo.com"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -181,30 +262,59 @@ export function RegisterForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
             <FormItem>
               <FormLabel>Contraseña</FormLabel>
               <FormControl>
-                <Input type="password" autoComplete="new-password" placeholder="Mínimo 8 caracteres" {...field} />
+                <Input type="password" autoComplete="new-password" {...field} />
               </FormControl>
-              <FormDescription>
-                Usa al menos 8 caracteres. Te recomendamos combinar letras y números.
-              </FormDescription>
-              <FormMessage />
+              <FormDescription>{t("passwordHelper")}</FormDescription>
+              <FormMessage role="alert" aria-live="polite" />
             </FormItem>
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="birthDate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Fecha de nacimiento</FormLabel>
-              <FormControl>
-                <Input type="date" autoComplete="bday" {...field} />
-              </FormControl>
-              <FormDescription>Debes ser mayor de 18 años.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="birthDate"
+            render={({ field }) => (
+              <FormItem className="w-full sm:max-w-[14rem]">
+                <FormLabel>Fecha de nacimiento</FormLabel>
+                <FormControl>
+                  <Input type="date" autoComplete="bday" {...field} />
+                </FormControl>
+                <FormDescription>Debes ser mayor de 18 años.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem className="w-full sm:max-w-[14rem]">
+                <FormLabel>Celular</FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    inputMode="tel"
+                    autoComplete="tel-national"
+                    placeholder="9XX XXX XXX"
+                    value={field.value ?? ""}
+                    onChange={(event) =>
+                      field.onChange(
+                        nationalDigits(event.target.value).slice(0, 9),
+                      )
+                    }
+                    onBlur={field.onBlur}
+                    name={field.name}
+                    ref={field.ref}
+                  />
+                </FormControl>
+                <FormDescription>{t("phoneHint")}</FormDescription>
+                <FormMessage role="alert" aria-live="polite" />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <FormField
@@ -213,7 +323,21 @@ export function RegisterForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Documento</FormLabel>
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select
+                  value={field.value}
+                  onValueChange={(value) => {
+                    const nextDocumentType =
+                      value as (typeof DOCUMENT_TYPES)[number];
+                    field.onChange(nextDocumentType);
+                    form.setValue(
+                      "documentNumber",
+                      sanitizeDocument(
+                        form.getValues("documentNumber"),
+                        nextDocumentType,
+                      ),
+                    );
+                  }}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Tipo" />
@@ -239,9 +363,23 @@ export function RegisterForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
               <FormItem>
                 <FormLabel>Número</FormLabel>
                 <FormControl>
-                  <Input inputMode="numeric" placeholder="Documento" {...field} />
+                  <Input
+                    type="text"
+                    inputMode={documentType === "dni" ? "numeric" : "text"}
+                    autoComplete="off"
+                    placeholder="Documento"
+                    value={field.value}
+                    onChange={(event) =>
+                      field.onChange(
+                        sanitizeDocument(event.target.value, documentType),
+                      )
+                    }
+                    onBlur={field.onBlur}
+                    name={field.name}
+                    ref={field.ref}
+                  />
                 </FormControl>
-                <FormMessage />
+                <FormMessage role="alert" aria-live="polite" />
               </FormItem>
             )}
           />
@@ -249,36 +387,16 @@ export function RegisterForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
 
         <FormField
           control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Celular</FormLabel>
-              <FormControl>
-                <Input
-                  type="tel"
-                  inputMode="numeric"
-                  autoComplete="tel"
-                  placeholder="9XX XXX XXX"
-                  value={field.value ?? ''}
-                  onChange={(event) => field.onChange(event.target.value)}
-                  onBlur={field.onBlur}
-                  name={field.name}
-                  ref={field.ref}
-                />
-              </FormControl>
-              <FormDescription>9 dígitos, empieza con 9.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name="acceptsMarketing"
           render={({ field }) => (
             <FormItem className="flex flex-row items-start gap-3 space-y-0">
               <FormControl>
-                <Checkbox checked={field.value ?? false} onCheckedChange={(checked) => field.onChange(checked === true)} />
+                <Checkbox
+                  checked={field.value ?? false}
+                  onCheckedChange={(checked) =>
+                    field.onChange(checked === true)
+                  }
+                />
               </FormControl>
               <FormLabel className="font-normal leading-snug text-muted-foreground">
                 Quiero recibir novedades y promociones por correo.
@@ -288,7 +406,7 @@ export function RegisterForm({ callbackUrl = '/' }: { callbackUrl?: string }) {
         />
 
         <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? 'Creando cuenta…' : 'Crear cuenta'}
+          {pending ? "Creando cuenta…" : "Crear cuenta"}
         </Button>
       </form>
     </Form>

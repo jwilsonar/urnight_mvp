@@ -30,6 +30,10 @@ export class DrizzleAffiliationRequestRepository implements AffiliationRequestRe
         zoneId: entity.zoneId,
         contactEmail: entity.contactEmail,
         contactPhone: entity.contactPhone,
+        termsAccepted: entity.termsAccepted,
+        termsAcceptedAt: entity.termsAcceptedAt,
+        legalDeclarationAccepted: entity.legalDeclarationAccepted,
+        legalDeclarationAcceptedAt: entity.legalDeclarationAcceptedAt,
         status: entity.status,
       })
       .returning();
@@ -74,6 +78,10 @@ export class DrizzleAffiliationRequestRepository implements AffiliationRequestRe
       contactName: row.contactName,
       contactEmail: row.contactEmail,
       contactPhone: row.contactPhone,
+      termsAccepted: row.termsAccepted,
+      termsAcceptedAt: row.termsAcceptedAt,
+      legalDeclarationAccepted: row.legalDeclarationAccepted,
+      legalDeclarationAcceptedAt: row.legalDeclarationAcceptedAt,
       status: row.status as AffiliationStatus,
       rejectionReason: row.rejectionReason,
       submittedBy: row.submittedBy,

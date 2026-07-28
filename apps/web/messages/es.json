@@ -62,6 +62,11 @@
       "label": "Idioma",
       "spanish": "ES · Español",
       "english": "EN · English"
+    },
+    "theme": {
+      "change": "Cambiar tema",
+      "activateLight": "Activar modo claro",
+      "activateDark": "Activar modo oscuro"
     }
   },
   "nav": {
@@ -131,7 +136,7 @@
       "stats": {
         "events": "Eventos este mes",
         "venues": "Locales verificados",
-        "people": "Noctámbulos felices"
+        "people": "Personas felices"
       }
     },
     "featured": {
@@ -201,13 +206,7 @@
       "noSpots": "Sin cupos",
       "spots": "{count, plural, one {# cupo} other {# cupos}}",
       "spotsAvailable": "Cupos disponibles",
-      "viewEvent": "Ver evento",
-      "viewInformation": "Ver información",
-      "detail": "Detalle del evento",
-      "capacity": "Aforo",
-      "noCapacity": "Sin aforo definido",
-      "ticketsSoldAria": "Entradas vendidas: {sold} de {capacity}",
-      "flipBack": "Volver al frente del ticket"
+      "viewEvent": "Ver evento"
     },
     "detail": {
       "metadataDescription": "Entradas para {name} en RAVENUE.",
@@ -295,11 +294,7 @@
       "facade": "Fachada del local",
       "verified": "Verificado",
       "features": "Eventos, carta y reservas",
-      "viewVenue": "Ver local",
-      "viewInformation": "Ver información",
-      "detail": "Información del local",
-      "fallbackDescription": "Descubre sus próximos eventos, carta y opciones de reserva.",
-      "flipBack": "Volver al frente del local"
+      "viewVenue": "Ver local"
     },
     "crowd": {
       "title": "Ambiente ahora",
@@ -331,7 +326,7 @@
       "mapUnavailable": "Mapa no disponible"
     },
     "gallery": {
-      "photoAlt": "{name} — foto {number}",
+      "photoAlt": "{name}, foto {number}",
       "viewGallery": "Ver galería ({count})",
       "title": "Galería de {name}",
       "photoCount": "{count, plural, one {# foto} other {# fotos}}",
@@ -445,7 +440,7 @@
     }
   },
   "footer": {
-    "homeAria": "RAVENUE — inicio",
+    "homeAria": "RAVENUE, inicio",
     "tagline": "Donde la noche encuentra su lugar.",
     "about": {
       "title": "Conócenos",
@@ -462,14 +457,32 @@
       "additionalUses": "Cláusulas de usos adicionales"
     },
     "follow": "Síguenos",
-    "comingSoonTitle": "{network} — próximamente",
+    "comingSoonTitle": "{network}: próximamente",
     "comingSoonAria": "{network} (próximamente)",
     "help": "Ayuda",
     "contact": "Contáctanos",
     "clearCookies": "Limpiar cookies",
-    "cookiesCleared": "Cookies limpiadas",
+    "cookiesCleared": "Cookies limpias",
     "complaintsBook": "Libro de Reclamaciones",
     "copyright": "Copyright © RAVENUE {year} · Todos los derechos reservados. Solo para mayores de 18 años."
+  },
+  "register": {
+    "form": {
+      "passwordHelper": "Usa al menos 8 caracteres combinando letras mayúsculas, minúsculas, números y símbolos.",
+      "phoneHint": "9 dígitos, empieza con 9.",
+      "errors": {
+        "passwordLength": "La contraseña debe tener al menos 8 caracteres.",
+        "passwordLong": "La contraseña no puede superar los 72 caracteres.",
+        "passwordUppercase": "La contraseña debe incluir al menos una letra mayúscula.",
+        "passwordLowercase": "La contraseña debe incluir al menos una letra minúscula.",
+        "passwordNumber": "La contraseña debe incluir al menos un número.",
+        "passwordSymbol": "La contraseña debe incluir al menos un símbolo.",
+        "phoneRequired": "Ingresa tu número de celular.",
+        "phone": "El teléfono debe tener 9 dígitos y empezar con 9.",
+        "dni": "El DNI debe tener 8 dígitos.",
+        "document": "El documento debe tener entre 8 y 20 caracteres."
+      }
+    }
   },
   "account": {
     "title": "Mi cuenta",
@@ -485,7 +498,19 @@
       "referrals": "Referidos",
       "notifications": "Notificaciones",
       "invitations": "Invitaciones",
-      "friends": "Amigos"
+      "friends": "Amigos",
+      "appearance": "Apariencia"
+    },
+    "appearance": {
+      "metadataTitle": "Apariencia",
+      "title": "Apariencia",
+      "description": "Elige cómo quieres ver RAVENUE en este dispositivo.",
+      "system": "Sistema",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "systemHint": "Usa la configuración de tu dispositivo.",
+      "lightHint": "Fondos claros y texto oscuro.",
+      "darkHint": "La experiencia RAVENUE por defecto."
     },
     "profile": {
       "metadataTitle": "Perfil y ajustes",
@@ -600,7 +625,7 @@
     "friends": {
       "title": "Amigos",
       "pageDescription": "Encuentra a tu grupo y recuerda las noches que compartieron.",
-      "demo": "Demo — llega con el backend social",
+      "demo": "Demo: llega con el backend social",
       "kpis": {
         "total": "Total amigos",
         "requests": "Solicitudes pendientes",
@@ -635,7 +660,7 @@
     "wallet": {
       "title": "Wallet RAVENUE",
       "description": "Tu saldo, reembolsos y movimientos en un solo lugar.",
-      "demo": "Demo — llega con el backend de wallet",
+      "demo": "Demo: llega con el backend de wallet",
       "availableBalance": "Saldo disponible",
       "equivalence": "≈ 1 botella premium · ≈ 2 entradas general",
       "topUp": "Recargar saldo",
@@ -659,7 +684,7 @@
     "reservations": {
       "title": "Mis reservas",
       "description": "Tus mesas reservadas: códigos, estados y detalles.",
-      "demo": "Demo — llega con el backend de reservas",
+      "demo": "Demo: llega con el backend de reservas",
       "status": {
         "confirmada": "Confirmada",
         "pendiente": "Pendiente de pago",
@@ -678,7 +703,7 @@
     "referrals": {
       "title": "Programa de referidos",
       "description": "Trae a tus amigos. Gana puntos. Vive una noche VIP gratis.",
-      "demo": "Demo — llega con el backend de referidos",
+      "demo": "Demo: llega con el backend de referidos",
       "inviteCode": "Tu código de invitación",
       "copied": "Copiado",
       "copyLink": "Copiar link",
@@ -734,7 +759,7 @@
   "puntos": {
     "title": "Puntos",
     "description": "Revisa tu saldo, elige beneficios y consulta cómo lo acumulaste.",
-    "demo": "Demo — llega con el backend de fidelización",
+    "demo": "Demo: llega con el backend de fidelización",
     "balance": "Saldo disponible",
     "pointsShort": "pts",
     "equivalent": "Equivalen a {amount}",
@@ -809,7 +834,7 @@
       "metadataTitle": "Niveles y badges",
       "title": "Tu nivel RAVENUE",
       "description": "Sube de nivel acumulando puntos. Cada nivel desbloquea perks.",
-      "demo": "Demo — llega con el backend de puntos",
+      "demo": "Demo: llega con el backend de puntos",
       "currentLevel": "Nivel actual",
       "pointsShort": "pts",
       "nextLevel": "Próximo nivel",
@@ -855,7 +880,7 @@
   },
   "checkout": {
     "title": "Checkout",
-    "homeAria": "RAVENUE — inicio",
+    "homeAria": "RAVENUE, inicio",
     "securePayment": "Pago seguro",
     "eventUnavailable": "Este evento no tiene entradas a la venta en este momento.",
     "ticketsLoadError": "No pudimos cargar las entradas en este momento. Inténtalo de nuevo en unos minutos.",
@@ -906,7 +931,7 @@
     "attendee": {
       "title": "Asistente {number}",
       "remove": "Quitar",
-      "useMyDetails": "Soy yo — usar los datos de mi cuenta",
+      "useMyDetails": "Soy yo: usar los datos de mi cuenta",
       "fullName": "Nombre completo",
       "fullNamePlaceholder": "Nombre y apellido",
       "document": "Documento",
@@ -935,7 +960,7 @@
     },
     "title": "Reserva tu mesa",
     "secure": "Reserva segura",
-    "demo": "Demo — reserva simulada",
+    "demo": "Demo: reserva simulada",
     "progress": "Progreso de la reserva",
     "steps": {
       "table": "Mesa",
@@ -963,7 +988,7 @@
       "description": "{table} para {count} personas · llegada {time}. Presenta el código al ingresar:",
       "creditActive": "Tu crédito de consumo de {amount} ya está activo en la carta del local",
       "noReentry": "Este local no permite reingreso una vez dentro",
-      "backendDemo": "Demo — la reserva real y el QR llegan con el backend",
+      "backendDemo": "Demo: la reserva real y el QR llegan con el backend",
       "moreEvents": "Ver más eventos",
       "home": "Volver al inicio"
     },
@@ -983,7 +1008,7 @@
       "minimum": "Mín. {amount}",
       "deposit": "Depósito {amount}",
       "depositTitle": "Tu depósito se descuenta del consumo en el local.",
-      "depositDescription": "No es un cargo extra — si consumes más del mínimo, solo pagas la diferencia en caja."
+      "depositDescription": "No es un cargo extra. Si consumes más del mínimo, solo pagas la diferencia en caja."
     },
     "floor": {
       "aria": "Plano del local",
@@ -1004,7 +1029,7 @@
       "hostPlaceholder": "ej. Piero Rivera",
       "hostError": "Ingresa el nombre de la persona titular de la reserva.",
       "birthday": "Es mi cumpleaños",
-      "birthdayHint": "Avisamos al local — pueden tener una sorpresa preparada",
+      "birthdayHint": "Avisamos al local; pueden tener una sorpresa preparada",
       "birthdayBadge": "Cumple",
       "notes": "Notas para el local (opcional)",
       "notesPlaceholder": "ej. Llegamos un poco tarde, tenemos un amigo alérgico al maní…"
@@ -1238,7 +1263,7 @@
       "creditRedeemed": "Usaste {amount} de tu crédito de consumo",
       "remainingBalance": "Te quedan {amount} disponibles",
       "orderMore": "Pedir algo más",
-      "demo": "Demo — el estado avanza automáticamente"
+      "demo": "Demo: el estado avanza automáticamente"
     },
     "status": {
       "aria": "Estado del pedido",
@@ -1266,7 +1291,7 @@
       "paid": "Pagó",
       "linkSent": "Enlace enviado",
       "sendLink": "Enviar enlace",
-      "demo": "Demo — los enlaces no generan cobros reales"
+      "demo": "Demo: los enlaces no generan cobros reales"
     }
   },
   "affiliate": {
@@ -1280,7 +1305,7 @@
     "stats": {
       "venues": "Locales",
       "events": "Eventos al mes",
-      "nightOwls": "Noctámbulos"
+      "nightOwls": "Personas"
     },
     "benefits": {
       "1": "Puerta rápida sin colas",
@@ -1302,8 +1327,8 @@
         "description": "Define zonas, reservas y promotores según cómo funciona realmente tu operación."
       },
       "3": {
-        "title": "Opera sin Excel",
-        "description": "Controla ventas, accesos y resultados desde un flujo compartido por todo tu equipo."
+        "title": "Opera más fácil",
+        "description": "Reservas, listas y cortesías en un solo panel, siempre al día."
       }
     },
     "form": {
@@ -1316,7 +1341,9 @@
         "contactEmail": "Indica un correo de contacto.",
         "email": "Ingresa un correo válido.",
         "contactPhone": "Indica un teléfono de contacto.",
-        "phoneLong": "El teléfono es demasiado largo."
+        "phoneLong": "El teléfono es demasiado largo.",
+        "termsAccepted": "Debes aceptar los Términos y Condiciones y la Política de Privacidad.",
+        "legalDeclarationAccepted": "Debes confirmar que el local cuenta con los permisos vigentes para operar."
       },
       "successToast": "Solicitud enviada. Te contactaremos pronto.",
       "successTitle": "Solicitud recibida",
@@ -1343,6 +1370,11 @@
       "optional": "(opcional)",
       "socialsPlaceholder": "https://instagram.com/tulocal · @tulocal en TikTok · tuweb.com",
       "socialsHint": "Pega los links o @usuarios de tus redes, separados por comas.",
+      "legal": {
+        "termsConsent": "Acepto los <terms>Términos y Condiciones</terms> y la <privacy>Política de Privacidad</privacy> de vinculación de locales en RAVENUE.",
+        "declaration": "Declaro que el local cuenta con todos los permisos vigentes para operar: licencia de funcionamiento, autorización para la venta de bebidas alcohólicas, certificado de seguridad (ITSE) y los demás requisitos exigidos por la normativa peruana.",
+        "required": "Debes aceptar ambos consentimientos legales antes de enviar la solicitud."
+      },
       "sending": "Enviando…",
       "submit": "Enviar solicitud"
     }
@@ -1390,17 +1422,17 @@
     "stats": {
       "events": "Eventos este mes",
       "venues": "Locales verificados",
-      "nightOwls": "Noctámbulos felices"
+      "nightOwls": "Personas felices"
     },
     "history": { "eyebrow": "Nuestra historia", "title": "Lo que nos mueve" },
     "sections": {
       "mission": {
         "title": "Nuestra misión",
-        "body": "Hacer que salir sea simple y seguro. Queremos que descubras dónde ir, compres tu entrada sin reventa y armes el plan con tus amigos en segundos."
+        "body": "Hacer que salir sea simple y seguro. Queremos que descubras dónde ir, compres tu entrada y armes el plan con tus amigos en segundos."
       },
       "whatWeDo": {
         "title": "Qué hacemos",
-        "body": "Conectamos a los noctámbulos con locales verificados. Compra de entradas, reserva de mesas, listas y beneficios — todo dentro de una experiencia pensada para la noche."
+        "body": "Te contactamos con locales verificados. Compra de entradas, reserva de mesas, listas y beneficios, todo dentro de una experiencia pensada para la noche."
       },
       "venues": {
         "title": "Para los locales",
@@ -1459,7 +1491,7 @@
   },
   "guest": { "metadataTitle": "Lista de invitados" },
   "invitado": {
-    "demoBadge": "Demo — lista de invitados",
+    "demoBadge": "Demo: lista de invitados",
     "invalid": {
       "title": "Link no válido o vencido",
       "description": "Pídele al promotor un enlace activo para ingresar a su lista."
@@ -1497,7 +1529,7 @@
     "success": {
       "title": "Hoja registrada",
       "description": "Tu {type} quedó registrado con el código <strong>{code}</strong>. Recibirás respuesta en un máximo de 15 días hábiles al correo indicado.",
-      "demo": "Demo — el registro real llega con el backend de soporte"
+      "demo": "Demo: el registro real llega con el backend de soporte"
     },
     "form": {
       "type": "Tipo de solicitud",
@@ -1511,7 +1543,7 @@
       "emailPlaceholder": "tu@correo.com",
       "detail": "Detalle del reclamo o queja",
       "detailPlaceholder": "Cuéntanos qué pasó, incluyendo fecha, evento o local si aplica…",
-      "demo": "Demo — sin backend de soporte aún",
+      "demo": "Demo: sin backend de soporte aún",
       "submit": "Registrar hoja"
     }
   },
@@ -1523,11 +1555,11 @@
     "stats": {
       "events": "Eventos al mes",
       "venues": "Locales",
-      "nightOwls": "Noctámbulos"
+      "nightOwls": "Personas"
     },
     "benefits": {
       "1": "Tu link propio: tus invitados sacan su código solos",
-      "2": "Metas y bonos claros, sin discusiones de Excel",
+      "2": "Metas y bonos claros, sin discusiones.",
       "3": "Comisión por venta de box y mesa",
       "4": "Liquidaciones transparentes"
     },
@@ -1557,7 +1589,7 @@
       },
       "socials": {
         "label": "Redes sociales",
-        "placeholder": "Instagram, TikTok, etc. — cuéntanos tu alcance.",
+        "placeholder": "Instagram, TikTok, etc. Cuéntanos tu alcance.",
         "description": "Comparte enlaces que muestren tu comunidad."
       }
     },
@@ -1740,7 +1772,7 @@
     "storybook": "Storybook (componentes del design system): corre <code>pnpm --filter @urnight/web storybook</code> y abre localhost:6006.",
     "groups": [
       {
-        "title": "1 · B2C — Descubrimiento",
+        "title": "1 · B2C: Descubrimiento",
         "screens": [
           {
             "route": "/",
@@ -2101,13 +2133,14 @@
   "brand": {
     "metadataTitle": "Laboratorio de marca",
     "hero": {
-      "eyebrow": "Brand Lab — identidad final",
+      "eyebrow": "Brand Lab: identidad final",
       "tagline": "Donde la noche encuentra su lugar."
     },
     "logo": {
-      "eyebrow": "01 — Sistema de logo",
+      "eyebrow": "01 · Sistema de logo",
       "title": "Identidad final",
       "description": "El wordmark y la V angular forman el sistema definitivo para los puntos de contacto de RAVENUE.",
+      "darkBackground": "Sobre fondo oscuro",
       "primary": "Principal",
       "usage": "Uso",
       "historyLabel": "Archivo histórico",
@@ -2126,7 +2159,7 @@
       }
     },
     "color": {
-      "eyebrow": "02 — Color",
+      "eyebrow": "02 · Color",
       "title": "Obsidiana, luna y carmín",
       "description": "Una base nocturna sobria donde el carmín se reserva para marca y acción.",
       "composition": "Regla de composición",
@@ -2144,7 +2177,7 @@
       }
     },
     "typography": {
-      "eyebrow": "03 — Tipografía",
+      "eyebrow": "03 · Tipografía",
       "title": "Sora para atraer. Inter para orientar.",
       "displaySample": "La noche encuentra su lugar.",
       "displayUsage": "Sora 700 · titulares, campañas y momentos de marca.",
@@ -2155,7 +2188,7 @@
       "bodyUsage": "Inter 400–700 · navegación, datos, formularios y cuerpo."
     },
     "components": {
-      "eyebrow": "04 — Componentes",
+      "eyebrow": "04 · Componentes",
       "title": "Tokens sobre producto real",
       "description": "Estados del design system renderizados con la nueva paleta.",
       "actions": "Acciones y estados",
@@ -2172,13 +2205,13 @@
       "access": "Acceso verificado y cupos limitados."
     },
     "semantics": {
-      "eyebrow": "05 — Semántica",
+      "eyebrow": "05 · Semántica",
       "title": "Carmín de marca no es error",
       "error": "Error",
       "description": "La acción de marca usa un carmín frío y profundo. El estado de error conserva un rojo brillante para distinguir intención de marca y alerta funcional."
     },
     "voice": {
-      "eyebrow": "06 — Voz",
+      "eyebrow": "06 · Voz",
       "title": "Mensajes candidatos",
       "context": "Contexto",
       "messages": "Mensajes",
@@ -2208,13 +2241,13 @@
       ]
     },
     "atmosphere": {
-      "eyebrow": "07 — Atmósfera",
+      "eyebrow": "07 · Atmósfera",
       "title": "Gradiente institucional",
       "depth": "Profundidad nocturna sin perder claridad.",
       "luxury": "Lujo"
     },
     "motion": {
-      "eyebrow": "08 — Motion",
+      "eyebrow": "08 · Motion",
       "title": "Rápido, claro y controlado",
       "description": "Duraciones canónicas para feedback, transiciones de componentes y cambios de página.",
       "tokens": {

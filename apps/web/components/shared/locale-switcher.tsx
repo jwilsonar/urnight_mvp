@@ -42,7 +42,7 @@ export function LocaleSwitcher({
         <SelectTrigger
           id={id}
           aria-label={t("label")}
-          className={showLabel ? undefined : "h-8 w-[7.25rem]"}
+          className={showLabel ? "w-full min-w-40" : "h-11 w-40 shrink-0"}
         >
           <SelectValue />
         </SelectTrigger>
