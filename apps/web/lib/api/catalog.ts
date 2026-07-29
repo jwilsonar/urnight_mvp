@@ -83,6 +83,8 @@ export interface EventListParams {
   tagId?: string;
   from?: string;
   to?: string;
+  minPrice?: number;
+  maxPrice?: number;
   /** Paginación opcional (ausentes ⇒ lista completa). */
   limit?: number;
   offset?: number;
@@ -98,6 +100,8 @@ export function getEvents(params?: EventListParams) {
       tagId: params?.tagId,
       from: params?.from,
       to: params?.to,
+      minPrice: params?.minPrice,
+      maxPrice: params?.maxPrice,
       limit: params?.limit,
       offset: params?.offset,
     },

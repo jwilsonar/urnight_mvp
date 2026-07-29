@@ -177,6 +177,40 @@
     "description": "Get tickets to the next big nights out.",
     "calendarLink": "Calendar",
     "all": "All",
+    "results": "{count, plural, =0 {0 results} one {# result} other {# results}}",
+    "filters": {
+      "zone": {
+        "title": "Area / district",
+        "aria": "Filter events by area or district",
+        "all": "All areas",
+        "fallback": "Area"
+      },
+      "genre": {
+        "title": "Genre",
+        "fallback": "Genre"
+      },
+      "tagFallback": "Tag",
+      "date": {
+        "title": "Date",
+        "any": "Any date",
+        "today": "Today",
+        "tonight": "Tonight",
+        "weekend": "This weekend",
+        "custom": "Date range"
+      },
+      "price": {
+        "title": "Price",
+        "minimum": "Minimum (S/)",
+        "maximum": "Maximum (S/)",
+        "apply": "Apply",
+        "invalidRange": "The maximum must be equal to or greater than the minimum."
+      }
+    },
+    "active": {
+      "title": "Active filters",
+      "clearAll": "Clear all",
+      "remove": "Remove {filter} filter"
+    },
     "loadError": {
       "title": "We couldn't load the events",
       "description": "Please try again in a few minutes."
@@ -184,7 +218,10 @@
     "empty": {
       "title": "No events yet",
       "description": "There are no published events right now. Check back soon.",
-      "action": "Explore venues"
+      "action": "Explore venues",
+      "filteredTitle": "No events found",
+      "filteredDescription": "This combination is too restrictive. Try removing {filter}.",
+      "removeFilter": "Remove {filter}"
     },
     "pagination": {
       "aria": "Pagination",
@@ -205,8 +242,7 @@
       "almostFull": "Almost full",
       "noSpots": "No spots left",
       "spots": "{count, plural, one {# spot} other {# spots}}",
-      "spotsAvailable": "Spots available",
-      "viewEvent": "View event"
+      "spotsAvailable": "Spots available"
     },
     "detail": {
       "metadataDescription": "Tickets for {name} on RAVENUE.",
@@ -276,6 +312,13 @@
     "description": "Find the best places for your next night out.",
     "filterAria": "Filter by area",
     "allZones": "All areas",
+    "zoneFallback": "Area",
+    "results": "{count, plural, =0 {0 venues} one {# venue} other {# venues}}",
+    "active": {
+      "title": "Active filters",
+      "clearAll": "Clear all",
+      "remove": "Remove {filter} filter"
+    },
     "loadError": {
       "title": "We couldn't load the venues",
       "description": "Please try again in a few minutes."
@@ -283,7 +326,10 @@
     "empty": {
       "title": "No venues found",
       "description": "We couldn't find venues in this area. Try another one.",
-      "action": "View all venues"
+      "action": "View all venues",
+      "filteredTitle": "No venues found",
+      "filteredDescription": "This combination is too restrictive. Try removing {filter}.",
+      "removeFilter": "Remove {filter}"
     },
     "affiliate": {
       "title": "Own a venue?",
@@ -293,8 +339,7 @@
     "card": {
       "facade": "Venue exterior",
       "verified": "Verified",
-      "features": "Events, menu, and reservations",
-      "viewVenue": "View venue"
+      "features": "Events, menu, and reservations"
     },
     "crowd": {
       "title": "Crowd right now",
@@ -2122,6 +2167,91 @@
         ]
       }
     ]
+  },
+  "promoterMetrics": {
+    "header": {
+      "metadataTitle": "Promoter dashboard",
+      "metadataDescription": "Manage your referral link, promo codes, and commissions.",
+      "title": "Promoter overview",
+      "description": "Actual attendance, entry time, companions, and attributed sales."
+    },
+    "overview": {
+      "errorTitle": "We couldn't load your metrics",
+      "errorDescription": "Your figures remain protected. Try again to query the door-validation data.",
+      "peopleOnList": "People on list",
+      "validTickets": "Attributed valid tickets",
+      "realAttendance": "Actual attendance",
+      "uniqueDoorValidations": "Unique door validations",
+      "attributedSales": "Attributed sales",
+      "estimatedCommission": "Estimated commission",
+      "paidOrdersOnly": "Paid orders only",
+      "arrivalTitle": "How your crowd arrives",
+      "noEntries": "No recorded entries",
+      "entryRange": "{first} – {last}",
+      "peakHour": "peak hour {date}",
+      "identifiedCompanions": "Identified companions",
+      "noAttendeeOrders": "There are no orders with attendees yet.",
+      "knownOrders": "{count, plural, one {# order with one buyer.} other {# orders with one buyer.}}",
+      "dataCoverage": "Data coverage",
+      "unknownCoverage": "Orders without exactly one buyer; their companions are not estimated.",
+      "eventsTitle": "Metrics by event",
+      "eventsDescription": "Actual entry, not purchase. Rescanning the same ticket never counts twice.",
+      "emptyTitle": "No events with metrics yet",
+      "emptyDescription": "Assigned events will appear here, even before the first sale.",
+      "event": "Event",
+      "attendance": "Attendance",
+      "entry": "Entry",
+      "companions": "Companions",
+      "sales": "Sales",
+      "cancelledExcluded": "Cancelled · excluded",
+      "peak": "Peak: {date}",
+      "unknownOrders": "{count} without coverage",
+      "ticketCount": "{count, plural, one {# ticket} other {# tickets}}",
+      "referral": "Referral",
+      "saleDetail": "{count} tickets · {amount}",
+      "moreOrders": "+{count} orders"
+    },
+    "ranking": {
+      "title": "Promoter ranking",
+      "description": "Rank sales, attendance, and rates using door-validated data.",
+      "eventFilter": "Event (optional UUID)",
+      "from": "From",
+      "to": "To",
+      "sortBy": "Sort by",
+      "sales": "Sales",
+      "attendance": "Attendance",
+      "attendanceRate": "Attendance %",
+      "descending": "Highest",
+      "ascending": "Lowest",
+      "apply": "Apply",
+      "invalidEvent": "Enter a valid event UUID.",
+      "invalidRange": "The end date must be on or after the start date.",
+      "errorTitle": "We couldn't load the ranking",
+      "errorDescription": "Check the filters or try again.",
+      "minimumVolume": "The rate enters the ranking from <strong>{count} people on the list</strong>. Absolute volume is always shown.",
+      "rules": "Paid orders · non-cancelled events",
+      "position": "#",
+      "promoter": "Promoter",
+      "attributedSales": "Attributed sales",
+      "amount": "Amount",
+      "realAttendance": "Actual attendance",
+      "estimatedCommission": "Estimated commission",
+      "emptyTitle": "No promoters for these filters",
+      "emptyDescription": "Try another event or date range.",
+      "ambiguousOrders": "{count, plural, one {# ambiguous order excluded} other {# ambiguous orders excluded}}",
+      "eligible": "Eligible",
+      "lowVolume": "Low volume"
+    },
+    "admin": {
+      "metadataTitle": "Promoters — Administration",
+      "title": "Promoters",
+      "description": "Create promoters for your company and manage their promo codes."
+    },
+    "superadmin": {
+      "metadataTitle": "Promoter metrics — Platform",
+      "title": "Promoter metrics",
+      "description": "Global ranking with validated attendance, volume, and attributed sales."
+    }
   },
   "brand": {
     "metadataTitle": "Brand Lab",

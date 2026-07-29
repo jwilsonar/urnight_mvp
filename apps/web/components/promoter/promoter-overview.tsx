@@ -1,21 +1,19 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { PanelPageHeader } from '@/components/panels/panel-page-header';
-import { PromoterGate } from './promoter-gate';
-import { PromoterKpis } from './promoter-kpis';
+import { PromoterMetricsOverview } from './promoter-metrics-overview';
 
 export function PromoterOverview() {
+  const t = useTranslations('promoterMetrics.header');
+
   return (
     <div className="space-y-6">
       <PanelPageHeader
-        title="Resumen de promotor"
-        description="Tus indicadores principales sin repetir las acciones de las otras vistas."
+        title={t('title')}
+        description={t('description')}
       />
-      <PromoterGate>
-        {(promoter) => (
-          <PromoterKpis promoterId={promoter.id} referralLink={promoter.referralLink} />
-        )}
-      </PromoterGate>
+      <PromoterMetricsOverview />
     </div>
   );
 }

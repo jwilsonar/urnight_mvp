@@ -9,6 +9,10 @@ import type {
   PromoRedemptionResponse,
   PromoterApplicationResponse,
   PromoterAssociationResponse,
+  PromoterMetricsQuery,
+  PromoterMetricsResponse,
+  PromoterRankingQuery,
+  PromoterRankingResponse,
   RedemptionCodeResponse,
   PromoterResponse,
   PromoterSalesResponse,
@@ -65,6 +69,30 @@ export function rejectPromoterAssociation(promoterId: string, token?: string) {
 /** Comisiones y atribuciones de un promotor (GET /promoters/:id/sales). */
 export function getPromoterSales(promoterId: string, token?: string) {
   return apiFetch<PromoterSalesResponse>(`/promoters/${promoterId}/sales`, { token });
+}
+
+/** Métricas reales del promotor de sesión (sin promoterId controlado por cliente). */
+export function getMyPromoterMetrics(query: PromoterMetricsQuery = {}, token?: string) {
+  return apiFetch<PromoterMetricsResponse>('/promoters/me/metrics', {
+    token,
+    query,
+  });
+}
+
+/** Métricas de un promotor del tenant del admin. */
+export function getPromoterMetrics(promoterId: string, query: PromoterMetricsQuery = {}, token?: string) {
+  return apiFetch<PromoterMetricsResponse>(`/promoters/${promoterId}/metrics`, {
+    token,
+    query,
+  });
+}
+
+/** Ranking tenant-scoped para admin_local y global para super_admin. */
+export function listPromoterRanking(query: PromoterRankingQuery, token?: string) {
+  return apiFetch<PromoterRankingResponse>('/promoters/ranking', {
+    token,
+    query,
+  });
 }
 
 /** Registra un clic en un link de referido (POST /promoters/referrals/:code/click). Público. */

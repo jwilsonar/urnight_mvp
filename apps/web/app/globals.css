@@ -75,6 +75,11 @@
   --accent-border: rgba(227, 23, 50, 0.35);
   --accent-hover-soft-faint: rgba(255, 31, 61, 0.06);
   --accent-hover-border-subtle: rgba(255, 31, 61, 0.2);
+  --catalog-card-hover: linear-gradient(
+    135deg,
+    rgba(227, 23, 50, 0.1) 0%,
+    rgba(227, 23, 50, 0.2) 100%
+  );
 
   /* ---- Estados semánticos: sólido + foreground legible + tinte + borde ---- */
   --success: #22c55e;
@@ -261,6 +266,11 @@
   --accent-soft-faint: rgba(161, 15, 40, 0.05);
   --accent-soft: rgba(161, 15, 40, 0.1);
   --accent-soft-strong: rgba(161, 15, 40, 0.16);
+  --catalog-card-hover: linear-gradient(
+    135deg,
+    rgba(227, 23, 50, 0.04) 0%,
+    rgba(227, 23, 50, 0.1) 100%
+  );
   --accent-border-subtle: rgba(161, 15, 40, 0.2);
   --accent-border: rgba(161, 15, 40, 0.42);
   --accent-ring: #a10f28;
@@ -748,7 +758,7 @@
   /* ===================================================================
      Capa 3D. Todo es CSS 3D (perspective + preserve-3d + translateZ):
      sin WebGL, sin deps. Los componentes de components/motion/ setean
-     las variables --holo-*, --spot-*, --logo-* por puntero o scroll; el
+     las variables --spot-* y --logo-* por puntero o scroll; el
      navegador compone en GPU.
      =================================================================== */
 
@@ -758,68 +768,6 @@
     perspective: var(--stage-persp, 1200px);
     perspective-origin: var(--stage-origin, 50% 50%);
     transform-style: preserve-3d;
-  }
-
-  /* ---------- Ticket holográfico ---------- */
-
-  /* Capa de inclinación. Va por fuera del flip para que ambas rotaciones
-     no peleen por el mismo transform. */
-  .rv-holo {
-    position: relative;
-    transform: perspective(var(--holo-persp, 900px))
-      rotateX(var(--holo-rx, 0deg)) rotateY(var(--holo-ry, 0deg))
-      scale(var(--holo-scale, 1));
-    transform-style: preserve-3d;
-    transition: transform 300ms var(--ease-brand);
-    will-change: transform;
-  }
-  /* Con el puntero encima seguimos su posición casi sin lag; al salir, la
-     transición larga devuelve la card con suavidad. */
-  .rv-holo[data-active="true"] {
-    transition: transform 80ms linear;
-  }
-
-  /* Foil: bandas de difracción teñidas con la paleta de marca
-     (rosa → carmín → info) en vez del arcoíris típico. */
-  .rv-holo__foil {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    border-radius: inherit;
-    pointer-events: none;
-    opacity: var(--holo-foil-op, 0);
-    transition: opacity 300ms ease;
-    mix-blend-mode: color-dodge;
-    background-image: repeating-linear-gradient(
-      112deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.22) 5%,
-      rgba(227, 23, 50, 0.28) 10%,
-      rgba(96, 165, 250, 0.2) 15%,
-      rgba(255, 31, 61, 0.26) 20%,
-      rgba(255, 255, 255, 0) 26%
-    );
-    background-size: 260% 260%;
-    background-position: var(--holo-bx, 50%) var(--holo-by, 50%);
-  }
-
-  /* Brillo especular: el reflejo puntual que delata que hay un plano
-     físico inclinándose bajo la luz. */
-  .rv-holo__shine {
-    position: absolute;
-    inset: 0;
-    z-index: 4;
-    border-radius: inherit;
-    pointer-events: none;
-    opacity: var(--holo-shine-op, 0);
-    transition: opacity 300ms ease;
-    mix-blend-mode: overlay;
-    background: radial-gradient(
-      circle at var(--holo-gx, 50%) var(--holo-gy, 50%),
-      rgba(255, 255, 255, 0.45),
-      rgba(255, 255, 255, 0.06) 32%,
-      transparent 58%
-    );
   }
 
   /* ---------- Muro de noches ---------- */
@@ -967,27 +915,6 @@
       transparent 48%
     );
   }
-  .light .rv-holo__foil {
-    mix-blend-mode: multiply;
-    background-image: repeating-linear-gradient(
-      112deg,
-      rgba(161, 15, 40, 0) 0%,
-      rgba(161, 15, 40, 0.05) 6%,
-      rgba(161, 15, 40, 0.08) 11%,
-      rgba(29, 78, 216, 0.04) 16%,
-      rgba(161, 15, 40, 0.06) 21%,
-      rgba(161, 15, 40, 0) 27%
-    );
-  }
-  .light .rv-holo__shine {
-    mix-blend-mode: multiply;
-    background: radial-gradient(
-      circle at var(--holo-gx, 50%) var(--holo-gy, 50%),
-      rgba(161, 15, 40, 0.07),
-      rgba(161, 15, 40, 0.02) 32%,
-      transparent 58%
-    );
-  }
   .light .rv-spotlight::before {
     background: radial-gradient(
       var(--spot-size, 600px) circle at var(--spot-x, 50%) var(--spot-y, 0%),
@@ -1066,6 +993,10 @@
   animation: rv-page-in 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
+.rv-catalog-card-hover {
+  background-image: var(--catalog-card-hover);
+}
+
 /* Deriva lenta para el collage de flyers del hero de auth: sube/baja y gira un
    pelo, en bucle. Da la sensación de "posters flotando" del prototipo sin
    cargar imágenes (solo transform, compone en GPU). */
@@ -1113,16 +1044,6 @@
   }
   .rv-parallax {
     transform: none;
-  }
-
-  /* Capa 3D: se queda plana y legible; se apaga el movimiento ambiental. */
-  .rv-holo {
-    transform: none;
-    transition: none;
-  }
-  .rv-holo__foil,
-  .rv-holo__shine {
-    display: none;
   }
   .rv-poster {
     transition: none;

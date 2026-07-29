@@ -145,6 +145,7 @@ export const promoCode = pgTable(
   },
   (t) => [
     uniqueIndex('idx_promo_code_code').on(t.code),
+    index('idx_promo_code_promoter_event').on(t.promoterId, t.eventId),
     check('promo_code_discount_type_check', sql`${t.discountType} in ('percentage','fixed_amount')`),
     check(
       'promo_code_scope_check',
@@ -198,6 +199,7 @@ export const promoterEvent = pgTable(
   (t) => [
     uniqueIndex('idx_promoter_event_unique').on(t.promoterId, t.eventId),
     index('idx_promoter_event_promoter').on(t.promoterId),
+    index('idx_promoter_event_event').on(t.eventId),
     check('promoter_event_status_check', sql`${t.status} in ('active','revoked')`),
   ],
 );

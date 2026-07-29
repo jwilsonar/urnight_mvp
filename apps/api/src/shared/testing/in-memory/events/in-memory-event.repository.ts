@@ -12,6 +12,11 @@ export class InMemoryEventRepository
 {
   private readonly genresByEvent = new Map<string, string[]>();
   private readonly tagsByEvent = new Map<string, string[]>();
+  private readonly ticketPricesByEvent = new Map<string, number[]>();
+
+  setTicketPrices(eventId: string, prices: number[]): void {
+    this.ticketPricesByEvent.set(eventId, [...prices]);
+  }
 
   async findById(id: string): Promise<Event | null> {
     const entity = this.getById(id);
@@ -36,6 +41,15 @@ export class InMemoryEventRepository
       if (filter?.localId !== undefined && e.localId !== filter.localId) return false;
       if (filter?.from && e.startsAt < filter.from) return false;
       if (filter?.to && e.startsAt > filter.to) return false;
+      if (filter?.minPrice !== undefined || filter?.maxPrice !== undefined) {
+        const prices = this.ticketPricesByEvent.get(e.id) ?? [];
+        const matches = prices.some(
+          (price) =>
+            (filter.minPrice === undefined || price >= filter.minPrice) &&
+            (filter.maxPrice === undefined || price <= filter.maxPrice),
+        );
+        if (!matches) return false;
+      }
       if (q && !`${e.name} ${e.description ?? ''}`.toLowerCase().includes(q)) return false;
       return true;
     });

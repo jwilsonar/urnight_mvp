@@ -94,10 +94,13 @@ async function seedUser(): Promise<string> {
 async function seedPromoter(
   companyId: string,
   code: string,
+  userId: string | null = null,
 ): Promise<{ promoterId: string; referralLinkId: string }> {
   const promoterId = randomUUID();
   const referralLinkId = randomUUID();
-  await client.db.insert(promoter).values({ id: promoterId, companyId, name: 'Promotor Demo' });
+  await client.db
+    .insert(promoter)
+    .values({ id: promoterId, companyId, userId, name: 'Promotor Demo' });
   await client.db.insert(referralLink).values({
     id: referralLinkId,
     promoterId,
@@ -192,14 +195,15 @@ describe('Promoters HTTP (e2e)', () => {
       expect(res.body.status).toBe(422);
     });
 
-    it('POST /:id/review → 422 al aprobar sin companyId (refine)', async () => {
+    it('POST /:id/review → 403 al aprobar sin company scope en el token', async () => {
+      const application = await http().post('/api/v1/promoter-applications').send(APPLY);
       const reviewerId = await seedUser();
       const token = await signAccessToken(app, reviewerId, ['admin_local']);
       const res = await http()
-        .post(`/api/v1/promoter-applications/${randomUUID()}/review`)
+        .post(`/api/v1/promoter-applications/${application.body.id}/review`)
         .set('Authorization', `Bearer ${token}`)
         .send({ decision: 'approved' });
-      expect(res.status).toBe(422);
+      expect(res.status).toBe(403);
     });
 
     it('POST /:id/review → 404 Problem+JSON si la postulación no existe', async () => {
@@ -345,9 +349,12 @@ describe('Promoters HTTP (e2e)', () => {
 
     it('GET /:id/sales → 200 devuelve el resumen de ventas/comisiones', async () => {
       const companyId = await seedCompany();
-      const { promoterId, referralLinkId } = await seedPromoter(companyId, 'SALESC01');
+      const actorId = await seedUser();
+      const { promoterId, referralLinkId } = await seedPromoter(companyId, 'SALESC01', actorId);
       await seedAttributedSale(companyId, promoterId, referralLinkId, '5.00');
-      const token = await signAccessToken(app, randomUUID(), ['promoter']);
+      const token = await signAccessToken(app, actorId, ['promoter'], {
+        companyId,
+      });
       const res = await http()
         .get(`/api/v1/promoters/${promoterId}/sales`)
         .set('Authorization', `Bearer ${token}`);
@@ -358,6 +365,73 @@ describe('Promoters HTTP (e2e)', () => {
       expect(res.body.attributions).toHaveLength(1);
       expect(res.body.attributions[0]?.commissionAmount).toBe(5);
       expect(res.body.attributions[0]?.status).toBe('estimated');
+    });
+
+    it('GET /me/metrics resuelve solo el promotor ligado al usuario autenticado', async () => {
+      const companyId = await seedCompany();
+      const actorId = await seedUser();
+      const own = await seedPromoter(companyId, 'METRIC01', actorId);
+      await seedPromoter(companyId, 'METRIC02', await seedUser());
+      const token = await signAccessToken(app, actorId, ['promoter'], {
+        companyId,
+      });
+
+      const res = await http().get('/api/v1/promoters/me/metrics').set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.promoterId).toBe(own.promoterId);
+      expect(res.body.totals.registeredCount).toBe(0);
+      expect(res.body.totals.attendanceRate).toBe(0);
+    });
+
+    it('un promotor NO puede pedir métricas de otro promotor por ID', async () => {
+      const companyId = await seedCompany();
+      const actorId = await seedUser();
+      await seedPromoter(companyId, 'METRIC03', actorId);
+      const other = await seedPromoter(companyId, 'METRIC04', await seedUser());
+      const token = await signAccessToken(app, actorId, ['promoter'], {
+        companyId,
+      });
+
+      const res = await http()
+        .get(`/api/v1/promoters/${other.promoterId}/metrics`)
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(403);
+    });
+
+    it('un admin NO puede leer métricas de un promotor de otra compañía', async () => {
+      const ownCompanyId = await seedCompany();
+      const otherCompanyId = await seedCompany();
+      const other = await seedPromoter(otherCompanyId, 'METRIC05');
+      const token = await signAccessToken(app, await seedUser(), ['admin_local'], {
+        companyId: ownCompanyId,
+      });
+
+      const res = await http()
+        .get(`/api/v1/promoters/${other.promoterId}/metrics`)
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(403);
+      expect(res.body.code).toBe('auth/tenant-forbidden');
+    });
+
+    it('ranking de admin_local contiene solo promotores de su compañía', async () => {
+      const ownCompanyId = await seedCompany();
+      const otherCompanyId = await seedCompany();
+      const own = await seedPromoter(ownCompanyId, 'METRIC06');
+      await seedPromoter(otherCompanyId, 'METRIC07');
+      const token = await signAccessToken(app, await seedUser(), ['admin_local'], {
+        companyId: ownCompanyId,
+      });
+
+      const res = await http()
+        .get('/api/v1/promoters/ranking?sortBy=attendance_rate')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.minimumVolume).toBe(10);
+      expect(res.body.rows.map((row: { promoterId: string }) => row.promoterId)).toEqual([own.promoterId]);
     });
 
     it('POST /referrals/:code/click → 204 público registra el clic', async () => {
@@ -496,8 +570,8 @@ describe('Promoters HTTP (e2e)', () => {
       expect(res.body.errors).toBeDefined();
     });
 
-    it('POST /promo-codes → 201 admin_local crea el código', async () => {
-      const token = await signAccessToken(app, randomUUID(), ['admin_local']);
+    it('POST /promo-codes → 201 super_admin crea un código global', async () => {
+      const token = await signAccessToken(app, randomUUID(), ['super_admin']);
       const res = await http()
         .post('/api/v1/promo-codes')
         .set('Authorization', `Bearer ${token}`)
@@ -512,12 +586,9 @@ describe('Promoters HTTP (e2e)', () => {
     });
 
     it('POST /promo-codes → 409 Problem+JSON si el código ya existe', async () => {
-      const token = await signAccessToken(app, randomUUID(), ['admin_local']);
+      const token = await signAccessToken(app, randomUUID(), ['super_admin']);
       await http().post('/api/v1/promo-codes').set('Authorization', `Bearer ${token}`).send(CREATE);
-      const res = await http()
-        .post('/api/v1/promo-codes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(CREATE);
+      const res = await http().post('/api/v1/promo-codes').set('Authorization', `Bearer ${token}`).send(CREATE);
       expect(res.status).toBe(409);
       expect(res.headers['content-type']).toMatch(/application\/problem\+json/);
       expect(res.body.code).toBe('promoters/promo-code-code-taken');
@@ -543,7 +614,7 @@ describe('Promoters HTTP (e2e)', () => {
     });
 
     it('POST /promo-codes/validate → 200 con código válido calcula el descuento', async () => {
-      const token = await signAccessToken(app, randomUUID(), ['admin_local']);
+      const token = await signAccessToken(app, randomUUID(), ['super_admin']);
       await http().post('/api/v1/promo-codes').set('Authorization', `Bearer ${token}`).send(CREATE);
       const res = await http()
         .post('/api/v1/promo-codes/validate')

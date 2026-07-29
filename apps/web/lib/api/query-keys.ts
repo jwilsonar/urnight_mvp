@@ -26,17 +26,17 @@ export const queryKeys = {
   event: (slug: string) => ['events', 'event', slug] as const,
   ticketTypes: (eventId: string) => ['events', 'ticket-types', eventId] as const,
   promoterSales: (promoterId: string) => ['promoters', 'sales', promoterId] as const,
+  promoterMetricsMe: (filter: Record<string, unknown> = {}) => ['promoters', 'metrics', 'me', filter] as const,
+  promoterRanking: (filter: Record<string, unknown>) => ['promoters', 'ranking', filter] as const,
   promoterAssociations: ['promoters', 'associations', 'me'] as const,
   /** Promotor activo del usuario de sesión (panel promotor). */
   myPromoter: ['promoters', 'me'] as const,
   /** Asignaciones de un promotor (vista admin). */
-  promoterAssignments: (promoterId: string) =>
-    ['promoters', 'assignments', promoterId] as const,
+  promoterAssignments: (promoterId: string) => ['promoters', 'assignments', promoterId] as const,
   /** Eventos asignados al promotor de sesión. */
   myAssignments: ['promoters', 'assignments', 'me'] as const,
   /** Códigos de canje de una asignación (gestión del promotor). */
-  redemptionCodes: (promoterEventId: string) =>
-    ['promoters', 'redemption-codes', promoterEventId] as const,
+  redemptionCodes: (promoterEventId: string) => ['promoters', 'redemption-codes', promoterEventId] as const,
   platformSetting: (key: string) => ['ops', 'platform-setting', key] as const,
   notificationsMe: ['ops', 'notifications', 'me'] as const,
 } as const;

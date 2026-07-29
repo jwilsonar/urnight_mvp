@@ -75,6 +75,11 @@ export const PANEL_NAV: Record<PanelSection, PanelNavItem[]> = {
     { href: '/panel/superadmin/reviews', label: 'Revisiones', icon: SealCheck },
     { href: '/panel/superadmin/affiliations', label: 'Afiliaciones', icon: Handshake },
     { href: '/panel/superadmin/companies', label: 'Empresas', icon: Buildings },
+    {
+      href: '/panel/superadmin/promoters',
+      label: 'Métricas RRPP',
+      icon: ChartBar,
+    },
     { href: '/panel/superadmin/audit', label: 'Auditoría', icon: ClockCounterClockwise },
     { href: '/panel/superadmin/taxonomy', label: 'Taxonomía', icon: Tag },
     { href: '/panel/superadmin/fidelizacion', label: 'Fidelización', icon: Medal },

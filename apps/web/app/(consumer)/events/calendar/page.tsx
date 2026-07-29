@@ -6,7 +6,12 @@ import type { EventResponse } from "@urnight/contracts";
 import { Button } from "@urnight/ui";
 import { EventCard } from "@/components/catalog/event-card";
 import { EmptyState } from "@/components/shared/empty-state";
-import { getUpcomingEvents } from "@/lib/api/catalog";
+import { getEvents, getUpcomingEvents } from "@/lib/api/catalog";
+import {
+  eventCatalogHref,
+  parsePriceFilter,
+  type EventCatalogSearchParams,
+} from "@/lib/catalog-filters";
 
 export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
@@ -14,12 +19,40 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("metadataTitle") };
 }
 
-export default async function EventsCalendarPage() {
-  const [t, format] = await Promise.all([
+export default async function EventsCalendarPage({
+  searchParams,
+}: {
+  searchParams: Promise<EventCatalogSearchParams>;
+}) {
+  const [t, format, filters] = await Promise.all([
     getTranslations("events.calendar"),
     getFormatter(),
+    searchParams,
   ]);
-  const events = await getUpcomingEvents().catch(() => []);
+  const hasFilters = Boolean(
+    filters.q ||
+    filters.zoneId ||
+    filters.genreId ||
+    filters.tagId ||
+    filters.from ||
+    filters.to ||
+    filters.minPrice ||
+    filters.maxPrice,
+  );
+  const events = await (
+    hasFilters
+      ? getEvents({
+          q: filters.q,
+          zoneId: filters.zoneId,
+          genreId: filters.genreId,
+          tagId: filters.tagId,
+          from: filters.from ?? new Date().toISOString(),
+          to: filters.to,
+          minPrice: parsePriceFilter(filters.minPrice),
+          maxPrice: parsePriceFilter(filters.maxPrice),
+        })
+      : getUpcomingEvents()
+  ).catch(() => []);
   const groups = new Map<string, EventResponse[]>();
   for (const event of events) {
     const key = format.dateTime(new Date(event.startsAt), {
@@ -42,7 +75,9 @@ export default async function EventsCalendarPage() {
           <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <Button variant="secondary" size="sm" asChild>
-          <Link href="/events">{t("viewList")} →</Link>
+          <Link href={eventCatalogHref("/events", filters)}>
+            {t("viewList")} →
+          </Link>
         </Button>
       </div>
 

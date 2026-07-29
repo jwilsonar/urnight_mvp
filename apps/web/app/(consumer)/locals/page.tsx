@@ -16,18 +16,62 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title"), description: t("description") };
 }
 
+interface LocalsSearchParams {
+  zoneId?: string;
+  q?: string;
+}
+
+function localsHref(
+  current: LocalsSearchParams,
+  updates: Partial<LocalsSearchParams>,
+): string {
+  const params = new URLSearchParams();
+  const q = Object.hasOwn(updates, "q") ? updates.q : current.q;
+  const zoneId = Object.hasOwn(updates, "zoneId")
+    ? updates.zoneId
+    : current.zoneId;
+  if (q) params.set("q", q);
+  if (zoneId) params.set("zoneId", zoneId);
+  const query = params.toString();
+  return query ? `/locals?${query}` : "/locals";
+}
+
 export default async function LocalsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ zoneId?: string; q?: string }>;
+  searchParams: Promise<LocalsSearchParams>;
 }) {
   const t = await getTranslations("locals");
-  const { zoneId, q } = await searchParams;
+  const filters = await searchParams;
+  const { zoneId, q } = filters;
   // Degrada con elegancia si el API no responde (evita romper el build ISR).
   const [zones, locals] = await Promise.all([
     getZones().catch(() => []),
     getLocals({ zoneId, q }).catch(() => null),
   ]);
+  const selectedZone = zones.find((zone) => zone.id === zoneId);
+  const activeFilters = [
+    ...(q
+      ? [
+          {
+            kind: "query",
+            label: q,
+            href: localsHref(filters, { q: undefined }),
+          },
+        ]
+      : []),
+    ...(zoneId
+      ? [
+          {
+            kind: "zone",
+            label: selectedZone?.name ?? t("zoneFallback"),
+            href: localsHref(filters, { zoneId: undefined }),
+          },
+        ]
+      : []),
+  ];
+  const suggestedFilter =
+    activeFilters.find((filter) => filter.kind === "zone") ?? activeFilters[0];
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -39,8 +83,48 @@ export default async function LocalsPage({
           <p className="text-muted-foreground">{t("description")}</p>
         </div>
         {/* La búsqueda vive en el header (con sugerencias); aquí solo el filtro por zona. */}
-        <ZoneFilter zones={zones} />
+        <ZoneFilter
+          zones={zones}
+          pathname="/locals"
+          ariaLabel={t("filterAria")}
+          allLabel={t("allZones")}
+        />
       </div>
+
+      {activeFilters.length > 0 ? (
+        <section
+          className="mb-6 space-y-3"
+          aria-labelledby="active-local-filters"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 id="active-local-filters" className="text-sm font-semibold">
+              {t("active.title")}
+            </h2>
+            <Link href="/locals" className="rv-chip w-36 justify-center">
+              {t("active.clearAll")}
+            </Link>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {activeFilters.map((filter) => (
+              <Link
+                key={filter.kind}
+                href={filter.href}
+                className="rv-chip w-44 max-w-full justify-between"
+                aria-label={t("active.remove", { filter: filter.label })}
+              >
+                <span className="truncate">{filter.label}</span>
+                <span aria-hidden="true">×</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {locals !== null ? (
+        <p className="mb-5 text-sm text-muted-foreground" role="status">
+          {t("results", { count: locals.length })}
+        </p>
+      ) : null}
 
       {locals === null ? (
         <EmptyState
@@ -51,11 +135,25 @@ export default async function LocalsPage({
       ) : locals.length === 0 ? (
         <EmptyState
           icon={<MapPin className="h-10 w-10" weight="duotone" />}
-          title={t("empty.title")}
-          description={t("empty.description")}
+          title={
+            activeFilters.length > 0
+              ? t("empty.filteredTitle")
+              : t("empty.title")
+          }
+          description={
+            suggestedFilter
+              ? t("empty.filteredDescription", {
+                  filter: suggestedFilter.label,
+                })
+              : t("empty.description")
+          }
           action={
-            <Button asChild variant="ghost">
-              <Link href="/locals">{t("empty.action")}</Link>
+            <Button asChild variant="ghost" className="w-56 max-w-full">
+              <Link href={suggestedFilter?.href ?? "/locals"}>
+                {suggestedFilter
+                  ? t("empty.removeFilter", { filter: suggestedFilter.label })
+                  : t("empty.action")}
+              </Link>
             </Button>
           }
         />

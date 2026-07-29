@@ -60,19 +60,30 @@ export const updateEventSchema = z.object({
 });
 export type UpdateEventDto = z.infer<typeof updateEventSchema>;
 
-/** Filtros de búsqueda pública de eventos (#3: texto, zona, género, tag, fechas). */
-export const eventListQuerySchema = z.object({
-  q: z.string().trim().min(1).max(120).optional(),
-  localId: z.string().uuid().optional(),
-  zoneId: z.string().uuid().optional(),
-  genreId: z.string().uuid().optional(),
-  tagId: z.string().uuid().optional(),
-  from: z.string().datetime().optional(),
-  to: z.string().datetime().optional(),
-  // Paginación opcional (retrocompatible: ausentes ⇒ lista completa).
-  limit: z.coerce.number().int().min(1).max(60).optional(),
-  offset: z.coerce.number().int().min(0).optional(),
-});
+/** Filtros de búsqueda pública (#3: texto, zona, género, tag, fechas y precio). */
+export const eventListQuerySchema = z
+  .object({
+    q: z.string().trim().min(1).max(120).optional(),
+    localId: z.string().uuid().optional(),
+    zoneId: z.string().uuid().optional(),
+    genreId: z.string().uuid().optional(),
+    tagId: z.string().uuid().optional(),
+    from: z.string().datetime().optional(),
+    to: z.string().datetime().optional(),
+    minPrice: z.coerce.number().int().nonnegative().optional(),
+    maxPrice: z.coerce.number().int().nonnegative().optional(),
+    // Paginación opcional (retrocompatible: ausentes ⇒ lista completa).
+    limit: z.coerce.number().int().min(1).max(60).optional(),
+    offset: z.coerce.number().int().min(0).optional(),
+  })
+  .refine(
+    ({ minPrice, maxPrice }) =>
+      minPrice === undefined || maxPrice === undefined || maxPrice >= minPrice,
+    {
+      message: 'maxPrice debe ser mayor o igual que minPrice',
+      path: ['maxPrice'],
+    },
+  );
 export type EventListQuery = z.infer<typeof eventListQuerySchema>;
 
 export const eventResponseSchema = z.object({

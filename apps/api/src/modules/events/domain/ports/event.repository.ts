@@ -9,6 +9,9 @@ export interface EventListFilter {
   q?: string;
   from?: Date;
   to?: Date;
+  /** Coincide si al menos un tipo de entrada tiene precio dentro del rango inclusivo. */
+  minPrice?: number;
+  maxPrice?: number;
   /** Paginación opcional (ausentes ⇒ lista completa, retrocompatible). */
   limit?: number;
   offset?: number;

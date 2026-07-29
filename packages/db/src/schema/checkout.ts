@@ -114,6 +114,8 @@ export const ticket = pgTable(
   (t) => [
     uniqueIndex('idx_ticket_qr').on(t.qrCode),
     index('idx_ticket_event').on(t.eventId),
+    index('idx_ticket_order_item').on(t.orderItemId),
+    index('idx_ticket_event_status_used_at').on(t.eventId, t.status, t.usedAt),
     check('ticket_status_check', sql`${t.status} in ('valid','used','cancelled','expired')`),
   ],
 );

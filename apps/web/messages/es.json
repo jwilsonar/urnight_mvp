@@ -177,6 +177,40 @@
     "description": "Compra tus entradas para las próximas fiestas.",
     "calendarLink": "Calendario",
     "all": "Todos",
+    "results": "{count, plural, =0 {0 resultados} one {# resultado} other {# resultados}}",
+    "filters": {
+      "zone": {
+        "title": "Zona / distrito",
+        "aria": "Filtrar eventos por zona o distrito",
+        "all": "Todas las zonas",
+        "fallback": "Zona"
+      },
+      "genre": {
+        "title": "Género",
+        "fallback": "Género"
+      },
+      "tagFallback": "Etiqueta",
+      "date": {
+        "title": "Fecha",
+        "any": "Cualquier fecha",
+        "today": "Hoy",
+        "tonight": "Esta noche",
+        "weekend": "Este fin de semana",
+        "custom": "Rango de fechas"
+      },
+      "price": {
+        "title": "Precio",
+        "minimum": "Mínimo (S/)",
+        "maximum": "Máximo (S/)",
+        "apply": "Aplicar",
+        "invalidRange": "El máximo debe ser igual o mayor que el mínimo."
+      }
+    },
+    "active": {
+      "title": "Filtros activos",
+      "clearAll": "Limpiar todo",
+      "remove": "Quitar filtro {filter}"
+    },
     "loadError": {
       "title": "No pudimos cargar los eventos",
       "description": "Inténtalo de nuevo en unos minutos."
@@ -184,7 +218,10 @@
     "empty": {
       "title": "No hay eventos",
       "description": "Aún no hay eventos publicados. Vuelve pronto.",
-      "action": "Explorar locales"
+      "action": "Explorar locales",
+      "filteredTitle": "No encontramos eventos",
+      "filteredDescription": "La combinación es muy restrictiva. Prueba quitando {filter}.",
+      "removeFilter": "Quitar {filter}"
     },
     "pagination": {
       "aria": "Paginación",
@@ -205,8 +242,7 @@
       "almostFull": "Casi lleno",
       "noSpots": "Sin cupos",
       "spots": "{count, plural, one {# cupo} other {# cupos}}",
-      "spotsAvailable": "Cupos disponibles",
-      "viewEvent": "Ver evento"
+      "spotsAvailable": "Cupos disponibles"
     },
     "detail": {
       "metadataDescription": "Entradas para {name} en RAVENUE.",
@@ -276,6 +312,13 @@
     "description": "Encuentra los mejores lugares de la noche.",
     "filterAria": "Filtrar por zona",
     "allZones": "Todas las zonas",
+    "zoneFallback": "Zona",
+    "results": "{count, plural, =0 {0 locales} one {# local} other {# locales}}",
+    "active": {
+      "title": "Filtros activos",
+      "clearAll": "Limpiar todo",
+      "remove": "Quitar filtro {filter}"
+    },
     "loadError": {
       "title": "No pudimos cargar los locales",
       "description": "Inténtalo de nuevo en unos minutos."
@@ -283,7 +326,10 @@
     "empty": {
       "title": "No hay locales",
       "description": "No encontramos locales para esta zona. Prueba con otra.",
-      "action": "Ver todos los locales"
+      "action": "Ver todos los locales",
+      "filteredTitle": "No encontramos locales",
+      "filteredDescription": "La combinación es muy restrictiva. Prueba quitando {filter}.",
+      "removeFilter": "Quitar {filter}"
     },
     "affiliate": {
       "title": "¿Tienes un local?",
@@ -293,8 +339,7 @@
     "card": {
       "facade": "Fachada del local",
       "verified": "Verificado",
-      "features": "Eventos, carta y reservas",
-      "viewVenue": "Ver local"
+      "features": "Eventos, carta y reservas"
     },
     "crowd": {
       "title": "Ambiente ahora",
@@ -2129,6 +2174,91 @@
         ]
       }
     ]
+  },
+  "promoterMetrics": {
+    "header": {
+      "metadataTitle": "Panel de promotor",
+      "metadataDescription": "Gestiona tu enlace de referido, códigos promocionales y comisiones.",
+      "title": "Resumen de promotor",
+      "description": "Asistencia real, hora de entrada, acompañantes y ventas atribuidas."
+    },
+    "overview": {
+      "errorTitle": "No pudimos cargar tus métricas",
+      "errorDescription": "Tus cifras siguen protegidas. Reintenta para consultar los datos de puerta.",
+      "peopleOnList": "Personas en lista",
+      "validTickets": "Tickets vigentes atribuidos",
+      "realAttendance": "Asistencia real",
+      "uniqueDoorValidations": "Validaciones únicas en puerta",
+      "attributedSales": "Ventas atribuidas",
+      "estimatedCommission": "Comisión estimada",
+      "paidOrdersOnly": "Solo órdenes pagadas",
+      "arrivalTitle": "Cómo llega tu gente",
+      "noEntries": "Sin entradas registradas",
+      "entryRange": "{first} – {last}",
+      "peakHour": "hora punta {date}",
+      "identifiedCompanions": "Acompañantes identificados",
+      "noAttendeeOrders": "Aún no hay órdenes con asistentes.",
+      "knownOrders": "{count, plural, one {# orden con comprador único.} other {# órdenes con comprador único.}}",
+      "dataCoverage": "Cobertura del dato",
+      "unknownCoverage": "Órdenes sin un único comprador; sus acompañantes no se estiman.",
+      "eventsTitle": "Métricas por evento",
+      "eventsDescription": "Entrada real, no compra. Reescaneos del mismo ticket no suman dos veces.",
+      "emptyTitle": "Aún no hay eventos con métricas",
+      "emptyDescription": "Cuando tengas eventos asignados aparecerán aquí, incluso antes de la primera venta.",
+      "event": "Evento",
+      "attendance": "Asistencia",
+      "entry": "Entrada",
+      "companions": "Acompañantes",
+      "sales": "Ventas",
+      "cancelledExcluded": "Cancelado · excluido",
+      "peak": "Punta: {date}",
+      "unknownOrders": "{count} sin cobertura",
+      "ticketCount": "{count, plural, one {# entrada} other {# entradas}}",
+      "referral": "Referido",
+      "saleDetail": "{count} ent. · {amount}",
+      "moreOrders": "+{count} órdenes"
+    },
+    "ranking": {
+      "title": "Ranking de promotores",
+      "description": "Ordena ventas, asistencia y porcentaje con datos validados en puerta.",
+      "eventFilter": "Evento (UUID, opcional)",
+      "from": "Desde",
+      "to": "Hasta",
+      "sortBy": "Ordenar por",
+      "sales": "Ventas",
+      "attendance": "Asistencia",
+      "attendanceRate": "% asistencia",
+      "descending": "Mayor",
+      "ascending": "Menor",
+      "apply": "Aplicar",
+      "invalidEvent": "Ingresa un UUID de evento válido.",
+      "invalidRange": "La fecha final debe ser posterior a la inicial.",
+      "errorTitle": "No pudimos cargar el ranking",
+      "errorDescription": "Revisa los filtros o vuelve a intentarlo.",
+      "minimumVolume": "El porcentaje entra al ranking desde <strong>{count} personas en lista</strong>. Siempre mostramos el volumen absoluto.",
+      "rules": "Órdenes pagadas · eventos no cancelados",
+      "position": "#",
+      "promoter": "Promotor",
+      "attributedSales": "Ventas atribuidas",
+      "amount": "Importe",
+      "realAttendance": "Asistencia real",
+      "estimatedCommission": "Comisión estimada",
+      "emptyTitle": "Sin promotores para estos filtros",
+      "emptyDescription": "Prueba otro evento o rango de fechas.",
+      "ambiguousOrders": "{count, plural, one {# orden ambigua excluida} other {# órdenes ambiguas excluidas}}",
+      "eligible": "Elegible",
+      "lowVolume": "Bajo volumen"
+    },
+    "admin": {
+      "metadataTitle": "Promotores — Administración",
+      "title": "Promotores",
+      "description": "Crea promotores de tu empresa y sus códigos promocionales."
+    },
+    "superadmin": {
+      "metadataTitle": "Métricas de promotores — Plataforma",
+      "title": "Métricas de promotores",
+      "description": "Ranking global con asistencia validada, volumen y ventas atribuidas."
+    }
   },
   "brand": {
     "metadataTitle": "Laboratorio de marca",

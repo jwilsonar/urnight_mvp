@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, desc, eq, gte, inArray, lte, or, sql, type SQL } from 'drizzle-orm';
-import { event, eventGenre, eventTag, local, musicGenre, tag } from '@urnight/db';
+import { event, eventGenre, eventTag, local, musicGenre, tag, ticketType } from '@urnight/db';
 import { DRIZZLE, type DrizzleDb } from '../../../../shared/database/drizzle.constants';
 import { Event, type EventStatus } from '../../domain/entities/event.entity';
 import type { EventListFilter, EventRepository } from '../../domain/ports/event.repository';
@@ -110,6 +110,24 @@ export class DrizzleEventRepository implements EventRepository {
     }
     if (filter?.from) conditions.push(gte(event.startsAt, filter.from));
     if (filter?.to) conditions.push(lte(event.startsAt, filter.to));
+    if (filter?.minPrice !== undefined || filter?.maxPrice !== undefined) {
+      const priceConditions: SQL[] = [];
+      if (filter.minPrice !== undefined) {
+        priceConditions.push(gte(ticketType.price, filter.minPrice.toFixed(2)));
+      }
+      if (filter.maxPrice !== undefined) {
+        priceConditions.push(lte(ticketType.price, filter.maxPrice.toFixed(2)));
+      }
+      conditions.push(
+        inArray(
+          event.id,
+          this.db
+            .select({ id: ticketType.eventId })
+            .from(ticketType)
+            .where(and(...priceConditions)),
+        ),
+      );
+    }
 
     let query = this.db
       .select()

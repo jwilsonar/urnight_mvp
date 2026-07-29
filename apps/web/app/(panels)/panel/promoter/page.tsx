@@ -1,11 +1,15 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { PromoterOverview } from '@/components/promoter/promoter-overview';
 import { requireRole } from '@/lib/auth-helpers';
 
-export const metadata: Metadata = {
-  title: 'Panel de promotor',
-  description: 'Gestiona tu enlace de referido, códigos promocionales y comisiones.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('promoterMetrics.header');
+  return {
+    title: t('metadataTitle'),
+    description: t('metadataDescription'),
+  };
+}
 
 /**
  * Dashboard del promotor. El gate de rol vive en el layout; lo reforzamos aquí

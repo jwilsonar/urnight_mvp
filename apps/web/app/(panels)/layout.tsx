@@ -1,4 +1,6 @@
 import { SessionProvider } from 'next-auth/react';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { PanelShell } from '@/components/panels/panel-shell';
 import { requireRole } from '@/lib/auth-helpers';
@@ -16,14 +18,20 @@ import { PANEL_ROLES } from '@/lib/utils/rbac';
  * quedar en skeleton esperando el fetch cliente de `/api/auth/session`.
  */
 export default async function PanelsLayout({ children }: { children: ReactNode }) {
-  const session = await requireRole(PANEL_ROLES, '/panel');
+  const [session, locale, messages] = await Promise.all([
+    requireRole(PANEL_ROLES, '/panel'),
+    getLocale(),
+    getMessages(),
+  ]);
   const { name, email, image, roles } = session.user;
 
   return (
-    <SessionProvider session={session}>
-      <div className="min-h-dvh bg-muted/20" data-area="panels">
-        <PanelShell user={{ name, email, image, roles }}>{children}</PanelShell>
-      </div>
-    </SessionProvider>
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      <SessionProvider session={session}>
+        <div className="min-h-dvh bg-muted/20" data-area="panels">
+          <PanelShell user={{ name, email, image, roles }}>{children}</PanelShell>
+        </div>
+      </SessionProvider>
+    </NextIntlClientProvider>
   );
 }

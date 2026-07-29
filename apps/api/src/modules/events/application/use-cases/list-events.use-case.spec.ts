@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { eventListQuerySchema } from '@urnight/contracts';
 import { InMemoryEventRepository } from '../../../../shared/testing/in-memory/events';
 import { EventBuilder } from '../../../../shared/testing/builders/events';
 import { ListEventsUseCase } from './list-events.use-case';
@@ -55,5 +56,59 @@ describe('ListEventsUseCase', () => {
     expect(secondPage).toHaveLength(1);
     const ids = [...firstPage, ...secondPage].map((e) => e.id).sort();
     expect(ids).toEqual(['e1', 'e2', 'e3']);
+  });
+
+  it('excluye un evento sin tipos de entrada cuando hay filtro de precio', async () => {
+    const { events, useCase } = build();
+    await events.create(
+      new EventBuilder().withId('e1').withSlug('sin-entradas').asPublished().build(),
+    );
+
+    const result = await useCase.execute({ minPrice: 0, maxPrice: 50 });
+
+    expect(result).toHaveLength(0);
+  });
+
+  it('incluye un evento con un solo tipo cuyo precio cae exactamente en los bordes', async () => {
+    const { events, useCase } = build();
+    await events.create(new EventBuilder().withId('e1').withSlug('general').asPublished().build());
+    events.setTicketPrices('e1', [50]);
+
+    const result = await useCase.execute({ minPrice: 50, maxPrice: 50 });
+
+    expect(result.map((event) => event.id)).toEqual(['e1']);
+  });
+
+  it('incluye un evento si alguno de sus tipos de entrada cae en el rango', async () => {
+    const { events, useCase } = build();
+    await events.create(
+      new EventBuilder().withId('e1').withSlug('general-y-vip').asPublished().build(),
+    );
+    events.setTicketPrices('e1', [30, 300]);
+
+    const result = await useCase.execute({ maxPrice: 50 });
+
+    expect(result.map((event) => event.id)).toEqual(['e1']);
+  });
+
+  it('excluye un evento cuando ninguno de sus tipos de entrada cae en el rango', async () => {
+    const { events, useCase } = build();
+    await events.create(
+      new EventBuilder().withId('e1').withSlug('fuera-de-rango').asPublished().build(),
+    );
+    events.setTicketPrices('e1', [30, 300]);
+
+    const result = await useCase.execute({ minPrice: 50, maxPrice: 200 });
+
+    expect(result).toHaveLength(0);
+  });
+
+  it('valida minPrice/maxPrice como enteros no negativos y ordenados', () => {
+    expect(eventListQuerySchema.parse({ minPrice: '0', maxPrice: '50' })).toMatchObject({
+      minPrice: 0,
+      maxPrice: 50,
+    });
+    expect(eventListQuerySchema.safeParse({ minPrice: -1 }).success).toBe(false);
+    expect(eventListQuerySchema.safeParse({ minPrice: 51, maxPrice: 50 }).success).toBe(false);
   });
 });

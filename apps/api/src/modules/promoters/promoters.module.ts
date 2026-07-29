@@ -7,6 +7,11 @@ import { CreatePromoCodeUseCase } from './application/use-cases/create-promo-cod
 import { CreatePromoterUseCase } from './application/use-cases/create-promoter.use-case';
 import { GenerateRedemptionCodeUseCase } from './application/use-cases/generate-my-code.use-case';
 import { GetMyPromoterUseCase } from './application/use-cases/get-my-promoter.use-case';
+import {
+  GetMyPromoterMetricsUseCase,
+  GetPromoterMetricsUseCase,
+} from './application/use-cases/get-promoter-metrics.use-case';
+import { ListPromoterRankingUseCase } from './application/use-cases/list-promoter-ranking.use-case';
 import { ListMyAssignmentsUseCase } from './application/use-cases/list-my-assignments.use-case';
 import { ListMyRedemptionCodesUseCase } from './application/use-cases/list-my-codes.use-case';
 import { ListMyPromotersUseCase } from './application/use-cases/list-my-promoters.use-case';
@@ -26,12 +31,14 @@ import { PromoRedemptionService } from './application/services/promo-redemption.
 import { OrderPaidSubscriber } from './application/subscribers/order-paid.subscriber';
 import { PromoRedemptionPort } from '../../shared/ports/promo-redemption.port';
 import { PROMO_CODE_REPOSITORY } from './domain/ports/promo-code.repository';
+import { PROMOTER_ANALYTICS_REPOSITORY } from './domain/ports/promoter-analytics.repository';
 import { PROMOTER_APPLICATION_REPOSITORY } from './domain/ports/promoter-application.repository';
 import { PROMOTER_EVENT_REPOSITORY } from './domain/ports/promoter-event.repository';
 import { PROMOTER_REPOSITORY } from './domain/ports/promoter.repository';
 import { REFERRAL_LINK_REPOSITORY } from './domain/ports/referral-link.repository';
 import { SALE_ATTRIBUTION_REPOSITORY } from './domain/ports/sale-attribution.repository';
 import { DrizzlePromoCodeRepository } from './infrastructure/persistence/drizzle-promo-code.repository';
+import { DrizzlePromoterAnalyticsRepository } from './infrastructure/persistence/drizzle-promoter-analytics.repository';
 import { DrizzlePromoterApplicationRepository } from './infrastructure/persistence/drizzle-promoter-application.repository';
 import { DrizzlePromoterEventRepository } from './infrastructure/persistence/drizzle-promoter-event.repository';
 import { DrizzlePromoterRepository } from './infrastructure/persistence/drizzle-promoter.repository';
@@ -65,6 +72,9 @@ import { RedemptionsController } from './interfaces/http/redemptions.controller'
     ListMyRedemptionsUseCase,
     ListPromoCodeRedemptionsUseCase,
     ListPromoterSalesUseCase,
+    GetPromoterMetricsUseCase,
+    GetMyPromoterMetricsUseCase,
+    ListPromoterRankingUseCase,
     RegisterReferralClickUseCase,
     AttributeSaleUseCase,
     GetMyPromoterUseCase,
@@ -82,6 +92,10 @@ import { RedemptionsController } from './interfaces/http/redemptions.controller'
     { provide: PROMOTER_EVENT_REPOSITORY, useClass: DrizzlePromoterEventRepository },
     { provide: REFERRAL_LINK_REPOSITORY, useClass: DrizzleReferralLinkRepository },
     { provide: PROMO_CODE_REPOSITORY, useClass: DrizzlePromoCodeRepository },
+    {
+      provide: PROMOTER_ANALYTICS_REPOSITORY,
+      useClass: DrizzlePromoterAnalyticsRepository,
+    },
     { provide: SALE_ATTRIBUTION_REPOSITORY, useClass: DrizzleSaleAttributionRepository },
     { provide: PROMOTER_APPLICATION_REPOSITORY, useClass: DrizzlePromoterApplicationRepository },
   ],

@@ -271,7 +271,7 @@ export default async function HomePage() {
           </section>
         ) : null}
 
-        <section className="border-y py-3">
+        <section className="my-10 border-y py-4 sm:my-14 sm:py-5">
           <Marquee>
             <div className="flex shrink-0 items-center gap-4">
               {/* Intercalado distrito/género a propósito: leído al vuelo se
