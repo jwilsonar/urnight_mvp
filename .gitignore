@@ -49,7 +49,8 @@ coverage/
 
 # skills instaladas localmente (npx skills) - no versionar
 .agents/
-.claude/
+.claude/*
+!.claude/skills/
 skills-lock.json
 
 # graphify: grafo de conocimiento local (se regenera con "graphify update .")
