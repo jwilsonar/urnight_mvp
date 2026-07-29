@@ -14,8 +14,8 @@ import pino, { type Logger } from 'pino';
 const isTest = process.env.NODE_ENV === 'test';
 const isProd = process.env.NODE_ENV === 'production';
 
-/** Nivel efectivo: LOG_LEVEL manda; si no, test=silent, prod=info, dev=debug. */
-const level = process.env.LOG_LEVEL ?? (isTest ? 'silent' : isProd ? 'info' : 'debug');
+/** Nivel efectivo: LOG_LEVEL manda; si no (o si viene vacío), test=silent, prod=info, dev=debug. */
+const level = process.env.LOG_LEVEL?.trim() || (isTest ? 'silent' : isProd ? 'info' : 'debug');
 
 /**
  * Rutas redactadas (§6 secrets / PII). NUNCA emitir credenciales, tokens, QR

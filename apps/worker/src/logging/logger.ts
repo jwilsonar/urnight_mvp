@@ -9,7 +9,7 @@ import pino, { type Logger } from 'pino';
 const isTest = process.env.NODE_ENV === 'test';
 const isProd = process.env.NODE_ENV === 'production';
 
-const level = process.env.LOG_LEVEL ?? (isTest ? 'silent' : isProd ? 'info' : 'debug');
+const level = process.env.LOG_LEVEL?.trim() || (isTest ? 'silent' : isProd ? 'info' : 'debug');
 
 /** Rutas redactadas (§6 secrets / PII). El worker procesa datos de órdenes/QR. */
 export const REDACT_PATHS = [

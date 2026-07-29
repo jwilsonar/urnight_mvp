@@ -5,10 +5,12 @@ export const envSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     PORT: z.coerce.number().int().positive().default(3001),
-    // Nivel de logging (pino, §6). Vacío => derivado del entorno en logger.ts.
-    LOG_LEVEL: z
-      .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
-      .optional(),
+    // Nivel de logging (pino, §6). Vacío/ausente => derivado del entorno en logger.ts.
+    // El preprocess normaliza '' (variable declarada sin valor en .env) a undefined.
+    LOG_LEVEL: z.preprocess(
+      (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
+      z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).optional(),
+    ),
     DATABASE_URL: z.string().url(),
     REDIS_URL: z.string().url(),
     // Secretos JWT: min 32 chars para HS256 (B5). Firmado/verificado con HS256 (algorithms allowlist).

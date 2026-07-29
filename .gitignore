@@ -49,7 +49,11 @@ coverage/
 
 # skills instaladas localmente (npx skills) - no versionar
 .agents/
-.claude/
+.claude/*
+!.claude/skills/
+# hooks del proyecto: sincronizacion automatica de docs/diagramas-secuencia/
+!.claude/settings.json
+!.claude/hooks/
 skills-lock.json
 
 # graphify: grafo de conocimiento local (se regenera con "graphify update .")
