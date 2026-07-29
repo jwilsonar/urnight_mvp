@@ -1,30 +1,45 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { and, count, desc, eq, sql } from 'drizzle-orm';
-import { alias } from 'drizzle-orm/pg-core';
-import { event, local, promoCode, promoCodeRedemption, promoter, ticketType } from '@urnight/db';
-import { DRIZZLE, type DrizzleDb } from '../../../../shared/database/drizzle.constants';
-import type { Tx } from '../../../../shared/unit-of-work/unit-of-work';
+import { Inject, Injectable } from "@nestjs/common";
+import { and, count, desc, eq, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
+import {
+  event,
+  local,
+  promoCode,
+  promoCodeRedemption,
+  promoter,
+  ticketType,
+} from "@urnight/db";
+import {
+  DRIZZLE,
+  type DrizzleDb,
+} from "../../../../shared/database/drizzle.constants";
+import type { Tx } from "../../../../shared/unit-of-work/unit-of-work";
 import {
   PromoCodeAlreadyRedeemedError,
   PromoCodeQuotaExhaustedError,
-} from '../../domain/errors/promoters.errors';
+} from "../../domain/errors/promoters.errors";
 import {
   PromoCode,
   type DiscountType,
   type PromoScope,
-} from '../../domain/entities/promo-code.entity';
+} from "../../domain/entities/promo-code.entity";
 
 /** ¿El error de la BD es una violación de UNIQUE/PK (Postgres 23505)? */
 function isUniqueViolation(err: unknown): boolean {
-  return typeof err === 'object' && err !== null && (err as { code?: string }).code === '23505';
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    (err as { code?: string }).code === "23505"
+  );
 }
 import type {
   GeneratedRedemptionCodeInput,
+  PromoOrderAttribution,
   PromoCodeRepository,
   PromoRedemptionRecord,
   RedemptionCodeView,
   ResolvedRedemptionCodeView,
-} from '../../domain/ports/promo-code.repository';
+} from "../../domain/ports/promo-code.repository";
 
 type Row = typeof promoCode.$inferSelect;
 type RedemptionRow = typeof promoCodeRedemption.$inferSelect;
@@ -53,6 +68,21 @@ export class DrizzlePromoCodeRepository implements PromoCodeRepository {
     return row ? this.toDomain(row) : null;
   }
 
+  async findAttributionByOrder(
+    orderId: string,
+  ): Promise<PromoOrderAttribution | null> {
+    const [row] = await this.db
+      .select({
+        promoCodeId: promoCode.id,
+        promoterId: promoCode.promoterId,
+      })
+      .from(promoCodeRedemption)
+      .innerJoin(promoCode, eq(promoCodeRedemption.promoCodeId, promoCode.id))
+      .where(eq(promoCodeRedemption.orderId, orderId))
+      .limit(1);
+    return row ?? null;
+  }
+
   async existsByCode(code: string): Promise<boolean> {
     const [row] = await this.db
       .select({ id: promoCode.id })
@@ -75,11 +105,14 @@ export class DrizzlePromoCodeRepository implements PromoCodeRepository {
         isActive: entity.isActive,
       })
       .returning();
-    if (!row) throw new Error('No se pudo crear el código promocional');
+    if (!row) throw new Error("No se pudo crear el código promocional");
     return this.toDomain(row);
   }
 
-  async createGenerated(input: GeneratedRedemptionCodeInput, tx?: unknown): Promise<void> {
+  async createGenerated(
+    input: GeneratedRedemptionCodeInput,
+    tx?: unknown,
+  ): Promise<void> {
     const exec = (tx as Tx | undefined) ?? this.db;
     await exec.insert(promoCode).values({
       id: input.id,
@@ -87,7 +120,7 @@ export class DrizzlePromoCodeRepository implements PromoCodeRepository {
       discountType: input.discountType,
       discountValue: input.discountValue.toFixed(2),
       usageQuota: 1,
-      scope: 'ticket_type',
+      scope: "ticket_type",
       eventId: input.eventId,
       ticketTypeId: input.ticketTypeId,
       promoterId: input.promoterId,
@@ -112,10 +145,18 @@ export class DrizzlePromoCodeRepository implements PromoCodeRepository {
     await exec
       .update(promoCode)
       .set({ isActive: false })
-      .where(and(eq(promoCode.promoterEventId, promoterEventId), eq(promoCode.usedCount, 0)));
+      .where(
+        and(
+          eq(promoCode.promoterEventId, promoterEventId),
+          eq(promoCode.usedCount, 0),
+        ),
+      );
   }
 
-  async countByAllocation(promoterEventId: string, ticketTypeId: string): Promise<number> {
+  async countByAllocation(
+    promoterEventId: string,
+    ticketTypeId: string,
+  ): Promise<number> {
     const [row] = await this.db
       .select({ n: count() })
       .from(promoCode)
@@ -128,7 +169,9 @@ export class DrizzlePromoCodeRepository implements PromoCodeRepository {
     return Number(row?.n ?? 0);
   }
 
-  async listByPromoterEvent(promoterEventId: string): Promise<RedemptionCodeView[]> {
+  async listByPromoterEvent(
+    promoterEventId: string,
+  ): Promise<RedemptionCodeView[]> {
     const rows = await this.db
       .select({
         id: promoCode.id,
@@ -243,7 +286,10 @@ export class DrizzlePromoCodeRepository implements PromoCodeRepository {
     if (rows.length === 0) throw new PromoCodeQuotaExhaustedError();
   }
 
-  async recordRedemption(record: PromoRedemptionRecord, tx?: unknown): Promise<void> {
+  async recordRedemption(
+    record: PromoRedemptionRecord,
+    tx?: unknown,
+  ): Promise<void> {
     const exec = (tx as Tx | undefined) ?? this.db;
     try {
       await exec.insert(promoCodeRedemption).values({
@@ -267,7 +313,7 @@ export class DrizzlePromoCodeRepository implements PromoCodeRepository {
    * empresa (fail-closed: el use-case lo trata como acceso denegado a no-super).
    */
   async ownerCompanyId(promoCodeId: string): Promise<string | null> {
-    const eventLocal = alias(local, 'promo_event_local');
+    const eventLocal = alias(local, "promo_event_local");
     const [row] = await this.db
       .select({
         viaEvent: eventLocal.companyId,
@@ -285,7 +331,9 @@ export class DrizzlePromoCodeRepository implements PromoCodeRepository {
     return row.viaEvent ?? row.viaLocal ?? row.viaPromoter ?? null;
   }
 
-  async listRedemptionsByCode(promoCodeId: string): Promise<PromoRedemptionRecord[]> {
+  async listRedemptionsByCode(
+    promoCodeId: string,
+  ): Promise<PromoRedemptionRecord[]> {
     const rows = await this.db
       .select()
       .from(promoCodeRedemption)
@@ -294,7 +342,9 @@ export class DrizzlePromoCodeRepository implements PromoCodeRepository {
     return rows.map(toRedemptionRecord);
   }
 
-  async listRedemptionsByUser(userId: string): Promise<PromoRedemptionRecord[]> {
+  async listRedemptionsByUser(
+    userId: string,
+  ): Promise<PromoRedemptionRecord[]> {
     const rows = await this.db
       .select()
       .from(promoCodeRedemption)

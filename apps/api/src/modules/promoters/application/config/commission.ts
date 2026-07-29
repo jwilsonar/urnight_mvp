@@ -1,9 +1,44 @@
-/**
- * Comisión por defecto del promotor (snapshot al atribuir una venta, §4.3 / ADR
- * 0003). Punto ÚNICO de la política (antes hardcodeada en `attribute-sale`).
- *
- * TODO(#M19): mover a `PLATFORM_SETTING` (el módulo `ops` expone
- * `PlatformSettingRepository`). Hasta entonces se centraliza aquí y se admite
- * override por env para no fijar la tasa en el binario.
- */
-export const PROMOTER_COMMISSION_RATE = Number(process.env.PROMOTER_COMMISSION_RATE ?? 0.05);
+import { Inject, Injectable } from "@nestjs/common";
+import { DEFAULT_COMMISSION_RATE_SETTING_KEY } from "@urnight/contracts";
+import type { PlatformSetting } from "../../../ops/domain/entities/platform-setting.entity";
+import {
+  PLATFORM_SETTING_REPOSITORY,
+  type PlatformSettingRepository,
+} from "../../../ops/domain/ports/ops.ports";
+
+export function parsePromoterCommissionRate(
+  setting: PlatformSetting | null,
+): number {
+  if (
+    !setting ||
+    setting.key !== DEFAULT_COMMISSION_RATE_SETTING_KEY ||
+    setting.valueType !== "number"
+  ) {
+    throw new Error(
+      `Falta ${DEFAULT_COMMISSION_RATE_SETTING_KEY} numérico en PLATFORM_SETTING`,
+    );
+  }
+  const raw = setting.value.trim();
+  const rate = Number(raw);
+  if (raw === "" || !Number.isFinite(rate) || rate < 0 || rate > 1) {
+    throw new Error(
+      `${DEFAULT_COMMISSION_RATE_SETTING_KEY} debe estar entre 0 y 1`,
+    );
+  }
+  return rate;
+}
+
+/** Lee la política vigente solo al crear el snapshot de una nueva atribución. */
+@Injectable()
+export class PromoterCommissionPolicy {
+  constructor(
+    @Inject(PLATFORM_SETTING_REPOSITORY)
+    private readonly settings: PlatformSettingRepository,
+  ) {}
+
+  async currentRate(): Promise<number> {
+    return parsePromoterCommissionRate(
+      await this.settings.findByKey(DEFAULT_COMMISSION_RATE_SETTING_KEY),
+    );
+  }
+}

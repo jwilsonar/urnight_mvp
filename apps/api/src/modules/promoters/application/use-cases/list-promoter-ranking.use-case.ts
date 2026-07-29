@@ -1,27 +1,28 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from "@nestjs/common";
 import {
   scopedCompanyId,
   type TenantScope,
-} from '../../../../shared/tenant/tenant-scope';
+} from "../../../../shared/tenant/tenant-scope";
 import {
   PROMOTER_ANALYTICS_REPOSITORY,
   type PromoterAnalyticsRepository,
-} from '../../domain/ports/promoter-analytics.repository';
+} from "../../domain/ports/promoter-analytics.repository";
 import {
   PROMOTER_REPOSITORY,
   type PromoterRepository,
-} from '../../domain/ports/promoter.repository';
-import type { PromoterMetricsFilter } from './get-promoter-metrics.use-case';
+} from "../../domain/ports/promoter.repository";
+import type { PromoterMetricsFilter } from "./get-promoter-metrics.use-case";
 import {
   calculatePromoterMetrics,
   promoterIdentity,
+  type PromoterAttributionConflict,
   type PromoterMetricTotals,
-} from './promoter-metrics.calculator';
+} from "./promoter-metrics.calculator";
 
 export const ATTENDANCE_RATE_MINIMUM_VOLUME = 10;
 
-export type PromoterRankingSort = 'sales' | 'attendance' | 'attendance_rate';
-export type PromoterRankingOrder = 'asc' | 'desc';
+export type PromoterRankingSort = "sales" | "attendance" | "attendance_rate";
+export type PromoterRankingOrder = "asc" | "desc";
 
 export interface PromoterRankingRow {
   promoterId: string;
@@ -33,6 +34,8 @@ export interface PromoterRankingRow {
 
 export interface PromoterRanking {
   minimumVolume: number;
+  conflictingOrdersExcluded: number;
+  conflicts: PromoterAttributionConflict[];
   rows: PromoterRankingRow[];
 }
 
@@ -41,9 +44,9 @@ function rankingValue(
   sortBy: PromoterRankingSort,
 ): number {
   switch (sortBy) {
-    case 'attendance':
+    case "attendance":
       return row.totals.attendedCount;
-    case 'attendance_rate':
+    case "attendance_rate":
       return row.totals.attendanceRate;
     default:
       return row.totals.salesCount;
@@ -66,13 +69,19 @@ export class ListPromoterRankingUseCase {
   }): Promise<PromoterRanking> {
     const companyId = scopedCompanyId(input.scope);
     if (companyId === undefined) {
-      return { minimumVolume: ATTENDANCE_RATE_MINIMUM_VOLUME, rows: [] };
+      return {
+        minimumVolume: ATTENDANCE_RATE_MINIMUM_VOLUME,
+        conflictingOrdersExcluded: 0,
+        conflicts: [],
+        rows: [],
+      };
     }
 
     const [promoters, facts] = await Promise.all([
       this.promoters.listByCompany(companyId),
       this.analytics.listFacts({ companyId, ...input.filter }),
     ]);
+    const conflicts = new Map<string, PromoterAttributionConflict>();
     const rows = promoters
       .filter((promoter) => promoter.isActive())
       .map((promoter): PromoterRankingRow => {
@@ -80,31 +89,39 @@ export class ListPromoterRankingUseCase {
           promoterIdentity(promoter),
           facts,
         );
+        for (const conflict of metrics.conflicts) {
+          conflicts.set(conflict.orderId, conflict);
+        }
         return {
           promoterId: metrics.promoterId,
           promoterName: metrics.promoterName,
           companyId: metrics.companyId,
           eligibleForRateRanking:
-            metrics.totals.registeredCount >= ATTENDANCE_RATE_MINIMUM_VOLUME,
+            metrics.totals.invitedCount >= ATTENDANCE_RATE_MINIMUM_VOLUME,
           totals: metrics.totals,
         };
       });
 
     rows.sort((a, b) => {
-      if (input.sortBy === 'attendance_rate') {
+      if (input.sortBy === "attendance_rate") {
         const eligibility =
           Number(b.eligibleForRateRanking) - Number(a.eligibleForRateRanking);
         if (eligibility !== 0) return eligibility;
       }
-      const direction = input.order === 'asc' ? 1 : -1;
+      const direction = input.order === "asc" ? 1 : -1;
       return (
         (rankingValue(a, input.sortBy) - rankingValue(b, input.sortBy)) *
           direction ||
-        b.totals.registeredCount - a.totals.registeredCount ||
+        b.totals.invitedCount - a.totals.invitedCount ||
         a.promoterName.localeCompare(b.promoterName)
       );
     });
 
-    return { minimumVolume: ATTENDANCE_RATE_MINIMUM_VOLUME, rows };
+    return {
+      minimumVolume: ATTENDANCE_RATE_MINIMUM_VOLUME,
+      conflictingOrdersExcluded: conflicts.size,
+      conflicts: [...conflicts.values()],
+      rows,
+    };
   }
 }

@@ -1,11 +1,11 @@
-import type { Promoter } from '../../domain/entities/promoter.entity';
+import { PROMOTER_ANALYTICS_TIME_ZONE } from "@urnight/contracts";
+import type { Promoter } from "../../domain/entities/promoter.entity";
 import type {
   AnalyticsEventStatus,
   PromoterAnalyticsFacts,
   PromoterAttributionFact,
   PromoterTicketFact,
-} from '../../domain/ports/promoter-analytics.repository';
-import { PROMOTER_COMMISSION_RATE } from '../config/commission';
+} from "../../domain/ports/promoter-analytics.repository";
 
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -24,7 +24,10 @@ export interface PromoterMoneyMetric {
 }
 
 export interface PromoterMetricTotals {
-  registeredCount: number;
+  allocatedCount: number;
+  invitedCount: number;
+  redeemedCount: number;
+  redemptionRate: number;
   attendedCount: number;
   attendanceRate: number;
   firstEntryAt: Date | null;
@@ -36,17 +39,18 @@ export interface PromoterMetricTotals {
   salesCount: number;
   attributedOrdersCount: number;
   salesByCurrency: PromoterMoneyMetric[];
+  commissionPendingCount: number;
   conflictingOrdersExcluded: number;
 }
 
 export interface PromoterAttributedSale {
   orderId: string;
   code: string | null;
-  source: 'promo_code' | 'referral' | 'promo_and_referral';
+  source: "promo_code" | "referral" | "promo_and_referral";
   ticketCount: number;
   amount: number;
   currency: string;
-  commissionAmount: number;
+  commissionAmount: number | null;
   attributedAt: Date;
 }
 
@@ -55,7 +59,7 @@ export interface PromoterEventMetrics extends PromoterMetricTotals {
   eventName: string;
   eventStartsAt: Date;
   eventStatus: AnalyticsEventStatus;
-  excludedReason: 'event_cancelled' | null;
+  excludedReason: "event_cancelled" | null;
   sales: PromoterAttributedSale[];
 }
 
@@ -65,6 +69,16 @@ export interface PromoterMetricsView {
   companyId: string;
   totals: PromoterMetricTotals;
   events: PromoterEventMetrics[];
+  conflicts: PromoterAttributionConflict[];
+}
+
+export interface PromoterAttributionConflict {
+  orderId: string;
+  eventId: string;
+  eventName: string;
+  amount: number;
+  currency: string;
+  promoterIds: string[];
 }
 
 interface CanonicalAttribution {
@@ -77,14 +91,9 @@ interface CanonicalAttribution {
   orderTotal: number;
   currency: string;
   code: string | null;
-  source: PromoterAttributedSale['source'];
+  source: PromoterAttributedSale["source"];
   attributedAt: Date;
-  commissionAmount: number;
-}
-
-interface Conflict {
-  eventId: string;
-  promoterIds: Set<string>;
+  commissionAmount: number | null;
 }
 
 interface EventAccumulator {
@@ -92,33 +101,36 @@ interface EventAccumulator {
   eventName: string;
   eventStartsAt: Date;
   eventStatus: AnalyticsEventStatus;
-  excludedReason: 'event_cancelled' | null;
+  excludedReason: "event_cancelled" | null;
   orders: CanonicalAttribution[];
   sales: PromoterAttributedSale[];
   entries: Date[];
-  registeredCount: number;
+  allocatedCount: number;
+  invitedCodeIds: Set<string>;
+  redeemedCount: number;
   attendedCount: number;
   companionsCount: number;
   companionOrdersKnown: number;
   companionOrdersUnknown: number;
   money: Map<string, { grossAmount: number; commissionAmount: number }>;
-  conflictingOrdersExcluded: number;
+  commissionPendingCount: number;
+  conflictingOrderIds: Set<string>;
 }
 
 /**
  * Regla financiera: una orden con fuentes que apuntan a promotores distintos es
  * ambigua y se excluye. Si promo + referral apuntan al MISMO promotor, se
  * deduplica la orden, se conserva el código promo y la comisión persistida de
- * sale_attribution; sin comisión persistida se usa la tasa vigente del módulo.
+ * sale_attribution. Sin snapshot la comisión queda pendiente; nunca se recalcula.
  */
 function canonicalizeAttributions(facts: PromoterAnalyticsFacts): {
   canonical: CanonicalAttribution[];
-  conflicts: Conflict[];
+  conflicts: PromoterAttributionConflict[];
 } {
   const byOrder = new Map<string, PromoterAttributionFact[]>();
   for (const fact of facts.attributions) {
-    if (fact.orderStatus !== 'paid') continue;
-    if (fact.source === 'referral' && fact.commissionStatus === 'void')
+    if (fact.orderStatus !== "paid") continue;
+    if (fact.source === "referral" && fact.commissionStatus === "void")
       continue;
     const current = byOrder.get(fact.orderId) ?? [];
     current.push(fact);
@@ -126,19 +138,27 @@ function canonicalizeAttributions(facts: PromoterAnalyticsFacts): {
   }
 
   const canonical: CanonicalAttribution[] = [];
-  const conflicts: Conflict[] = [];
+  const conflicts: PromoterAttributionConflict[] = [];
 
-  for (const rows of byOrder.values()) {
+  for (const [orderId, rows] of byOrder) {
     const promoterIds = new Set(rows.map((row) => row.promoterId));
     if (promoterIds.size !== 1) {
-      conflicts.push({ eventId: rows[0]!.eventId, promoterIds });
+      const base = rows[0]!;
+      conflicts.push({
+        orderId,
+        eventId: base.eventId,
+        eventName: base.eventName,
+        amount: base.orderTotal,
+        currency: base.currency,
+        promoterIds: [...promoterIds].sort(),
+      });
       continue;
     }
 
     const base = rows[0]!;
-    const promo = rows.find((row) => row.source === 'promo_code');
+    const promo = rows.find((row) => row.source === "promo_code");
     const persistedCommission = rows.find(
-      (row) => row.source === 'referral' && row.commissionAmount !== null,
+      (row) => row.commissionAmount !== null,
     );
     canonical.push({
       promoterId: base.promoterId,
@@ -151,15 +171,13 @@ function canonicalizeAttributions(facts: PromoterAnalyticsFacts): {
       currency: base.currency,
       code: promo?.code ?? base.code,
       source:
-        promo && rows.some((row) => row.source === 'referral')
-          ? 'promo_and_referral'
+        promo && rows.some((row) => row.source === "referral")
+          ? "promo_and_referral"
           : base.source,
       attributedAt: new Date(
         Math.min(...rows.map((row) => row.attributedAt.getTime())),
       ),
-      commissionAmount:
-        persistedCommission?.commissionAmount ??
-        round2(base.orderTotal * PROMOTER_COMMISSION_RATE),
+      commissionAmount: persistedCommission?.commissionAmount ?? null,
     });
   }
 
@@ -180,30 +198,49 @@ function eligibleTicketsForOrder(
   const unique = new Map<string, PromoterTicketFact>();
   for (const ticket of facts.tickets) {
     if (ticket.orderId !== orderId) continue;
-    if (ticket.status !== 'valid' && ticket.status !== 'used') continue;
+    if (ticket.status !== "valid" && ticket.status !== "used") continue;
     const previous = unique.get(ticket.ticketId);
-    if (!previous || (previous.status !== 'used' && ticket.status === 'used')) {
+    if (!previous || (previous.status !== "used" && ticket.status === "used")) {
       unique.set(ticket.ticketId, ticket);
     }
   }
   return [...unique.values()];
 }
 
-function hourBucket(date: Date): Date {
-  return new Date(Math.floor(date.getTime() / HOUR_MS) * HOUR_MS);
+const peakHourParts = new Intl.DateTimeFormat("en-CA", {
+  timeZone: PROMOTER_ANALYTICS_TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  hourCycle: "h23",
+});
+
+function hourBucketKey(date: Date): string {
+  return peakHourParts
+    .formatToParts(date)
+    .filter((part) => part.type !== "literal")
+    .map((part) => `${part.type}:${part.value}`)
+    .join("|");
 }
 
 function peakHour(entries: Date[]): Date | null {
   if (entries.length === 0) return null;
-  const counts = new Map<number, number>();
+  const counts = new Map<string, { count: number; at: Date }>();
   for (const entry of entries) {
-    const bucket = hourBucket(entry).getTime();
-    counts.set(bucket, (counts.get(bucket) ?? 0) + 1);
+    const bucket = hourBucketKey(entry);
+    const current = counts.get(bucket);
+    counts.set(bucket, {
+      count: (current?.count ?? 0) + 1,
+      at:
+        current?.at ??
+        new Date(Math.floor(entry.getTime() / HOUR_MS) * HOUR_MS),
+    });
   }
-  const [winner] = [...counts.entries()].sort(
-    ([timeA, countA], [timeB, countB]) => countB - countA || timeA - timeB,
+  const [, winner] = [...counts.entries()].sort(
+    ([, a], [, b]) => b.count - a.count || a.at.getTime() - b.at.getTime(),
   )[0]!;
-  return new Date(winner);
+  return winner.at;
 }
 
 function createAccumulator(input: {
@@ -215,17 +252,20 @@ function createAccumulator(input: {
   return {
     ...input,
     excludedReason:
-      input.eventStatus === 'cancelled' ? 'event_cancelled' : null,
+      input.eventStatus === "cancelled" ? "event_cancelled" : null,
     orders: [],
     sales: [],
     entries: [],
-    registeredCount: 0,
+    allocatedCount: 0,
+    invitedCodeIds: new Set(),
+    redeemedCount: 0,
     attendedCount: 0,
     companionsCount: 0,
     companionOrdersKnown: 0,
     companionOrdersUnknown: 0,
     money: new Map(),
-    conflictingOrdersExcluded: 0,
+    commissionPendingCount: 0,
+    conflictingOrderIds: new Set(),
   };
 }
 
@@ -242,6 +282,7 @@ function toMoneyMetrics(
 }
 
 function toEventMetrics(acc: EventAccumulator): PromoterEventMetrics {
+  const invitedCount = acc.invitedCodeIds.size;
   const firstEntryAt =
     acc.entries.length === 0
       ? null
@@ -256,30 +297,41 @@ function toEventMetrics(acc: EventAccumulator): PromoterEventMetrics {
     eventStartsAt: acc.eventStartsAt,
     eventStatus: acc.eventStatus,
     excludedReason: acc.excludedReason,
-    registeredCount: acc.registeredCount,
+    allocatedCount: acc.allocatedCount,
+    invitedCount,
+    redeemedCount: acc.redeemedCount,
+    redemptionRate:
+      invitedCount === 0 ? 0 : round2((acc.redeemedCount / invitedCount) * 100),
     attendedCount: acc.attendedCount,
     attendanceRate:
-      acc.registeredCount === 0
-        ? 0
-        : round2((acc.attendedCount / acc.registeredCount) * 100),
+      invitedCount === 0 ? 0 : round2((acc.attendedCount / invitedCount) * 100),
     firstEntryAt,
     lastEntryAt,
     peakEntryHourAt: peakHour(acc.entries),
     companionsCount: acc.companionsCount,
     companionOrdersKnown: acc.companionOrdersKnown,
     companionOrdersUnknown: acc.companionOrdersUnknown,
-    salesCount: acc.registeredCount,
+    salesCount: acc.orders.length,
     attributedOrdersCount: acc.orders.length,
     salesByCurrency: toMoneyMetrics(acc.money),
-    conflictingOrdersExcluded: acc.conflictingOrdersExcluded,
+    commissionPendingCount: acc.commissionPendingCount,
+    conflictingOrdersExcluded: acc.conflictingOrderIds.size,
     sales: acc.sales,
   };
 }
 
 function totalMetrics(accumulators: EventAccumulator[]): PromoterMetricTotals {
   const included = accumulators.filter((acc) => acc.excludedReason === null);
-  const registeredCount = included.reduce(
-    (sum, acc) => sum + acc.registeredCount,
+  const allocatedCount = included.reduce(
+    (sum, acc) => sum + acc.allocatedCount,
+    0,
+  );
+  const invitedCount = included.reduce(
+    (sum, acc) => sum + acc.invitedCodeIds.size,
+    0,
+  );
+  const redeemedCount = included.reduce(
+    (sum, acc) => sum + acc.redeemedCount,
     0,
   );
   const attendedCount = included.reduce(
@@ -304,12 +356,14 @@ function totalMetrics(accumulators: EventAccumulator[]): PromoterMetricTotals {
   }
 
   return {
-    registeredCount,
+    allocatedCount,
+    invitedCount,
+    redeemedCount,
+    redemptionRate:
+      invitedCount === 0 ? 0 : round2((redeemedCount / invitedCount) * 100),
     attendedCount,
     attendanceRate:
-      registeredCount === 0
-        ? 0
-        : round2((attendedCount / registeredCount) * 100),
+      invitedCount === 0 ? 0 : round2((attendedCount / invitedCount) * 100),
     firstEntryAt:
       entries.length === 0
         ? null
@@ -331,16 +385,19 @@ function totalMetrics(accumulators: EventAccumulator[]): PromoterMetricTotals {
       (sum, acc) => sum + acc.companionOrdersUnknown,
       0,
     ),
-    salesCount: registeredCount,
+    salesCount: included.reduce((sum, acc) => sum + acc.orders.length, 0),
     attributedOrdersCount: included.reduce(
       (sum, acc) => sum + acc.orders.length,
       0,
     ),
     salesByCurrency: toMoneyMetrics(money),
-    conflictingOrdersExcluded: accumulators.reduce(
-      (sum, acc) => sum + acc.conflictingOrdersExcluded,
+    commissionPendingCount: included.reduce(
+      (sum, acc) => sum + acc.commissionPendingCount,
       0,
     ),
+    conflictingOrdersExcluded: new Set(
+      accumulators.flatMap((acc) => [...acc.conflictingOrderIds]),
+    ).size,
   };
 }
 
@@ -365,18 +422,26 @@ export function calculatePromoterMetrics(
   for (const assignment of facts.assignments) {
     if (assignment.promoterId === promoter.id) ensureEvent(assignment);
   }
+  for (const list of facts.invitationLists) {
+    if (list.promoterId !== promoter.id) continue;
+    const acc = ensureEvent(list);
+    acc.allocatedCount += list.allocatedStock;
+    for (const code of list.issuedCodes) acc.invitedCodeIds.add(code.id);
+  }
   for (const attribution of facts.attributions) {
     if (attribution.promoterId === promoter.id) ensureEvent(attribution);
   }
 
   const { canonical, conflicts } = canonicalizeAttributions(facts);
   for (const conflict of conflicts) {
-    if (!conflict.promoterIds.has(promoter.id)) continue;
+    if (!conflict.promoterIds.includes(promoter.id)) continue;
     const eventFact = facts.attributions.find(
       (fact) =>
         fact.eventId === conflict.eventId && fact.promoterId === promoter.id,
     );
-    if (eventFact) ensureEvent(eventFact).conflictingOrdersExcluded++;
+    if (eventFact) {
+      ensureEvent(eventFact).conflictingOrderIds.add(conflict.orderId);
+    }
   }
 
   for (const order of canonical) {
@@ -386,7 +451,6 @@ export function calculatePromoterMetrics(
 
     const tickets = eligibleTicketsForOrder(facts, order.orderId);
     acc.orders.push(order);
-    acc.registeredCount += tickets.length;
     acc.sales.push({
       orderId: order.orderId,
       code: order.code,
@@ -398,21 +462,28 @@ export function calculatePromoterMetrics(
       attributedAt: order.attributedAt,
     });
 
-    for (const ticket of tickets) {
-      if (ticket.status === 'used' && ticket.usedAt) {
-        acc.attendedCount++;
-        acc.entries.push(ticket.usedAt);
+    const isRedeemedInvitation =
+      order.source === "promo_code" || order.source === "promo_and_referral";
+    if (isRedeemedInvitation) {
+      acc.redeemedCount++;
+      for (const ticket of tickets) {
+        if (ticket.status === "used" && ticket.usedAt) {
+          acc.attendedCount++;
+          acc.entries.push(ticket.usedAt);
+        }
       }
-    }
 
-    // `is_buyer` permite reconocer acompañantes solo si la orden tiene un único
-    // titular. Cero o varios compradores se reportan como cobertura desconocida.
-    const buyerCount = tickets.filter((ticket) => ticket.isBuyer).length;
-    if (tickets.length > 0 && buyerCount === 1) {
-      acc.companionsCount += tickets.filter((ticket) => !ticket.isBuyer).length;
-      acc.companionOrdersKnown++;
-    } else if (tickets.length > 0) {
-      acc.companionOrdersUnknown++;
+      // `is_buyer` permite reconocer acompañantes solo si la orden tiene un único
+      // titular. Cero o varios compradores se reportan como cobertura desconocida.
+      const buyerCount = tickets.filter((ticket) => ticket.isBuyer).length;
+      if (tickets.length > 0 && buyerCount === 1) {
+        acc.companionsCount += tickets.filter(
+          (ticket) => !ticket.isBuyer,
+        ).length;
+        acc.companionOrdersKnown++;
+      } else if (tickets.length > 0) {
+        acc.companionOrdersUnknown++;
+      }
     }
 
     const money = acc.money.get(order.currency) ?? {
@@ -420,7 +491,11 @@ export function calculatePromoterMetrics(
       commissionAmount: 0,
     };
     money.grossAmount += order.orderTotal;
-    money.commissionAmount += order.commissionAmount;
+    if (order.commissionAmount === null) {
+      acc.commissionPendingCount++;
+    } else {
+      money.commissionAmount += order.commissionAmount;
+    }
     acc.money.set(order.currency, money);
   }
 
@@ -433,6 +508,9 @@ export function calculatePromoterMetrics(
     events: accumulators
       .sort((a, b) => b.eventStartsAt.getTime() - a.eventStartsAt.getTime())
       .map(toEventMetrics),
+    conflicts: conflicts.filter((conflict) =>
+      conflict.promoterIds.includes(promoter.id),
+    ),
   };
 }
 

@@ -9,7 +9,7 @@ import { ZoneFilter } from "@/components/catalog/zone-filter";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Reveal } from "@/components/shared/reveal";
 import {
-  getEvents,
+  getEventsPage,
   getMusicGenres,
   getTags,
   getZones,
@@ -53,30 +53,38 @@ export default async function EventsPage({
   );
   const minPrice = parsePriceFilter(filters.minPrice);
   const maxPrice = parsePriceFilter(filters.maxPrice);
-  // La lista completa permite mostrar un recuento exacto sin cambiar el contrato.
-  // Degrada con elegancia si el API no responde (evita romper el build ISR).
+  const datePreset =
+    filters.datePreset === "today" ||
+    filters.datePreset === "tonight" ||
+    filters.datePreset === "weekend"
+      ? filters.datePreset
+      : undefined;
+  const dateRange = datePreset
+    ? getLimaDatePresetRange(datePreset)
+    : { from: filters.from, to: filters.to };
   const [events, genres, zones, tags] = await Promise.all([
-    getEvents({
+    getEventsPage({
       q: filters.q,
       zoneId: filters.zoneId,
       genreId: filters.genreId,
       tagId: filters.tagId,
-      from: filters.from,
-      to: filters.to,
+      from: dateRange.from,
+      to: dateRange.to,
       minPrice,
       maxPrice,
+      limit: PAGE_SIZE,
+      offset: (requestedPage - 1) * PAGE_SIZE,
     }).catch(() => null),
     getMusicGenres().catch(() => []),
     getZones().catch(() => []),
     getTags().catch(() => []),
   ]);
 
-  const total = events?.length ?? 0;
+  const total = events?.total ?? 0;
   const lastPage = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const page = Math.min(requestedPage, lastPage);
+  const page = requestedPage;
   const hasNext = page < lastPage;
-  const visible =
-    events?.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) ?? null;
+  const visible = events?.events ?? null;
 
   /** Chips preservan la búsqueda activa; solo cambia el género (y resetea la página). */
   const chipHref = (genreId?: string) => {
@@ -84,7 +92,6 @@ export default async function EventsPage({
   };
 
   const datePresets: EventDatePreset[] = ["today", "tonight", "weekend"];
-  const dateRangeNow = new Date();
   const dateHref = (preset?: EventDatePreset) => {
     if (!preset) {
       return eventCatalogHref("/events", filters, {
@@ -93,11 +100,10 @@ export default async function EventsPage({
         to: undefined,
       });
     }
-    const range = getLimaDatePresetRange(preset, dateRangeNow);
     return eventCatalogHref("/events", filters, {
       datePreset: preset,
-      from: range.from,
-      to: range.to,
+      from: undefined,
+      to: undefined,
     });
   };
 
@@ -137,16 +143,12 @@ export default async function EventsPage({
       href: eventCatalogHref("/events", filters, { tagId: undefined }),
     });
   }
-  if (filters.from || filters.to) {
-    const preset =
-      filters.datePreset === "today" ||
-      filters.datePreset === "tonight" ||
-      filters.datePreset === "weekend"
-        ? filters.datePreset
-        : undefined;
+  if (datePreset || filters.from || filters.to) {
     activeFilters.push({
       kind: "date",
-      label: preset ? t(`filters.date.${preset}`) : t("filters.date.custom"),
+      label: datePreset
+        ? t(`filters.date.${datePreset}`)
+        : t("filters.date.custom"),
       href: dateHref(),
     });
   }
@@ -227,7 +229,7 @@ export default async function EventsPage({
           <Link
             href={dateHref()}
             className="rv-chip w-[10.5rem] justify-center"
-            data-active={!filters.from && !filters.to}
+            data-active={!datePreset && !filters.from && !filters.to}
           >
             {t("filters.date.any")}
           </Link>

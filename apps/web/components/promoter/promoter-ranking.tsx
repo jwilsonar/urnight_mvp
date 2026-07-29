@@ -1,14 +1,19 @@
-'use client';
+"use client";
 
-import { ChartBar, FunnelSimple, UsersThree } from '@phosphor-icons/react';
-import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
-import { useLocale, useTranslations } from 'next-intl';
-import { useMemo, useState } from 'react';
+import {
+  ChartBar,
+  FunnelSimple,
+  UsersThree,
+  WarningDiamond,
+} from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { useLocale, useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
 import type {
   PromoterRankingQuery,
   PromoterRankingRowResponse,
-} from '@urnight/contracts';
+} from "@urnight/contracts";
 import {
   Badge,
   Button,
@@ -31,27 +36,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@urnight/ui';
-import { EmptyState } from '@/components/shared/empty-state';
-import { ErrorState } from '@/components/shared/error-state';
-import { listPromoterRanking } from '@/lib/api/promoters';
-import { queryKeys } from '@/lib/api/query-keys';
-import { isUuid } from '@/lib/utils';
+} from "@urnight/ui";
+import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/error-state";
+import { listPromoterRanking } from "@/lib/api/promoters";
+import { queryKeys } from "@/lib/api/query-keys";
+import { isUuid } from "@/lib/utils";
 
 interface RankingFilters {
   eventId: string;
   from: string;
   to: string;
-  sortBy: PromoterRankingQuery['sortBy'];
-  order: PromoterRankingQuery['order'];
+  sortBy: PromoterRankingQuery["sortBy"];
+  order: PromoterRankingQuery["order"];
 }
 
 const EMPTY_FILTERS: RankingFilters = {
-  eventId: '',
-  from: '',
-  to: '',
-  sortBy: 'sales',
-  order: 'desc',
+  eventId: "",
+  from: "",
+  to: "",
+  sortBy: "sales",
+  order: "desc",
 };
 
 function toQuery(filters: RankingFilters): PromoterRankingQuery {
@@ -71,17 +76,23 @@ function toQuery(filters: RankingFilters): PromoterRankingQuery {
 function moneySummary(
   locale: string,
   row: PromoterRankingRowResponse,
-  field: 'grossAmount' | 'commissionAmount',
+  field: "grossAmount" | "commissionAmount",
 ): string {
-  if (row.totals.salesByCurrency.length === 0) return '—';
+  if (row.totals.salesByCurrency.length === 0) return "—";
   return row.totals.salesByCurrency
     .map((money) =>
       new Intl.NumberFormat(locale, {
-        style: 'currency',
+        style: "currency",
         currency: money.currency,
       }).format(money[field]),
     )
-    .join(' · ');
+    .join(" · ");
+}
+
+function formatMoney(locale: string, currency: string, amount: number): string {
+  return new Intl.NumberFormat(locale, { style: "currency", currency }).format(
+    amount,
+  );
 }
 
 /**
@@ -90,7 +101,7 @@ function moneySummary(
  */
 export function PromoterRanking() {
   const locale = useLocale();
-  const t = useTranslations('promoterMetrics.ranking');
+  const t = useTranslations("promoterMetrics.ranking");
   const { data: session, status } = useSession();
   const token = session?.accessToken;
   const [draft, setDraft] = useState<RankingFilters>(EMPTY_FILTERS);
@@ -100,16 +111,16 @@ export function PromoterRanking() {
   const rankingQuery = useQuery({
     queryKey: queryKeys.promoterRanking(queryInput),
     queryFn: () => listPromoterRanking(queryInput, token),
-    enabled: status === 'authenticated' && Boolean(token),
+    enabled: status === "authenticated" && Boolean(token),
   });
 
   const apply = () => {
     if (draft.eventId && !isUuid(draft.eventId)) {
-      setEventError(t('invalidEvent'));
+      setEventError(t("invalidEvent"));
       return;
     }
     if (draft.from && draft.to && draft.from > draft.to) {
-      setEventError(t('invalidRange'));
+      setEventError(t("invalidRange"));
       return;
     }
     setEventError(null);
@@ -124,15 +135,15 @@ export function PromoterRanking() {
             <ChartBar className="size-5" weight="duotone" />
           </span>
           <div>
-            <CardTitle>{t('title')}</CardTitle>
-            <CardDescription>{t('description')}</CardDescription>
+            <CardTitle>{t("title")}</CardTitle>
+            <CardDescription>{t("description")}</CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="grid gap-3 rounded-lg border bg-muted/20 p-4 md:grid-cols-2 xl:grid-cols-6">
           <div className="space-y-1.5 md:col-span-2">
-            <Label htmlFor="ranking-event">{t('eventFilter')}</Label>
+            <Label htmlFor="ranking-event">{t("eventFilter")}</Label>
             <Input
               id="ranking-event"
               value={draft.eventId}
@@ -147,7 +158,7 @@ export function PromoterRanking() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="ranking-from">{t('from')}</Label>
+            <Label htmlFor="ranking-from">{t("from")}</Label>
             <Input
               id="ranking-from"
               type="date"
@@ -161,7 +172,7 @@ export function PromoterRanking() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="ranking-to">{t('to')}</Label>
+            <Label htmlFor="ranking-to">{t("to")}</Label>
             <Input
               id="ranking-to"
               type="date"
@@ -172,13 +183,13 @@ export function PromoterRanking() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label>{t('sortBy')}</Label>
+            <Label>{t("sortBy")}</Label>
             <Select
               value={draft.sortBy}
               onValueChange={(value) =>
                 setDraft((current) => ({
                   ...current,
-                  sortBy: value as RankingFilters['sortBy'],
+                  sortBy: value as RankingFilters["sortBy"],
                 }))
               }
             >
@@ -186,10 +197,10 @@ export function PromoterRanking() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="sales">{t('sales')}</SelectItem>
-                <SelectItem value="attendance">{t('attendance')}</SelectItem>
+                <SelectItem value="sales">{t("sales")}</SelectItem>
+                <SelectItem value="attendance">{t("attendance")}</SelectItem>
                 <SelectItem value="attendance_rate">
-                  {t('attendanceRate')}
+                  {t("attendanceRate")}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -200,7 +211,7 @@ export function PromoterRanking() {
               onValueChange={(value) =>
                 setDraft((current) => ({
                   ...current,
-                  order: value as RankingFilters['order'],
+                  order: value as RankingFilters["order"],
                 }))
               }
             >
@@ -208,13 +219,13 @@ export function PromoterRanking() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="desc">{t('descending')}</SelectItem>
-                <SelectItem value="asc">{t('ascending')}</SelectItem>
+                <SelectItem value="desc">{t("descending")}</SelectItem>
+                <SelectItem value="asc">{t("ascending")}</SelectItem>
               </SelectContent>
             </Select>
             <Button type="button" onClick={apply}>
               <FunnelSimple className="size-4" weight="bold" />
-              {t('apply')}
+              {t("apply")}
             </Button>
           </div>
         </div>
@@ -226,34 +237,79 @@ export function PromoterRanking() {
 
         {rankingQuery.isError ? (
           <ErrorState
-            title={t('errorTitle')}
-            description={t('errorDescription')}
+            title={t("errorTitle")}
+            description={t("errorDescription")}
             onRetry={() => void rankingQuery.refetch()}
           />
         ) : (
           <>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm text-muted-foreground">
-                {t.rich('minimumVolume', {
+                {t.rich("minimumVolume", {
                   count: rankingQuery.data?.minimumVolume ?? 10,
                   strong: (chunks) => (
                     <strong className="text-foreground">{chunks}</strong>
                   ),
                 })}
               </p>
-              <Badge variant="secondary">{t('rules')}</Badge>
+              <Badge variant="secondary">{t("rules")}</Badge>
             </div>
+            {rankingQuery.data && rankingQuery.data.conflicts.length > 0 ? (
+              <div className="space-y-3 rounded-lg border border-warning/40 bg-warning/5 p-4">
+                <div className="flex items-start gap-3">
+                  <WarningDiamond
+                    className="mt-0.5 size-5 shrink-0 text-warning"
+                    weight="duotone"
+                  />
+                  <div>
+                    <p className="font-semibold">{t("conflictsTitle")}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("conflictsDescription", {
+                        count: rankingQuery.data.conflictingOrdersExcluded,
+                      })}
+                    </p>
+                  </div>
+                </div>
+                {rankingQuery.data.conflicts.map((conflict) => (
+                  <div
+                    key={conflict.orderId}
+                    className="rounded-md border bg-background/70 p-3 text-sm"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-mono font-semibold">
+                        {conflict.orderId}
+                      </span>
+                      <span className="font-semibold">
+                        {formatMoney(
+                          locale,
+                          conflict.currency,
+                          conflict.amount,
+                        )}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-muted-foreground">
+                      {conflict.eventName}
+                    </p>
+                    <p className="mt-1 break-all text-xs text-warning">
+                      {t("promotersInConflict", {
+                        promoters: conflict.promoterIds.join(", "),
+                      })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : null}
             <div className="overflow-x-auto rounded-lg border">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-12">{t('position')}</TableHead>
-                    <TableHead>{t('promoter')}</TableHead>
-                    <TableHead>{t('attributedSales')}</TableHead>
-                    <TableHead>{t('amount')}</TableHead>
-                    <TableHead>{t('realAttendance')}</TableHead>
-                    <TableHead>{t('attendanceRate')}</TableHead>
-                    <TableHead>{t('estimatedCommission')}</TableHead>
+                    <TableHead className="w-12">{t("position")}</TableHead>
+                    <TableHead>{t("promoter")}</TableHead>
+                    <TableHead>{t("attributedSales")}</TableHead>
+                    <TableHead>{t("amount")}</TableHead>
+                    <TableHead>{t("realAttendance")}</TableHead>
+                    <TableHead>{t("attendanceRate")}</TableHead>
+                    <TableHead>{t("estimatedCommission")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -273,8 +329,8 @@ export function PromoterRanking() {
                         <EmptyState
                           compact
                           icon={<UsersThree weight="duotone" />}
-                          title={t('emptyTitle')}
-                          description={t('emptyDescription')}
+                          title={t("emptyTitle")}
+                          description={t("emptyDescription")}
                         />
                       </TableCell>
                     </TableRow>
@@ -288,9 +344,8 @@ export function PromoterRanking() {
                           <p className="font-semibold">{row.promoterName}</p>
                           {row.totals.conflictingOrdersExcluded > 0 ? (
                             <p className="text-xs text-warning">
-                              {t('ambiguousOrders', {
-                                count:
-                                  row.totals.conflictingOrdersExcluded,
+                              {t("ambiguousOrders", {
+                                count: row.totals.conflictingOrdersExcluded,
                               })}
                             </p>
                           ) : null}
@@ -299,32 +354,51 @@ export function PromoterRanking() {
                           {row.totals.salesCount}
                         </TableCell>
                         <TableCell className="whitespace-nowrap text-sm">
-                          {moneySummary(locale, row, 'grossAmount')}
+                          {moneySummary(locale, row, "grossAmount")}
                         </TableCell>
                         <TableCell className="whitespace-nowrap tabular-nums">
-                          {row.totals.attendedCount}/
-                          {row.totals.registeredCount}
+                          <p className="font-semibold">
+                            {t("funnelInvited", {
+                              count: row.totals.invitedCount,
+                            })}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {t("funnelRedeemed", {
+                              count: row.totals.redeemedCount,
+                              rate: row.totals.redemptionRate,
+                            })}
+                          </p>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold tabular-nums">
-                              {row.totals.attendanceRate}%
-                            </span>
+                          <div className="space-y-1">
+                            <p className="font-semibold tabular-nums">
+                              {t("funnelAttended", {
+                                count: row.totals.attendedCount,
+                                rate: row.totals.attendanceRate,
+                              })}
+                            </p>
                             <Badge
                               variant={
                                 row.eligibleForRateRanking
-                                  ? 'success'
-                                  : 'secondary'
+                                  ? "success"
+                                  : "secondary"
                               }
                             >
                               {row.eligibleForRateRanking
-                                ? t('eligible')
-                                : t('lowVolume')}
+                                ? t("eligible")
+                                : t("lowVolume")}
                             </Badge>
                           </div>
                         </TableCell>
                         <TableCell className="whitespace-nowrap text-sm">
-                          {moneySummary(locale, row, 'commissionAmount')}
+                          <p>{moneySummary(locale, row, "commissionAmount")}</p>
+                          {row.totals.commissionPendingCount > 0 ? (
+                            <p className="text-xs text-warning">
+                              {t("commissionPending", {
+                                count: row.totals.commissionPendingCount,
+                              })}
+                            </p>
+                          ) : null}
                         </TableCell>
                       </TableRow>
                     ))

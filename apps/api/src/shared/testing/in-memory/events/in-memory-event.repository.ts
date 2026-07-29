@@ -1,9 +1,9 @@
-import type { Event } from '../../../../modules/events/domain/entities/event.entity';
+import type { Event } from "../../../../modules/events/domain/entities/event.entity";
 import type {
   EventListFilter,
   EventRepository,
-} from '../../../../modules/events/domain/ports/event.repository';
-import { InMemoryRepository } from '../in-memory.repository';
+} from "../../../../modules/events/domain/ports/event.repository";
+import { InMemoryRepository } from "../in-memory.repository";
 
 /** EventRepository en memoria. Replica las búsquedas del adapter Drizzle. */
 export class InMemoryEventRepository
@@ -21,7 +21,10 @@ export class InMemoryEventRepository
   async findById(id: string): Promise<Event | null> {
     const entity = this.getById(id);
     if (entity) {
-      entity.setTaxonomy(this.genresByEvent.get(id) ?? [], this.tagsByEvent.get(id) ?? []);
+      entity.setTaxonomy(
+        this.genresByEvent.get(id) ?? [],
+        this.tagsByEvent.get(id) ?? [],
+      );
     }
     return entity;
   }
@@ -37,8 +40,9 @@ export class InMemoryEventRepository
   async listPublished(filter?: EventListFilter): Promise<Event[]> {
     const q = filter?.q?.toLowerCase();
     const results = this.values().filter((e) => {
-      if (e.status !== 'published') return false;
-      if (filter?.localId !== undefined && e.localId !== filter.localId) return false;
+      if (e.status !== "published") return false;
+      if (filter?.localId !== undefined && e.localId !== filter.localId)
+        return false;
       if (filter?.from && e.startsAt < filter.from) return false;
       if (filter?.to && e.startsAt > filter.to) return false;
       if (filter?.minPrice !== undefined || filter?.maxPrice !== undefined) {
@@ -50,7 +54,8 @@ export class InMemoryEventRepository
         );
         if (!matches) return false;
       }
-      if (q && !`${e.name} ${e.description ?? ''}`.toLowerCase().includes(q)) return false;
+      if (q && !`${e.name} ${e.description ?? ""}`.toLowerCase().includes(q))
+        return false;
       return true;
     });
     const offset = filter?.offset ?? 0;
@@ -63,9 +68,19 @@ export class InMemoryEventRepository
     return event;
   }
 
+  async countPublished(filter?: EventListFilter): Promise<number> {
+    return (
+      await this.listPublished({
+        ...filter,
+        limit: undefined,
+        offset: undefined,
+      })
+    ).length;
+  }
+
   async listTrending(limit: number): Promise<Event[]> {
     return this.values()
-      .filter((e) => e.status === 'published')
+      .filter((e) => e.status === "published")
       .sort((a, b) => b.ticketsSold - a.ticketsSold)
       .slice(0, limit);
   }
@@ -73,7 +88,7 @@ export class InMemoryEventRepository
   async listUpcoming(limit: number): Promise<Event[]> {
     const now = new Date();
     return this.values()
-      .filter((e) => e.status === 'published' && e.startsAt >= now)
+      .filter((e) => e.status === "published" && e.startsAt >= now)
       .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())
       .slice(0, limit);
   }

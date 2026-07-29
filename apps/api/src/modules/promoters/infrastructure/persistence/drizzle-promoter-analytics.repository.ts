@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from "@nestjs/common";
 import {
   attendee,
   event,
@@ -9,24 +9,35 @@ import {
   promoCodeRedemption,
   promoter,
   promoterEvent,
+  promoterTicketAllocation,
   referralLink,
   saleAttribution,
   ticket,
-} from '@urnight/db';
-import { and, eq, gte, inArray, lte, ne, type SQL } from 'drizzle-orm';
+} from "@urnight/db";
+import {
+  and,
+  eq,
+  gte,
+  inArray,
+  isNull,
+  lte,
+  ne,
+  or,
+  type SQL,
+} from "drizzle-orm";
 import {
   DRIZZLE,
   type DrizzleDb,
-} from '../../../../shared/database/drizzle.constants';
-import type { OrderStatus } from '../../../ticketing/domain/entities/order.entity';
-import type { TicketStatus } from '../../../ticketing/domain/entities/ticket.entity';
-import type { SaleStatus } from '../../domain/entities/sale-attribution.entity';
+} from "../../../../shared/database/drizzle.constants";
+import type { OrderStatus } from "../../../ticketing/domain/entities/order.entity";
+import type { TicketStatus } from "../../../ticketing/domain/entities/ticket.entity";
+import type { SaleStatus } from "../../domain/entities/sale-attribution.entity";
 import type {
   AnalyticsEventStatus,
   PromoterAnalyticsFacts,
   PromoterAnalyticsFilter,
   PromoterAnalyticsRepository,
-} from '../../domain/ports/promoter-analytics.repository';
+} from "../../domain/ports/promoter-analytics.repository";
 
 @Injectable()
 export class DrizzlePromoterAnalyticsRepository implements PromoterAnalyticsRepository {
@@ -50,7 +61,14 @@ export class DrizzlePromoterAnalyticsRepository implements PromoterAnalyticsRepo
     filter: PromoterAnalyticsFilter,
   ): Promise<PromoterAnalyticsFacts> {
     const scoped = this.scopeConditions(filter);
-    const [assignmentRows, promoRows, referralRows] = await Promise.all([
+    const now = new Date();
+    const [
+      assignmentRows,
+      allocationRows,
+      issuedCodeRows,
+      promoRows,
+      referralRows,
+    ] = await Promise.all([
       this.db
         .select({
           promoterId: promoter.id,
@@ -63,7 +81,55 @@ export class DrizzlePromoterAnalyticsRepository implements PromoterAnalyticsRepo
         .innerJoin(promoter, eq(promoterEvent.promoterId, promoter.id))
         .innerJoin(event, eq(promoterEvent.eventId, event.id))
         .innerJoin(local, eq(event.localId, local.id))
-        .where(and(eq(promoterEvent.status, 'active'), ...scoped)),
+        .where(and(eq(promoterEvent.status, "active"), ...scoped)),
+      this.db
+        .select({
+          allocationId: promoterTicketAllocation.id,
+          allocatedStock: promoterTicketAllocation.allocatedStock,
+          promoterId: promoter.id,
+          eventId: event.id,
+          eventName: event.name,
+          eventStartsAt: event.startsAt,
+          eventStatus: event.status,
+        })
+        .from(promoterTicketAllocation)
+        .innerJoin(
+          promoterEvent,
+          eq(promoterTicketAllocation.promoterEventId, promoterEvent.id),
+        )
+        .innerJoin(promoter, eq(promoterEvent.promoterId, promoter.id))
+        .innerJoin(event, eq(promoterEvent.eventId, event.id))
+        .innerJoin(local, eq(event.localId, local.id))
+        .where(and(eq(promoterEvent.status, "active"), ...scoped)),
+      this.db
+        .select({
+          allocationId: promoterTicketAllocation.id,
+          promoCodeId: promoCode.id,
+          code: promoCode.code,
+        })
+        .from(promoCode)
+        .innerJoin(
+          promoterEvent,
+          eq(promoCode.promoterEventId, promoterEvent.id),
+        )
+        .innerJoin(
+          promoterTicketAllocation,
+          and(
+            eq(promoterTicketAllocation.promoterEventId, promoterEvent.id),
+            eq(promoterTicketAllocation.ticketTypeId, promoCode.ticketTypeId),
+          ),
+        )
+        .innerJoin(promoter, eq(promoterEvent.promoterId, promoter.id))
+        .innerJoin(event, eq(promoterEvent.eventId, event.id))
+        .innerJoin(local, eq(event.localId, local.id))
+        .where(
+          and(
+            eq(promoterEvent.status, "active"),
+            eq(promoCode.isActive, true),
+            or(isNull(promoCode.validUntil), gte(promoCode.validUntil, now)),
+            ...scoped,
+          ),
+        ),
       this.db
         .select({
           promoterId: promoter.id,
@@ -77,6 +143,8 @@ export class DrizzlePromoterAnalyticsRepository implements PromoterAnalyticsRepo
           currency: order.currency,
           code: promoCode.code,
           attributedAt: promoCodeRedemption.redeemedAt,
+          commissionAmount: saleAttribution.commissionAmount,
+          commissionStatus: saleAttribution.status,
         })
         .from(promoCodeRedemption)
         .innerJoin(promoCode, eq(promoCodeRedemption.promoCodeId, promoCode.id))
@@ -84,7 +152,16 @@ export class DrizzlePromoterAnalyticsRepository implements PromoterAnalyticsRepo
         .innerJoin(order, eq(promoCodeRedemption.orderId, order.id))
         .innerJoin(event, eq(order.eventId, event.id))
         .innerJoin(local, eq(event.localId, local.id))
-        .where(and(eq(order.status, 'paid'), ...scoped)),
+        .leftJoin(
+          saleAttribution,
+          and(
+            eq(saleAttribution.orderId, order.id),
+            eq(saleAttribution.promoterId, promoter.id),
+            isNull(saleAttribution.referralLinkId),
+            ne(saleAttribution.status, "void"),
+          ),
+        )
+        .where(and(eq(order.status, "paid"), ...scoped)),
       this.db
         .select({
           promoterId: promoter.id,
@@ -106,20 +183,20 @@ export class DrizzlePromoterAnalyticsRepository implements PromoterAnalyticsRepo
         .innerJoin(order, eq(saleAttribution.orderId, order.id))
         .innerJoin(event, eq(order.eventId, event.id))
         .innerJoin(local, eq(event.localId, local.id))
-        .leftJoin(
+        .innerJoin(
           referralLink,
           eq(saleAttribution.referralLinkId, referralLink.id),
         )
         .where(
           and(
-            eq(order.status, 'paid'),
-            ne(saleAttribution.status, 'void'),
+            eq(order.status, "paid"),
+            ne(saleAttribution.status, "void"),
             ...scoped,
           ),
         ),
     ]);
 
-    const attributions: PromoterAnalyticsFacts['attributions'] = [
+    const attributions: PromoterAnalyticsFacts["attributions"] = [
       ...promoRows.map((row) => ({
         promoterId: row.promoterId,
         eventId: row.eventId,
@@ -130,11 +207,15 @@ export class DrizzlePromoterAnalyticsRepository implements PromoterAnalyticsRepo
         orderStatus: row.orderStatus as OrderStatus,
         orderTotal: Number(row.orderTotal),
         currency: row.currency,
-        source: 'promo_code' as const,
+        source: "promo_code" as const,
         code: row.code,
         attributedAt: row.attributedAt,
-        commissionAmount: null,
-        commissionStatus: null,
+        commissionAmount:
+          row.commissionAmount === null ? null : Number(row.commissionAmount),
+        commissionStatus:
+          row.commissionStatus === null
+            ? null
+            : (row.commissionStatus as SaleStatus),
       })),
       ...referralRows.map((row) => ({
         promoterId: row.promoterId,
@@ -146,7 +227,7 @@ export class DrizzlePromoterAnalyticsRepository implements PromoterAnalyticsRepo
         orderStatus: row.orderStatus as OrderStatus,
         orderTotal: Number(row.orderTotal),
         currency: row.currency,
-        source: 'referral' as const,
+        source: "referral" as const,
         code: row.code ?? null,
         attributedAt: row.attributedAt,
         commissionAmount: Number(row.commissionAmount),
@@ -174,6 +255,16 @@ export class DrizzlePromoterAnalyticsRepository implements PromoterAnalyticsRepo
             .innerJoin(attendee, eq(attendee.ticketId, ticket.id))
             .where(inArray(orderItem.orderId, orderIds));
 
+    const codesByAllocation = new Map<
+      string,
+      Array<{ id: string; code: string }>
+    >();
+    for (const row of issuedCodeRows) {
+      const codes = codesByAllocation.get(row.allocationId) ?? [];
+      codes.push({ id: row.promoCodeId, code: row.code });
+      codesByAllocation.set(row.allocationId, codes);
+    }
+
     return {
       assignments: assignmentRows.map((row) => ({
         promoterId: row.promoterId,
@@ -181,6 +272,16 @@ export class DrizzlePromoterAnalyticsRepository implements PromoterAnalyticsRepo
         eventName: row.eventName,
         eventStartsAt: row.eventStartsAt,
         eventStatus: row.eventStatus as AnalyticsEventStatus,
+      })),
+      invitationLists: allocationRows.map((row) => ({
+        promoterId: row.promoterId,
+        eventId: row.eventId,
+        eventName: row.eventName,
+        eventStartsAt: row.eventStartsAt,
+        eventStatus: row.eventStatus as AnalyticsEventStatus,
+        allocationId: row.allocationId,
+        allocatedStock: row.allocatedStock,
+        issuedCodes: codesByAllocation.get(row.allocationId) ?? [],
       })),
       attributions,
       tickets: ticketRows.map((row) => ({

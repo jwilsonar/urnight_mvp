@@ -1,4 +1,4 @@
-import type { Event } from '../entities/event.entity';
+import type { Event } from "../entities/event.entity";
 
 /** Filtros de listado público de eventos (#3). Fechas ya parseadas a Date. */
 export interface EventListFilter {
@@ -23,6 +23,8 @@ export interface EventRepository {
   existsBySlug(slug: string): Promise<boolean>;
   /** Eventos públicos (status=published) con filtros de búsqueda (#3). */
   listPublished(filter?: EventListFilter): Promise<Event[]>;
+  /** Total exacto con los mismos filtros, ignorando limit/offset. */
+  countPublished(filter?: EventListFilter): Promise<number>;
   /** Eventos más populares (tickets vendidos), para tendencia (#9). */
   listTrending(limit: number): Promise<Event[]>;
   /** Próximos eventos publicados (startsAt >= ahora), recomendados/calendario (#10/#18). */
@@ -37,4 +39,4 @@ export interface EventRepository {
   setTags(eventId: string, tagIds: string[]): Promise<void>;
 }
 
-export const EVENT_REPOSITORY = Symbol('EVENT_REPOSITORY');
+export const EVENT_REPOSITORY = Symbol("EVENT_REPOSITORY");

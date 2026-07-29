@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { getEvents, getUpcomingEvents } from "@/lib/api/catalog";
 import {
   eventCatalogHref,
+  getLimaDatePresetRange,
   parsePriceFilter,
   type EventCatalogSearchParams,
 } from "@/lib/catalog-filters";
@@ -39,22 +40,34 @@ export default async function EventsCalendarPage({
     filters.minPrice ||
     filters.maxPrice,
   );
+  const datePreset =
+    filters.datePreset === "today" ||
+    filters.datePreset === "tonight" ||
+    filters.datePreset === "weekend"
+      ? filters.datePreset
+      : undefined;
+  const dateRange = datePreset
+    ? getLimaDatePresetRange(datePreset)
+    : { from: filters.from, to: filters.to };
   const events = await (
-    hasFilters
+    hasFilters || datePreset
       ? getEvents({
           q: filters.q,
           zoneId: filters.zoneId,
           genreId: filters.genreId,
           tagId: filters.tagId,
-          from: filters.from ?? new Date().toISOString(),
-          to: filters.to,
+          from: dateRange.from ?? new Date().toISOString(),
+          to: dateRange.to,
           minPrice: parsePriceFilter(filters.minPrice),
           maxPrice: parsePriceFilter(filters.maxPrice),
         })
       : getUpcomingEvents()
   ).catch(() => []);
+  const sortedEvents = [...events].sort(
+    (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
+  );
   const groups = new Map<string, EventResponse[]>();
-  for (const event of events) {
+  for (const event of sortedEvents) {
     const key = format.dateTime(new Date(event.startsAt), {
       weekday: "long",
       day: "numeric",

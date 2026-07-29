@@ -1,12 +1,13 @@
-import { PromoCode } from '../../../../modules/promoters/domain/entities/promo-code.entity';
+import { PromoCode } from "../../../../modules/promoters/domain/entities/promo-code.entity";
 import type {
   GeneratedRedemptionCodeInput,
+  PromoOrderAttribution,
   PromoCodeRepository,
   PromoRedemptionRecord,
   RedemptionCodeView,
   ResolvedRedemptionCodeView,
-} from '../../../../modules/promoters/domain/ports/promo-code.repository';
-import { InMemoryRepository } from '../in-memory.repository';
+} from "../../../../modules/promoters/domain/ports/promo-code.repository";
+import { InMemoryRepository } from "../in-memory.repository";
 
 /** PromoCodeRepository en memoria. Busca por `code` (índice único en la DB). */
 export class InMemoryPromoCodeRepository
@@ -23,6 +24,18 @@ export class InMemoryPromoCodeRepository
     return this.values().find((p) => p.code === code) ?? null;
   }
 
+  async findAttributionByOrder(
+    orderId: string,
+  ): Promise<PromoOrderAttribution | null> {
+    const redemption = this.redemptions.find((row) => row.orderId === orderId);
+    if (!redemption) return null;
+    const generated = this.generated.get(redemption.promoCodeId);
+    return {
+      promoCodeId: redemption.promoCodeId,
+      promoterId: generated?.promoterId ?? null,
+    };
+  }
+
   async existsByCode(code: string): Promise<boolean> {
     return this.values().some((p) => p.code === code);
   }
@@ -35,7 +48,10 @@ export class InMemoryPromoCodeRepository
   private readonly redemptions: PromoRedemptionRecord[] = [];
   private readonly generated = new Map<string, GeneratedRedemptionCodeInput>();
 
-  async createGenerated(input: GeneratedRedemptionCodeInput, _tx?: unknown): Promise<void> {
+  async createGenerated(
+    input: GeneratedRedemptionCodeInput,
+    _tx?: unknown,
+  ): Promise<void> {
     this.generated.set(input.id, input);
     this.put(
       PromoCode.create({
@@ -44,7 +60,7 @@ export class InMemoryPromoCodeRepository
         discountType: input.discountType,
         discountValue: input.discountValue,
         usageQuota: 1,
-        scope: 'ticket_type',
+        scope: "ticket_type",
         eventId: input.eventId,
         ticketTypeId: input.ticketTypeId,
       }),
@@ -64,13 +80,20 @@ export class InMemoryPromoCodeRepository
     }
   }
 
-  async countByAllocation(promoterEventId: string, ticketTypeId: string): Promise<number> {
+  async countByAllocation(
+    promoterEventId: string,
+    ticketTypeId: string,
+  ): Promise<number> {
     return [...this.generated.values()].filter(
-      (g) => g.promoterEventId === promoterEventId && g.ticketTypeId === ticketTypeId,
+      (g) =>
+        g.promoterEventId === promoterEventId &&
+        g.ticketTypeId === ticketTypeId,
     ).length;
   }
 
-  async listByPromoterEvent(promoterEventId: string): Promise<RedemptionCodeView[]> {
+  async listByPromoterEvent(
+    promoterEventId: string,
+  ): Promise<RedemptionCodeView[]> {
     return [...this.generated.values()]
       .filter((g) => g.promoterEventId === promoterEventId)
       .map((g) => ({
@@ -110,15 +133,22 @@ export class InMemoryPromoCodeRepository
     // El aggregate PromoCode no expone mutador de usedCount; no-op en memoria.
   }
 
-  async recordRedemption(record: PromoRedemptionRecord, _tx?: unknown): Promise<void> {
+  async recordRedemption(
+    record: PromoRedemptionRecord,
+    _tx?: unknown,
+  ): Promise<void> {
     this.redemptions.push(record);
   }
 
-  async listRedemptionsByCode(promoCodeId: string): Promise<PromoRedemptionRecord[]> {
+  async listRedemptionsByCode(
+    promoCodeId: string,
+  ): Promise<PromoRedemptionRecord[]> {
     return this.redemptions.filter((r) => r.promoCodeId === promoCodeId);
   }
 
-  async listRedemptionsByUser(userId: string): Promise<PromoRedemptionRecord[]> {
+  async listRedemptionsByUser(
+    userId: string,
+  ): Promise<PromoRedemptionRecord[]> {
     return this.redemptions.filter((r) => r.userId === userId);
   }
 }

@@ -746,7 +746,8 @@ sequenceDiagram
 
 ### SD-10 · Atribución de ventas
 
-`AttributeSaleUseCase`, gatillado por `OrderPaid`. Implementado y **hoy inerte**.
+`AttributeSaleUseCase`, gatillado por `OrderPaid`. Atribuye por referral **o** por
+el `promo_code` canjeado, que es el modelo vivo.
 
 ```mermaid
 sequenceDiagram
@@ -755,6 +756,9 @@ sequenceDiagram
     participant BUS as EventBus
     participant SUB as OrderPaidSubscriber
     participant UC as AttributeSaleUseCase
+    participant POL as PromoterCommissionPolicy
+    participant PSREP as PlatformSettingRepository
+    participant PCREP as PromoCodeRepository
     participant DOM as Aggregate SaleAttribution
     participant SAREP as SaleAttributionRepository
     participant DB as PostgreSQL
@@ -762,38 +766,47 @@ sequenceDiagram
     note over CO, SUB: Fase 1 · Gatillo por evento de dominio
     CO-)BUS: OrderPaidEvent { orderId, userId, total, referralCode }
     BUS-)SUB: suscriptor de checkout.order_paid
-    SUB->>SUB: si referralCode viene en null, no hace nada
-    note over CO, SUB: Aquí muere el flujo hoy: el checkout web nunca informa<br/>referralCode. CreateOrderDto lo admite, useCheckoutForm no lo rellena.
-
-    note over UC, DB: Fase 2 · Camino implementado, si algún cliente informara el código
     SUB->>UC: execute({ orderId, referralCode, amount })
+
+    note over UC, DB: Fase 2 · Idempotencia por orden
     UC->>SAREP: existsForOrder(orderId)
     alt la orden ya fue atribuida
         SAREP-->>UC: true
         UC-->>SUB: retorna sin duplicar
-        note over UC, SAREP: Idempotencia por orden: un reintento del evento no genera<br/>dos comisiones.
+        note over UC, SAREP: Un reintento del evento no genera dos comisiones.
     else sin atribución previa
-        UC->>DB: SELECT del referral_link por código
-        alt link inexistente o inactivo
-            UC-->>SUB: retorna en silencio
-        else link activo
+        note over UC, PCREP: Fase 3 · Resolución del promotor por dos vías
+        alt viene referralCode
+            UC->>DB: SELECT del referral_link por código
             UC->>DB: SELECT del promotor del link
-            alt promotor inexistente o no activo
-                UC-->>SUB: retorna en silencio
-                note over UC: Best-effort en todo el camino: ningún fallo de atribución<br/>puede romper un pago ya cobrado.
-            else promotor activo
-                UC->>DOM: SaleAttribution.estimate con PROMOTER_COMMISSION_RATE
-                DOM->>DOM: commissionAmount = importe por tasa, redondeado a dos decimales
-                DOM->>DOM: status estimated
-                note over DOM: La tasa se guarda como snapshot en la fila: cambiarla después<br/>no recalcula comisiones pasadas. Hoy viene de una variable de<br/>entorno, con TODO para moverla a PLATFORM_SETTING.
-                DOM-->>UC: SaleAttribution
-                UC->>SAREP: create(attribution)
-                SAREP->>DB: INSERT INTO sale_attribution
-                DB-->>SAREP: fila creada
-            end
+        else sin referralCode
+            UC->>PCREP: promo_code canjeado en la orden
+            PCREP-->>UC: promoterId del código
+            note over UC, PCREP: Vía viva: el canje de códigos ya no queda sin atribuir.
+        end
+
+        alt no se resuelve un promotor activo
+            UC-->>SUB: retorna en silencio
+            note over UC: Best-effort en todo el camino: ningún fallo de atribución<br/>puede romper un pago ya cobrado.
+        else promotor activo
+            note over UC, PSREP: Fase 4 · Tasa vigente desde la configuración de plataforma
+            UC->>POL: rate()
+            POL->>PSREP: findByKey(default_commission_rate)
+            PSREP-->>POL: PlatformSetting
+            POL->>POL: valida numérico y en rango 0 a 1
+            note over POL, PSREP: Si falta la clave o el valor no es válido, lanza error:<br/>no se inventa una tasa por defecto.
+            POL-->>UC: rate
+            UC->>DOM: SaleAttribution.estimate con rate
+            DOM->>DOM: commissionAmount = importe por tasa, redondeado a dos decimales
+            DOM->>DOM: status estimated
+            note over DOM: commission_rate y commission_amount quedan como snapshot<br/>en la fila: cambiar la política después no recalcula<br/>comisiones ya atribuidas.
+            DOM-->>UC: SaleAttribution
+            UC->>SAREP: create(attribution)
+            SAREP->>DB: INSERT INTO sale_attribution
+            DB-->>SAREP: fila creada
         end
     end
-    note over CO, DB: ADR 0003: NO hay ventana de atribución de 7 días. El modelo vivo es<br/>el canje de códigos, que sí registra promo_code_redemption pero NO<br/>escribe sale_attribution. Ver §12.
+    note over CO, DB: ADR 0003: NO hay ventana de atribución de 7 días. El canje de<br/>códigos registra promo_code_redemption y ahora TAMBIÉN escribe<br/>sale_attribution con su snapshot de comisión.
 ```
 
 ### SD-11 · Liquidación de comisiones
@@ -936,8 +949,9 @@ stateDiagram-v2
 | Enlace de referido | `referralUrlFor` genera `/r/{code}` | — | ❌ La ruta no existe en la web |
 | Clic de código | `RegisterRedemptionClickUseCase` | `promo_code.clicks` | ✅ En uso |
 | Clic de referido | `POST /promoters/referrals/{code}/click` | `RegisterReferralClickUseCase` | ❌ Nadie lo invoca |
-| Atribución de ventas | — (suscriptor de `OrderPaid`) | `AttributeSaleUseCase` | ❌ Inerte: nadie envía `referralCode` |
-| Consulta de comisiones | `GET /promoters/{id}/sales` | `ListPromoterSalesUseCase` | ⚠️ Implementado, devuelve cero en la práctica |
+| Atribución de ventas | — (suscriptor de `OrderPaid`) | `AttributeSaleUseCase` | ✅ En uso: atribuye por referral o por `promo_code` canjeado |
+| Política de comisión | — | `PromoterCommissionPolicy` | ✅ Lee `default_commission_rate` de `PLATFORM_SETTING`, validada 0..1 |
+| Consulta de comisiones | `GET /promoters/{id}/sales` | `ListPromoterSalesUseCase` | ✅ Devuelve las atribuciones con su snapshot de comisión |
 | Liquidación | — | — | ❌ No existe (ver SD-11b) |
 
 ---
@@ -947,12 +961,13 @@ stateDiagram-v2
 Hallazgos de la lectura del código, ordenados por impacto. No forman parte del pedido, pero
 condicionan la fidelidad de los diagramas.
 
-1. **La atribución de ventas está inerte, así que no hay comisiones.** `AttributeSaleUseCase` solo
-   actúa si `OrderPaidEvent` trae `referralCode`, y el checkout web nunca lo envía: `CreateOrderDto`
-   lo admite pero `useCheckoutForm` no lo rellena. Consecuencia directa: `sale_attribution` no se
-   escribe jamás y `GET /promoters/{id}/sales` devuelve siempre cero atribuciones y cero comisión. El
-   modelo que sí está vivo, el canje de códigos, no genera atribución alguna. El propio ADR 0003
-   documenta el re-cableado pendiente.
+1. ~~**La atribución de ventas está inerte, así que no hay comisiones.**~~ **Cerrada.**
+   `AttributeSaleUseCase` ya no depende de que el checkout informe `referralCode`: cuando no viene,
+   resuelve el promotor desde el `promo_code` canjeado en la orden, que es el modelo vivo. Además
+   `commission_rate` y `commission_amount` se persisten como snapshot en `sale_attribution`, y la
+   tasa sale de `default_commission_rate` en `PLATFORM_SETTING` validada entre 0 y 1 — antes era una
+   variable de entorno donde un valor vacío dejaba todas las comisiones en cero sin avisar. Queda
+   pendiente el re-cableado del `referralCode` en el checkout web descrito en el ADR 0003.
 2. **No hay liquidación.** `SaleAttribution` nace `estimated` y no existe ningún método en el
    aggregate ni endpoint que la pase a `confirmed` o `void`, ni registro de pago al promotor. Aunque
    se arreglara el punto 1, el ciclo seguiría sin cerrar.

@@ -1,10 +1,39 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, desc, eq, gte, inArray, lte, or, sql, type SQL } from 'drizzle-orm';
-import { event, eventGenre, eventTag, local, musicGenre, tag, ticketType } from '@urnight/db';
-import { DRIZZLE, type DrizzleDb } from '../../../../shared/database/drizzle.constants';
-import { Event, type EventStatus } from '../../domain/entities/event.entity';
-import type { EventListFilter, EventRepository } from '../../domain/ports/event.repository';
-import { normalizeSearch, normalizedColumn } from '../../../../shared/database/search-normalize';
+import { Inject, Injectable } from "@nestjs/common";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gte,
+  inArray,
+  lte,
+  or,
+  sql,
+  type SQL,
+} from "drizzle-orm";
+import {
+  event,
+  eventGenre,
+  eventTag,
+  local,
+  musicGenre,
+  tag,
+  ticketType,
+} from "@urnight/db";
+import {
+  DRIZZLE,
+  type DrizzleDb,
+} from "../../../../shared/database/drizzle.constants";
+import { Event, type EventStatus } from "../../domain/entities/event.entity";
+import type {
+  EventListFilter,
+  EventRepository,
+} from "../../domain/ports/event.repository";
+import {
+  normalizeSearch,
+  normalizedColumn,
+} from "../../../../shared/database/search-normalize";
 
 type Row = typeof event.$inferSelect;
 
@@ -13,13 +42,21 @@ export class DrizzleEventRepository implements EventRepository {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDb) {}
 
   async findById(id: string): Promise<Event | null> {
-    const [row] = await this.db.select().from(event).where(eq(event.id, id)).limit(1);
+    const [row] = await this.db
+      .select()
+      .from(event)
+      .where(eq(event.id, id))
+      .limit(1);
     if (!row) return null;
     return this.withTaxonomy(this.toDomain(row));
   }
 
   async findBySlug(slug: string): Promise<Event | null> {
-    const [row] = await this.db.select().from(event).where(eq(event.slug, slug)).limit(1);
+    const [row] = await this.db
+      .select()
+      .from(event)
+      .where(eq(event.slug, slug))
+      .limit(1);
     if (!row) return null;
     return this.withTaxonomy(this.toDomain(row));
   }
@@ -31,7 +68,10 @@ export class DrizzleEventRepository implements EventRepository {
         .select({ id: eventGenre.genreId })
         .from(eventGenre)
         .where(eq(eventGenre.eventId, entity.id)),
-      this.db.select({ id: eventTag.tagId }).from(eventTag).where(eq(eventTag.eventId, entity.id)),
+      this.db
+        .select({ id: eventTag.tagId })
+        .from(eventTag)
+        .where(eq(eventTag.eventId, entity.id)),
     ]);
     entity.setTaxonomy(
       genres.map((g) => g.id),
@@ -41,18 +81,110 @@ export class DrizzleEventRepository implements EventRepository {
   }
 
   async existsBySlug(slug: string): Promise<boolean> {
-    const [row] = await this.db.select({ id: event.id }).from(event).where(eq(event.slug, slug)).limit(1);
+    const [row] = await this.db
+      .select({ id: event.id })
+      .from(event)
+      .where(eq(event.slug, slug))
+      .limit(1);
     return Boolean(row);
   }
 
-  async listPublished(filter?: EventListFilter): Promise<Event[]> {
-    const conditions: SQL[] = [eq(event.status, 'published')];
+  private publishedConditions(filter?: EventListFilter): SQL[] {
+    const conditions: SQL[] = [eq(event.status, "published")];
     if (filter?.localId) conditions.push(eq(event.localId, filter.localId));
     if (filter?.zoneId) {
       conditions.push(
         inArray(
           event.localId,
-          this.db.select({ id: local.id }).from(local).where(eq(local.zoneId, filter.zoneId)),
+          this.db
+            .select({ id: local.id })
+            .from(local)
+            .where(eq(local.zoneId, filter.zoneId)),
+        ),
+      );
+    }
+    if (filter?.genreId) {
+      conditions.push(
+        inArray(
+          event.id,
+          this.db
+            .select({ id: eventGenre.eventId })
+            .from(eventGenre)
+            .where(eq(eventGenre.genreId, filter.genreId)),
+        ),
+      );
+    }
+    if (filter?.tagId) {
+      conditions.push(
+        inArray(
+          event.id,
+          this.db
+            .select({ id: eventTag.eventId })
+            .from(eventTag)
+            .where(eq(eventTag.tagId, filter.tagId)),
+        ),
+      );
+    }
+    if (filter?.q) {
+      const normalized = normalizeSearch(filter.q);
+      if (normalized) {
+        const pattern = `%${normalized}%`;
+        const tagMatch = this.db
+          .select({ id: eventTag.eventId })
+          .from(eventTag)
+          .innerJoin(tag, eq(eventTag.tagId, tag.id))
+          .where(sql`${normalizedColumn(tag.name)} like ${pattern}`);
+        const genreMatch = this.db
+          .select({ id: eventGenre.eventId })
+          .from(eventGenre)
+          .innerJoin(musicGenre, eq(eventGenre.genreId, musicGenre.id))
+          .where(sql`${normalizedColumn(musicGenre.name)} like ${pattern}`);
+        const customTagMatch = sql`exists (select 1 from jsonb_array_elements_text(${event.customTags}) as ct(v) where ${normalizedColumn(sql`ct.v`)} like ${pattern})`;
+        conditions.push(
+          or(
+            sql`${normalizedColumn(event.name)} like ${pattern}`,
+            sql`${normalizedColumn(event.description)} like ${pattern}`,
+            customTagMatch,
+            inArray(event.id, tagMatch),
+            inArray(event.id, genreMatch),
+          ) as SQL,
+        );
+      }
+    }
+    if (filter?.from) conditions.push(gte(event.startsAt, filter.from));
+    if (filter?.to) conditions.push(lte(event.startsAt, filter.to));
+    if (filter?.minPrice !== undefined || filter?.maxPrice !== undefined) {
+      const priceConditions: SQL[] = [];
+      if (filter.minPrice !== undefined) {
+        priceConditions.push(gte(ticketType.price, filter.minPrice.toFixed(2)));
+      }
+      if (filter.maxPrice !== undefined) {
+        priceConditions.push(lte(ticketType.price, filter.maxPrice.toFixed(2)));
+      }
+      conditions.push(
+        inArray(
+          event.id,
+          this.db
+            .select({ id: ticketType.eventId })
+            .from(ticketType)
+            .where(and(...priceConditions)),
+        ),
+      );
+    }
+    return conditions;
+  }
+
+  async listPublished(filter?: EventListFilter): Promise<Event[]> {
+    const conditions: SQL[] = [eq(event.status, "published")];
+    if (filter?.localId) conditions.push(eq(event.localId, filter.localId));
+    if (filter?.zoneId) {
+      conditions.push(
+        inArray(
+          event.localId,
+          this.db
+            .select({ id: local.id })
+            .from(local)
+            .where(eq(local.zoneId, filter.zoneId)),
         ),
       );
     }
@@ -133,7 +265,7 @@ export class DrizzleEventRepository implements EventRepository {
       .select()
       .from(event)
       .where(and(...conditions))
-      .orderBy(desc(event.startsAt))
+      .orderBy(desc(event.startsAt), desc(event.id))
       .$dynamic();
     if (filter?.limit !== undefined) query = query.limit(filter.limit);
     if (filter?.offset !== undefined) query = query.offset(filter.offset);
@@ -141,11 +273,19 @@ export class DrizzleEventRepository implements EventRepository {
     return rows.map((r) => this.toDomain(r));
   }
 
+  async countPublished(filter?: EventListFilter): Promise<number> {
+    const [row] = await this.db
+      .select({ total: count() })
+      .from(event)
+      .where(and(...this.publishedConditions(filter)));
+    return Number(row?.total ?? 0);
+  }
+
   async listTrending(limit: number): Promise<Event[]> {
     const rows = await this.db
       .select()
       .from(event)
-      .where(eq(event.status, 'published'))
+      .where(eq(event.status, "published"))
       .orderBy(desc(event.ticketsSold), desc(event.checkinsCount))
       .limit(limit);
     return rows.map((r) => this.toDomain(r));
@@ -155,7 +295,9 @@ export class DrizzleEventRepository implements EventRepository {
     const rows = await this.db
       .select()
       .from(event)
-      .where(and(eq(event.status, 'published'), gte(event.startsAt, new Date())))
+      .where(
+        and(eq(event.status, "published"), gte(event.startsAt, new Date())),
+      )
       .orderBy(asc(event.startsAt))
       .limit(limit);
     return rows.map((r) => this.toDomain(r));
@@ -190,7 +332,7 @@ export class DrizzleEventRepository implements EventRepository {
         createdBy: entity.createdBy,
       })
       .returning();
-    if (!row) throw new Error('No se pudo crear el evento');
+    if (!row) throw new Error("No se pudo crear el evento");
     return this.toDomain(row);
   }
 
@@ -213,7 +355,7 @@ export class DrizzleEventRepository implements EventRepository {
       })
       .where(eq(event.id, entity.id))
       .returning();
-    if (!row) throw new Error('No se pudo actualizar el evento');
+    if (!row) throw new Error("No se pudo actualizar el evento");
     return this.toDomain(row);
   }
 
@@ -222,7 +364,9 @@ export class DrizzleEventRepository implements EventRepository {
       await tx.delete(eventGenre).where(eq(eventGenre.eventId, eventId));
       const unique = [...new Set(genreIds)];
       if (unique.length > 0) {
-        await tx.insert(eventGenre).values(unique.map((genreId) => ({ eventId, genreId })));
+        await tx
+          .insert(eventGenre)
+          .values(unique.map((genreId) => ({ eventId, genreId })));
       }
     });
   }
@@ -232,7 +376,9 @@ export class DrizzleEventRepository implements EventRepository {
       await tx.delete(eventTag).where(eq(eventTag.eventId, eventId));
       const unique = [...new Set(tagIds)];
       if (unique.length > 0) {
-        await tx.insert(eventTag).values(unique.map((tagId) => ({ eventId, tagId })));
+        await tx
+          .insert(eventTag)
+          .values(unique.map((tagId) => ({ eventId, tagId })));
       }
     });
   }

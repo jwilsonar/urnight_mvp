@@ -1,10 +1,10 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 const slug = z
   .string()
   .min(2)
   .max(200)
-  .regex(/^[a-z0-9-]+$/, 'slug debe ser kebab-case');
+  .regex(/^[a-z0-9-]+$/, "slug debe ser kebab-case");
 
 /** Crear evento (EVENT §4.1). */
 export const createEventSchema = z.object({
@@ -12,7 +12,7 @@ export const createEventSchema = z.object({
   name: z.string().trim().min(2).max(180),
   slug,
   description: z.string().max(8000).optional(),
-  startsAt: z.string().datetime({ message: 'startsAt debe ser ISO 8601' }),
+  startsAt: z.string().datetime({ message: "startsAt debe ser ISO 8601" }),
   endsAt: z.string().datetime().optional(),
   flyerUrl: z.string().url().max(512).optional(),
   /**
@@ -41,7 +41,10 @@ export type CancelEventDto = z.infer<typeof cancelEventSchema>;
 export const updateEventSchema = z.object({
   name: z.string().trim().min(2).max(180).optional(),
   description: z.string().max(8000).nullable().optional(),
-  startsAt: z.string().datetime({ message: 'startsAt debe ser ISO 8601' }).optional(),
+  startsAt: z
+    .string()
+    .datetime({ message: "startsAt debe ser ISO 8601" })
+    .optional(),
   endsAt: z.string().datetime().nullable().optional(),
   totalCapacity: z.number().int().min(0).optional(),
   minAgeNote: z.string().max(40).optional(),
@@ -61,6 +64,12 @@ export const updateEventSchema = z.object({
 export type UpdateEventDto = z.infer<typeof updateEventSchema>;
 
 /** Filtros de búsqueda pública (#3: texto, zona, género, tag, fechas y precio). */
+const optionalPriceSchema = z.preprocess(
+  (value) =>
+    typeof value === "string" && value.trim() === "" ? undefined : value,
+  z.coerce.number().int().nonnegative().optional(),
+);
+
 export const eventListQuerySchema = z
   .object({
     q: z.string().trim().min(1).max(120).optional(),
@@ -70,8 +79,8 @@ export const eventListQuerySchema = z
     tagId: z.string().uuid().optional(),
     from: z.string().datetime().optional(),
     to: z.string().datetime().optional(),
-    minPrice: z.coerce.number().int().nonnegative().optional(),
-    maxPrice: z.coerce.number().int().nonnegative().optional(),
+    minPrice: optionalPriceSchema,
+    maxPrice: optionalPriceSchema,
     // Paginación opcional (retrocompatible: ausentes ⇒ lista completa).
     limit: z.coerce.number().int().min(1).max(60).optional(),
     offset: z.coerce.number().int().min(0).optional(),
@@ -80,8 +89,8 @@ export const eventListQuerySchema = z
     ({ minPrice, maxPrice }) =>
       minPrice === undefined || maxPrice === undefined || maxPrice >= minPrice,
     {
-      message: 'maxPrice debe ser mayor o igual que minPrice',
-      path: ['maxPrice'],
+      message: "maxPrice debe ser mayor o igual que minPrice",
+      path: ["maxPrice"],
     },
   );
 export type EventListQuery = z.infer<typeof eventListQuerySchema>;
@@ -97,7 +106,7 @@ export const eventResponseSchema = z.object({
   flyerUrl: z.string().nullable(),
   totalCapacity: z.number().int(),
   ticketsSold: z.number().int(),
-  status: z.enum(['draft', 'scheduled', 'published', 'cancelled', 'finished']),
+  status: z.enum(["draft", "scheduled", "published", "cancelled", "finished"]),
   minAgeNote: z.string(),
   dressCode: z.string().nullable(),
   publishedAt: z.string().nullable(),
