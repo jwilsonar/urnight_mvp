@@ -1,5 +1,11 @@
 import type { Event } from "../entities/event.entity";
 
+/**
+ * Punto de extensión del catálogo: hoy el producto exige vencimiento cercano.
+ * Un recomendador futuro podrá añadir otra estrategia sin cambiar la firma del listado.
+ */
+export type EventCatalogOrder = "soonest";
+
 /** Filtros de listado público de eventos (#3). Fechas ya parseadas a Date. */
 export interface EventListFilter {
   localId?: string;
@@ -15,13 +21,16 @@ export interface EventListFilter {
   /** Paginación opcional (ausentes ⇒ lista completa, retrocompatible). */
   limit?: number;
   offset?: number;
+  order?: EventCatalogOrder;
+  /** Corte compartido entre datos y conteo para que la paginación sea consistente. */
+  availableAt?: Date;
 }
 
 export interface EventRepository {
   findById(id: string): Promise<Event | null>;
   findBySlug(slug: string): Promise<Event | null>;
   existsBySlug(slug: string): Promise<boolean>;
-  /** Eventos públicos (status=published) con filtros de búsqueda (#3). */
+  /** Eventos públicos, futuros, con cupo y filtros de búsqueda (#3). */
   listPublished(filter?: EventListFilter): Promise<Event[]>;
   /** Total exacto con los mismos filtros, ignorando limit/offset. */
   countPublished(filter?: EventListFilter): Promise<number>;

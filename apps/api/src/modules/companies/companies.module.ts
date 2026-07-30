@@ -4,6 +4,7 @@ import { CreateCompanyUseCase } from './application/use-cases/create-company.use
 import { CreateLocalUseCase } from './application/use-cases/create-local.use-case';
 import { DeleteLocalImageUseCase } from './application/use-cases/delete-local-image.use-case';
 import { GetLocalUseCase } from './application/use-cases/get-local.use-case';
+import { GetLocalVerificationUseCase } from './application/use-cases/get-local-verification.use-case';
 import { GetMyCompanyUseCase } from './application/use-cases/get-my-company.use-case';
 import { ListCompaniesUseCase } from './application/use-cases/list-companies.use-case';
 import { ListLocalImagesUseCase } from './application/use-cases/list-local-images.use-case';
@@ -52,6 +53,7 @@ import { LocalsController } from './interfaces/http/locals.controller';
     SetCompanyStatusUseCase,
     CreateLocalUseCase,
     GetLocalUseCase,
+    GetLocalVerificationUseCase,
     ListLocalsUseCase,
     ListMyLocalsUseCase,
     PublishLocalUseCase,
@@ -68,8 +70,14 @@ import { LocalsController } from './interfaces/http/locals.controller';
     { provide: COMPANY_REPOSITORY, useClass: DrizzleCompanyRepository },
     { provide: LOCAL_REPOSITORY, useClass: DrizzleLocalRepository },
     { provide: LOCAL_IMAGE_REPOSITORY, useClass: DrizzleLocalImageRepository },
-    { provide: LOCAL_VERIFICATION_REPOSITORY, useClass: DrizzleLocalVerificationRepository },
-    { provide: AFFILIATION_REQUEST_REPOSITORY, useClass: DrizzleAffiliationRequestRepository },
+    {
+      provide: LOCAL_VERIFICATION_REPOSITORY,
+      useClass: DrizzleLocalVerificationRepository,
+    },
+    {
+      provide: AFFILIATION_REQUEST_REPOSITORY,
+      useClass: DrizzleAffiliationRequestRepository,
+    },
   ],
 })
 export class CompaniesModule {}

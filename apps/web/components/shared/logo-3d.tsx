@@ -20,9 +20,6 @@ import { cn } from "@urnight/ui";
  *  empieza a leerse como un juguete. */
 const TILT_MAX = 7;
 
-/** El barrido de entrada espera a que el PNG termine de decodificar. */
-const SWEEP_ON_MOUNT_DELAY = 260;
-
 export function Logo3D({
   className,
   href = "/",
@@ -43,12 +40,7 @@ export function Logo3D({
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     reduceRef.current = mq;
 
-    let timer = 0;
-    if (!mq.matches)
-      timer = window.setTimeout(() => setSweeping(true), SWEEP_ON_MOUNT_DELAY);
-
     return () => {
-      if (timer) window.clearTimeout(timer);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, []);
@@ -105,7 +97,9 @@ export function Logo3D({
       onPointerEnter={triggerSweep}
       onPointerMove={handleMove}
       onPointerLeave={handleLeave}
-      onFocus={triggerSweep}
+      onFocus={(event) => {
+        if (event.currentTarget.matches(":focus-visible")) triggerSweep();
+      }}
       className={cn("rv-logo3d inline-flex items-center", className)}
       data-rv-logo-lockup
     >

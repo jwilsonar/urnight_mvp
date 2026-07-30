@@ -361,9 +361,9 @@ async function main() {
 
   // local_verification
   await db.insert(localVerification).values([
-    { localId: L.a1, status: 'approved', licenseReference: 'LIC-MIRA-2026-0012', documentUrl: 'https://cdn.ravenue.pe/verif/a1.pdf', notes: 'Licencia municipal vigente y aforo verificado.', verifiedBy: U.superAdmin, validUntil: '2026-12-31' },
-    { localId: L.a2, status: 'approved', licenseReference: 'LIC-ISID-2026-0044', documentUrl: 'https://cdn.ravenue.pe/verif/a2.pdf', notes: 'Rooftop con certificado de Defensa Civil.', verifiedBy: U.superAdmin, validUntil: '2026-12-31' },
-    { localId: L.b1, status: 'approved', licenseReference: 'LIC-BARR-2026-0099', documentUrl: 'https://cdn.ravenue.pe/verif/b1.pdf', notes: 'Aprobado.', verifiedBy: U.superAdmin, validUntil: '2026-12-31' },
+    { localId: L.a1, status: 'approved', licenseReference: 'LIC-MIRA-2026-0012', documentUrl: 'https://cdn.ravenue.pe/verif/a1.pdf', notes: 'Licencia municipal vigente y aforo verificado.', verifiedBy: U.superAdmin, reviewedAt: daysFromNow(-52), validUntil: '2026-12-31' },
+    { localId: L.a2, status: 'approved', licenseReference: 'LIC-ISID-2026-0044', documentUrl: 'https://cdn.ravenue.pe/verif/a2.pdf', notes: 'Rooftop con certificado de Defensa Civil.', verifiedBy: U.superAdmin, reviewedAt: daysFromNow(-38), validUntil: '2026-12-31' },
+    { localId: L.b1, status: 'approved', licenseReference: 'LIC-BARR-2026-0099', documentUrl: 'https://cdn.ravenue.pe/verif/b1.pdf', notes: 'Aprobado.', verifiedBy: U.superAdmin, reviewedAt: daysFromNow(-21), validUntil: '2026-12-31' },
     { localId: L.b2, status: 'pending', licenseReference: 'LIC-SURCO-2026-0150', documentUrl: 'https://cdn.ravenue.pe/verif/b2.pdf', notes: 'En revisión: falta certificado de aforo.', verifiedBy: null, validUntil: null },
   ]);
 

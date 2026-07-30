@@ -39,6 +39,7 @@ describe('ReviewVerificationUseCase', () => {
     });
 
     expect(result.status).toBe('approved');
+    expect(result.reviewedAt).toBeInstanceOf(Date);
     expect((await locals.findById('l1'))?.isVerified).toBe(true);
     expect(captured.last()?.payload).toEqual({ localId: 'l1', verified: true });
   });

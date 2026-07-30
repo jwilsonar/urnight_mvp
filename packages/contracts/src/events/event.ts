@@ -95,6 +95,13 @@ export const eventListQuerySchema = z
   );
 export type EventListQuery = z.infer<typeof eventListQuerySchema>;
 
+export const eventCatalogLabelSchema = z.enum([
+  "popular",
+  "trending",
+  "fewTickets",
+]);
+export type EventCatalogLabel = z.infer<typeof eventCatalogLabelSchema>;
+
 export const eventResponseSchema = z.object({
   id: z.string().uuid(),
   localId: z.string().uuid(),
@@ -117,6 +124,8 @@ export const eventResponseSchema = z.object({
   tagIds: z.array(z.string()).default([]),
   /** Etiquetas libres del evento (JSON), adicionales al catálogo. */
   customTags: z.array(z.string()).default([]),
+  /** Señal editorial/operativa calculada por el backend; nunca por datos simulados del cliente. */
+  catalogLabel: eventCatalogLabelSchema.nullable().optional(),
 });
 export type EventResponse = z.infer<typeof eventResponseSchema>;
 

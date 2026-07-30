@@ -22,6 +22,7 @@ export const verificationResponseSchema = z.object({
   status: z.enum(['pending', 'approved', 'observed', 'expired']),
   licenseReference: z.string().nullable(),
   validUntil: z.string().nullable(),
+  reviewedAt: z.string().nullable(),
   createdAt: z.string(),
 });
 export type VerificationResponse = z.infer<typeof verificationResponseSchema>;

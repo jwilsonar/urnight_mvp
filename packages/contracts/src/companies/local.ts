@@ -50,6 +50,10 @@ export const localResponseSchema = z.object({
   mainImageUrl: z.string().nullable(),
   status: z.enum(['draft', 'active', 'inactive', 'suspended']),
   isVerified: z.boolean(),
+  verificationStatus: z
+    .enum(['pending', 'approved', 'observed', 'expired', 'unverified'])
+    .optional(),
+  verificationReviewedAt: z.string().nullable().optional(),
   createdAt: z.string(),
 });
 export type LocalResponse = z.infer<typeof localResponseSchema>;

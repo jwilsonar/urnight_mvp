@@ -15,6 +15,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@urnight/ui";
+import { useHeaderMenuState } from "@/components/motion/hide-on-scroll-header";
 import { signOutAction } from "@/lib/auth-actions";
 import {
   ROLE_PANEL_LABEL,
@@ -29,11 +30,18 @@ import { NAV_LINKS } from "./main-nav";
 export function MobileNav() {
   const t = useTranslations("nav");
   const [open, setOpen] = useState(false);
+  const setHeaderMenuOpen = useHeaderMenuState();
   const pathname = usePathname();
   const { data: session } = useSession();
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        setHeaderMenuOpen?.(nextOpen);
+      }}
+    >
       <SheetTrigger asChild>
         <Button
           variant="ghost"
@@ -56,7 +64,10 @@ export function MobileNav() {
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setOpen(false);
+                  setHeaderMenuOpen?.(false);
+                }}
                 className={cn(
                   "rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
                   active
@@ -76,7 +87,10 @@ export function MobileNav() {
             {canAccessPanels(session.user.roles) ? (
               <Link
                 href={roleHomePath(session.user.roles)}
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setOpen(false);
+                  setHeaderMenuOpen?.(false);
+                }}
                 className="rounded-md px-3 py-2 text-sm font-medium hover:bg-accent"
               >
                 {ROLE_PANEL_LABEL[primaryRole(session.user.roles)]}
@@ -84,7 +98,10 @@ export function MobileNav() {
             ) : null}
             <Link
               href="/account/tickets"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false);
+                setHeaderMenuOpen?.(false);
+              }}
               className="rounded-md px-3 py-2 text-sm hover:bg-accent"
             >
               {t("myTickets")}
@@ -94,6 +111,7 @@ export function MobileNav() {
               className="justify-start px-3"
               onClick={() => {
                 setOpen(false);
+                setHeaderMenuOpen?.(false);
                 void signOutAction();
               }}
             >

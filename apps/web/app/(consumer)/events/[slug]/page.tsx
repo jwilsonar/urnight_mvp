@@ -105,8 +105,6 @@ export default async function EventDetailPage({
   const local = locals.find((item) => item.id === event.localId) ?? null;
   const canBuy = event.status === "published";
 
-  const pct =
-    event.totalCapacity > 0 ? event.ticketsSold / event.totalCapacity : 0;
   const soldOut =
     event.totalCapacity > 0 && event.ticketsSold >= event.totalCapacity;
   const availability =
@@ -114,11 +112,7 @@ export default async function EventDetailPage({
       ? "cancelled"
       : soldOut
         ? "soldOut"
-        : pct >= 0.8
-          ? "almostFull"
-          : canBuy
-            ? "onSale"
-            : null;
+        : (event.catalogLabel ?? (canBuy ? "onSale" : null));
   const activePrices = ticketTypes
     .filter((t) => t.status !== "paused")
     .map((t) => t.price);

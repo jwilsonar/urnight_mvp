@@ -1,4 +1,4 @@
-import { MapPin, SealCheck } from "@phosphor-icons/react/dist/ssr";
+import { MapPin } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { LocalResponse } from "@urnight/contracts";
@@ -8,7 +8,6 @@ import { StorageImage } from "@/lib/storage/storage-context";
 export function LocalCard({ local }: { local: LocalResponse }) {
   const t = useTranslations("locals.card");
   const href = `/locals/${local.slug}`;
-  const zone = local.address?.split(",").at(-1)?.trim();
   const initial = local.name.trim().charAt(0).toLocaleUpperCase();
 
   return (
@@ -38,20 +37,13 @@ export function LocalCard({ local }: { local: LocalResponse }) {
 
           <div
             className="absolute bottom-0 left-4 z-10 flex size-14 translate-y-1/2 items-center justify-center rounded-md border border-accent-border bg-card font-display text-2xl font-black text-primary"
-            aria-label={local.isVerified ? t("verified") : t("notVerified")}
+            aria-hidden="true"
           >
             {initial}
-            {local.isVerified ? (
-              <SealCheck
-                className="absolute -bottom-1.5 -right-1.5 size-5 rounded-full bg-card text-success"
-                weight="fill"
-                aria-hidden="true"
-              />
-            ) : null}
           </div>
         </div>
 
-        <CardContent className="z-[2] flex flex-1 flex-col px-4 pb-0 pt-10">
+        <CardContent className="z-[2] flex flex-1 flex-col px-4 pb-4 pt-10">
           <h3 className="line-clamp-1 font-heading text-lg font-extrabold leading-tight tracking-tight">
             <Link
               href={href}
@@ -72,25 +64,6 @@ export function LocalCard({ local }: { local: LocalResponse }) {
               {local.description}
             </p>
           ) : null}
-
-          <dl className="mt-auto grid grid-cols-2 divide-x border-t">
-            <div className="min-w-0 py-3 pr-3">
-              <dt className="truncate text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-                {t("zoneLabel")}
-              </dt>
-              <dd className="mt-1 truncate text-sm font-black">
-                {zone ?? t("zoneFallback")}
-              </dd>
-            </div>
-            <div className="min-w-0 py-3 pl-3">
-              <dt className="truncate text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-                {t("statusLabel")}
-              </dt>
-              <dd className="mt-1 truncate text-sm font-black">
-                {local.isVerified ? t("verified") : t("notVerified")}
-              </dd>
-            </div>
-          </dl>
         </CardContent>
       </Card>
     </div>

@@ -39,8 +39,11 @@ export class InMemoryEventRepository
 
   async listPublished(filter?: EventListFilter): Promise<Event[]> {
     const q = filter?.q?.toLowerCase();
+    const now = filter?.availableAt ?? new Date();
     const results = this.values().filter((e) => {
       if (e.status !== "published") return false;
+      if (e.startsAt < now) return false;
+      if (e.totalCapacity > 0 && e.ticketsSold >= e.totalCapacity) return false;
       if (filter?.localId !== undefined && e.localId !== filter.localId)
         return false;
       if (filter?.from && e.startsAt < filter.from) return false;
@@ -57,6 +60,10 @@ export class InMemoryEventRepository
       if (q && !`${e.name} ${e.description ?? ""}`.toLowerCase().includes(q))
         return false;
       return true;
+    });
+    results.sort((a, b) => {
+      const byDate = a.startsAt.getTime() - b.startsAt.getTime();
+      return byDate !== 0 ? byDate : a.id.localeCompare(b.id);
     });
     const offset = filter?.offset ?? 0;
     const end = filter?.limit !== undefined ? offset + filter.limit : undefined;
@@ -79,8 +86,14 @@ export class InMemoryEventRepository
   }
 
   async listTrending(limit: number): Promise<Event[]> {
+    const now = new Date();
     return this.values()
-      .filter((e) => e.status === "published")
+      .filter(
+        (e) =>
+          e.status === "published" &&
+          e.startsAt >= now &&
+          (e.totalCapacity === 0 || e.ticketsSold < e.totalCapacity),
+      )
       .sort((a, b) => b.ticketsSold - a.ticketsSold)
       .slice(0, limit);
   }
@@ -88,7 +101,12 @@ export class InMemoryEventRepository
   async listUpcoming(limit: number): Promise<Event[]> {
     const now = new Date();
     return this.values()
-      .filter((e) => e.status === "published" && e.startsAt >= now)
+      .filter(
+        (e) =>
+          e.status === "published" &&
+          e.startsAt >= now &&
+          (e.totalCapacity === 0 || e.ticketsSold < e.totalCapacity),
+      )
       .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())
       .slice(0, limit);
   }

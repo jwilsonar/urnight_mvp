@@ -104,6 +104,7 @@ export const localVerification = pgTable(
     documentUrl: varchar('document_url', { length: 512 }),
     notes: varchar('notes', { length: 500 }),
     verifiedBy: uuid('verified_by').references(() => user.id, { onDelete: 'set null' }),
+    reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
     validUntil: date('valid_until'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },

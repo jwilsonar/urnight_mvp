@@ -14,15 +14,22 @@ export class ListEventsUseCase {
   ) {}
 
   execute(filter?: EventListFilter): Promise<Event[]> {
-    return this.events.listPublished(filter);
+    return this.events.listPublished({
+      ...filter,
+      availableAt: filter?.availableAt ?? new Date(),
+    });
   }
 
   async executePage(
     filter?: EventListFilter,
   ): Promise<{ events: Event[]; total: number }> {
+    const sharedFilter = {
+      ...filter,
+      availableAt: filter?.availableAt ?? new Date(),
+    };
     const [events, total] = await Promise.all([
-      this.events.listPublished(filter),
-      this.events.countPublished(filter),
+      this.events.listPublished(sharedFilter),
+      this.events.countPublished(sharedFilter),
     ]);
     return { events, total };
   }

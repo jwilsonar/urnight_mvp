@@ -1,5 +1,7 @@
 import {
+  Fire,
   Prohibit,
+  TrendUp,
   WarningCircle,
   XCircle,
 } from "@phosphor-icons/react/dist/ssr";
@@ -8,7 +10,9 @@ import { Badge, cn } from "@urnight/ui";
 
 export type EventAvailability =
   | "onSale"
-  | "almostFull"
+  | "popular"
+  | "trending"
+  | "fewTickets"
   | "soldOut"
   | "cancelled";
 
@@ -33,11 +37,29 @@ export function EventStatusPill({
     );
   }
 
-  if (status === "almostFull") {
+  if (status === "popular") {
+    return (
+      <Badge variant="destructive" className={className}>
+        <Fire className="size-3.5" weight="fill" aria-hidden="true" />
+        {t("catalog.popular")}
+      </Badge>
+    );
+  }
+
+  if (status === "trending") {
+    return (
+      <Badge variant="info" className={className}>
+        <TrendUp className="size-3.5" weight="bold" aria-hidden="true" />
+        {t("catalog.trending")}
+      </Badge>
+    );
+  }
+
+  if (status === "fewTickets") {
     return (
       <Badge variant="warning" className={className}>
         <WarningCircle className="size-3.5" weight="fill" aria-hidden="true" />
-        {t("almostFull")}
+        {t("catalog.fewTickets")}
       </Badge>
     );
   }

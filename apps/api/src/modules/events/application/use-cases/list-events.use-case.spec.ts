@@ -30,6 +30,45 @@ describe("ListEventsUseCase", () => {
     expect(result[0]?.id).toBe("e1");
   });
 
+  it("excluye eventos pasados y agotados, y ordena los próximos por vencimiento", async () => {
+    const { events, useCase } = build();
+    const now = Date.now();
+    const fixtures = [
+      new EventBuilder()
+        .withId("far")
+        .withSlug("far")
+        .withStartsAt(new Date(now + 120_000))
+        .asPublished()
+        .build(),
+      new EventBuilder()
+        .withId("past")
+        .withSlug("past")
+        .withStartsAt(new Date(now - 60_000))
+        .asPublished()
+        .build(),
+      new EventBuilder()
+        .withId("sold-out")
+        .withSlug("sold-out")
+        .withStartsAt(new Date(now + 30_000))
+        .withTotalCapacity(100)
+        .withTicketsSold(100)
+        .asPublished()
+        .build(),
+      new EventBuilder()
+        .withId("near")
+        .withSlug("near")
+        .withStartsAt(new Date(now + 60_000))
+        .asPublished()
+        .build(),
+    ];
+    for (const event of fixtures) await events.create(event);
+
+    const result = await useCase.executePage();
+
+    expect(result.events.map((event) => event.id)).toEqual(["near", "far"]);
+    expect(result.total).toBe(2);
+  });
+
   it("filtra eventos publicados por local", async () => {
     const { events, useCase } = build();
     await events.create(

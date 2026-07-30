@@ -1,0 +1,1 @@
+ALTER TABLE "local_verification" ADD COLUMN "reviewed_at" timestamp with time zone;

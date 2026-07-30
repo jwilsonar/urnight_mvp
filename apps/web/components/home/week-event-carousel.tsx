@@ -3,13 +3,15 @@
 import { ArrowLeft, ArrowRight, CalendarBlank } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
-import { useState, type KeyboardEvent } from "react";
+import { useEffect, useState, type KeyboardEvent } from "react";
 import { m, useReducedMotion } from "framer-motion";
 import type { EventResponse } from "@urnight/contracts";
 import { cn } from "@urnight/ui";
 import { StorageImage } from "@/lib/storage/storage-context";
 
 const MAX_VISIBLE_OFFSET = 2;
+const AUTOPLAY_DELAY_MS = 3_000;
+const MANUAL_RESUME_DELAY_MS = 6_000;
 
 function relativePosition(index: number, active: number, total: number) {
   const forward = (index - active + total) % total;
@@ -22,7 +24,34 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
   const format = useFormatter();
   const reducedMotion = useReducedMotion();
   const [activeIndex, setActiveIndex] = useState(0);
-  const [expanded, setExpanded] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focusWithin, setFocusWithin] = useState(false);
+  const [documentVisible, setDocumentVisible] = useState(true);
+  const [manualPause, setManualPause] = useState(false);
+  const expanded = hovered || focusWithin;
+  const paused = expanded || !documentVisible;
+
+  useEffect(() => {
+    const updateVisibility = () => {
+      setDocumentVisible(document.visibilityState === "visible");
+    };
+    updateVisibility();
+    document.addEventListener("visibilitychange", updateVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", updateVisibility);
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion || paused || events.length < 2) return;
+    const timer = window.setTimeout(
+      () => {
+        setActiveIndex((current) => (current + 1) % events.length);
+        setManualPause(false);
+      },
+      manualPause ? MANUAL_RESUME_DELAY_MS : AUTOPLAY_DELAY_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [activeIndex, events.length, manualPause, paused, reducedMotion]);
 
   if (events.length === 0) {
     return (
@@ -47,11 +76,12 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
   }
 
   const activeEvent = events[activeIndex] ?? events[0]!;
-  const select = (index: number) => {
+  const select = (index: number, manual = false) => {
     setActiveIndex((index + events.length) % events.length);
+    if (manual) setManualPause(true);
   };
-  const previous = () => select(activeIndex - 1);
-  const next = () => select(activeIndex + 1);
+  const previous = () => select(activeIndex - 1, true);
+  const next = () => select(activeIndex + 1, true);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.altKey || event.ctrlKey || event.metaKey) return;
@@ -63,10 +93,10 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
       next();
     } else if (event.key === "Home") {
       event.preventDefault();
-      select(0);
+      select(0, true);
     } else if (event.key === "End") {
       event.preventDefault();
-      select(events.length - 1);
+      select(events.length - 1, true);
     }
   };
 
@@ -78,12 +108,12 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
       aria-describedby="week-carousel-instructions"
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      onPointerEnter={() => setExpanded(true)}
-      onPointerLeave={() => setExpanded(false)}
-      onFocusCapture={() => setExpanded(true)}
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
+      onFocusCapture={() => setFocusWithin(true)}
       onBlurCapture={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) {
-          setExpanded(false);
+          setFocusWithin(false);
         }
       }}
       className="relative h-[clamp(15rem,42svh,26rem)] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -99,7 +129,7 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
         })}
       </p>
 
-      <div className="absolute inset-x-0 bottom-14 top-0 overflow-hidden">
+      <div className="absolute inset-x-0 bottom-16 top-0 overflow-hidden">
         {events.map((event, index) => {
           const position = relativePosition(index, activeIndex, events.length);
           const visible = Math.abs(position) <= MAX_VISIBLE_OFFSET;
@@ -142,7 +172,7 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
                 }
                 style={{ zIndex: MAX_VISIBLE_OFFSET - Math.abs(position) + 1 }}
                 className={cn(
-                  "pointer-events-auto relative aspect-[3/4] w-[clamp(9.5rem,29vw,14rem)] overflow-hidden rounded-lg border bg-card shadow-overlay",
+                  "pointer-events-auto relative aspect-[3/4] w-[clamp(9.5rem,29vw,14rem)] overflow-hidden rounded-xl border bg-card shadow-overlay",
                   active ? "border-primary" : "border-white/15 saturate-[0.82]",
                   !visible && "pointer-events-none",
                 )}
@@ -151,8 +181,8 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
                   href={`/events/${event.slug}`}
                   tabIndex={visible ? 0 : -1}
                   aria-label={t("openEvent", { name: event.name })}
-                  onFocus={() => setActiveIndex(index)}
-                  className="group absolute inset-0 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
+                  onFocus={() => select(index, true)}
+                  className="group absolute inset-0 rounded-[inherit] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
                 >
                   {event.flyerUrl ? (
                     <StorageImage
@@ -198,6 +228,26 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
               total: events.length,
             })}
           </p>
+          <div
+            className="mt-1.5 flex justify-center gap-1.5"
+            aria-label={t("indicators")}
+          >
+            {events.map((event, index) => (
+              <button
+                key={event.id}
+                type="button"
+                onClick={() => select(index, true)}
+                aria-label={t("goTo", { position: index + 1 })}
+                aria-current={index === activeIndex ? "true" : undefined}
+                className={cn(
+                  "h-1.5 rounded-full transition-[width,background-color] motion-reduce:transition-none",
+                  index === activeIndex
+                    ? "w-4 bg-primary"
+                    : "w-1.5 bg-muted-foreground/45 hover:bg-muted-foreground",
+                )}
+              />
+            ))}
+          </div>
         </div>
         <button
           type="button"

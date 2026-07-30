@@ -23,6 +23,7 @@ describe('LocalVerification (ITSE / licencia)', () => {
     verification.review('approved', 'super-admin');
     expect(verification.status).toBe('approved');
     expect(verification.grantsVerification()).toBe(true);
+    expect(verification.reviewedAt).toBeInstanceOf(Date);
   });
 
   it('observar NO otorga verificación (transición de estado válida)', () => {
@@ -48,11 +49,13 @@ describe('LocalVerification (ITSE / licencia)', () => {
       documentUrl: null,
       notes: null,
       verifiedBy: 'admin',
+      reviewedAt: new Date('2026-01-02T00:00:00Z'),
       validUntil: null,
       createdAt: new Date(),
     });
     expect(verification.status).toBe('approved');
     expect(verification.grantsVerification()).toBe(true);
+    expect(verification.reviewedAt?.toISOString()).toBe('2026-01-02T00:00:00.000Z');
   });
 
   it('mother expone verificaciones por estado y solo approved otorga', () => {

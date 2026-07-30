@@ -19,6 +19,7 @@ import {
   updateEventSchema,
   type CancelEventDto,
   type CreateEventDto,
+  type EventCatalogLabel,
   type EventListQuery,
   type EventResponse,
   type LocalStatsResponse,
@@ -75,7 +76,7 @@ export class EventsController {
   ): Promise<EventResponse[]> {
     const result = await this.listEvents.executePage(toEventFilter(query));
     response.setHeader("X-Total-Count", String(result.total));
-    return result.events.map(toEventResponse);
+    return result.events.map((event) => toEventResponse(event));
   }
 
   /** Eventos de un local de MI empresa (todos los estados). Aislado por tenant. */
@@ -87,7 +88,7 @@ export class EventsController {
   ): Promise<EventResponse[]> {
     return (
       await this.listMyEvents.execute({ localId, scope: tenantScopeOf(actor) })
-    ).map(toEventResponse);
+    ).map((event) => toEventResponse(event));
   }
 
   /** Detalle admin de un evento de MI empresa por id (cualquier estado). */
@@ -118,13 +119,17 @@ export class EventsController {
   @Public()
   @Get("trending")
   async trending(): Promise<EventResponse[]> {
-    return (await this.listTrending.execute()).map(toEventResponse);
+    return (await this.listTrending.execute()).map((event) =>
+      toEventResponse(event, "trending"),
+    );
   }
 
   @Public()
   @Get("upcoming")
   async upcoming(): Promise<EventResponse[]> {
-    return (await this.listUpcoming.execute()).map(toEventResponse);
+    return (await this.listUpcoming.execute()).map((event) =>
+      toEventResponse(event),
+    );
   }
 
   @Public()
@@ -224,7 +229,14 @@ function toEventFilter(query: EventListQuery): EventListFilter {
   };
 }
 
-export function toEventResponse(e: Event): EventResponse {
+export function toEventResponse(
+  e: Event,
+  label?: EventCatalogLabel,
+): EventResponse {
+  const remaining = Math.max(e.totalCapacity - e.ticketsSold, 0);
+  const fewTickets =
+    e.totalCapacity > 0 && remaining > 0 && remaining / e.totalCapacity < 0.15;
+
   return {
     id: e.id,
     localId: e.localId,
@@ -244,6 +256,7 @@ export function toEventResponse(e: Event): EventResponse {
     genreIds: e.genreIds,
     tagIds: e.tagIds,
     customTags: e.customTags,
+    catalogLabel: label ?? (fewTickets ? "fewTickets" : null),
   };
 }
 

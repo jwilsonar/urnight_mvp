@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { SearchSuggest } from "@/components/catalog/search-suggest";
+import { HideOnScrollHeader } from "@/components/motion/hide-on-scroll-header";
 import { Logo3D } from "./logo-3d";
 import { MainNav } from "./main-nav";
 import { MobileNav } from "./mobile-nav";
@@ -14,7 +15,7 @@ export async function SiteHeader() {
   return (
     /* Navbar DS: fill oscuro casi opaco + blur, hairline inferior. El 95% evita
        que el contenido al scrollear se lea a través y ensucie la navegación. */
-    <header className="sticky top-0 z-40 h-16 w-full border-b bg-background/95 backdrop-blur-xl">
+    <HideOnScrollHeader>
       <div className="mx-auto flex h-full max-w-7xl items-center px-4 sm:px-6 lg:px-4 xl:px-8">
         <div
           className="flex shrink-0 items-center gap-3 xl:gap-4"
@@ -22,9 +23,8 @@ export async function SiteHeader() {
         >
           <div className="flex shrink-0 items-center gap-2">
             <MobileNav />
-            {/* Variante 3D solo en el navbar público: la marca se inclina con el
-                puntero y enciende al cargar. En checkout, auth y paneles se queda
-                el <Logo/> plano — ahí un logo que brilla es distracción. */}
+            {/* En reposo coincide con el logo plano. La profundidad y el brillo
+                aparecen solo al interactuar con la marca. */}
             <Logo3D />
           </div>
           <MainNav className="hidden shrink-0 lg:flex" />
@@ -46,6 +46,6 @@ export async function SiteHeader() {
           <UserMenu />
         </div>
       </div>
-    </header>
+    </HideOnScrollHeader>
   );
 }

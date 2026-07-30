@@ -144,22 +144,24 @@
         "people": "Happy guests"
       },
       "carousel": {
-        "label": "This week's events",
+        "label": "Upcoming events",
         "instructions": "Use the left and right arrow keys to change events. Every visible flyer opens its event details.",
         "flyerAlt": "Flyer for {name}",
         "flyerFallback": "Flyer for {name}",
         "openEvent": "Open {name}",
         "previous": "Previous event",
         "next": "Next event",
+        "indicators": "Choose an event",
+        "goTo": "Go to event {position}",
         "activeAnnouncement": "Event {current} of {total}: {name}",
         "position": "{current} of {total}",
         "emptyTitle": "The next date is in the works",
-        "emptyDescription": "There are no published events for this week yet. Check the catalog for the next nights out."
+        "emptyDescription": "There are no upcoming events published yet. Check the catalog for new nights out."
       }
     },
     "featured": {
-      "title": "Featured events",
-      "subtitle": "This week's hottest picks, chosen by our team."
+      "title": "Upcoming events",
+      "subtitle": "The closest dates first, so you can pick your next night out."
     },
     "marquee": [
       "Miraflores",
@@ -178,15 +180,7 @@
     "partner": {
       "badge": "EL POINT",
       "fallbackDescription": "Lima's best music every weekend. Get ready for a night you won't forget.",
-      "zone": "Area",
-      "zoneFallback": "Lima",
-      "whatItOffers": "What you'll find",
-      "viewVenue": "View venue",
-      "bookTable": "Book a table"
-    },
-    "upcoming": {
-      "title": "Coming up",
-      "subtitle": "What's happening over the next few weeks."
+      "viewVenue": "View venue"
     }
   },
   "events": {
@@ -258,19 +252,18 @@
         "cancelled": "Cancelled",
         "finished": "Ended"
       },
+      "catalog": {
+        "popular": "Popular",
+        "trending": "Trending",
+        "fewTickets": "Few tickets left"
+      },
       "flyerAlt": "Event flyer",
       "flyerAltNamed": "Flyer for {name}",
       "soldOut": "Sold out",
-      "almostFull": "Almost full",
-      "noSpots": "No spots left",
-      "spots": "{count, plural, one {# spot} other {# spots}}",
-      "spotsAvailable": "Spots available",
       "venueFallback": "Venue to be announced",
       "priceLabel": "From",
       "priceUnavailable": "To be announced",
-      "capacityLabel": "Spots",
-      "capacityOpen": "Open",
-      "dateLabel": "Date"
+      "dateLabel": "Day"
     },
     "detail": {
       "metadataDescription": "Tickets for {name} on RAVENUE.",
@@ -278,7 +271,6 @@
       "back": "Back",
       "onSale": "On sale",
       "soldOut": "Sold out",
-      "almostFull": "Almost full",
       "date": "Date",
       "schedule": "Time",
       "venue": "Venue",
@@ -366,13 +358,7 @@
     },
     "card": {
       "facade": "Venue exterior",
-      "facadeNamed": "{name} exterior",
-      "verified": "Verified",
-      "notVerified": "Unverified",
-      "features": "Events, menu, and reservations",
-      "zoneLabel": "Area",
-      "zoneFallback": "Lima",
-      "statusLabel": "Status"
+      "facadeNamed": "{name} exterior"
     },
     "crowd": {
       "title": "Crowd right now",
@@ -388,7 +374,9 @@
     },
     "detail": {
       "metadataDescription": "Discover {name} on RAVENUE.",
-      "verified": "Verified",
+      "verifiedByRavenue": "Verified by RAVENUE",
+      "lastReviewed": "Last reviewed: {date}",
+      "reviewDateUnavailable": "The last review date is not available.",
       "venueType": "Nightclub · Bar",
       "upcomingEvents": "{count, plural, =0 {Upcoming events} other {Upcoming events (#)}}",
       "emptyEvents": {

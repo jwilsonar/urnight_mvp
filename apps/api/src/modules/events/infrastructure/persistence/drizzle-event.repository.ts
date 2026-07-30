@@ -6,6 +6,7 @@ import {
   desc,
   eq,
   gte,
+  gt,
   inArray,
   lte,
   or,
@@ -27,6 +28,7 @@ import {
 } from "../../../../shared/database/drizzle.constants";
 import { Event, type EventStatus } from "../../domain/entities/event.entity";
 import type {
+  EventCatalogOrder,
   EventListFilter,
   EventRepository,
 } from "../../domain/ports/event.repository";
@@ -90,7 +92,16 @@ export class DrizzleEventRepository implements EventRepository {
   }
 
   private publishedConditions(filter?: EventListFilter): SQL[] {
-    const conditions: SQL[] = [eq(event.status, "published")];
+    const conditions: SQL[] = [
+      eq(event.status, "published"),
+      // startsAt es timestamptz: comparar instantes evita crear otra convención
+      // de zona horaria distinta a la que ya usan los presets de Lima.
+      gte(event.startsAt, filter?.availableAt ?? new Date()),
+      or(
+        eq(event.totalCapacity, 0),
+        gt(event.totalCapacity, event.ticketsSold),
+      ) as SQL,
+    ];
     if (filter?.localId) conditions.push(eq(event.localId, filter.localId));
     if (filter?.zoneId) {
       conditions.push(
@@ -174,98 +185,19 @@ export class DrizzleEventRepository implements EventRepository {
     return conditions;
   }
 
-  async listPublished(filter?: EventListFilter): Promise<Event[]> {
-    const conditions: SQL[] = [eq(event.status, "published")];
-    if (filter?.localId) conditions.push(eq(event.localId, filter.localId));
-    if (filter?.zoneId) {
-      conditions.push(
-        inArray(
-          event.localId,
-          this.db
-            .select({ id: local.id })
-            .from(local)
-            .where(eq(local.zoneId, filter.zoneId)),
-        ),
-      );
-    }
-    if (filter?.genreId) {
-      conditions.push(
-        inArray(
-          event.id,
-          this.db
-            .select({ id: eventGenre.eventId })
-            .from(eventGenre)
-            .where(eq(eventGenre.genreId, filter.genreId)),
-        ),
-      );
-    }
-    if (filter?.tagId) {
-      conditions.push(
-        inArray(
-          event.id,
-          this.db
-            .select({ id: eventTag.eventId })
-            .from(eventTag)
-            .where(eq(eventTag.tagId, filter.tagId)),
-        ),
-      );
-    }
-    if (filter?.q) {
-      // Búsqueda inteligente (#3): normaliza acentos/espacios/mayúsculas y matchea
-      // contra nombre, descripción Y los nombres de categorías/géneros y etiquetas
-      // asociados. Así "DJ Peligro" se encuentra con "djpeligro", "dj" o "DJ".
-      const nq = normalizeSearch(filter.q);
-      if (nq) {
-        const pattern = `%${nq}%`;
-        const tagMatch = this.db
-          .select({ id: eventTag.eventId })
-          .from(eventTag)
-          .innerJoin(tag, eq(eventTag.tagId, tag.id))
-          .where(sql`${normalizedColumn(tag.name)} like ${pattern}`);
-        const genreMatch = this.db
-          .select({ id: eventGenre.eventId })
-          .from(eventGenre)
-          .innerJoin(musicGenre, eq(eventGenre.genreId, musicGenre.id))
-          .where(sql`${normalizedColumn(musicGenre.name)} like ${pattern}`);
-        // Etiquetas libres (JSON): matchea cada elemento del array normalizado.
-        const customTagMatch = sql`exists (select 1 from jsonb_array_elements_text(${event.customTags}) as ct(v) where ${normalizedColumn(sql`ct.v`)} like ${pattern})`;
-        conditions.push(
-          or(
-            sql`${normalizedColumn(event.name)} like ${pattern}`,
-            sql`${normalizedColumn(event.description)} like ${pattern}`,
-            customTagMatch,
-            inArray(event.id, tagMatch),
-            inArray(event.id, genreMatch),
-          ) as SQL,
-        );
-      }
-    }
-    if (filter?.from) conditions.push(gte(event.startsAt, filter.from));
-    if (filter?.to) conditions.push(lte(event.startsAt, filter.to));
-    if (filter?.minPrice !== undefined || filter?.maxPrice !== undefined) {
-      const priceConditions: SQL[] = [];
-      if (filter.minPrice !== undefined) {
-        priceConditions.push(gte(ticketType.price, filter.minPrice.toFixed(2)));
-      }
-      if (filter.maxPrice !== undefined) {
-        priceConditions.push(lte(ticketType.price, filter.maxPrice.toFixed(2)));
-      }
-      conditions.push(
-        inArray(
-          event.id,
-          this.db
-            .select({ id: ticketType.eventId })
-            .from(ticketType)
-            .where(and(...priceConditions)),
-        ),
-      );
-    }
+  private publishedOrder(order: EventCatalogOrder = "soonest"): SQL[] {
+    const strategies: Record<EventCatalogOrder, SQL[]> = {
+      soonest: [asc(event.startsAt), asc(event.id)],
+    };
+    return strategies[order];
+  }
 
+  async listPublished(filter?: EventListFilter): Promise<Event[]> {
     let query = this.db
       .select()
       .from(event)
-      .where(and(...conditions))
-      .orderBy(desc(event.startsAt), desc(event.id))
+      .where(and(...this.publishedConditions(filter)))
+      .orderBy(...this.publishedOrder(filter?.order))
       .$dynamic();
     if (filter?.limit !== undefined) query = query.limit(filter.limit);
     if (filter?.offset !== undefined) query = query.offset(filter.offset);
@@ -285,7 +217,7 @@ export class DrizzleEventRepository implements EventRepository {
     const rows = await this.db
       .select()
       .from(event)
-      .where(eq(event.status, "published"))
+      .where(and(...this.publishedConditions()))
       .orderBy(desc(event.ticketsSold), desc(event.checkinsCount))
       .limit(limit);
     return rows.map((r) => this.toDomain(r));
@@ -295,10 +227,8 @@ export class DrizzleEventRepository implements EventRepository {
     const rows = await this.db
       .select()
       .from(event)
-      .where(
-        and(eq(event.status, "published"), gte(event.startsAt, new Date())),
-      )
-      .orderBy(asc(event.startsAt))
+      .where(and(...this.publishedConditions()))
+      .orderBy(...this.publishedOrder())
       .limit(limit);
     return rows.map((r) => this.toDomain(r));
   }

@@ -860,7 +860,7 @@
     background: linear-gradient(
       105deg,
       transparent 42%,
-      rgba(255, 255, 255, 0.65) 50%,
+      color-mix(in srgb, var(--foreground) 65%, transparent) 50%,
       transparent 58%
     );
     background-size: 300% 100%;
@@ -930,9 +930,6 @@
       rgba(161, 15, 40, 0.018) 40%,
       transparent 70%
     );
-  }
-  .light .rv-logo3d__sweep {
-    display: none;
   }
   .light .rv-auth-art .rv-float {
     border-color: var(--border);
@@ -1020,6 +1017,10 @@
 .rv-float {
   animation: rv-drift var(--drift-dur, 9s) ease-in-out infinite;
   will-change: transform;
+}
+
+html {
+  scroll-padding-top: var(--space-16);
 }
 
 /* Accesibilidad: sin movimiento para quien lo pide */

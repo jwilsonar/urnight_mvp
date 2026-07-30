@@ -1,6 +1,6 @@
 import { MapPin } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import type { EventResponse, LocalResponse } from "@urnight/contracts";
 import { Card, CardContent } from "@urnight/ui";
 import { EventStatusPill } from "@/components/catalog/event-status-pill";
@@ -17,28 +17,13 @@ export function EventCard({
 }) {
   const t = useTranslations("events.card");
   const format = useFormatter();
+  const locale = useLocale();
   const startsAt = new Date(event.startsAt);
-  const pct =
-    event.totalCapacity > 0 ? event.ticketsSold / event.totalCapacity : 0;
-  const soldOut =
-    event.totalCapacity > 0 && event.ticketsSold >= event.totalCapacity;
-  const almostFull = !soldOut && pct >= 0.8;
-  const remaining =
-    event.totalCapacity > 0
-      ? Math.max(event.totalCapacity - event.ticketsSold, 0)
-      : null;
   const zone = local?.address?.split(",").at(-1)?.trim();
   const href = `/events/${event.slug}`;
-  const availability =
-    event.status === "cancelled"
-      ? "cancelled"
-      : soldOut
-        ? "soldOut"
-        : almostFull
-          ? "almostFull"
-          : event.status === "published"
-            ? "onSale"
-            : null;
+  const weekday = format.dateTime(startsAt, { weekday: "long" });
+  const weekdayLabel =
+    weekday.charAt(0).toLocaleUpperCase(locale) + weekday.slice(1);
 
   return (
     <div className="group relative h-full rounded-lg focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background">
@@ -65,9 +50,9 @@ export function EventCard({
             )}
           </div>
 
-          {availability ? (
+          {event.catalogLabel ? (
             <EventStatusPill
-              status={availability}
+              status={event.catalogLabel}
               className="absolute right-3 top-3 z-10 bg-card/90 backdrop-blur-sm"
             />
           ) : null}
@@ -108,8 +93,8 @@ export function EventCard({
             ) : null}
           </p>
 
-          <dl className="mt-5 grid grid-cols-3 divide-x border-t">
-            <div className="min-w-0 py-3 pr-2">
+          <dl className="mt-5 grid grid-cols-2 divide-x border-t">
+            <div className="min-w-0 py-3 pr-3">
               <dt className="truncate text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
                 {t("priceLabel")}
               </dt>
@@ -124,25 +109,12 @@ export function EventCard({
                     })}
               </dd>
             </div>
-            <div className="min-w-0 px-2 py-3">
-              <dt className="truncate text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-                {t("capacityLabel")}
-              </dt>
-              <dd className="mt-1 truncate text-sm font-black tabular-nums">
-                {remaining === null
-                  ? t("capacityOpen")
-                  : format.number(remaining)}
-              </dd>
-            </div>
-            <div className="min-w-0 py-3 pl-2">
+            <div className="min-w-0 py-3 pl-3">
               <dt className="truncate text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
                 {t("dateLabel")}
               </dt>
               <dd className="mt-1 truncate text-sm font-black">
-                {format.dateTime(startsAt, {
-                  weekday: "short",
-                  day: "numeric",
-                })}
+                {weekdayLabel}
               </dd>
             </div>
           </dl>

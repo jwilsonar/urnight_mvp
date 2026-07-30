@@ -1,6 +1,5 @@
 import {
   ArrowRight,
-  MapPin,
   MicrophoneStage,
   Moon,
   MusicNotes,
@@ -19,13 +18,10 @@ import { NightCamera } from "@/components/motion/night-camera";
 import { ScrollReveal3d } from "@/components/motion/scroll-reveal-3d";
 import { Reveal } from "@/components/shared/reveal";
 import {
-  getEvents,
   getLocals,
   getMusicGenres,
-  getTrendingEvents,
   getUpcomingEvents,
 } from "@/lib/api/catalog";
-import { getLimaWeekRange } from "@/lib/catalog-filters";
 import { getEventCardPrices } from "@/lib/event-card-data";
 import { StorageImage } from "@/lib/storage/storage-context";
 
@@ -74,30 +70,19 @@ function SectionHead({
 
 export default async function HomePage() {
   const t = await getTranslations("home");
-  const calendarWeek = getLimaWeekRange();
-  const weekRange = { from: new Date().toISOString(), to: calendarWeek.to };
-  // Heurística mínima (#9/#10): tendencia por popularidad, recomendados = próximos.
-  const [trending, upcoming, weekEvents, genres, locals] = await Promise.all([
-    getTrendingEvents().catch(() => []),
+  const [upcoming, genres, locals] = await Promise.all([
     getUpcomingEvents().catch(() => []),
-    getEvents(weekRange).catch(() => []),
     getMusicGenres().catch(() => []),
     getLocals().catch(() => []),
   ]);
 
-  const featured = (trending.length > 0 ? trending : upcoming).slice(0, 4);
-  const weekly = [...weekEvents].sort(
-    (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
-  );
-  const moreEvents = upcoming
-    .filter((e) => !featured.some((f) => f.id === e.id))
-    .slice(0, 4);
+  const carouselEvents = upcoming.slice(0, 8);
+  const featured = carouselEvents.slice(0, 4);
   const popular = locals.slice(0, 4);
   const partner =
     locals.find((l) => l.isVerified && l.description) ?? locals[0];
-  const partnerZone = partner?.address?.split(",").at(-1)?.trim();
   const localById = new Map(locals.map((local) => [local.id, local]));
-  const cardPrices = await getEventCardPrices([...featured, ...moreEvents]);
+  const cardPrices = await getEventCardPrices(featured);
 
   return (
     <div>
@@ -158,7 +143,7 @@ export default async function HomePage() {
           </div>
 
           <div className="order-1 min-w-0 lg:order-2">
-            <WeekEventCarousel events={weekly} />
+            <WeekEventCarousel events={carouselEvents} />
           </div>
         </div>
       </section>
@@ -166,7 +151,7 @@ export default async function HomePage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* ===== Eventos destacados + chips de género ===== */}
         {featured.length > 0 ? (
-          <section className="pt-16">
+          <section className="pt-8">
             <Reveal>
               <SectionHead
                 title={t("featured.title")}
@@ -211,7 +196,7 @@ export default async function HomePage() {
           </section>
         ) : null}
 
-        <section className="my-10 border-y py-4 sm:my-14 sm:py-5">
+        <section className="mb-6 mt-10 border-y py-4 sm:mb-8 sm:mt-14 sm:py-5">
           <Marquee>
             <div className="flex shrink-0 items-center gap-4">
               {/* Intercalado distrito/género a propósito: leído al vuelo se
@@ -230,7 +215,7 @@ export default async function HomePage() {
 
         {/* ===== Locales populares ===== */}
         {popular.length > 0 ? (
-          <section className="pt-16">
+          <section className="pt-8">
             <Reveal>
               <SectionHead
                 title={t("popular.title")}
@@ -253,52 +238,18 @@ export default async function HomePage() {
         {partner ? (
           <section className="pt-16">
             <NightCamera>
-              <div className="relative min-h-[390px] overflow-hidden rounded-xl border border-accent-border sm:min-h-[440px]">
-                {partner.mainImageUrl ? (
-                  <StorageImage
-                    src={partner.mainImageUrl}
-                    alt=""
-                    fill
-                    sizes="(max-width: 1280px) 100vw, 1280px"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,var(--accent-soft-strong),transparent_55%),linear-gradient(120deg,var(--bg-elevated),var(--bg-base))]" />
-                )}
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-[image:var(--feature-scrim)]"
-                />
-
-                <div className="relative z-10 flex min-h-[390px] max-w-3xl flex-col justify-end p-6 sm:min-h-[440px] sm:p-10 lg:p-12">
-                  <span className="inline-flex items-center gap-2 self-start text-xs font-black uppercase tracking-[0.16em] text-white/80">
+              <div className="grid min-h-[390px] overflow-hidden rounded-xl border border-accent-border bg-[linear-gradient(120deg,var(--bg-elevated),var(--bg-base))] lg:grid-cols-[1.05fr_0.95fr]">
+                <div className="flex min-h-[390px] flex-col justify-end p-6 sm:p-10 lg:p-12">
+                  <span className="inline-flex items-center gap-2 self-start text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">
                     <Star className="size-4 text-primary" weight="fill" />
                     {t("partner.badge")}
                   </span>
-                  <h2 className="mt-3 font-display text-4xl font-black leading-none tracking-tight text-white sm:text-6xl">
+                  <h2 className="mt-3 font-display text-4xl font-black leading-none tracking-tight sm:text-6xl">
                     {partner.name}
                   </h2>
-
-                  <dl className="mt-6 grid max-w-2xl gap-4 border-y border-white/20 py-4 sm:grid-cols-[0.7fr_1.3fr]">
-                    <div>
-                      <dt className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/60">
-                        {t("partner.zone")}
-                      </dt>
-                      <dd className="mt-1 flex items-center gap-1.5 text-sm font-bold text-white">
-                        <MapPin className="size-4 shrink-0" weight="duotone" />
-                        {partnerZone ?? t("partner.zoneFallback")}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/60">
-                        {t("partner.whatItOffers")}
-                      </dt>
-                      <dd className="mt-1 line-clamp-2 text-sm leading-relaxed text-white/85">
-                        {partner.description ??
-                          t("partner.fallbackDescription")}
-                      </dd>
-                    </div>
-                  </dl>
+                  <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+                    {partner.description ?? t("partner.fallbackDescription")}
+                  </p>
 
                   <Button className="mt-6 w-40" asChild>
                     <Link href={`/locals/${partner.slug}`}>
@@ -307,33 +258,25 @@ export default async function HomePage() {
                     </Link>
                   </Button>
                 </div>
+                <div className="relative min-h-[260px] overflow-hidden lg:min-h-[390px]">
+                  {partner.mainImageUrl ? (
+                    <StorageImage
+                      src={partner.mainImageUrl}
+                      alt={partner.name}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 48vw"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,var(--accent-soft-strong),transparent_55%),linear-gradient(120deg,var(--bg-elevated),var(--bg-base))]" />
+                  )}
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 bg-gradient-to-t from-background/45 via-transparent to-transparent lg:bg-gradient-to-r lg:from-background/35"
+                  />
+                </div>
               </div>
             </NightCamera>
-          </section>
-        ) : null}
-
-        {/* ===== Más fechas próximas ===== */}
-        {moreEvents.length > 0 ? (
-          <section className="pt-16">
-            <Reveal>
-              <SectionHead
-                title={t("upcoming.title")}
-                subtitle={t("upcoming.subtitle")}
-                href="/events/calendar"
-                viewAll={t("viewAll")}
-              />
-            </Reveal>
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-              {moreEvents.map((event, i) => (
-                <Reveal key={event.id} delay={i * 90}>
-                  <EventCard
-                    event={event}
-                    local={localById.get(event.localId)}
-                    priceFrom={cardPrices.get(event.id)}
-                  />
-                </Reveal>
-              ))}
-            </div>
           </section>
         ) : null}
 

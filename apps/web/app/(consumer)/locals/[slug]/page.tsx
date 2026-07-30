@@ -8,7 +8,7 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { Badge, Button, Card, CardContent } from "@urnight/ui";
 import { CrowdMeter } from "@/components/catalog/crowd-meter";
 import { EventCard } from "@/components/catalog/event-card";
@@ -61,9 +61,14 @@ export default async function LocalDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const t = await getTranslations("locals.detail");
+  const format = await getFormatter();
   const commonT = await getTranslations("common");
   const { slug } = await params;
   const local = await loadLocal(slug);
+  const verified =
+    local.verificationStatus === undefined
+      ? local.isVerified
+      : local.verificationStatus === "approved";
   // Datos secundarios: si fallan, la página del local (ya cargada) degrada a
   // secciones vacías en vez de propagar al error boundary.
   const [events, reviews, images] = await Promise.all([
@@ -92,11 +97,6 @@ export default async function LocalDetailPage({
           {/* Cabecera del prototipo: chips + título display + zona */}
           <Reveal>
             <div className="flex flex-wrap items-center gap-2">
-              {local.isVerified ? (
-                <Badge variant="success" className="gap-1">
-                  <SealCheck className="size-3" weight="fill" /> {t("verified")}
-                </Badge>
-              ) : null}
               <Badge variant="secondary">{t("venueType")}</Badge>
             </div>
             <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
@@ -115,6 +115,35 @@ export default async function LocalDetailPage({
               <p className="mt-6 max-w-2xl whitespace-pre-line leading-relaxed text-muted-foreground">
                 {local.description}
               </p>
+            </Reveal>
+          ) : null}
+
+          {verified ? (
+            <Reveal delay={80}>
+              <section className="mt-8 flex items-start gap-4 rounded-lg border border-success/30 bg-success/10 p-5">
+                <SealCheck
+                  className="mt-0.5 size-7 shrink-0 text-success"
+                  weight="fill"
+                  aria-hidden="true"
+                />
+                <div>
+                  <h2 className="font-heading text-base font-extrabold">
+                    {t("verifiedByRavenue")}
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {local.verificationReviewedAt
+                      ? t("lastReviewed", {
+                          date: format.dateTime(
+                            new Date(local.verificationReviewedAt),
+                            {
+                              dateStyle: "long",
+                            },
+                          ),
+                        })
+                      : t("reviewDateUnavailable")}
+                  </p>
+                </div>
+              </section>
             </Reveal>
           ) : null}
 
