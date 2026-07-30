@@ -28,7 +28,7 @@ export const PlaceholderImagen: Story = {
 const PALETTE = [
   { name: "Obsidian Night", hex: "#0A0A0D", token: "var(--rv-obsidian)" },
   { name: "Charcoal Carbon", hex: "#16181B", token: "var(--bg-surface)" },
-  { name: "Ravenue Crimson", hex: "#E31732", token: "var(--rv-crimson)" },
+  { name: "Ravenue Crimson", hex: "#EA0526", token: "var(--rv-crimson)" },
   { name: "Deep Wine", hex: "#7A0F1F", token: "var(--rv-wine)" },
   { name: "Moon White", hex: "#F5F5F7", token: "var(--rv-moon)" },
   { name: "Smoke Gray", hex: "#A3A8B3", token: "var(--rv-smoke)" },

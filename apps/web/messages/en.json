@@ -126,17 +126,31 @@
     "viewAll": "View all",
     "all": "All",
     "hero": {
-      "eyebrow": "This season in Lima",
+      "eyebrow": "This week in Lima",
       "titleAria": "Your next night out starts at RAVENUE",
       "titleLine1": "Your next night out",
       "titleLine2": "starts at",
-      "description": "Hundreds of events and verified venues. Find your spot for tonight, get your ticket, and make plans with your crew.",
-      "eventsCta": "See this week's events",
-      "venuesCta": "Explore venues",
+      "title": "The nights shaping your week",
+      "description": "Real flyers, upcoming dates, and tickets in one place. Pick the plan and set up the night with your crew.",
+      "eventsCta": "View events",
+      "venuesCta": "View venues",
       "stats": {
         "events": "Events this month",
         "venues": "Verified venues",
         "people": "Happy guests"
+      },
+      "carousel": {
+        "label": "This week's events",
+        "instructions": "Use the left and right arrow keys to change events. Every visible flyer opens its event details.",
+        "flyerAlt": "Flyer for {name}",
+        "flyerFallback": "Flyer for {name}",
+        "openEvent": "Open {name}",
+        "previous": "Previous event",
+        "next": "Next event",
+        "activeAnnouncement": "Event {current} of {total}: {name}",
+        "position": "{current} of {total}",
+        "emptyTitle": "The next date is in the works",
+        "emptyDescription": "There are no published events for this week yet. Check the catalog for the next nights out."
       }
     },
     "featured": {
@@ -158,8 +172,11 @@
       "subtitle": "The venues everyone is talking about this month."
     },
     "partner": {
-      "badge": "FEATURED PARTNER",
+      "badge": "EL POINT",
       "fallbackDescription": "Lima's best music every weekend. Get ready for a night you won't forget.",
+      "zone": "Area",
+      "zoneFallback": "Lima",
+      "whatItOffers": "What you'll find",
       "viewVenue": "View venue",
       "bookTable": "Book a table"
     },
@@ -238,11 +255,18 @@
         "finished": "Ended"
       },
       "flyerAlt": "Event flyer",
+      "flyerAltNamed": "Flyer for {name}",
       "soldOut": "Sold out",
       "almostFull": "Almost full",
       "noSpots": "No spots left",
       "spots": "{count, plural, one {# spot} other {# spots}}",
-      "spotsAvailable": "Spots available"
+      "spotsAvailable": "Spots available",
+      "venueFallback": "Venue to be announced",
+      "priceLabel": "From",
+      "priceUnavailable": "To be announced",
+      "capacityLabel": "Spots",
+      "capacityOpen": "Open",
+      "dateLabel": "Date"
     },
     "detail": {
       "metadataDescription": "Tickets for {name} on RAVENUE.",
@@ -338,8 +362,13 @@
     },
     "card": {
       "facade": "Venue exterior",
+      "facadeNamed": "{name} exterior",
       "verified": "Verified",
-      "features": "Events, menu, and reservations"
+      "notVerified": "Unverified",
+      "features": "Events, menu, and reservations",
+      "zoneLabel": "Area",
+      "zoneFallback": "Lima",
+      "statusLabel": "Status"
     },
     "crowd": {
       "title": "Crowd right now",

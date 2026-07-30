@@ -11,6 +11,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { Badge, Button, Card, CardContent } from "@urnight/ui";
+import { EventStatusPill } from "@/components/catalog/event-status-pill";
 import { TicketTypeList } from "@/components/events/ticket-type-list";
 import { FavoriteButton } from "@/components/favorites/favorite-button";
 import { Reveal } from "@/components/shared/reveal";
@@ -108,6 +109,16 @@ export default async function EventDetailPage({
     event.totalCapacity > 0 ? event.ticketsSold / event.totalCapacity : 0;
   const soldOut =
     event.totalCapacity > 0 && event.ticketsSold >= event.totalCapacity;
+  const availability =
+    event.status === "cancelled"
+      ? "cancelled"
+      : soldOut
+        ? "soldOut"
+        : pct >= 0.8
+          ? "almostFull"
+          : canBuy
+            ? "onSale"
+            : null;
   const activePrices = ticketTypes
     .filter((t) => t.status !== "paused")
     .map((t) => t.price);
@@ -157,7 +168,9 @@ export default async function EventDetailPage({
           <div>
             <Reveal>
               <div className="mb-4 flex flex-wrap gap-2">
-                {canBuy ? <Badge variant="success">{t("onSale")}</Badge> : null}
+                {availability ? (
+                  <EventStatusPill status={availability} />
+                ) : null}
                 {event.minAgeNote ? (
                   <Badge variant="destructive">{event.minAgeNote}</Badge>
                 ) : null}
@@ -166,11 +179,6 @@ export default async function EventDetailPage({
                     {tag}
                   </Badge>
                 ))}
-                {soldOut ? (
-                  <Badge variant="destructive">{t("soldOut")}</Badge>
-                ) : pct >= 0.8 ? (
-                  <Badge variant="warning">🔥 {t("almostFull")}</Badge>
-                ) : null}
               </div>
               <h1 className="font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl">
                 {event.name}

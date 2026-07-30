@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Reveal } from "@/components/shared/reveal";
 import {
   getEventsPage,
+  getLocals,
   getMusicGenres,
   getTags,
   getZones,
@@ -21,6 +22,7 @@ import {
   type EventCatalogSearchParams,
   type EventDatePreset,
 } from "@/lib/catalog-filters";
+import { getEventCardPrices } from "@/lib/event-card-data";
 
 export const revalidate = 60;
 
@@ -62,7 +64,7 @@ export default async function EventsPage({
   const dateRange = datePreset
     ? getLimaDatePresetRange(datePreset)
     : { from: filters.from, to: filters.to };
-  const [events, genres, zones, tags] = await Promise.all([
+  const [events, genres, zones, tags, locals] = await Promise.all([
     getEventsPage({
       q: filters.q,
       zoneId: filters.zoneId,
@@ -78,6 +80,7 @@ export default async function EventsPage({
     getMusicGenres().catch(() => []),
     getZones().catch(() => []),
     getTags().catch(() => []),
+    getLocals().catch(() => []),
   ]);
 
   const total = events?.total ?? 0;
@@ -85,6 +88,8 @@ export default async function EventsPage({
   const page = requestedPage;
   const hasNext = page < lastPage;
   const visible = events?.events ?? null;
+  const localById = new Map(locals.map((local) => [local.id, local]));
+  const cardPrices = await getEventCardPrices(visible ?? []);
 
   /** Chips preservan la búsqueda activa; solo cambia el género (y resetea la página). */
   const chipHref = (genreId?: string) => {
@@ -350,7 +355,11 @@ export default async function EventsPage({
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {visible.map((event, i) => (
               <Reveal key={event.id} delay={(i % 3) * 80}>
-                <EventCard event={event} />
+                <EventCard
+                  event={event}
+                  local={localById.get(event.localId)}
+                  priceFrom={cardPrices.get(event.id)}
+                />
               </Reveal>
             ))}
           </div>

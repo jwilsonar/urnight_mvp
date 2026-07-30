@@ -408,7 +408,13 @@ async function main() {
   // ── 4. Events & Ticket Types ──────────────────────────────────────────────
   console.log('→ Events & Ticket Types...');
 
-  const E = { e1: uid(), e2: uid(), e3: uid(), e4: uid(), e5: uid(), e6: uid(), e7: uid() };
+  const E = {
+    e1: uid(), e2: uid(), e3: uid(), e4: uid(), e5: uid(), e6: uid(), e7: uid(),
+    // e8..e13: agenda continua desde hoy hasta ~2 meses. Sin ellos el carrusel
+    // de "esta semana" del home sale vacío, porque el evento publicado más
+    // cercano caía a +5 días.
+    e8: uid(), e9: uid(), e10: uid(), e11: uid(), e12: uid(), e13: uid(),
+  };
   const TT = {
     e1g: uid(), e1v: uid(), e1p: uid(),
     e2g: uid(), e2v: uid(),
@@ -417,6 +423,14 @@ async function main() {
     e5g: uid(),
     e6g: uid(),
     e7g: uid(),
+    // Agenda proxima: precios variados para que el filtro de rango tenga con que
+    // trabajar (desde S/35 hasta S/250).
+    e8g: uid(), e8v: uid(),
+    e9g: uid(),
+    e10g: uid(),
+    e11g: uid(),
+    e12g: uid(), e12v: uid(),
+    e13g: uid(),
   };
 
   // E1 finished (pasado) → tickets used → reviews verificadas
@@ -428,6 +442,15 @@ async function main() {
   const e5Date = daysFromNow(133); // ~Halloween
   const e6Date = daysFromNow(5);
   const e7Date = daysFromNow(10);
+  // Agenda que arranca ya: e8/e9 caen dentro de la semana en curso para que el
+  // carrusel del home tenga contenido cualquier dia que se siembre, y el resto
+  // se escalona hasta ~2 meses para probar eventos aun por celebrar.
+  const e8Date = daysFromNow(1);
+  const e9Date = daysFromNow(3);
+  const e10Date = daysFromNow(17);
+  const e11Date = daysFromNow(31);
+  const e12Date = daysFromNow(45);
+  const e13Date = daysFromNow(60);
 
   await db.insert(event).values([
     { id: E.e1, localId: L.a1, name: 'Neon Nights vol.5', slug: 'neon-nights-vol-5', description: 'La quinta edición de la fiesta urbana más grande de Miraflores. Sold out histórico.', startsAt: at(e1Date, 22), endsAt: at(daysFromNow(-20), 5), flyerUrl: 'https://picsum.photos/seed/events-neon5-flyer/1200/800', totalCapacity: 270, ticketsSold: 3, checkinsCount: 3, status: 'finished', minAgeNote: '+18', dressCode: 'Urban chic', createdBy: U.ownerA, publishedAt: daysFromNow(-50) },
@@ -437,6 +460,13 @@ async function main() {
     { id: E.e5, localId: L.b1, name: 'Halloween Madness', slug: 'halloween-madness', description: 'La fiesta de disfraces más grande del año. Premios al mejor cosplay.', startsAt: at(e5Date, 22), endsAt: at(daysFromNow(134), 6), flyerUrl: 'https://picsum.photos/seed/events-halloween-flyer/1200/800', totalCapacity: 600, ticketsSold: 0, checkinsCount: 0, status: 'scheduled', minAgeNote: '+18', dressCode: 'Disfraz obligatorio', createdBy: U.ownerB, publishedAt: null },
     { id: E.e6, localId: L.b2, name: 'Noche de Karaoke', slug: 'noche-de-karaoke', description: 'Competencia de karaoke con jurado y barra libre de cervezas.', startsAt: at(e6Date, 21), endsAt: at(e6Date, 23, 59), flyerUrl: 'https://picsum.photos/seed/events-karaoke-flyer/1200/800', totalCapacity: 80, ticketsSold: 0, checkinsCount: 0, status: 'published', minAgeNote: '+18', dressCode: 'Libre', createdBy: U.ownerB, publishedAt: daysFromNow(-3) },
     { id: E.e7, localId: L.b1, name: 'Festival Cancelado', slug: 'festival-cancelado', description: 'Evento cancelado por motivos de fuerza mayor.', startsAt: at(e7Date, 22), endsAt: null, flyerUrl: 'https://picsum.photos/seed/events-cancelado-flyer/1200/800', totalCapacity: 300, ticketsSold: 0, checkinsCount: 0, status: 'cancelled', minAgeNote: '+18', dressCode: null, createdBy: U.ownerB, publishedAt: daysFromNow(-12) },
+    // --- Agenda proxima (todos publicados y aun por celebrar) ---
+    { id: E.e8, localId: L.a1, name: 'Viernes de Perreo', slug: 'viernes-de-perreo', description: 'El clasico de fin de semana en Miraflores. Reggaeton y dembow hasta el amanecer.', startsAt: at(e8Date, 23), endsAt: at(daysFromNow(2), 5), flyerUrl: 'https://picsum.photos/seed/events-perreo-flyer/1200/800', totalCapacity: 380, ticketsSold: 0, checkinsCount: 0, status: 'published', minAgeNote: '+18', dressCode: 'Casual', createdBy: U.ownerA, publishedAt: daysFromNow(-9) },
+    { id: E.e9, localId: L.a2, name: 'Deep House Terraza', slug: 'deep-house-terraza', description: 'Sesion de deep house en la terraza, con la ciudad de fondo y cocteleria de autor.', startsAt: at(e9Date, 19), endsAt: at(e9Date, 23, 59), flyerUrl: 'https://picsum.photos/seed/events-deephouse-flyer/1200/800', totalCapacity: 160, ticketsSold: 0, checkinsCount: 0, status: 'published', minAgeNote: '+18', dressCode: 'Smart casual', createdBy: U.ownerA, publishedAt: daysFromNow(-7) },
+    { id: E.e10, localId: L.b1, name: 'Salsa en Vivo', slug: 'salsa-en-vivo', description: 'Orquesta en directo y clase abierta antes de la fiesta. Barranco en su salsa.', startsAt: at(e10Date, 21), endsAt: at(daysFromNow(18), 3), flyerUrl: 'https://picsum.photos/seed/events-salsa-flyer/1200/800', totalCapacity: 240, ticketsSold: 0, checkinsCount: 0, status: 'published', minAgeNote: '+18', dressCode: 'Elegante sport', createdBy: U.ownerB, publishedAt: daysFromNow(-5) },
+    { id: E.e11, localId: L.b2, name: 'Karaoke Batalla de Bandas', slug: 'karaoke-batalla-de-bandas', description: 'Equipos de cinco compiten por la mejor interpretacion. Premios en consumo.', startsAt: at(e11Date, 20), endsAt: at(e11Date, 23, 59), flyerUrl: 'https://picsum.photos/seed/events-batalla-flyer/1200/800', totalCapacity: 90, ticketsSold: 0, checkinsCount: 0, status: 'published', minAgeNote: '+18', dressCode: 'Libre', createdBy: U.ownerB, publishedAt: daysFromNow(-4) },
+    { id: E.e12, localId: L.a1, name: 'Aniversario Nocturna', slug: 'aniversario-nocturna', description: 'Seis años de la casa. Line-up sorpresa y open bar la primera hora.', startsAt: at(e12Date, 22), endsAt: at(daysFromNow(46), 6), flyerUrl: 'https://picsum.photos/seed/events-aniversario-flyer/1200/800', totalCapacity: 520, ticketsSold: 0, checkinsCount: 0, status: 'published', minAgeNote: '+18', dressCode: 'Urban chic', createdBy: U.ownerA, publishedAt: daysFromNow(-2) },
+    { id: E.e13, localId: L.b1, name: 'Techno Marathon', slug: 'techno-marathon', description: 'Doce horas de techno con tres salas y cabina invitada de Berlin.', startsAt: at(e13Date, 23), endsAt: at(daysFromNow(61), 11), flyerUrl: 'https://picsum.photos/seed/events-marathon-flyer/1200/800', totalCapacity: 700, ticketsSold: 0, checkinsCount: 0, status: 'published', minAgeNote: '+18', dressCode: 'All black', createdBy: U.ownerB, publishedAt: daysFromNow(-1) },
   ]);
 
   // ticket_type — sold SIEMPRE <= stock (CHECK ck_ticket_type_sold)
@@ -460,6 +490,15 @@ async function main() {
     { id: TT.e6g, eventId: E.e6, name: 'Entrada + 1 cerveza', tierCode: 'general', price: N(40), stock: 80, sold: 0, maxPerUser: 10, saleStartsAt: daysFromNow(-3), saleEndsAt: e6Date, status: 'active' },
     // E7 cancelled
     { id: TT.e7g, eventId: E.e7, name: 'General', tierCode: 'general', price: N(90), stock: 300, sold: 0, maxPerUser: 6, status: 'paused' },
+    // Agenda proxima
+    { id: TT.e8g, eventId: E.e8, name: 'General', tierCode: 'general', price: N(45), stock: 300, sold: 0, maxPerUser: 6, saleStartsAt: daysFromNow(-9), saleEndsAt: e8Date, status: 'active' },
+    { id: TT.e8v, eventId: E.e8, name: 'VIP', tierCode: 'vip', price: N(110), stock: 80, sold: 0, maxPerUser: 4, saleStartsAt: daysFromNow(-9), saleEndsAt: e8Date, status: 'active' },
+    { id: TT.e9g, eventId: E.e9, name: 'General', tierCode: 'general', price: N(70), stock: 160, sold: 0, maxPerUser: 4, saleStartsAt: daysFromNow(-7), saleEndsAt: e9Date, status: 'active' },
+    { id: TT.e10g, eventId: E.e10, name: 'General', tierCode: 'general', price: N(35), stock: 240, sold: 0, maxPerUser: 6, saleStartsAt: daysFromNow(-5), saleEndsAt: e10Date, status: 'active' },
+    { id: TT.e11g, eventId: E.e11, name: 'General', tierCode: 'general', price: N(40), stock: 90, sold: 0, maxPerUser: 5, saleStartsAt: daysFromNow(-4), saleEndsAt: e11Date, status: 'active' },
+    { id: TT.e12g, eventId: E.e12, name: 'General', tierCode: 'general', price: N(80), stock: 420, sold: 0, maxPerUser: 6, saleStartsAt: daysFromNow(-2), saleEndsAt: e12Date, status: 'active' },
+    { id: TT.e12v, eventId: E.e12, name: 'VIP', tierCode: 'vip', price: N(250), stock: 100, sold: 0, maxPerUser: 4, saleStartsAt: daysFromNow(-2), saleEndsAt: e12Date, status: 'active' },
+    { id: TT.e13g, eventId: E.e13, name: 'General', tierCode: 'general', price: N(120), stock: 700, sold: 0, maxPerUser: 6, saleStartsAt: daysFromNow(-1), saleEndsAt: e13Date, status: 'active' },
   ]);
 
   // event_image
@@ -470,6 +509,15 @@ async function main() {
     { eventId: E.e3, url: 'https://picsum.photos/seed/events-sunset-flyer/1200/800', isFlyer: true, sortOrder: 0 },
     { eventId: E.e4, url: 'https://picsum.photos/seed/events-techno-flyer/1200/800', isFlyer: true, sortOrder: 0 },
     { eventId: E.e6, url: 'https://picsum.photos/seed/events-karaoke-flyer/1200/800', isFlyer: true, sortOrder: 0 },
+    // Agenda proxima
+    { eventId: E.e8, url: 'https://picsum.photos/seed/events-perreo-flyer/1200/800', isFlyer: true, sortOrder: 0 },
+    { eventId: E.e8, url: 'https://picsum.photos/seed/events-perreo-1/1200/800', isFlyer: false, sortOrder: 1 },
+    { eventId: E.e9, url: 'https://picsum.photos/seed/events-deephouse-flyer/1200/800', isFlyer: true, sortOrder: 0 },
+    { eventId: E.e10, url: 'https://picsum.photos/seed/events-salsa-flyer/1200/800', isFlyer: true, sortOrder: 0 },
+    { eventId: E.e11, url: 'https://picsum.photos/seed/events-batalla-flyer/1200/800', isFlyer: true, sortOrder: 0 },
+    { eventId: E.e12, url: 'https://picsum.photos/seed/events-aniversario-flyer/1200/800', isFlyer: true, sortOrder: 0 },
+    { eventId: E.e12, url: 'https://picsum.photos/seed/events-aniversario-1/1200/800', isFlyer: false, sortOrder: 1 },
+    { eventId: E.e13, url: 'https://picsum.photos/seed/events-marathon-flyer/1200/800', isFlyer: true, sortOrder: 0 },
   ]);
   await db.insert(eventGenre).values([
     { eventId: E.e1, genreId: G.regg },
@@ -480,6 +528,17 @@ async function main() {
     { eventId: E.e4, genreId: G.elec },
     { eventId: E.e5, genreId: G.elec },
     { eventId: E.e6, genreId: G.pop },
+    // Agenda proxima: reparto por genero para que los chips del catalogo tengan
+    // resultados en todos los filtros, no solo en dos.
+    { eventId: E.e8, genreId: G.regg },
+    { eventId: E.e9, genreId: G.house },
+    { eventId: E.e9, genreId: G.elec },
+    { eventId: E.e10, genreId: G.salsa },
+    { eventId: E.e11, genreId: G.pop },
+    { eventId: E.e12, genreId: G.regg },
+    { eventId: E.e12, genreId: G.hiphop },
+    { eventId: E.e13, genreId: G.techno },
+    { eventId: E.e13, genreId: G.elec },
   ]);
   await db.insert(eventTag).values([
     { eventId: E.e1, tagId: T.livedj },

@@ -126,17 +126,31 @@
     "viewAll": "Ver todos",
     "all": "Todos",
     "hero": {
-      "eyebrow": "Esta temporada en Lima",
+      "eyebrow": "Esta semana en Lima",
       "titleAria": "Tu próxima noche empieza en RAVENUE",
       "titleLine1": "Tu próxima noche",
       "titleLine2": "empieza en",
-      "description": "Cientos de eventos y locales verificados. Encuentra dónde ir esta noche, compra tu entrada y arma el plan con tus amigos.",
-      "eventsCta": "Ver eventos de esta semana",
-      "venuesCta": "Explorar locales",
+      "title": "Las noches que mueven tu semana",
+      "description": "Flyers reales, fechas cercanas y entradas en un solo lugar. Elige el plan y arma la noche con tus amigos.",
+      "eventsCta": "Ver eventos",
+      "venuesCta": "Ver locales",
       "stats": {
         "events": "Eventos este mes",
         "venues": "Locales verificados",
         "people": "Personas felices"
+      },
+      "carousel": {
+        "label": "Eventos de esta semana",
+        "instructions": "Usa las flechas izquierda y derecha para cambiar el evento. Cada flyer visible abre el detalle de su evento.",
+        "flyerAlt": "Flyer de {name}",
+        "flyerFallback": "Flyer de {name}",
+        "openEvent": "Abrir {name}",
+        "previous": "Evento anterior",
+        "next": "Evento siguiente",
+        "activeAnnouncement": "Evento {current} de {total}: {name}",
+        "position": "{current} de {total}",
+        "emptyTitle": "La próxima fecha se está preparando",
+        "emptyDescription": "Todavía no hay eventos publicados para esta semana. Revisa el catálogo para ver las siguientes noches."
       }
     },
     "featured": {
@@ -158,8 +172,11 @@
       "subtitle": "Locales que están rompiéndola este mes."
     },
     "partner": {
-      "badge": "PARTNER DESTACADO",
+      "badge": "EL POINT",
       "fallbackDescription": "La mejor música de Lima cada fin de semana. Vive una noche que no vas a olvidar.",
+      "zone": "Zona",
+      "zoneFallback": "Lima",
+      "whatItOffers": "Qué encuentras",
       "viewVenue": "Ver local",
       "bookTable": "Reservar mesa"
     },
@@ -238,11 +255,18 @@
         "finished": "Finalizado"
       },
       "flyerAlt": "Flyer del evento",
+      "flyerAltNamed": "Flyer de {name}",
       "soldOut": "Agotado",
       "almostFull": "Casi lleno",
       "noSpots": "Sin cupos",
       "spots": "{count, plural, one {# cupo} other {# cupos}}",
-      "spotsAvailable": "Cupos disponibles"
+      "spotsAvailable": "Cupos disponibles",
+      "venueFallback": "Local por anunciar",
+      "priceLabel": "Desde",
+      "priceUnavailable": "Por anunciar",
+      "capacityLabel": "Cupos",
+      "capacityOpen": "Libre",
+      "dateLabel": "Fecha"
     },
     "detail": {
       "metadataDescription": "Entradas para {name} en RAVENUE.",
@@ -338,8 +362,13 @@
     },
     "card": {
       "facade": "Fachada del local",
+      "facadeNamed": "Fachada de {name}",
       "verified": "Verificado",
-      "features": "Eventos, carta y reservas"
+      "notVerified": "Sin verificar",
+      "features": "Eventos, carta y reservas",
+      "zoneLabel": "Zona",
+      "zoneFallback": "Lima",
+      "statusLabel": "Estado"
     },
     "crowd": {
       "title": "Ambiente ahora",

@@ -24,6 +24,7 @@ import { getEvents, getLocalBySlug, getLocalImages } from "@/lib/api/catalog";
 import { getReviews } from "@/lib/api/trust";
 import { CARTA_CONFIG_DEMO } from "@/lib/mock/carta";
 import { crowdForSlug } from "@/lib/mock/crowd";
+import { getEventCardPrices } from "@/lib/event-card-data";
 
 export const revalidate = 60;
 
@@ -76,6 +77,7 @@ export default async function LocalDetailPage({
     ? `https://www.google.com/maps/dir/?api=1&destination=${local.latitude},${local.longitude}`
     : null;
   const crowd = crowdForSlug(slug);
+  const cardPrices = await getEventCardPrices(events);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -131,7 +133,11 @@ export default async function LocalDetailPage({
                 <div className="grid gap-5 sm:grid-cols-2">
                   {events.map((event, i) => (
                     <Reveal key={event.id} delay={(i % 2) * 80}>
-                      <EventCard event={event} />
+                      <EventCard
+                        event={event}
+                        local={local}
+                        priceFrom={cardPrices.get(event.id)}
+                      />
                     </Reveal>
                   ))}
                 </div>

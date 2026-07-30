@@ -1,5 +1,6 @@
 import {
   ArrowRight,
+  MapPin,
   MicrophoneStage,
   Moon,
   MusicNotes,
@@ -7,25 +8,25 @@ import {
   Star,
   Waveform,
 } from "@phosphor-icons/react/dist/ssr";
-import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { Badge, Button } from "@urnight/ui";
+import { Button } from "@urnight/ui";
 import { EventCard } from "@/components/catalog/event-card";
 import { LocalCard } from "@/components/catalog/local-card";
-import { HeroParallax } from "@/components/home/hero-parallax";
-import { NightWall } from "@/components/home/night-wall";
+import { WeekEventCarousel } from "@/components/home/week-event-carousel";
 import { Marquee } from "@/components/motion/marquee";
 import { NightCamera } from "@/components/motion/night-camera";
 import { ScrollReveal3d } from "@/components/motion/scroll-reveal-3d";
-import { Spotlight } from "@/components/motion/spotlight";
 import { Reveal } from "@/components/shared/reveal";
 import {
+  getEvents,
   getLocals,
   getMusicGenres,
   getTrendingEvents,
   getUpcomingEvents,
 } from "@/lib/api/catalog";
+import { getLimaWeekRange } from "@/lib/catalog-filters";
+import { getEventCardPrices } from "@/lib/event-card-data";
 import { StorageImage } from "@/lib/storage/storage-context";
 
 export const revalidate = 60;
@@ -73,158 +74,93 @@ function SectionHead({
 
 export default async function HomePage() {
   const t = await getTranslations("home");
-  const commonT = await getTranslations("common");
+  const calendarWeek = getLimaWeekRange();
+  const weekRange = { from: new Date().toISOString(), to: calendarWeek.to };
   // Heurística mínima (#9/#10): tendencia por popularidad, recomendados = próximos.
-  const [trending, upcoming, genres, locals] = await Promise.all([
+  const [trending, upcoming, weekEvents, genres, locals] = await Promise.all([
     getTrendingEvents().catch(() => []),
     getUpcomingEvents().catch(() => []),
+    getEvents(weekRange).catch(() => []),
     getMusicGenres().catch(() => []),
     getLocals().catch(() => []),
   ]);
 
   const featured = (trending.length > 0 ? trending : upcoming).slice(0, 4);
+  const weekly = [...weekEvents].sort(
+    (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
+  );
   const moreEvents = upcoming
     .filter((e) => !featured.some((f) => f.id === e.id))
     .slice(0, 4);
   const popular = locals.slice(0, 4);
   const partner =
     locals.find((l) => l.isVerified && l.description) ?? locals[0];
-
-  // El muro del hero repite EXACTAMENTE los eventos que pintan las grillas de
-  // abajo. Es lo que hace legítimo su aria-hidden: no esconde nada que no sea
-  // alcanzable con teclado más adelante en la página. Si algún día el muro
-  // muestra eventos propios, hay que quitarle el aria-hidden.
-  const wallEvents = [...featured, ...moreEvents];
+  const partnerZone = partner?.address?.split(",").at(-1)?.trim();
+  const localById = new Map(locals.map((local) => [local.id, local]));
+  const cardPrices = await getEventCardPrices([...featured, ...moreEvents]);
 
   return (
     <div>
-      {/* ===== Hero del prototipo: gradiente carmín→obsidian, glow respirando,
-          titular Sora con la marca en glow y strip de stats ===== */}
-      <section className="relative min-h-[calc(100svh-4rem)] overflow-hidden bg-[linear-gradient(180deg,var(--bg-surface)_0%,var(--bg-root)_85%)]">
-        {/* Glow de fondo con parallax lento (capa profunda) */}
-        <HeroParallax>
-          <div
-            aria-hidden
-            className="rv-breathe absolute -right-52 -top-24 size-[700px] rounded-full bg-[radial-gradient(circle,var(--accent-soft-strong),transparent_60%)]"
-          />
-        </HeroParallax>
-        {/* El muro va DETRÁS del copy, no debajo: como banda aparte medía 939px y
-            empujaba "Eventos destacados" a 2,2 pantallas de scroll — carísimo en
-            un marketplace donde se viene a comprar una entrada. De fondo cuesta
-            0px de scroll y encima se lee mejor: el titular va sobre un muro de
-            noches en movimiento. La sección lo recorta (overflow-hidden). */}
-        {/* blur + opacidad baja = profundidad de campo. Una cámara real enfoca el
-            titular y desenfoca lo que hay detrás; sin esto los títulos de los
-            posters compiten con el copy y el hero se lee sucio. El desenfoque va
-            en este envoltorio, por FUERA del .rv-stage: un `filter` aplana el 3D
-            del elemento que lo lleva, así que sobre el muro mataría la
-            perspectiva. Aquí solo rasteriza el resultado ya compuesto. */}
+      <section
+        className="rv-hero-glow relative min-h-[calc(100svh-4rem)] overflow-hidden"
+        aria-labelledby="home-hero-title"
+      >
         <div
-          aria-hidden
-          className="absolute inset-0 z-0 flex items-center opacity-50 blur-[3px]"
-        >
-          <NightWall events={wallEvents} className="w-full" />
-        </div>
-        {/* Scrim direccional: casi opaco donde vive el texto, más limpio a la
-            derecha para que el muro respire. */}
-        <div
-          aria-hidden
-          className="absolute inset-0 z-[1] bg-[image:var(--hero-scrim)]"
+          aria-hidden="true"
+          className="absolute -right-24 -top-24 size-[min(42rem,90vw)] rounded-full bg-[radial-gradient(circle,var(--accent-soft-strong),transparent_64%)]"
         />
-        {/* Spotlight: luz de club que sigue al cursor por todo el hero. */}
-        <Spotlight
-          size={700}
-          className="relative z-10 flex min-h-[calc(100svh-4rem)]"
-        >
-          <div className="mx-auto flex w-full max-w-7xl items-center px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-6 lg:px-8">
-            <div className="w-full max-w-3xl">
-              <Reveal depth>
-                <span className="rv-eyebrow inline-flex items-center gap-2 rounded-full border border-accent-border bg-accent px-4 py-2">
-                  🔥 {t("hero.eyebrow")}
-                </span>
-              </Reveal>
-              <Reveal delay={80} depth>
-                <h1 className="mt-[clamp(0.75rem,2svh,1.25rem)] max-w-3xl font-display text-[clamp(2.25rem,6svh,4rem)] font-black leading-[0.95] tracking-tight">
-                  <span className="block">{t("hero.titleLine1")}</span>
-                  <span className="block">
-                    {t("hero.titleLine2")}
-                    <span className="sr-only"> RAVENUE</span>
-                  </span>
-                </h1>
-              </Reveal>
-              <Reveal delay={120} depth>
-                <div
-                  aria-hidden
-                  className="mt-[clamp(0.625rem,1.5svh,1rem)] max-w-3xl"
-                >
-                  <Image
-                    src="/brand/wordmark-light.png"
-                    alt=""
-                    width={1611}
-                    height={121}
-                    priority
-                    className="h-[clamp(2.5rem,8svh,4rem)] w-auto max-w-full object-contain object-left dark:hidden"
-                  />
-                  <Image
-                    src="/brand/wordmark.png"
-                    alt=""
-                    width={1611}
-                    height={121}
-                    priority
-                    className="hidden h-[clamp(2.5rem,8svh,4rem)] w-auto max-w-full object-contain object-left dark:block"
-                  />
-                </div>
-              </Reveal>
-              <Reveal delay={160} depth>
-                <p className="mt-[clamp(0.75rem,2svh,1.25rem)] max-w-[60ch] text-[clamp(1rem,1.25vw,1.125rem)] leading-relaxed text-muted-foreground">
-                  {t("hero.description")}
-                </p>
-              </Reveal>
-              <Reveal delay={240}>
-                <div className="mt-[clamp(1rem,2.5svh,1.75rem)] grid w-full max-w-sm gap-2 sm:flex sm:max-w-none sm:flex-wrap sm:gap-3">
-                  <Button size="lg" asChild>
-                    <Link
-                      href="/events"
-                      className="w-full justify-center sm:w-64"
-                    >
-                      {t("hero.eventsCta")} <ArrowRight className="size-4" />
-                    </Link>
-                  </Button>
-                  <Button size="lg" variant="outline" asChild>
-                    <Link
-                      href="/locals"
-                      className="w-full justify-center sm:w-40"
-                    >
-                      {t("hero.venuesCta")}
-                    </Link>
-                  </Button>
-                </div>
-              </Reveal>
-              <Reveal delay={320}>
-                <dl className="mt-[clamp(1.25rem,3svh,2rem)] grid w-full max-w-xl grid-cols-2 gap-x-6 gap-y-3 text-sm text-muted-foreground sm:flex sm:flex-wrap sm:gap-x-12 sm:gap-y-4">
-                  <div>
-                    <dd className="font-heading text-[clamp(1.5rem,4vw,1.875rem)] font-extrabold leading-none tabular-nums text-foreground">
-                      320+
-                    </dd>
-                    <dt className="mt-1">{t("hero.stats.events")}</dt>
-                  </div>
-                  <div>
-                    <dd className="font-heading text-[clamp(1.5rem,4vw,1.875rem)] font-extrabold leading-none tabular-nums text-foreground">
-                      85
-                    </dd>
-                    <dt className="mt-1">{t("hero.stats.venues")}</dt>
-                  </div>
-                  <div>
-                    <dd className="font-heading text-[clamp(1.5rem,4vw,1.875rem)] font-extrabold leading-none tabular-nums text-foreground">
-                      12k
-                    </dd>
-                    <dt className="mt-1">{t("hero.stats.people")}</dt>
-                  </div>
-                </dl>
-              </Reveal>
+        <div className="relative mx-auto grid min-h-[calc(100svh-4rem)] w-full max-w-7xl items-center gap-[clamp(0.75rem,2svh,2rem)] px-4 py-[clamp(1rem,2.5svh,2rem)] sm:px-6 lg:grid-cols-[minmax(0,0.78fr)_minmax(32rem,1.22fr)] lg:gap-8 lg:px-8">
+          <div className="order-2 min-w-0 lg:order-1">
+            <span className="rv-eyebrow inline-flex items-center gap-2 rounded-full border border-accent-border bg-accent px-3 py-1.5">
+              {t("hero.eyebrow")}
+            </span>
+            <h1
+              id="home-hero-title"
+              className="mt-[clamp(0.5rem,1.4svh,1rem)] max-w-xl font-display text-[clamp(2rem,4.6vw,3.5rem)] font-black leading-[0.98] tracking-tight"
+            >
+              {t("hero.title")}
+            </h1>
+            <p className="mt-[clamp(0.5rem,1.4svh,1rem)] max-w-[54ch] text-[clamp(0.875rem,1.2vw,1.05rem)] leading-relaxed text-muted-foreground">
+              {t("hero.description")}
+            </p>
+
+            <div className="mt-[clamp(0.75rem,2svh,1.5rem)] grid max-w-md grid-cols-2 gap-2.5">
+              <Button className="w-full px-3" asChild>
+                <Link href="/events">
+                  {t("hero.eventsCta")} <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+              <Button className="w-full px-3" variant="outline" asChild>
+                <Link href="/locals">{t("hero.venuesCta")}</Link>
+              </Button>
             </div>
+
+            <dl className="mt-[clamp(0.875rem,2.2svh,1.75rem)] grid max-w-xl grid-cols-3 gap-3 text-xs text-muted-foreground">
+              <div>
+                <dd className="font-heading text-[clamp(1.25rem,3.4vw,1.75rem)] font-extrabold leading-none tabular-nums text-foreground">
+                  320+
+                </dd>
+                <dt className="mt-1">{t("hero.stats.events")}</dt>
+              </div>
+              <div>
+                <dd className="font-heading text-[clamp(1.25rem,3.4vw,1.75rem)] font-extrabold leading-none tabular-nums text-foreground">
+                  85
+                </dd>
+                <dt className="mt-1">{t("hero.stats.venues")}</dt>
+              </div>
+              <div>
+                <dd className="font-heading text-[clamp(1.25rem,3.4vw,1.75rem)] font-extrabold leading-none tabular-nums text-foreground">
+                  12k
+                </dd>
+                <dt className="mt-1">{t("hero.stats.people")}</dt>
+              </div>
+            </dl>
           </div>
-        </Spotlight>
+
+          <div className="order-1 min-w-0 lg:order-2">
+            <WeekEventCarousel events={weekly} />
+          </div>
+        </div>
       </section>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -264,7 +200,11 @@ export default async function HomePage() {
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
               {featured.map((event, i) => (
                 <ScrollReveal3d key={event.id} delay={i * 70}>
-                  <EventCard event={event} />
+                  <EventCard
+                    event={event}
+                    local={localById.get(event.localId)}
+                    priceFrom={cardPrices.get(event.id)}
+                  />
                 </ScrollReveal3d>
               ))}
             </div>
@@ -309,75 +249,63 @@ export default async function HomePage() {
           </section>
         ) : null}
 
-        {/* ===== Partner destacado (split card del prototipo) ===== */}
+        {/* ===== El Point: recomendación editorial a ancho completo ===== */}
         {partner ? (
           <section className="pt-16">
-            {/* NightCamera en vez de Reveal: el bloque llega desde el fondo en Z
-                de forma continua con el scroll, en vez de aparecer de golpe. Se
-                usa SOLO aquí — es el único bloque suficientemente grande para
-                que la profundidad se lea, y repetirlo en cada sección cansaría.
-                Ojo: nunca en la última sección de la página (si no llega a
-                centrarse en el viewport se queda atenuada para siempre). */}
             <NightCamera>
-              <div className="overflow-hidden rounded-2xl border border-accent-border bg-[linear-gradient(110deg,var(--bg-elevated)_0%,var(--bg-base)_100%)] shadow-float">
-                <div className="grid min-h-[340px] lg:grid-cols-[1.2fr_1fr]">
-                  <div className="flex flex-col justify-center p-8 sm:p-12">
-                    <span className="inline-flex items-center gap-2 self-start rounded-full border border-warning-border bg-[linear-gradient(90deg,var(--warning-soft),var(--accent-soft-strong))] px-4 py-1.5 text-xs font-bold tracking-wide text-warning">
-                      <Star className="size-3.5" weight="fill" />{" "}
-                      {t("partner.badge")}
-                    </span>
-                    <h2 className="mt-5 font-display text-5xl font-black leading-[0.95] tracking-tight text-rose sm:text-6xl">
-                      {partner.name}
-                    </h2>
-                    <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
-                      {partner.description ?? t("partner.fallbackDescription")}
-                    </p>
-                    <div className="mt-6 flex flex-wrap items-center gap-3">
-                      <Button asChild>
-                        <Link
-                          href={`/locals/${partner.slug}`}
-                          className="w-36 justify-center"
-                        >
-                          {t("partner.viewVenue")}
-                        </Link>
-                      </Button>
-                      {/* Reserva de mesa: flujo demo del prototipo (sin backend aún). */}
-                      <Button variant="outline" asChild>
-                        <Link
-                          href="/reserva"
-                          className="w-36 justify-center"
-                        >
-                          {t("partner.bookTable")}
-                        </Link>
-                      </Button>
-                      <Badge variant="info">{commonT("demo")}</Badge>
+              <div className="relative min-h-[390px] overflow-hidden rounded-xl border border-accent-border sm:min-h-[440px]">
+                {partner.mainImageUrl ? (
+                  <StorageImage
+                    src={partner.mainImageUrl}
+                    alt=""
+                    fill
+                    sizes="(max-width: 1280px) 100vw, 1280px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,var(--accent-soft-strong),transparent_55%),linear-gradient(120deg,var(--bg-elevated),var(--bg-base))]" />
+                )}
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-[image:var(--feature-scrim)]"
+                />
+
+                <div className="relative z-10 flex min-h-[390px] max-w-3xl flex-col justify-end p-6 sm:min-h-[440px] sm:p-10 lg:p-12">
+                  <span className="inline-flex items-center gap-2 self-start text-xs font-black uppercase tracking-[0.16em] text-white/80">
+                    <Star className="size-4 text-primary" weight="fill" />
+                    {t("partner.badge")}
+                  </span>
+                  <h2 className="mt-3 font-display text-4xl font-black leading-none tracking-tight text-white sm:text-6xl">
+                    {partner.name}
+                  </h2>
+
+                  <dl className="mt-6 grid max-w-2xl gap-4 border-y border-white/20 py-4 sm:grid-cols-[0.7fr_1.3fr]">
+                    <div>
+                      <dt className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/60">
+                        {t("partner.zone")}
+                      </dt>
+                      <dd className="mt-1 flex items-center gap-1.5 text-sm font-bold text-white">
+                        <MapPin className="size-4 shrink-0" weight="duotone" />
+                        {partnerZone ?? t("partner.zoneFallback")}
+                      </dd>
                     </div>
-                  </div>
-                  {/* Imagen real del partner cuando existe; si no, placeholder
-                      con degradado de marca (no las líneas diagonales del
-                      rv-img-ph, que se veían como "falta algo"). El scrim
-                      izquierdo funde la foto con el panel de texto. */}
-                  <div
-                    aria-hidden
-                    className="pointer-events-none relative hidden min-h-[240px] overflow-hidden lg:block"
-                  >
-                    {partner.mainImageUrl ? (
-                      <StorageImage
-                        src={partner.mainImageUrl}
-                        alt={partner.name}
-                        fill
-                        sizes="(max-width: 1024px) 0px, 40vw"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,var(--accent-soft-strong),transparent_60%),linear-gradient(120deg,var(--bg-elevated),var(--bg-base))]" />
-                    )}
-                    {/* Scrim para fundir con el panel de texto a la izquierda. */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-background via-background/35 to-transparent" />
-                    <span className="absolute bottom-4 right-4 rounded-full border border-accent-border bg-deep/80 px-3 py-1 text-xs font-semibold text-rose backdrop-blur-sm">
-                      {partner.name}
-                    </span>
-                  </div>
+                    <div>
+                      <dt className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/60">
+                        {t("partner.whatItOffers")}
+                      </dt>
+                      <dd className="mt-1 line-clamp-2 text-sm leading-relaxed text-white/85">
+                        {partner.description ??
+                          t("partner.fallbackDescription")}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <Button className="mt-6 w-40" asChild>
+                    <Link href={`/locals/${partner.slug}`}>
+                      {t("partner.viewVenue")}
+                      <ArrowRight className="size-4" />
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </NightCamera>
@@ -398,7 +326,11 @@ export default async function HomePage() {
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
               {moreEvents.map((event, i) => (
                 <Reveal key={event.id} delay={i * 90}>
-                  <EventCard event={event} />
+                  <EventCard
+                    event={event}
+                    local={localById.get(event.localId)}
+                    priceFrom={cardPrices.get(event.id)}
+                  />
                 </Reveal>
               ))}
             </div>

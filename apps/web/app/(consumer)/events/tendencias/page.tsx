@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { EventCard } from "@/components/catalog/event-card";
 import { EmptyState } from "@/components/shared/empty-state";
-import { getTrendingEvents } from "@/lib/api/catalog";
+import { getLocals, getTrendingEvents } from "@/lib/api/catalog";
+import { getEventCardPrices } from "@/lib/event-card-data";
 
 export const revalidate = 60;
 
@@ -15,7 +16,12 @@ export async function generateMetadata(): Promise<Metadata> {
 /** Tendencias (#9): eventos más vendidos. Reusa getTrendingEvents + EventCard. */
 export default async function TrendingEventsPage() {
   const t = await getTranslations("events.trending");
-  const events = await getTrendingEvents().catch(() => null);
+  const [events, locals] = await Promise.all([
+    getTrendingEvents().catch(() => null),
+    getLocals().catch(() => []),
+  ]);
+  const localById = new Map(locals.map((local) => [local.id, local]));
+  const cardPrices = await getEventCardPrices(events ?? []);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -41,7 +47,12 @@ export default async function TrendingEventsPage() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {events.map((event) => (
-            <EventCard key={event.id} event={event} />
+            <EventCard
+              key={event.id}
+              event={event}
+              local={localById.get(event.localId)}
+              priceFrom={cardPrices.get(event.id)}
+            />
           ))}
         </div>
       )}

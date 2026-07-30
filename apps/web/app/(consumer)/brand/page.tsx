@@ -36,7 +36,7 @@ const PALETTE = [
   },
   {
     key: "crimson",
-    hex: "#E31732",
+    hex: "#EA0526",
     swatch: "bg-primary",
   },
   {
@@ -303,7 +303,7 @@ export default async function BrandLabPage() {
         <div className="grid overflow-hidden rounded-lg border sm:grid-cols-2">
           <div className="bg-primary p-8 text-primary-foreground">
             <p className="font-display text-2xl font-bold">Ravenue Crimson</p>
-            <p className="mt-2 font-mono text-sm">--primary · #E31732</p>
+            <p className="mt-2 font-mono text-sm">--primary · #EA0526</p>
           </div>
           <div className="bg-error p-8 text-white">
             <p className="font-display text-2xl font-bold">

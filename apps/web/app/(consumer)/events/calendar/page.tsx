@@ -6,13 +6,14 @@ import type { EventResponse } from "@urnight/contracts";
 import { Button } from "@urnight/ui";
 import { EventCard } from "@/components/catalog/event-card";
 import { EmptyState } from "@/components/shared/empty-state";
-import { getEvents, getUpcomingEvents } from "@/lib/api/catalog";
+import { getEvents, getLocals, getUpcomingEvents } from "@/lib/api/catalog";
 import {
   eventCatalogHref,
   getLimaDatePresetRange,
   parsePriceFilter,
   type EventCatalogSearchParams,
 } from "@/lib/catalog-filters";
+import { getEventCardPrices } from "@/lib/event-card-data";
 
 export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
@@ -66,6 +67,11 @@ export default async function EventsCalendarPage({
   const sortedEvents = [...events].sort(
     (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
   );
+  const [locals, cardPrices] = await Promise.all([
+    getLocals().catch(() => []),
+    getEventCardPrices(sortedEvents),
+  ]);
+  const localById = new Map(locals.map((local) => [local.id, local]));
   const groups = new Map<string, EventResponse[]>();
   for (const event of sortedEvents) {
     const key = format.dateTime(new Date(event.startsAt), {
@@ -109,7 +115,12 @@ export default async function EventsCalendarPage({
               </h2>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {dayEvents.map((event) => (
-                  <EventCard key={event.id} event={event} />
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    local={localById.get(event.localId)}
+                    priceFrom={cardPrices.get(event.id)}
+                  />
                 ))}
               </div>
             </section>

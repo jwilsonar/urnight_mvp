@@ -9,6 +9,7 @@ import { SearchBar } from "@/components/catalog/search-bar";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { getEvents, getLocals } from "@/lib/api/catalog";
+import { getEventCardPrices } from "@/lib/event-card-data";
 
 export const revalidate = 60;
 
@@ -32,17 +33,20 @@ export default async function SearchPage({
 
   // catch→null (no []) para distinguir "sin resultados" de un fallo del API: si ambas
   // fuentes caen mostramos error, no un vacío engañoso.
-  const [eventsRes, localsRes] = term
+  const [eventsRes, localsRes, catalogLocals] = term
     ? await Promise.all([
         getEvents({ q: term }).catch(() => null),
         getLocals({ q: term }).catch(() => null),
+        getLocals().catch(() => []),
       ])
-    : [[], []];
+    : [[], [], []];
 
   const failed = Boolean(term) && eventsRes === null && localsRes === null;
   const events = eventsRes ?? [];
   const locals = localsRes ?? [];
   const hasResults = events.length > 0 || locals.length > 0;
+  const localById = new Map(catalogLocals.map((local) => [local.id, local]));
+  const cardPrices = await getEventCardPrices(events);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -85,7 +89,12 @@ export default async function SearchPage({
               </h2>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {events.map((event) => (
-                  <EventCard key={event.id} event={event} />
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    local={localById.get(event.localId)}
+                    priceFrom={cardPrices.get(event.id)}
+                  />
                 ))}
               </div>
             </section>

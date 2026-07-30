@@ -122,3 +122,30 @@ export function getLimaDatePresetRange(
     to: end.toISOString(),
   };
 }
+
+/** Semana calendario vigente en Lima: lunes 00:00 a domingo 23:59:59.999. */
+export function getLimaWeekRange(now = new Date()): {
+  from: string;
+  to: string;
+} {
+  const { year, monthIndex, day, weekday } = localParts(now);
+  const daysSinceMonday = (weekday + 6) % 7;
+
+  return {
+    from: limaDateToUtc(
+      year,
+      monthIndex,
+      day - daysSinceMonday,
+      0,
+    ).toISOString(),
+    to: limaDateToUtc(
+      year,
+      monthIndex,
+      day - daysSinceMonday + 6,
+      23,
+      59,
+      59,
+      999,
+    ).toISOString(),
+  };
+}
