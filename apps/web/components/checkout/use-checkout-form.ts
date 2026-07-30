@@ -3,16 +3,29 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { useCallback, useMemo, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import type {
   CreateOrderDto,
   EventResponse,
   ResolveRedemptionCodeResponse,
   TicketTypeResponse,
+  TicketHoldResponse,
 } from "@urnight/contracts";
 import { useMe } from "@/lib/api/auth/hooks";
-import { checkout, type CheckoutResult } from "@/lib/api/orders";
+import {
+  checkout,
+  createTicketHold,
+  releaseTicketHold,
+  type CheckoutResult,
+} from "@/lib/api/orders";
 import {
   handleSessionExpired,
   isSessionExpiredError,
@@ -50,6 +63,11 @@ export function useCheckoutForm({
   const [formError, setFormError] = useState<string | null>(null);
   const [result, setResult] = useState<CheckoutResult | null>(null);
   const [selfBuyer, setSelfBuyer] = useState(false);
+  const [hold, setHold] = useState<TicketHoldResponse | null>(null);
+  const [holdPending, setHoldPending] = useState(false);
+  const holdRef = useRef<TicketHoldResponse | null>(null);
+  const holdVersionRef = useRef(0);
+  const holdSyncRef = useRef<Promise<void>>(Promise.resolve());
   const formSchema = useMemo(
     () =>
       createCheckoutFormSchema({
@@ -103,6 +121,52 @@ export function useCheckoutForm({
     : 10;
   const subtotal = selected ? selected.price * fields.length : 0;
 
+  useEffect(() => {
+    const token = session?.accessToken;
+    if (!token || !selectedId || fields.length < 1) return;
+
+    const version = ++holdVersionRef.current;
+    setHoldPending(true);
+    holdSyncRef.current = holdSyncRef.current
+      .then(async () => {
+        if (version !== holdVersionRef.current) return;
+        const created = await createTicketHold(
+          {
+            eventId: event.id,
+            ticketTypeId: selectedId,
+            quantity: fields.length,
+            replaceHoldId: holdRef.current?.id,
+          },
+          token,
+        );
+        holdRef.current = created;
+        if (version === holdVersionRef.current) {
+          setHold(created);
+          setFormError(null);
+        }
+      })
+      .catch(() => {
+        if (version === holdVersionRef.current) {
+          setHold(null);
+          setFormError(t("checkoutError"));
+        }
+      })
+      .finally(() => {
+        if (version === holdVersionRef.current) setHoldPending(false);
+      });
+  }, [event.id, fields.length, selectedId, session?.accessToken, t]);
+
+  useEffect(
+    () => () => {
+      const token = session?.accessToken;
+      const current = holdRef.current;
+      if (token && current?.status === "active") {
+        void releaseTicketHold(current.id, token, true).catch(() => undefined);
+      }
+    },
+    [session?.accessToken],
+  );
+
   // Rellena el asistente comprador (índice 0) con los datos de la cuenta.
   const applySelf = useCallback(
     (checked: boolean) => {
@@ -134,10 +198,22 @@ export function useCheckoutForm({
       setFormError(t("sessionExpired"));
       return;
     }
+    if (
+      !hold ||
+      hold.ticketTypeId !== values.ticketTypeId ||
+      hold.quantity !== values.attendees.length
+    ) {
+      setFormError(t("checkoutError"));
+      return;
+    }
     const dto: CreateOrderDto = {
       eventId: event.id,
       items: [
-        { ticketTypeId: values.ticketTypeId, attendees: values.attendees },
+        {
+          ticketTypeId: values.ticketTypeId,
+          holdId: hold.id,
+          attendees: values.attendees,
+        },
       ],
       method: values.method,
       promoCode: values.promoCode?.trim() ? values.promoCode.trim() : undefined,
@@ -171,6 +247,7 @@ export function useCheckoutForm({
     selfBuyer,
     applySelf,
     pending,
+    holdPending,
     formError,
     result,
     onSubmit,

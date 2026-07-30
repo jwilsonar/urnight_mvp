@@ -68,6 +68,7 @@ describe('Event (aggregate, §4.1)', () => {
       flyerUrl: null,
       totalCapacity: 100,
       ticketsSold: 40,
+      availableCapacity: 60,
       checkinsCount: 5,
       status: 'published',
       minAgeNote: '+18',

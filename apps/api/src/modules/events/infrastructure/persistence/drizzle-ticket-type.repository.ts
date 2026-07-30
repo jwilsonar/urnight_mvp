@@ -1,6 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { asc, eq } from 'drizzle-orm';
-import { ticketType } from '@urnight/db';
+import { asc, eq, getTableColumns } from 'drizzle-orm';
+import {
+  activeTicketHoldQuantitySql,
+  availableCapacitySql,
+  ticketType,
+} from '@urnight/db';
 import { DRIZZLE, type DrizzleDb } from '../../../../shared/database/drizzle.constants';
 import {
   TicketType,
@@ -10,19 +14,24 @@ import {
 import type { TicketTypeRepository } from '../../domain/ports/ticket-type.repository';
 
 type Row = typeof ticketType.$inferSelect;
+type RowWithAvailability = Row & { available: number };
 
 @Injectable()
 export class DrizzleTicketTypeRepository implements TicketTypeRepository {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDb) {}
 
   async findById(id: string): Promise<TicketType | null> {
-    const [row] = await this.db.select().from(ticketType).where(eq(ticketType.id, id)).limit(1);
+    const [row] = await this.db
+      .select(this.selection())
+      .from(ticketType)
+      .where(eq(ticketType.id, id))
+      .limit(1);
     return row ? this.toDomain(row) : null;
   }
 
   async listByEvent(eventId: string): Promise<TicketType[]> {
     const rows = await this.db
-      .select()
+      .select(this.selection())
       .from(ticketType)
       .where(eq(ticketType.eventId, eventId))
       .orderBy(asc(ticketType.price));
@@ -44,9 +53,11 @@ export class DrizzleTicketTypeRepository implements TicketTypeRepository {
         maxPerUser: entity.maxPerUser,
         status: entity.status,
       })
-      .returning();
+      .returning({ id: ticketType.id });
     if (!row) throw new Error('No se pudo crear el tipo de entrada');
-    return this.toDomain(row);
+    const created = await this.findById(row.id);
+    if (!created) throw new Error('No se pudo recargar el tipo de entrada');
+    return created;
   }
 
   async update(entity: TicketType): Promise<TicketType> {
@@ -54,12 +65,26 @@ export class DrizzleTicketTypeRepository implements TicketTypeRepository {
       .update(ticketType)
       .set({ status: entity.status, sold: entity.sold })
       .where(eq(ticketType.id, entity.id))
-      .returning();
+      .returning({ id: ticketType.id });
     if (!row) throw new Error('No se pudo actualizar el tipo de entrada');
-    return this.toDomain(row);
+    const updated = await this.findById(row.id);
+    if (!updated) throw new Error('No se pudo recargar el tipo de entrada');
+    return updated;
   }
 
-  private toDomain(row: Row): TicketType {
+  private selection() {
+    const activeHolds = activeTicketHoldQuantitySql(ticketType.id);
+    return {
+      ...getTableColumns(ticketType),
+      available: availableCapacitySql(
+        ticketType.stock,
+        ticketType.sold,
+        activeHolds,
+      ),
+    };
+  }
+
+  private toDomain(row: RowWithAvailability): TicketType {
     return TicketType.fromPersistence({
       id: row.id,
       eventId: row.eventId,
@@ -69,6 +94,7 @@ export class DrizzleTicketTypeRepository implements TicketTypeRepository {
       currency: row.currency,
       stock: row.stock,
       sold: row.sold,
+      available: Number(row.available),
       maxPerUser: row.maxPerUser,
       saleStartsAt: row.saleStartsAt,
       saleEndsAt: row.saleEndsAt,

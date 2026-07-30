@@ -29,4 +29,18 @@ describe("toEventResponse catalogLabel", () => {
     const event = new EventBuilder().asPublished().build();
     expect(toEventResponse(event, "trending").catalogLabel).toBe("trending");
   });
+
+  it("incluye holds activos en el cupo disponible de catálogo y ficha", () => {
+    const event = new EventBuilder()
+      .withTotalCapacity(100)
+      .withTicketsSold(80)
+      .withActiveHolds(6)
+      .asPublished()
+      .build();
+
+    const response = toEventResponse(event);
+
+    expect(response.availableCapacity).toBe(14);
+    expect(response.catalogLabel).toBe("fewTickets");
+  });
 });

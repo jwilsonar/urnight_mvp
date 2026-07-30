@@ -113,6 +113,8 @@ export const eventResponseSchema = z.object({
   flyerUrl: z.string().nullable(),
   totalCapacity: z.number().int(),
   ticketsSold: z.number().int(),
+  /** Null representa aforo abierto; de otro modo descuenta ventas y holds activos. */
+  availableCapacity: z.number().int().nonnegative().nullable(),
   status: z.enum(["draft", "scheduled", "published", "cancelled", "finished"]),
   minAgeNote: z.string(),
   dressCode: z.string().nullable(),

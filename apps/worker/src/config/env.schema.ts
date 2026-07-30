@@ -20,6 +20,11 @@ export const envSchema = z.object({
   // Umbral de reintentos del relay outbox antes de marcar la fila 'failed' (A4):
   // evita el loop infinito de una fila envenenada que nunca logra encolarse.
   OUTBOX_MAX_ATTEMPTS: z.coerce.number().int().positive().default(10),
+  TICKET_HOLD_CLEANUP_INTERVAL_SECONDS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(60),
 });
 
 export type Env = z.infer<typeof envSchema>;

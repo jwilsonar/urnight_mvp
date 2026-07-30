@@ -1,6 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { type DbClient, company as companyTable, local as localTable } from '@urnight/db';
+import {
+  type DbClient,
+  company as companyTable,
+  local as localTable,
+  user as userTable,
+} from '@urnight/db';
 import { createTestDb, truncateAll } from '../../../../shared/testing/integration/test-db';
 import { LocalVerification } from '../../domain/entities/local-verification.entity';
 import { DrizzleLocalVerificationRepository } from './drizzle-local-verification.repository';
@@ -71,9 +76,15 @@ describe('DrizzleLocalVerificationRepository (integration)', () => {
 
   it('update persiste la revisión (status aprobado)', async () => {
     const localId = await seedLocal('local-verif-2');
+    const reviewerId = randomUUID();
+    await client.db.insert(userTable).values({
+      id: reviewerId,
+      fullName: 'Revisor de locales',
+      email: `revisor-${reviewerId}@example.com`,
+    });
     const verification = LocalVerification.request({ id: randomUUID(), localId });
     await repo.create(verification);
-    verification.review('approved', randomUUID(), 'Documentación correcta');
+    verification.review('approved', reviewerId, 'Documentación correcta');
     await repo.update(verification);
 
     const found = await repo.findById(verification.id);

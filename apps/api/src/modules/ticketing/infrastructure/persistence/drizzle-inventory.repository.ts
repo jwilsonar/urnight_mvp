@@ -1,6 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { eq, sql } from 'drizzle-orm';
-import { event, local, ticketType } from '@urnight/db';
+import { asc, eq, inArray, sql } from 'drizzle-orm';
+import {
+  activeTicketHoldQuantitySql,
+  availableCapacitySql,
+  event,
+  local,
+  ticketType,
+} from '@urnight/db';
 import { DRIZZLE, type DrizzleDb } from '../../../../shared/database/drizzle.constants';
 import type { Tx } from '../../../../shared/unit-of-work/unit-of-work';
 import type {
@@ -42,7 +48,22 @@ export class DrizzleInventoryRepository implements InventoryPort {
   }
 
   async getTicketType(id: string, tx?: unknown): Promise<SaleTicketType | null> {
-    const [row] = await this.exec(tx).select().from(ticketType).where(eq(ticketType.id, id)).limit(1);
+    const activeHolds = activeTicketHoldQuantitySql(ticketType.id);
+    const [row] = await this.exec(tx)
+      .select({
+        id: ticketType.id,
+        eventId: ticketType.eventId,
+        price: ticketType.price,
+        currency: ticketType.currency,
+        stock: ticketType.stock,
+        sold: ticketType.sold,
+        available: availableCapacitySql(ticketType.stock, ticketType.sold, activeHolds),
+        maxPerUser: ticketType.maxPerUser,
+        status: ticketType.status,
+      })
+      .from(ticketType)
+      .where(eq(ticketType.id, id))
+      .limit(1);
     if (!row) return null;
     return {
       id: row.id,
@@ -51,9 +72,21 @@ export class DrizzleInventoryRepository implements InventoryPort {
       currency: row.currency,
       stock: row.stock,
       sold: row.sold,
+      available: Number(row.available),
       maxPerUser: row.maxPerUser,
       status: row.status,
     };
+  }
+
+  async lockTicketTypes(ids: string[], tx: unknown): Promise<void> {
+    const unique = [...new Set(ids)].sort();
+    if (unique.length === 0) return;
+    await this.exec(tx)
+      .select({ id: ticketType.id })
+      .from(ticketType)
+      .where(inArray(ticketType.id, unique))
+      .orderBy(asc(ticketType.id))
+      .for('update');
   }
 
   async incrementSold(ticketTypeId: string, qty: number, tx: unknown): Promise<void> {

@@ -73,6 +73,7 @@ export function CheckoutClient({
     selfBuyer,
     applySelf,
     pending,
+    holdPending,
     formError,
     result,
     onSubmit,
@@ -182,7 +183,12 @@ export function CheckoutClient({
             <span className="text-rose">{t("free")}</span>
           </div>
 
-          <Button type="submit" className="w-full" size="lg" disabled={pending}>
+          <Button
+            type="submit"
+            className="w-full"
+            size="lg"
+            disabled={pending || holdPending}
+          >
             {pending ? t("issuing") : t("receiveTicket")}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
@@ -352,7 +358,12 @@ export function CheckoutClient({
           </CardContent>
         </Card>
 
-        <Button type="submit" className="w-full" size="lg" disabled={pending}>
+        <Button
+          type="submit"
+          className="w-full"
+          size="lg"
+          disabled={pending || holdPending}
+        >
           {pending ? t("processing") : t("pay", { amount: money(subtotal) })}
         </Button>
       </form>

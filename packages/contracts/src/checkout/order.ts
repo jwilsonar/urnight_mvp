@@ -15,6 +15,8 @@ export type AttendeeInput = z.infer<typeof attendeeInputSchema>;
 /** Línea de compra: un tipo de entrada + sus asistentes (cantidad = nº asistentes). */
 export const orderItemInputSchema = z.object({
   ticketTypeId: z.string().uuid(),
+  /** Hold creado al entrar al checkout. Opcional para clientes antiguos. */
+  holdId: z.string().uuid().optional(),
   attendees: z.array(attendeeInputSchema).min(1).max(10),
 });
 export type OrderItemInput = z.infer<typeof orderItemInputSchema>;

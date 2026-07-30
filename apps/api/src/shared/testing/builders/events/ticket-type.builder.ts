@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { availableCapacity } from '@urnight/db';
 import {
   TicketType,
   type TicketTier,
@@ -15,6 +16,7 @@ export class TicketTypeBuilder {
   private currency = 'PEN';
   private stock = 100;
   private sold = 0;
+  private activeHolds = 0;
   private maxPerUser: number | null = null;
   private saleStartsAt: Date | null = null;
   private saleEndsAt: Date | null = null;
@@ -60,6 +62,11 @@ export class TicketTypeBuilder {
     return this;
   }
 
+  withActiveHolds(activeHolds: number): this {
+    this.activeHolds = activeHolds;
+    return this;
+  }
+
   withMaxPerUser(maxPerUser: number | null): this {
     this.maxPerUser = maxPerUser;
     return this;
@@ -100,6 +107,11 @@ export class TicketTypeBuilder {
       currency: this.currency,
       stock: this.stock,
       sold: this.sold,
+      available: availableCapacity(
+        this.stock,
+        this.sold,
+        this.activeHolds,
+      ),
       maxPerUser: this.maxPerUser,
       saleStartsAt: this.saleStartsAt,
       saleEndsAt: this.saleEndsAt,

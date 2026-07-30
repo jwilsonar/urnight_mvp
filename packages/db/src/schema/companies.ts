@@ -117,6 +117,45 @@ export const localVerification = pgTable(
   ],
 );
 
+export const localVerificationDocument = pgTable(
+  'local_verification_document',
+  {
+    id: id(),
+    localVerificationId: uuid('local_verification_id')
+      .notNull()
+      .references(() => localVerification.id, { onDelete: 'cascade' }),
+    documentType: varchar('document_type', { length: 32 }).notNull(),
+    /** Clave S3 estable; la URL se resuelve únicamente en presentación. */
+    storageKey: varchar('storage_key', { length: 512 }).notNull(),
+    issuedAt: date('issued_at').notNull(),
+    expiresAt: date('expires_at').notNull(),
+    reviewStatus: varchar('review_status', { length: 12 })
+      .notNull()
+      .default('pending'),
+    reviewedBy: uuid('reviewed_by').references(() => user.id, {
+      onDelete: 'set null',
+    }),
+    reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
+    reviewNotes: varchar('review_notes', { length: 500 }),
+    ...timestamps(),
+  },
+  (t) => [
+    index('idx_local_verification_document_local_verification').on(
+      t.localVerificationId,
+    ),
+    index('idx_local_verification_document_expires_at').on(t.expiresAt),
+    index('idx_local_verification_document_review_status').on(t.reviewStatus),
+    check(
+      'local_verification_document_type_check',
+      sql`${t.documentType} in ('municipal_license','itse_certificate','health_certificate','other')`,
+    ),
+    check(
+      'local_verification_document_review_status_check',
+      sql`${t.reviewStatus} in ('pending','approved','rejected')`,
+    ),
+  ],
+);
+
 export const affiliationRequest = pgTable(
   'affiliation_request',
   {
@@ -207,4 +246,6 @@ export const localTag = pgTable(
 export type Company = typeof company.$inferSelect;
 export type Local = typeof local.$inferSelect;
 export type LocalVerification = typeof localVerification.$inferSelect;
+export type LocalVerificationDocument =
+  typeof localVerificationDocument.$inferSelect;
 export type AffiliationRequest = typeof affiliationRequest.$inferSelect;

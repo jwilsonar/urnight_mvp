@@ -53,6 +53,8 @@ export class InMemoryInventoryRepository implements InventoryPort {
     return tt ? { ...tt } : null;
   }
 
+  async lockTicketTypes(_ids: string[], _tx: unknown): Promise<void> {}
+
   async incrementSold(ticketTypeId: string, qty: number, _tx: unknown): Promise<void> {
     const tt = this.ticketTypes.get(ticketTypeId);
     if (!tt) throw new Error(`InMemoryInventory: tipo de entrada ${ticketTypeId} no existe`);
@@ -61,6 +63,7 @@ export class InMemoryInventoryRepository implements InventoryPort {
       throw new Error('InMemoryInventory: violación de CHECK sold <= stock (sobreventa)');
     }
     tt.sold += qty;
+    tt.available = Math.max(tt.stock - tt.sold, 0);
   }
 
   async incrementEventTicketsSold(eventId: string, qty: number, _tx: unknown): Promise<void> {

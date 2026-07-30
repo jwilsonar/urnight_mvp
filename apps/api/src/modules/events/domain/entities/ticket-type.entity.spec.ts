@@ -56,6 +56,7 @@ describe('TicketType (aggregate, §4.1: sold <= stock)', () => {
       currency: 'PEN',
       stock: 30,
       sold: 12,
+      available: 18,
       maxPerUser: null,
       saleStartsAt: null,
       saleEndsAt: null,
@@ -77,6 +78,15 @@ describe('TicketType (aggregate, §4.1: sold <= stock)', () => {
     it('es 0 cuando se vendió todo el stock', () => {
       const ticket = new TicketTypeBuilder().withStock(50).withSold(50).build();
       expect(ticket.remaining()).toBe(0);
+    });
+
+    it('resta los holds activos no vencidos además de los vendidos', () => {
+      const ticket = new TicketTypeBuilder()
+        .withStock(10)
+        .withSold(4)
+        .withActiveHolds(3)
+        .build();
+      expect(ticket.remaining()).toBe(3);
     });
   });
 

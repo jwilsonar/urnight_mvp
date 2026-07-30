@@ -52,7 +52,7 @@ function buildEvent(
     localId,
     name: `Fiesta ${suffix}`,
     slug: overrides.slug ?? `fiesta-${suffix}`,
-    startsAt: new Date("2026-07-01T22:00:00.000Z"),
+    startsAt: new Date("2027-07-01T22:00:00.000Z"),
     totalCapacity: 500,
   });
 }

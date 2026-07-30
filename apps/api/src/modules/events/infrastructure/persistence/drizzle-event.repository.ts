@@ -5,6 +5,7 @@ import {
   count,
   desc,
   eq,
+  getTableColumns,
   gte,
   gt,
   inArray,
@@ -14,6 +15,9 @@ import {
   type SQL,
 } from "drizzle-orm";
 import {
+  activeEventHoldQuantitySql,
+  availableCapacity,
+  availableCapacitySql,
   event,
   eventGenre,
   eventTag,
@@ -38,6 +42,7 @@ import {
 } from "../../../../shared/database/search-normalize";
 
 type Row = typeof event.$inferSelect;
+type RowWithAvailability = Row & { availableCapacity?: number };
 
 @Injectable()
 export class DrizzleEventRepository implements EventRepository {
@@ -45,7 +50,7 @@ export class DrizzleEventRepository implements EventRepository {
 
   async findById(id: string): Promise<Event | null> {
     const [row] = await this.db
-      .select()
+      .select(this.eventSelection())
       .from(event)
       .where(eq(event.id, id))
       .limit(1);
@@ -55,7 +60,7 @@ export class DrizzleEventRepository implements EventRepository {
 
   async findBySlug(slug: string): Promise<Event | null> {
     const [row] = await this.db
-      .select()
+      .select(this.eventSelection())
       .from(event)
       .where(eq(event.slug, slug))
       .limit(1);
@@ -92,14 +97,23 @@ export class DrizzleEventRepository implements EventRepository {
   }
 
   private publishedConditions(filter?: EventListFilter): SQL[] {
+    const at = filter?.availableAt ?? new Date();
+    const activeHolds = activeEventHoldQuantitySql(event.id, at);
     const conditions: SQL[] = [
       eq(event.status, "published"),
       // startsAt es timestamptz: comparar instantes evita crear otra convención
       // de zona horaria distinta a la que ya usan los presets de Lima.
-      gte(event.startsAt, filter?.availableAt ?? new Date()),
+      gte(event.startsAt, at),
       or(
         eq(event.totalCapacity, 0),
-        gt(event.totalCapacity, event.ticketsSold),
+        gt(
+          availableCapacitySql(
+            event.totalCapacity,
+            event.ticketsSold,
+            activeHolds,
+          ),
+          0,
+        ),
       ) as SQL,
     ];
     if (filter?.localId) conditions.push(eq(event.localId, filter.localId));
@@ -194,7 +208,7 @@ export class DrizzleEventRepository implements EventRepository {
 
   async listPublished(filter?: EventListFilter): Promise<Event[]> {
     let query = this.db
-      .select()
+      .select(this.eventSelection(filter?.availableAt))
       .from(event)
       .where(and(...this.publishedConditions(filter)))
       .orderBy(...this.publishedOrder(filter?.order))
@@ -214,20 +228,22 @@ export class DrizzleEventRepository implements EventRepository {
   }
 
   async listTrending(limit: number): Promise<Event[]> {
+    const filter = { availableAt: new Date() };
     const rows = await this.db
-      .select()
+      .select(this.eventSelection(filter.availableAt))
       .from(event)
-      .where(and(...this.publishedConditions()))
+      .where(and(...this.publishedConditions(filter)))
       .orderBy(desc(event.ticketsSold), desc(event.checkinsCount))
       .limit(limit);
     return rows.map((r) => this.toDomain(r));
   }
 
   async listUpcoming(limit: number): Promise<Event[]> {
+    const filter = { availableAt: new Date() };
     const rows = await this.db
-      .select()
+      .select(this.eventSelection(filter.availableAt))
       .from(event)
-      .where(and(...this.publishedConditions()))
+      .where(and(...this.publishedConditions(filter)))
       .orderBy(...this.publishedOrder())
       .limit(limit);
     return rows.map((r) => this.toDomain(r));
@@ -235,7 +251,7 @@ export class DrizzleEventRepository implements EventRepository {
 
   async listByLocal(localId: string): Promise<Event[]> {
     const rows = await this.db
-      .select()
+      .select(this.eventSelection())
       .from(event)
       .where(eq(event.localId, localId))
       .orderBy(desc(event.startsAt));
@@ -313,7 +329,19 @@ export class DrizzleEventRepository implements EventRepository {
     });
   }
 
-  private toDomain(row: Row): Event {
+  private eventSelection(at: Date = new Date()) {
+    const activeHolds = activeEventHoldQuantitySql(event.id, at);
+    return {
+      ...getTableColumns(event),
+      availableCapacity: availableCapacitySql(
+        event.totalCapacity,
+        event.ticketsSold,
+        activeHolds,
+      ),
+    };
+  }
+
+  private toDomain(row: RowWithAvailability): Event {
     return Event.fromPersistence({
       id: row.id,
       localId: row.localId,
@@ -325,6 +353,12 @@ export class DrizzleEventRepository implements EventRepository {
       flyerUrl: row.flyerUrl,
       totalCapacity: row.totalCapacity,
       ticketsSold: row.ticketsSold,
+      availableCapacity:
+        row.totalCapacity === 0
+          ? null
+          : row.availableCapacity === undefined
+            ? availableCapacity(row.totalCapacity, row.ticketsSold, 0)
+            : Number(row.availableCapacity),
       checkinsCount: row.checkinsCount,
       status: row.status as EventStatus,
       minAgeNote: row.minAgeNote,

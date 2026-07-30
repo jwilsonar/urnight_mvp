@@ -233,9 +233,11 @@ export function toEventResponse(
   e: Event,
   label?: EventCatalogLabel,
 ): EventResponse {
-  const remaining = Math.max(e.totalCapacity - e.ticketsSold, 0);
+  const remaining = e.availableCapacity;
   const fewTickets =
-    e.totalCapacity > 0 && remaining > 0 && remaining / e.totalCapacity < 0.15;
+    remaining !== null &&
+    remaining > 0 &&
+    remaining / e.totalCapacity < 0.15;
 
   return {
     id: e.id,
@@ -248,6 +250,7 @@ export function toEventResponse(
     flyerUrl: e.flyerUrl,
     totalCapacity: e.totalCapacity,
     ticketsSold: e.ticketsSold,
+    availableCapacity: e.availableCapacity,
     status: e.status,
     minAgeNote: e.minAgeNote,
     dressCode: e.dressCode,

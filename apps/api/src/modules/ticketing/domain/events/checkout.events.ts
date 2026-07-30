@@ -9,6 +9,7 @@ export interface OrderPaidPayload {
   currency: string;
   paidAt: string;
   referralCode: string | null;
+  holdIds: string[];
 }
 
 export class OrderPaidEvent implements DomainEvent<OrderPaidPayload> {

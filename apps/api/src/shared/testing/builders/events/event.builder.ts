@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { availableCapacity } from '@urnight/db';
 import {
   Event,
   type EventStatus,
@@ -20,6 +21,7 @@ export class EventBuilder {
   private createdBy: string | null = null;
   private status: EventStatus = 'draft';
   private ticketsSold = 0;
+  private activeHolds = 0;
 
   withId(id: string): this {
     this.id = id;
@@ -68,6 +70,11 @@ export class EventBuilder {
 
   withTicketsSold(ticketsSold: number): this {
     this.ticketsSold = ticketsSold;
+    return this;
+  }
+
+  withActiveHolds(activeHolds: number): this {
+    this.activeHolds = activeHolds;
     return this;
   }
 
@@ -125,6 +132,14 @@ export class EventBuilder {
       flyerUrl: this.flyerUrl,
       totalCapacity: this.totalCapacity,
       ticketsSold: this.ticketsSold,
+      availableCapacity:
+        this.totalCapacity === 0
+          ? null
+          : availableCapacity(
+              this.totalCapacity,
+              this.ticketsSold,
+              this.activeHolds,
+            ),
       checkinsCount: 0,
       status: this.status,
       minAgeNote: this.minAgeNote,

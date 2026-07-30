@@ -13,6 +13,7 @@ export const envSchema = z
     ),
     DATABASE_URL: z.string().url(),
     REDIS_URL: z.string().url(),
+    TICKET_HOLD_TTL_SECONDS: z.coerce.number().int().positive().default(600),
     // Secretos JWT: min 32 chars para HS256 (B5). Firmado/verificado con HS256 (algorithms allowlist).
     JWT_SECRET: z.string().min(32, 'JWT_SECRET debe tener al menos 32 caracteres'),
     JWT_ACCESS_TTL: z.coerce.number().int().positive().default(900), // 15 min (segundos)

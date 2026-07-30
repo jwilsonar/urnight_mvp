@@ -903,6 +903,54 @@ sequenceDiagram
 
 ---
 
+### SD-12 · Renovación documental y vencimiento automático
+
+**Estado del lote S:** esquema y decisión documentados; endpoints, panel y jobs
+quedan para el siguiente lote. El AS-IS comprobado sigue siendo SD-10/SD-11:
+una fila `local_verification`, una referencia/URL opcional y revisión manual por
+ID. `/onboarding` solo completa el perfil del consumidor; la afiliación real
+empieza en `/afiliar` y continúa por SD-01/SD-02.
+
+#### SD-12a · Diseño aprobado (TO-BE)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor AD as Admin del local
+    actor SA as Super admin
+    participant W as Panel RAVENUE
+    participant EDGE as Edge API
+    participant S3 as Storage S3
+    participant DB as PostgreSQL
+    participant Q as BullMQ notifications
+    participant WK as Worker
+
+    note over AD, DB: Fase 1 · Renovar sin sobrescribir evidencia histórica
+    AD->>W: selecciona tipo, emisión, vencimiento y archivo
+    W->>EDGE: POST /uploads/presign · key temporal
+    EDGE-->>W: presigned URL + key tmp/
+    W->>S3: PUT directo del archivo
+    W->>EDGE: confirma documento con storageKey, nunca URL pública
+    EDGE->>DB: INSERT local_verification_document status pending
+    EDGE-->>W: documento pendiente
+
+    note over SA, DB: Fase 2 · Revisión auditada
+    SA->>W: abre la bandeja de documentos pendientes
+    W->>EDGE: POST /local-verification-documents/{id}/review
+    EDGE->>DB: UPDATE review_status, reviewed_by, reviewed_at, notes
+    EDGE->>DB: deriva verified solo si todos los requeridos están approved y vigentes
+    EDGE-->>W: estado derivado y fecha de última revisión
+
+    note over Q, DB: Fase 3 · Aviso y degradación
+    WK->>DB: busca documentos aprobados próximos a vencer
+    WK->>Q: encola aviso previo al admin por la infraestructura existente
+    WK->>DB: busca documentos con expires_at menor o igual a hoy
+    WK->>DB: deriva unverified si falta una renovación aprobada
+    note over WK, DB: Si el worker cae, la lectura pública también debe derivar por fecha;<br/>el job normaliza estado y dispara avisos, no define la verdad.
+```
+
+---
+
 ## 11. Trazabilidad: proceso → endpoint → código → estado
 
 | Proceso | Endpoint(s) | Caso de uso / componente | Estado |
@@ -919,6 +967,8 @@ sequenceDiagram
 | Eliminar imagen | `DELETE /locals/{id}/images/{imageId}` | `DeleteLocalImageUseCase` | ⚠️ Borrado de objeto y fila sin transacción |
 | Solicitar verificación | `POST /locals/{id}/verifications` | `RequestVerificationUseCase` | ⚠️ Sin control de solicitudes duplicadas |
 | Revisar verificación | `POST /local-verifications/{id}/review` | `ReviewVerificationUseCase` | ⚠️ Correcto, pero sin listado de pendientes |
+| Modelo documental de verificación | — | `local_verification_document`, ADR 0010 | 🟡 Esquema entregado; API y panel pendientes |
+| Renovación, avisos y degradación | — | Diseño SD-12 | ❌ Pendiente del siguiente lote |
 
 ---
 

@@ -7,6 +7,7 @@ import {
   company as companyTable,
   local as localTable,
   localVerification as localVerificationTable,
+  user as userTable,
   zone as zoneTable,
 } from '@urnight/db';
 import request from 'supertest';
@@ -84,6 +85,18 @@ async function seedLocal(input: {
     name: 'Club Centro',
     slug: input.slug ?? `local-${id.slice(0, 8)}`,
     status: input.status ?? 'draft',
+  });
+  return id;
+}
+
+/** Siembra el usuario revisor. `local_verification.verified_by` es FK a `user.id`. */
+async function seedReviewer(): Promise<string> {
+  const id = randomUUID();
+  const suffix = randomUUID().slice(0, 8);
+  await client.db.insert(userTable).values({
+    id,
+    fullName: `Revisor ${suffix}`,
+    email: `revisor-${suffix}@example.com`,
   });
   return id;
 }
@@ -578,7 +591,8 @@ describe('Companies HTTP (e2e)', () => {
     });
 
     it('POST /:id/review → 200 super_admin aprueba y marca el local verificado', async () => {
-      const admin = await signAccessToken(app, randomUUID(), ['super_admin']);
+      // El revisor tiene que existir: local_verification.verified_by es FK a user.id.
+      const admin = await signAccessToken(app, await seedReviewer(), ['super_admin']);
       const companyId = await seedCompany();
       const localId = await seedLocal({ companyId, slug: 'verificable', status: 'active' });
       const verificationId = await seedVerification(localId);

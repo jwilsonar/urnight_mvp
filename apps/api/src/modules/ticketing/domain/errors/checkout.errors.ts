@@ -33,6 +33,38 @@ export class InsufficientStockError extends DomainError {
   }
 }
 
+export class InsufficientCapacityError extends DomainError {
+  readonly status = 409;
+  readonly code = CHECKOUT_ERROR_CODES.INSUFFICIENT_CAPACITY;
+  constructor() {
+    super('No quedan cupos disponibles para esa cantidad. Elige una cantidad menor e inténtalo nuevamente.');
+  }
+}
+
+export class HoldNotFoundError extends DomainError {
+  readonly status = 404;
+  readonly code = CHECKOUT_ERROR_CODES.HOLD_NOT_FOUND;
+  constructor() {
+    super('La reserva temporal no existe o no pertenece a tu cuenta.');
+  }
+}
+
+export class HoldExpiredError extends DomainError {
+  readonly status = 409;
+  readonly code = CHECKOUT_ERROR_CODES.HOLD_EXPIRED;
+  constructor() {
+    super('Tu reserva temporal venció. Vuelve a seleccionar las entradas para continuar.');
+  }
+}
+
+export class HoldUnavailableError extends DomainError {
+  readonly status = 409;
+  readonly code = CHECKOUT_ERROR_CODES.HOLD_UNAVAILABLE;
+  constructor() {
+    super('La reserva temporal ya no está disponible para esta compra.');
+  }
+}
+
 export class MaxPerUserExceededError extends DomainError {
   readonly status = 409;
   readonly code = CHECKOUT_ERROR_CODES.MAX_PER_USER_EXCEEDED;
