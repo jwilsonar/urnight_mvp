@@ -1,10 +1,14 @@
-import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import { getSession } from '@/lib/auth-helpers';
-import { isSafeInternalPath } from '@/lib/utils/paths';
-import { roleHomePath } from '@/lib/utils/rbac';
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { getSession } from "@/lib/auth-helpers";
+import { isSafeInternalPath } from "@/lib/utils/paths";
+import { roleHomePath } from "@/lib/utils/rbac";
 
-export const metadata: Metadata = { title: 'Redirigiendo…' };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("auth");
+  return { title: t("redirecting") };
+}
 
 /**
  * Resolutor de aterrizaje tras el login (server-side). Cuando se llega aquí la
@@ -23,10 +27,14 @@ export default async function PostLoginPage({
   const session = await getSession();
 
   if (!session?.user) {
-    redirect(isSafeInternalPath(callbackUrl) ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : '/login');
+    redirect(
+      isSafeInternalPath(callbackUrl)
+        ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
+        : "/login",
+    );
   }
 
-  if (isSafeInternalPath(callbackUrl) && callbackUrl !== '/') {
+  if (isSafeInternalPath(callbackUrl) && callbackUrl !== "/") {
     redirect(callbackUrl);
   }
 

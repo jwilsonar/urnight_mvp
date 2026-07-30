@@ -3,13 +3,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { z } from "zod";
 import {
   DOCUMENT_TYPES,
   registerSchema,
   type RegisterDto,
 } from "@urnight/contracts";
+import { toBaseLocale } from "@/lib/i18n/config";
+import { zodErrorMapEn } from "@/lib/validation/zod-en";
 import { zodErrorMapEs } from "@/lib/validation/zod-es";
 import {
   Alert,
@@ -33,12 +35,6 @@ import {
   cn,
 } from "@urnight/ui";
 import { registerAction } from "@/lib/auth-actions";
-
-const DOCUMENT_LABELS: Record<(typeof DOCUMENT_TYPES)[number], string> = {
-  dni: "DNI",
-  ce: "Carné de extranjería",
-  passport: "Pasaporte",
-};
 
 /** Deja solo dígitos y quita el prefijo país 51 si viene pegado. */
 function nationalDigits(raw: string): string {
@@ -106,6 +102,7 @@ function createRegisterFormSchema(
 
 export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
   const t = useTranslations("register.form");
+  const locale = toBaseLocale(useLocale());
   const registerFormSchema = useMemo(() => createRegisterFormSchema(t), [t]);
   const [pending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
@@ -120,7 +117,7 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
     z.output<typeof registerFormSchema>
   >({
     resolver: zodResolver(registerFormSchema, {
-      errorMap: zodErrorMapEs,
+      errorMap: locale === "en" ? zodErrorMapEn : zodErrorMapEs,
       path: [],
       async: true,
     }),
@@ -156,12 +153,12 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
     startTransition(async () => {
       const result = await registerAction(payload);
       if (!result.ok) {
-        setFormError(result.error ?? "No pudimos crear tu cuenta.");
+        setFormError(result.error ?? t("errors.createFailed"));
         for (const [field, messages] of Object.entries(
           result.fieldErrors ?? {},
         )) {
           form.setError(field as keyof RegisterDto, {
-            message: messages[0] ?? "Dato inválido",
+            message: messages[0] ?? t("errors.invalidField"),
           });
         }
         return;
@@ -197,11 +194,11 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
             marcamos en rojo el que esté vacío cuando el submit falla. */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
-            <Label htmlFor="reg-nombres">Nombres</Label>
+            <Label htmlFor="reg-nombres">{t("firstName")}</Label>
             <Input
               id="reg-nombres"
               autoComplete="given-name"
-              placeholder="ej. Piero"
+              placeholder={t("firstNamePlaceholder")}
               value={nombres}
               onChange={(event) => setNombres(event.target.value)}
               aria-invalid={nombresError}
@@ -212,11 +209,11 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="reg-apellidos">Apellidos</Label>
+            <Label htmlFor="reg-apellidos">{t("lastName")}</Label>
             <Input
               id="reg-apellidos"
               autoComplete="family-name"
-              placeholder="ej. Rivera"
+              placeholder={t("lastNamePlaceholder")}
               value={apellidos}
               onChange={(event) => setApellidos(event.target.value)}
               aria-invalid={apellidosError}
@@ -230,9 +227,9 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
         {form.formState.errors.fullName ? (
           <p className="text-sm font-medium text-destructive">
             {nombresError || apellidosError
-              ? "Nombres y apellidos son obligatorios."
+              ? t("errors.fullNameRequired")
               : (form.formState.errors.fullName.message ??
-                "Ingresa tus nombres y apellidos.")}
+                t("errors.fullName"))}
           </p>
         ) : null}
 
@@ -241,12 +238,12 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Correo</FormLabel>
+              <FormLabel>{t("email")}</FormLabel>
               <FormControl>
                 <Input
                   type="email"
                   autoComplete="email"
-                  placeholder="tu@correo.com"
+                  placeholder={t("emailPlaceholder")}
                   {...field}
                 />
               </FormControl>
@@ -260,7 +257,7 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Contraseña</FormLabel>
+              <FormLabel>{t("password")}</FormLabel>
               <FormControl>
                 <Input type="password" autoComplete="new-password" {...field} />
               </FormControl>
@@ -276,11 +273,11 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
             name="birthDate"
             render={({ field }) => (
               <FormItem className="w-full sm:max-w-[14rem]">
-                <FormLabel>Fecha de nacimiento</FormLabel>
+                <FormLabel>{t("birthDate")}</FormLabel>
                 <FormControl>
                   <Input type="date" autoComplete="bday" {...field} />
                 </FormControl>
-                <FormDescription>Debes ser mayor de 18 años.</FormDescription>
+                <FormDescription>{t("birthDateHint")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -291,7 +288,7 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
             name="phone"
             render={({ field }) => (
               <FormItem className="w-full sm:max-w-[14rem]">
-                <FormLabel>Celular</FormLabel>
+                <FormLabel>{t("phone")}</FormLabel>
                 <FormControl>
                   <Input
                     type="text"
@@ -322,7 +319,7 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
             name="documentType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Documento</FormLabel>
+                <FormLabel>{t("documentType")}</FormLabel>
                 <Select
                   value={field.value}
                   onValueChange={(value) => {
@@ -340,13 +337,13 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Tipo" />
+                      <SelectValue placeholder={t("documentTypePlaceholder")} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {DOCUMENT_TYPES.map((type) => (
                       <SelectItem key={type} value={type}>
-                        {DOCUMENT_LABELS[type]}
+                        {t(`documentTypes.${type}`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -361,13 +358,13 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
             name="documentNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Número</FormLabel>
+                <FormLabel>{t("documentNumber")}</FormLabel>
                 <FormControl>
                   <Input
                     type="text"
                     inputMode={documentType === "dni" ? "numeric" : "text"}
                     autoComplete="off"
-                    placeholder="Documento"
+                    placeholder={t("documentNumberPlaceholder")}
                     value={field.value}
                     onChange={(event) =>
                       field.onChange(
@@ -399,14 +396,14 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
                 />
               </FormControl>
               <FormLabel className="font-normal leading-snug text-muted-foreground">
-                Quiero recibir novedades y promociones por correo.
+                {t("marketing")}
               </FormLabel>
             </FormItem>
           )}
         />
 
         <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? "Creando cuenta…" : "Crear cuenta"}
+          {pending ? t("submitting") : t("submit")}
         </Button>
       </form>
     </Form>

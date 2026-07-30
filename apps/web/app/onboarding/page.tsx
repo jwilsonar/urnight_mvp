@@ -1,10 +1,14 @@
-import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import { OnboardingClient } from '@/components/onboarding/onboarding-client';
-import { requireSession } from '@/lib/auth-helpers';
-import { isSafeInternalPath } from '@/lib/utils/paths';
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { OnboardingClient } from "@/components/onboarding/onboarding-client";
+import { requireSession } from "@/lib/auth-helpers";
+import { isSafeInternalPath } from "@/lib/utils/paths";
 
-export const metadata: Metadata = { title: 'Bienvenido' };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("onboarding");
+  return { title: t("metadataTitle") };
+}
 
 export default async function OnboardingPage({
   searchParams,
@@ -13,11 +17,16 @@ export default async function OnboardingPage({
 }) {
   const { callbackUrl } = await searchParams;
   // Solo destinos internos: evita open-redirect vía callbackUrl (M10).
-  const target = isSafeInternalPath(callbackUrl) ? callbackUrl : '/';
-  const session = await requireSession('/onboarding');
+  const target = isSafeInternalPath(callbackUrl) ? callbackUrl : "/";
+  const session = await requireSession("/onboarding");
 
   // Ya completado: no re-mostrar el onboarding.
   if (session.user.onboardingCompleted) redirect(target);
 
-  return <OnboardingClient callbackUrl={target} userName={session.user.name ?? undefined} />;
+  return (
+    <OnboardingClient
+      callbackUrl={target}
+      userName={session.user.name ?? undefined}
+    />
+  );
 }

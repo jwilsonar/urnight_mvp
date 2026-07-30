@@ -69,6 +69,10 @@
       "activateDark": "Activar modo oscuro"
     }
   },
+  "metadata": {
+    "title": "RAVENUE — Vida nocturna en Perú",
+    "description": "Descubre locales y eventos de vida nocturna en Perú. Compra entradas, guarda favoritos y deja reseñas."
+  },
   "nav": {
     "home": "Inicio",
     "events": "Eventos",
@@ -540,10 +544,109 @@
     "complaintsBook": "Libro de Reclamaciones",
     "copyright": "Copyright © RAVENUE {year} · Todos los derechos reservados. Solo para mayores de 18 años."
   },
-  "register": {
+  "auth": {
+    "boundaryTitle": "Error de autenticación",
+    "redirecting": "Redirigiendo…",
+    "google": {
+      "continue": "Continuar con Google"
+    },
+    "errors": {
+      "invalidCredentials": "Correo o contraseña incorrectos.",
+      "underage": "Debes ser mayor de 18 años para registrarte.",
+      "emailAlreadyRegistered": "Ese correo ya está registrado.",
+      "documentAlreadyRegistered": "Ese documento ya está registrado.",
+      "accountDisabled": "Esta cuenta está deshabilitada.",
+      "invalidToken": "El enlace expiró o no es válido.",
+      "unauthorized": "No autorizado. Inicia sesión nuevamente.",
+      "forbidden": "No tienes permisos para realizar esta acción.",
+      "notFound": "No encontramos lo que buscas.",
+      "conflict": "La operación entra en conflicto con el estado actual.",
+      "invalidData": "Revisa los datos ingresados.",
+      "tooManyRequests": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
+      "server": "Error del servidor. Inténtalo más tarde.",
+      "unavailable": "El servicio no está disponible temporalmente. Inténtalo en unos minutos.",
+      "timeout": "La solicitud tardó demasiado. Revisa tu conexión e inténtalo de nuevo.",
+      "network": "No pudimos conectar con el servicio. Revisa tu conexión e inténtalo de nuevo.",
+      "sessionFailed": "No pudimos iniciar tu sesión. Inténtalo de nuevo.",
+      "unexpected": "Ocurrió un error inesperado."
+    }
+  },
+  "login": {
+    "metadata": {
+      "title": "Ingresar",
+      "description": "Ingresa a tu cuenta de RAVENUE."
+    },
+    "hero": {
+      "label": "Acceso · Vida nocturna",
+      "title": "Tu noche te está esperando.",
+      "description": "Entra y sigue donde lo dejaste: guardados, entradas y mucho más.",
+      "events": "320+ eventos",
+      "venues": "85 locales",
+      "booking": "Mesa + entrada"
+    },
+    "back": "Volver",
+    "noAccount": "¿No tienes cuenta?",
+    "register": "Regístrate aquí",
+    "title": "¡RAVENUE te da la bienvenida!",
+    "subtitle": "Ingresa a tu cuenta",
+    "sessionExpired": "Tu sesión expiró. Inicia sesión nuevamente.",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "continueWith": "o continuar con",
     "form": {
+      "email": "Correo",
+      "emailPlaceholder": "tu@correo.com",
+      "password": "Contraseña",
+      "submitting": "Ingresando…",
+      "submit": "Ingresar",
+      "errors": {
+        "loginFailed": "No pudimos iniciar sesión.",
+        "invalidField": "Dato inválido"
+      }
+    }
+  },
+  "register": {
+    "metadata": {
+      "title": "Crear cuenta",
+      "description": "Crea tu cuenta en RAVENUE. Solo para mayores de 18 años."
+    },
+    "hero": {
+      "label": "Registro · Vida nocturna",
+      "title": "Únete a la noche limeña.",
+      "description": "Crea tu cuenta gratis, guarda tus locales favoritos y compra entradas en segundos.",
+      "tickets": "Entradas al toque",
+      "favorites": "Guarda favoritos"
+    },
+    "back": "Volver",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "logIn": "Ingresar",
+    "title": "Crea tu cuenta",
+    "subtitle": "Descubre la mejor vida nocturna del Perú.",
+    "continueWith": "o continuar con",
+    "form": {
+      "firstName": "Nombres",
+      "firstNamePlaceholder": "ej. Piero",
+      "lastName": "Apellidos",
+      "lastNamePlaceholder": "ej. Rivera",
+      "email": "Correo",
+      "emailPlaceholder": "tu@correo.com",
+      "password": "Contraseña",
       "passwordHelper": "Usa al menos 8 caracteres combinando letras mayúsculas, minúsculas, números y símbolos.",
+      "birthDate": "Fecha de nacimiento",
+      "birthDateHint": "Debes ser mayor de 18 años.",
+      "phone": "Celular",
       "phoneHint": "9 dígitos, empieza con 9.",
+      "documentType": "Documento",
+      "documentTypePlaceholder": "Tipo",
+      "documentTypes": {
+        "dni": "DNI",
+        "ce": "Carné de extranjería",
+        "passport": "Pasaporte"
+      },
+      "documentNumber": "Número",
+      "documentNumberPlaceholder": "Documento",
+      "marketing": "Quiero recibir novedades y promociones por correo.",
+      "submitting": "Creando cuenta…",
+      "submit": "Crear cuenta",
       "errors": {
         "passwordLength": "La contraseña debe tener al menos 8 caracteres.",
         "passwordLong": "La contraseña no puede superar los 72 caracteres.",
@@ -554,9 +657,69 @@
         "phoneRequired": "Ingresa tu número de celular.",
         "phone": "El teléfono debe tener 9 dígitos y empezar con 9.",
         "dni": "El DNI debe tener 8 dígitos.",
-        "document": "El documento debe tener entre 8 y 20 caracteres."
+        "document": "El documento debe tener entre 8 y 20 caracteres.",
+        "fullNameRequired": "Nombres y apellidos son obligatorios.",
+        "fullName": "Ingresa tus nombres y apellidos.",
+        "createFailed": "No pudimos crear tu cuenta.",
+        "invalidField": "Dato inválido"
       }
     }
+  },
+  "recover": {
+    "hero": {
+      "label": "Recuperar · Noche",
+      "title": "Recupera tu acceso en 2 minutos.",
+      "description": "Ingresa el correo con el que te registraste y te enviaremos las instrucciones."
+    },
+    "title": "¿Contraseña olvidada?",
+    "description": "Te enviaremos instrucciones para reiniciarla a tu correo.",
+    "email": "Correo electrónico",
+    "emailPlaceholder": "tu@correo.com",
+    "submit": "Enviar enlace",
+    "backToLogin": "Volver al inicio de sesión",
+    "sent": {
+      "title": "Revisa tu correo",
+      "beforeEmail": "Si",
+      "afterEmail": "está registrado, recibirás las instrucciones para reiniciar tu contraseña."
+    },
+    "demo": "Demo — el envío real llega con el backend de recuperación"
+  },
+  "twoFactor": {
+    "title": "Verificación en 2 pasos",
+    "description": "Ingresa el código de 6 dígitos que enviamos a tu teléfono.",
+    "digitAria": "Dígito {number}",
+    "complete": "Código completo",
+    "notReceived": "¿No te llegó el código?",
+    "demo": "Demo — la validación real llega con el backend de 2FA",
+    "backToLogin": "Volver al inicio de sesión"
+  },
+  "verifyEmail": {
+    "title": "Verifica tu correo",
+    "descriptionLineOne": "Te enviamos un enlace a tu correo.",
+    "descriptionLineTwo": "Confírmalo para activar tu cuenta.",
+    "notReceived": "¿No te llegó el correo?",
+    "resent": "Enlace reenviado",
+    "resend": "Reenviar enlace",
+    "demo": "Demo — la verificación real llega con el backend de emails",
+    "goToLogin": "Ir al inicio de sesión"
+  },
+  "onboarding": {
+    "metadataTitle": "Bienvenido",
+    "welcomeName": "¡Bienvenido, {name}!",
+    "welcome": "¡Bienvenido a RAVENUE!",
+    "description": "Configura tus preferencias para terminar. Podrás cambiarlas luego desde tu cuenta.",
+    "reminders": {
+      "label": "Recordatorios de eventos",
+      "description": "Te avisamos antes de los eventos para los que tengas entradas."
+    },
+    "marketing": {
+      "label": "Novedades y promociones",
+      "description": "Recibe ofertas y recomendaciones de vida nocturna."
+    },
+    "submitting": "Configurando…",
+    "submit": "Empezar a explorar",
+    "success": "¡Listo! Tu cuenta está configurada.",
+    "sessionExpired": "Tu sesión expiró. Te llevamos a ingresar de nuevo."
   },
   "account": {
     "title": "Mi cuenta",

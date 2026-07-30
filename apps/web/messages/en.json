@@ -69,6 +69,10 @@
       "activateDark": "Switch to dark mode"
     }
   },
+  "metadata": {
+    "title": "RAVENUE — Nightlife in Peru",
+    "description": "Discover nightlife venues and events across Peru. Buy tickets, save favorites, and share reviews."
+  },
   "nav": {
     "home": "Home",
     "events": "Events",
@@ -540,10 +544,109 @@
     "complaintsBook": "Complaints Book",
     "copyright": "Copyright © RAVENUE {year} · All rights reserved. Adults 18+ only."
   },
-  "register": {
+  "auth": {
+    "boundaryTitle": "Authentication error",
+    "redirecting": "Redirecting…",
+    "google": {
+      "continue": "Continue with Google"
+    },
+    "errors": {
+      "invalidCredentials": "Incorrect email or password.",
+      "underage": "You must be 18 or older to create an account.",
+      "emailAlreadyRegistered": "That email is already registered.",
+      "documentAlreadyRegistered": "That ID is already registered.",
+      "accountDisabled": "This account has been disabled.",
+      "invalidToken": "This link is invalid or has expired.",
+      "unauthorized": "Your session is no longer valid. Please log in again.",
+      "forbidden": "You don't have permission to do that.",
+      "notFound": "We couldn't find what you're looking for.",
+      "conflict": "This action conflicts with the current state.",
+      "invalidData": "Review the information you entered.",
+      "tooManyRequests": "Too many attempts. Wait a moment and try again.",
+      "server": "The server ran into a problem. Try again later.",
+      "unavailable": "The service is temporarily unavailable. Try again in a few minutes.",
+      "timeout": "The request took too long. Check your connection and try again.",
+      "network": "We couldn't connect to the service. Check your connection and try again.",
+      "sessionFailed": "We couldn't start your session. Please try again.",
+      "unexpected": "Something unexpected happened. Please try again."
+    }
+  },
+  "login": {
+    "metadata": {
+      "title": "Log in",
+      "description": "Log in to your RAVENUE account."
+    },
+    "hero": {
+      "label": "Access · Nightlife",
+      "title": "Your next night out is waiting.",
+      "description": "Pick up where you left off with your saved venues, tickets, and more.",
+      "events": "320+ events",
+      "venues": "85 venues",
+      "booking": "Tables + tickets"
+    },
+    "back": "Back",
+    "noAccount": "New to RAVENUE?",
+    "register": "Create an account",
+    "title": "Welcome back to RAVENUE!",
+    "subtitle": "Log in to your account",
+    "sessionExpired": "Your session expired. Please log in again.",
+    "forgotPassword": "Forgot your password?",
+    "continueWith": "or continue with",
     "form": {
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "submitting": "Logging in…",
+      "submit": "Log in",
+      "errors": {
+        "loginFailed": "We couldn't log you in.",
+        "invalidField": "Invalid value"
+      }
+    }
+  },
+  "register": {
+    "metadata": {
+      "title": "Create account",
+      "description": "Create your RAVENUE account. Adults 18+ only."
+    },
+    "hero": {
+      "label": "Sign up · Nightlife",
+      "title": "Join Lima after dark.",
+      "description": "Create a free account, save your favorite venues, and get tickets in seconds.",
+      "tickets": "Tickets in seconds",
+      "favorites": "Save favorites"
+    },
+    "back": "Back",
+    "hasAccount": "Already have an account?",
+    "logIn": "Log in",
+    "title": "Create your account",
+    "subtitle": "Discover Peru's best nightlife.",
+    "continueWith": "or continue with",
+    "form": {
+      "firstName": "First name",
+      "firstNamePlaceholder": "e.g. Piero",
+      "lastName": "Last name",
+      "lastNamePlaceholder": "e.g. Rivera",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
       "passwordHelper": "Use at least 8 characters with uppercase and lowercase letters, numbers, and symbols.",
+      "birthDate": "Date of birth",
+      "birthDateHint": "You must be 18 or older.",
+      "phone": "Mobile number",
       "phoneHint": "9 digits, starting with 9.",
+      "documentType": "ID type",
+      "documentTypePlaceholder": "Type",
+      "documentTypes": {
+        "dni": "DNI",
+        "ce": "Foreigner ID",
+        "passport": "Passport"
+      },
+      "documentNumber": "ID number",
+      "documentNumberPlaceholder": "ID number",
+      "marketing": "Send me nightlife news and promotions by email.",
+      "submitting": "Creating account…",
+      "submit": "Create account",
       "errors": {
         "passwordLength": "The password must be at least 8 characters long.",
         "passwordLong": "The password cannot exceed 72 characters.",
@@ -554,9 +657,69 @@
         "phoneRequired": "Enter your mobile number.",
         "phone": "The phone number must have 9 digits and start with 9.",
         "dni": "The DNI must have 8 digits.",
-        "document": "The ID number must have between 8 and 20 characters."
+        "document": "The ID number must have between 8 and 20 characters.",
+        "fullNameRequired": "First and last name are required.",
+        "fullName": "Enter your first and last name.",
+        "createFailed": "We couldn't create your account.",
+        "invalidField": "Invalid value"
       }
     }
+  },
+  "recover": {
+    "hero": {
+      "label": "Recovery · Nightlife",
+      "title": "Get back into your account in minutes.",
+      "description": "Enter the email you signed up with and we'll send you the next steps."
+    },
+    "title": "Forgot your password?",
+    "description": "We'll email you instructions to reset it.",
+    "email": "Email address",
+    "emailPlaceholder": "you@example.com",
+    "submit": "Send reset link",
+    "backToLogin": "Back to log in",
+    "sent": {
+      "title": "Check your inbox",
+      "beforeEmail": "If",
+      "afterEmail": "is registered, you'll receive password reset instructions."
+    },
+    "demo": "Demo — email delivery will be enabled with the recovery backend"
+  },
+  "twoFactor": {
+    "title": "Two-step verification",
+    "description": "Enter the 6-digit code we sent to your phone.",
+    "digitAria": "Digit {number}",
+    "complete": "Code complete",
+    "notReceived": "Didn't get the code?",
+    "demo": "Demo — code verification will be enabled with the 2FA backend",
+    "backToLogin": "Back to log in"
+  },
+  "verifyEmail": {
+    "title": "Verify your email",
+    "descriptionLineOne": "We sent a link to your email.",
+    "descriptionLineTwo": "Open it to activate your account.",
+    "notReceived": "Didn't get the email?",
+    "resent": "Link sent again",
+    "resend": "Resend link",
+    "demo": "Demo — email verification will be enabled with the email backend",
+    "goToLogin": "Go to log in"
+  },
+  "onboarding": {
+    "metadataTitle": "Welcome",
+    "welcomeName": "Welcome, {name}!",
+    "welcome": "Welcome to RAVENUE!",
+    "description": "Set your preferences to finish. You can change them later from your account.",
+    "reminders": {
+      "label": "Event reminders",
+      "description": "We'll remind you before events you have tickets for."
+    },
+    "marketing": {
+      "label": "News and promotions",
+      "description": "Get nightlife offers and recommendations."
+    },
+    "submitting": "Setting things up…",
+    "submit": "Start exploring",
+    "success": "You're all set! Your account is ready.",
+    "sessionExpired": "Your session expired. We'll take you back to log in."
   },
   "account": {
     "title": "My account",
