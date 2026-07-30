@@ -227,26 +227,12 @@ async function main() {
     mkUser({ id: U.daniela, fullName: 'Daniela Ríos', email: 'user6@urnight.pe', docType: 'dni', docNumber: '40000013', birthDate: '2001-03-03', phone: '+51999000013' }),
   ]);
 
-  // user_role (RBAC con scope multi-tenant). companyId/localId se setean abajo
-  // con ids estables → los defino antes de companies para referenciarlos.
+  // Ids estables de company/local: se declaran aquí porque los referencian
+  // varios bloques posteriores. El INSERT de user_role vive más abajo, después
+  // de company y local: `user_role.company_id` y `.local_id` son claves ajenas,
+  // así que insertarlo antes rompe en cualquier base limpia.
   const C = { a: uid(), b: uid(), c: uid() };
   const L = { a1: uid(), a2: uid(), b1: uid(), b2: uid() };
-
-  await db.insert(userRole).values([
-    { userId: U.superAdmin, roleId: roleId.super_admin, grantedBy: U.superAdmin },
-    { userId: U.ownerA, roleId: roleId.admin_local, companyId: C.a, grantedBy: U.superAdmin },
-    { userId: U.ownerB, roleId: roleId.admin_local, companyId: C.b, grantedBy: U.superAdmin },
-    { userId: U.promoterA, roleId: roleId.promoter, companyId: C.a, localId: L.a1, grantedBy: U.ownerA },
-    { userId: U.promoterB, roleId: roleId.promoter, companyId: C.b, localId: L.b1, grantedBy: U.ownerB },
-    { userId: U.validatorA, roleId: roleId.validator, companyId: C.a, localId: L.a1, grantedBy: U.ownerA },
-    { userId: U.validatorB, roleId: roleId.validator, companyId: C.b, localId: L.b1, grantedBy: U.ownerB },
-    // Todos los consumidores tienen el rol base 'user'.
-    ...[U.sofia, U.mateo, U.valentina, U.lucia, U.carlos, U.daniela].map((id) => ({
-      userId: id,
-      roleId: roleId.user,
-      grantedBy: U.superAdmin,
-    })),
-  ]);
 
   // user_preference (1:1)
   const allUserIds = Object.values(U);
@@ -342,6 +328,24 @@ async function main() {
     { id: L.a2, companyId: C.a, zoneId: Z.isidro, name: 'Sky Lounge 360', slug: 'sky-lounge-360', description: 'Rooftop premium con vista panorámica de San Isidro. Coctelería de autor y DJ sets al atardecer.', address: 'Calle Las Begonias 545, San Isidro', latitude: -12.0931, longitude: -77.0227, googleMapsUrl: 'https://maps.google.com/?q=-12.0931,-77.0227', openingHours, socials: 'https://instagram.com/skylounge360', mainImageKey: 'https://picsum.photos/seed/locals-skylounge-main/1200/800', status: 'active', isVerified: true },
     { id: L.b1, companyId: C.b, zoneId: Z.barr, name: 'Barranco Beats', slug: 'barranco-beats', description: 'Templo de la música electrónica en Barranco. Line-ups internacionales y sistema de sonido de élite.', address: 'Jr. Unión 280, Barranco', latitude: -12.1465, longitude: -77.0206, googleMapsUrl: 'https://maps.google.com/?q=-12.1465,-77.0206', openingHours, socials: 'https://instagram.com/barrancobeats', mainImageKey: 'https://picsum.photos/seed/locals-barranco-main/1200/800', status: 'active', isVerified: true },
     { id: L.b2, companyId: C.b, zoneId: Z.surco, name: 'Karaoke Estelar', slug: 'karaoke-estelar', description: 'Salas privadas de karaoke con catálogo de 50k canciones. Ideal para cumpleaños y grupos.', address: 'Av. Caminos del Inca 2510, Surco', latitude: -12.1357, longitude: -76.9931, googleMapsUrl: 'https://maps.google.com/?q=-12.1357,-76.9931', openingHours, socials: 'https://instagram.com/karaokeestelar', mainImageKey: 'https://picsum.photos/seed/locals-estelar-main/1200/800', status: 'active', isVerified: false },
+  ]);
+
+  // user_role (RBAC con scope multi-tenant). Va aquí y no antes: sus columnas
+  // company_id y local_id son claves ajenas a company y local.
+  await db.insert(userRole).values([
+    { userId: U.superAdmin, roleId: roleId.super_admin, grantedBy: U.superAdmin },
+    { userId: U.ownerA, roleId: roleId.admin_local, companyId: C.a, grantedBy: U.superAdmin },
+    { userId: U.ownerB, roleId: roleId.admin_local, companyId: C.b, grantedBy: U.superAdmin },
+    { userId: U.promoterA, roleId: roleId.promoter, companyId: C.a, localId: L.a1, grantedBy: U.ownerA },
+    { userId: U.promoterB, roleId: roleId.promoter, companyId: C.b, localId: L.b1, grantedBy: U.ownerB },
+    { userId: U.validatorA, roleId: roleId.validator, companyId: C.a, localId: L.a1, grantedBy: U.ownerA },
+    { userId: U.validatorB, roleId: roleId.validator, companyId: C.b, localId: L.b1, grantedBy: U.ownerB },
+    // Todos los consumidores tienen el rol base 'user'.
+    ...[U.sofia, U.mateo, U.valentina, U.lucia, U.carlos, U.daniela].map((id) => ({
+      userId: id,
+      roleId: roleId.user,
+      grantedBy: U.superAdmin,
+    })),
   ]);
 
   // local_image (main + galería)
@@ -775,7 +779,10 @@ async function main() {
   await db.insert(review).values([
     // verificadas (target polimórfico: exactamente uno de local/event)
     { userId: U.sofia, targetType: 'event', eventId: E.e1, localId: null, ticketId: sofiaUsed?.id ?? null, rating: 5, comment: '¡La mejor fiesta del año! El sonido y las luces increíbles.', quickTags: ['buen ambiente', 'buena música', 'volveré'], isVerified: true, status: 'published', createdAt: daysFromNow(-19) },
-    { userId: U.sofia, targetType: 'local', localId: L.a1, eventId: null, ticketId: sofiaUsed?.id ?? null, rating: 4, comment: 'Local espectacular, aunque la cola para entrar fue larga.', quickTags: ['buena ubicación', 'cola larga'], isVerified: true, status: 'published', createdAt: daysFromNow(-18) },
+    // Sin ticketId a propósito: `idx_review_user_ticket` es UNIQUE (user_id,
+    // ticket_id), así que un mismo ticket no puede respaldar dos reseñas. Sofía
+    // ya usó el suyo en la reseña del evento de arriba.
+    { userId: U.sofia, targetType: 'local', localId: L.a1, eventId: null, ticketId: null, rating: 4, comment: 'Local espectacular, aunque la cola para entrar fue larga.', quickTags: ['buena ubicación', 'cola larga'], isVerified: false, status: 'published', createdAt: daysFromNow(-18) },
     { userId: U.mateo, targetType: 'event', eventId: E.e1, localId: null, ticketId: mateoUsed?.id ?? null, rating: 5, comment: 'La zona VIP valió cada sol. Atención de primera.', quickTags: ['vip top', 'buena atención'], isVerified: true, status: 'published', createdAt: daysFromNow(-19) },
     // no verificadas (sin ticket)
     { userId: U.valentina, targetType: 'local', localId: L.b1, eventId: null, ticketId: null, rating: 4, comment: 'Buen sonido pero algo caro el trago.', quickTags: ['buen sonido'], isVerified: false, status: 'published', createdAt: daysFromNow(-10) },
