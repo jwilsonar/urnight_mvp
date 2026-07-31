@@ -163,7 +163,7 @@ renderiza estos bloques de forma nativa.
 
 ### SD-A · Barreras anti-sobreventa y anti-doble-cobro
 
-Cuatro barreras encadenadas protegen el inventario. Ninguna sustituye a las otras: la primera reduce
+Cinco barreras encadenadas protegen el inventario. Ninguna sustituye a las otras: la primera reduce
 la contención, la última es la garantía dura.
 
 ```mermaid
@@ -172,6 +172,7 @@ sequenceDiagram
     participant UC as CheckoutUseCase
     participant IDEM as Redis · idempotencia
     participant LOCK as Redis · lock distribuido
+    participant HOLD as ConvertTicketHoldUseCase
     participant INV as InventoryPort
     participant PAY as PaymentPort
     participant DB as PostgreSQL
@@ -185,11 +186,21 @@ sequenceDiagram
 
     note over UC, INV: Barrera 2 · Pre-validación fail-fast, fuera de la Tx
     UC->>INV: getEvent(eventId) y getTicketType(ticketTypeId) por línea
-    INV-->>UC: evento y tipos con stock, sold, status y maxPerUser
-    UC->>UC: evento a la venta, tipo activo, cantidad dentro de maxPerUser, stock suficiente
+    INV-->>UC: evento y tipos con stock, sold, available, status y maxPerUser
+    UC->>UC: evento a la venta, tipo activo, cantidad dentro de maxPerUser
+    note over UC, INV: available viene de availableCapacity: stock menos sold<br/>menos los holds activos no vencidos (ADR 0009).
+
+    note over UC, HOLD: Barrera 3 · Reserva con TTL creada al entrar al checkout
+    alt la línea trae holdId
+        UC->>HOLD: validateForCheckout({ holdId, ticketTypeId, qty, userId })
+        HOLD-->>UC: hold activo y no vencido, o HoldExpiredError
+        note over UC, HOLD: El cupo ya estaba reservado mientras la persona<br/>llenaba asistentes y pago, así que no se ofrecía a otros.
+    else compra antigua sin holdId
+        UC->>UC: available menor que qty entonces TicketTypeUnavailableError
+    end
     note over UC: Corta pronto los casos obvios sin tomar el lock ni abrir Tx,<br/>y toma el snapshot de precios de la orden.
 
-    note over UC, LOCK: Barrera 3 · Lock distribuido por evento
+    note over UC, LOCK: Barrera 4 · Lock distribuido por evento
     UC->>LOCK: withLock(event:{eventId}, TTL 10 s)
     alt lock no disponible
         LOCK-->>UC: LockUnavailableError
@@ -198,11 +209,18 @@ sequenceDiagram
     else lock adquirido
         LOCK-->>UC: sección crítica
 
-        note over UC, DB: Barrera 4 · Re-verificación dentro de la Tx y CHECK en la base
+        note over UC, DB: Barrera 5 · Re-verificación dentro de la Tx y CHECK en la base
         critical BEGIN — commit total o rollback total
             UC->>INV: getTicketType(ticketTypeId, tx) — relectura CON la conexión transaccional
             INV-->>UC: stock y sold frescos
             note over UC, INV: M2: leer con `tx` y no con el pool. Leer del pool dentro de una Tx<br/>abierta puede ver un estado anterior y dejar pasar sobreventa.
+            opt la línea trae holdId
+                UC->>HOLD: executeInTransaction({ holdId, orderId }, tx)
+                HOLD->>DB: findByIdForUpdate(holdId, tx) — SELECT ... FOR UPDATE
+                DB-->>HOLD: fila de ticket_hold bloqueada
+                HOLD->>DB: UPDATE ticket_hold SET status = 'converted'
+                note over HOLD, DB: Conversión idempotente: si el hold ya estaba converted<br/>para esta misma orden, no consume cupo dos veces.
+            end
             UC->>DB: UPDATE ticket_type SET sold = sold + qty
             note over DB: CHECK sold menor o igual que stock. Si se viola, la Tx aborta:<br/>garantía dura, independiente de locks y de la aplicación.
             UC->>PAY: charge({ orderId, amount, currency, method })
@@ -965,7 +983,8 @@ sequenceDiagram
 
 | Proceso | Endpoint(s) | Caso de uso / componente | Estado |
 |---|---|---|---|
-| Compra estándar | `POST /orders/checkout` | `CheckoutUseCase`, `LockPort`, `UnitOfWork` | ✅ Implementado con cuatro barreras anti-sobreventa |
+| Compra estándar | `POST /orders/checkout` | `CheckoutUseCase`, `LockPort`, `UnitOfWork`, `ConvertTicketHoldUseCase` | ✅ Implementado con cinco barreras anti-sobreventa (ADR 0009) |
+| Reserva de cupo con TTL | `POST /ticket-holds` | `CreateTicketHoldUseCase`, `MaintenanceProcessor` (job `expire-ticket-holds`) | ✅ Implementado — TTL configurable por `TICKET_HOLD_TTL_SECONDS` |
 | Idempotencia de compra | `POST /orders/checkout` + `Idempotency-Key` | `RedisIdempotencyStore` | ⚠️ Best-effort sobre Redis (M3) |
 | Pago | — (interno al checkout) | `PaymentPort` → `MockPaymentAdapter` | ⚠️ Mock que aprueba siempre, sin pasarela real |
 | Código promocional | `POST /promoters/me/redemption-codes`, `GET /promoters/me/redemption-codes` | `GenerateRedemptionCodeUseCase` | ✅ Implementado |
