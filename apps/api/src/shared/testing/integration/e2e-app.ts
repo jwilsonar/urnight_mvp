@@ -6,6 +6,10 @@ import { DrizzleService } from '../../database/drizzle.service';
 import { REDIS } from '../../redis/redis.module';
 import type { RoleCode } from '../../../modules/identity/domain/entities/role.entity';
 import { TokenService } from '../../../modules/identity/domain/ports/token.port';
+import {
+  STORAGE_PORT,
+  type StoragePort,
+} from '../../adapters/storage/storage.port';
 
 /**
  * Levanta la app NestJS completa (AppModule) para e2e con el mismo pipeline del
@@ -14,22 +18,28 @@ import { TokenService } from '../../../modules/identity/domain/ports/token.port'
  * el cliente de seed/truncate (DRIZZLE = factory de DrizzleService.db, así que un
  * solo override cubre repos y Unit of Work). Nunca toca `urnight_dev`.
  */
-export async function createE2EApp(client: DbClient): Promise<INestApplication> {
+export async function createE2EApp(
+  client: DbClient,
+  overrides: { storage?: StoragePort } = {},
+): Promise<INestApplication> {
   const drizzleStub = {
     db: client.db,
     sql: client.sql,
     onApplicationShutdown: async () => {},
   } as unknown as DrizzleService;
 
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+  let builder = Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(DrizzleService)
     .useValue(drizzleStub)
     // Redis falso in-memory: `incr→1` neutraliza el rate-limit (clave compartida
     // entre apps/tests → evita 429); `set NX`/`eval`/`get`/`del`/`keys` dan
     // semántica real al lock distribuido del checkout. Redis no es el contrato e2e.
     .overrideProvider(REDIS)
-    .useValue(createFakeRedis())
-    .compile();
+    .useValue(createFakeRedis());
+  if (overrides.storage) {
+    builder = builder.overrideProvider(STORAGE_PORT).useValue(overrides.storage);
+  }
+  const moduleRef = await builder.compile();
 
   const app = moduleRef.createNestApplication({ logger: false });
   app.setGlobalPrefix('api');

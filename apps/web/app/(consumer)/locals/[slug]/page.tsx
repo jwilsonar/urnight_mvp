@@ -2,6 +2,7 @@ import {
   BookOpenText,
   CalendarBlank,
   Compass,
+  Info,
   SealCheck,
   WhatsappLogo,
 } from "@phosphor-icons/react/dist/ssr";
@@ -63,6 +64,7 @@ export default async function LocalDetailPage({
   const t = await getTranslations("locals.detail");
   const format = await getFormatter();
   const commonT = await getTranslations("common");
+  const verificationT = await getTranslations("verificationDocuments.public");
   const { slug } = await params;
   const local = await loadLocal(slug);
   const verified =
@@ -141,6 +143,26 @@ export default async function LocalDetailPage({
                           ),
                         })
                       : t("reviewDateUnavailable")}
+                  </p>
+                </div>
+              </section>
+            </Reveal>
+          ) : null}
+
+          {!verified ? (
+            <Reveal delay={80}>
+              <section className="mt-8 flex items-start gap-4 rounded-lg border border-border bg-muted/40 p-5">
+                <Info
+                  className="mt-0.5 size-6 shrink-0 text-muted-foreground"
+                  weight="duotone"
+                  aria-hidden="true"
+                />
+                <div>
+                  <h2 className="font-heading text-base font-bold">
+                    {verificationT("title")}
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {verificationT("body")}
                   </p>
                 </div>
               </section>

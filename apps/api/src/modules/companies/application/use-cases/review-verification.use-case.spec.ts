@@ -13,13 +13,22 @@ import {
   LocalNotFoundError,
   VerificationNotFoundError,
 } from '../../domain/errors/companies.errors';
+import type { GetLocalVerificationStatusUseCase } from './get-local-verification-status.use-case';
 import { ReviewVerificationUseCase } from './review-verification.use-case';
 
 function build() {
   const verifications = new InMemoryLocalVerificationRepository();
   const locals = new InMemoryLocalRepository();
   const events = new EventBus();
-  const useCase = new ReviewVerificationUseCase(verifications, locals, events);
+  const getDocumentStatus = {
+    execute: async () => null,
+  } as unknown as GetLocalVerificationStatusUseCase;
+  const useCase = new ReviewVerificationUseCase(
+    verifications,
+    locals,
+    events,
+    getDocumentStatus,
+  );
   return { verifications, locals, events, useCase };
 }
 

@@ -8,6 +8,7 @@ import {
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import {
   Card,
   CardContent,
@@ -24,6 +25,7 @@ import { CreateEventWizard } from '@/components/admin/create-event-wizard';
 import { EventsTable } from '@/components/admin/events-table';
 import { LocalActions } from '@/components/admin/local-actions';
 import { LocalImagesManager } from '@/components/admin/local-images-manager';
+import { LocalVerificationDocumentsManager } from '@/components/admin/local-verification-documents-manager';
 import { RequestVerificationButton } from '@/components/admin/request-verification-button';
 import { LocalStatusBadge, VerifiedBadge } from '@/components/admin/status-badges';
 import { StatCard } from '@/components/shared/stat-card';
@@ -41,6 +43,7 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ id
   if (!local) notFound();
 
   const stats = await getLocalStats(token, id).catch(() => null);
+  const verificationT = await getTranslations('verificationDocuments');
 
   return (
     <div className="space-y-6">
@@ -88,6 +91,7 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ id
           <TabsTrigger value="resumen">Resumen</TabsTrigger>
           <TabsTrigger value="eventos">Eventos</TabsTrigger>
           <TabsTrigger value="galeria">Galería</TabsTrigger>
+          <TabsTrigger value="documentos">{verificationT('tab')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="resumen" className="space-y-6 pt-4">
@@ -161,6 +165,18 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ id
             </p>
           </div>
           <LocalImagesManager localId={local.id} />
+        </TabsContent>
+
+        <TabsContent value="documentos" className="space-y-4 pt-4">
+          <div>
+            <h2 className="font-heading text-xl font-semibold">
+              {verificationT('title')}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {verificationT('description')}
+            </p>
+          </div>
+          <LocalVerificationDocumentsManager localId={local.id} />
         </TabsContent>
       </Tabs>
     </div>

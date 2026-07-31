@@ -137,6 +137,7 @@ export const localVerificationDocument = pgTable(
     }),
     reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
     reviewNotes: varchar('review_notes', { length: 500 }),
+    expiryWarningSentAt: timestamp('expiry_warning_sent_at', { withTimezone: true }),
     ...timestamps(),
   },
   (t) => [
@@ -145,6 +146,7 @@ export const localVerificationDocument = pgTable(
     ),
     index('idx_local_verification_document_expires_at').on(t.expiresAt),
     index('idx_local_verification_document_review_status').on(t.reviewStatus),
+    index('idx_local_verification_document_expiry_warning').on(t.expiryWarningSentAt),
     check(
       'local_verification_document_type_check',
       sql`${t.documentType} in ('municipal_license','itse_certificate','health_certificate','other')`,

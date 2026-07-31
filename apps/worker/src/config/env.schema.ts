@@ -25,6 +25,11 @@ export const envSchema = z.object({
     .int()
     .positive()
     .default(60),
+  LOCAL_VERIFICATION_MAINTENANCE_INTERVAL_SECONDS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(3600),
 });
 
 export type Env = z.infer<typeof envSchema>;

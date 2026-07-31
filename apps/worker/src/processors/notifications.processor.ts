@@ -1,7 +1,7 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Inject } from '@nestjs/common';
 import { Job, UnrecoverableError } from 'bullmq';
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, like } from 'drizzle-orm';
 import { notification, ticket, outbox, type Database } from '@urnight/db';
 import type { z } from 'zod';
 import { DB } from '../db/db.module';
@@ -12,6 +12,7 @@ import { TicketPdfService } from '../pdf/ticket-pdf.service';
 import { StoragePort } from '../storage/storage.port';
 import {
   orderTicketsJobSchema,
+  localDocumentExpiryWarningJobSchema,
   verificationEmailJobSchema,
   welcomeEmailJobSchema,
 } from './job-schemas';
@@ -47,6 +48,11 @@ export class NotificationsProcessor extends WorkerHost {
         break;
       case 'send-welcome-email':
         await this.handleWelcomeEmail(this.parse(job, welcomeEmailJobSchema));
+        break;
+      case 'send-local-document-expiry-warning':
+        await this.handleLocalDocumentExpiryWarning(
+          this.parse(job, localDocumentExpiryWarningJobSchema),
+        );
         break;
       default:
         // MEDIA: un job de nombre desconocido NO debe marcarse `completed` en
@@ -159,6 +165,38 @@ export class NotificationsProcessor extends WorkerHost {
       body: 'Tu cuenta está lista. ¡Descubre la noche!',
     });
     await this.recordEmailNotification(data.userId, 'welcome', 'Bienvenido a UrNight');
+  }
+
+  private async handleLocalDocumentExpiryWarning(
+    data: z.infer<typeof localDocumentExpiryWarningJobSchema>,
+  ): Promise<void> {
+    const marker = `Documento ${data.documentId}`;
+    const [existing] = await this.db
+      .select({ id: notification.id })
+      .from(notification)
+      .where(
+        and(
+          eq(notification.userId, data.userId),
+          eq(notification.type, 'local_document_expiry'),
+          like(notification.body, `%${marker}%`),
+        ),
+      )
+      .limit(1);
+    if (existing) return;
+
+    const subject = `Documento de ${data.localName} próximo a vencer`;
+    const body = `${marker}. Vence el ${data.expiresAt}. Sube la renovación para mantener la verificación del local.`;
+    await this.db.insert(notification).values({
+      userId: data.userId,
+      channel: 'email',
+      type: 'local_document_expiry',
+      subject,
+      body,
+      isTransactional: true,
+      status: 'sent',
+      sentAt: new Date(),
+    });
+    await this.email.send({ to: data.email, subject, body });
   }
 
   /** Persiste una fila NOTIFICATION de canal email marcada 'sent' (B2). */

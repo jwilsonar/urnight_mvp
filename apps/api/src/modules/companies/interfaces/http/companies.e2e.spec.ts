@@ -7,6 +7,7 @@ import {
   company as companyTable,
   local as localTable,
   localVerification as localVerificationTable,
+  localVerificationDocument as localVerificationDocumentTable,
   user as userTable,
   zone as zoneTable,
 } from '@urnight/db';
@@ -21,6 +22,7 @@ import {
   ensureNamedDbMigrated,
   truncateAll,
 } from '../../../../shared/testing/integration/test-db';
+import { FakeStorage } from '../../../../shared/testing/fakes/fake-storage';
 
 // E2E de todo el HTTP del BC Companies en UN archivo, con base privada para
 // poder correr en paralelo con otros BCs sin carreras (cada spec su propia BD).
@@ -28,11 +30,12 @@ const DB = 'urnight_test_e2e_companies';
 
 let app: INestApplication;
 let client: DbClient;
+const storage = new FakeStorage();
 
 beforeAll(async () => {
   await ensureNamedDbMigrated(DB);
   client = createNamedTestDb(DB);
-  app = await createE2EApp(client);
+  app = await createE2EApp(client, { storage });
 }, 60000);
 
 beforeEach(async () => {
@@ -549,6 +552,137 @@ describe('Companies HTTP (e2e)', () => {
         expect(res.body.status).toBe('pending');
         expect(res.body.licenseReference).toBe('ITSE-2026-XYZ');
       });
+    });
+  });
+
+  describe('Documentos de verificación de local', () => {
+    it('presign + confirm persiste solo la key y respeta el tenant', async () => {
+      const companyId = await seedCompany();
+      const otherCompanyId = await seedCompany({ ruc: '20100000999' });
+      const localId = await seedLocal({
+        companyId,
+        slug: 'documentos-tenant',
+        status: 'active',
+      });
+      const token = await signAccessToken(app, randomUUID(), ['admin_local'], {
+        companyId,
+      });
+      const presign = await http()
+        .post('/api/v1/uploads/presign')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          scope: 'verificationDocument',
+          contentType: 'application/pdf',
+          sizeBytes: 2048,
+        });
+      expect(presign.status).toBe(200);
+      expect(presign.body.key).toMatch(/^tmp\/.+\.pdf$/);
+      storage.seed(presign.body.key, {
+        sizeBytes: 2048,
+        contentType: 'application/pdf',
+      });
+
+      const confirmed = await http()
+        .post(`/api/v1/locals/${localId}/verification-documents`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          key: presign.body.key,
+          documentType: 'municipal_license',
+          issuedAt: '2026-01-01',
+          expiresAt: '2027-01-01',
+        });
+      expect(confirmed.status).toBe(201);
+      expect(confirmed.body.reviewStatus).toBe('pending');
+      expect(confirmed.body.lifecycleStatus).toBe('pending');
+      expect(confirmed.body.downloadUrl).toContain(
+        `/locals/${localId}/verification/`,
+      );
+
+      const [stored] = await client.db
+        .select()
+        .from(localVerificationDocumentTable);
+      expect(stored?.storageKey).toMatch(
+        new RegExp(`^locals/${localId}/verification/`),
+      );
+      expect(stored?.storageKey).not.toMatch(/^https?:/);
+
+      const list = await http()
+        .get(`/api/v1/locals/${localId}/verification-documents`)
+        .set('Authorization', `Bearer ${token}`);
+      expect(list.status).toBe(200);
+      expect(list.body).toHaveLength(1);
+
+      const otherToken = await signAccessToken(
+        app,
+        randomUUID(),
+        ['admin_local'],
+        { companyId: otherCompanyId },
+      );
+      const forbidden = await http()
+        .get(`/api/v1/locals/${localId}/verification-documents`)
+        .set('Authorization', `Bearer ${otherToken}`);
+      expect(forbidden.status).toBe(403);
+    });
+
+    it('super_admin lista y aprueba documentos; dos requeridos verifican la ficha pública', async () => {
+      const reviewerId = await seedReviewer();
+      const token = await signAccessToken(app, reviewerId, ['super_admin']);
+      const companyId = await seedCompany();
+      const localId = await seedLocal({
+        companyId,
+        slug: 'documentos-aprobados',
+        status: 'active',
+      });
+      const verificationId = await seedVerification(localId);
+      const documentIds = [randomUUID(), randomUUID()];
+      await client.db.insert(localVerificationDocumentTable).values([
+        {
+          id: documentIds[0],
+          localVerificationId: verificationId,
+          documentType: 'municipal_license',
+          storageKey: `locals/${localId}/verification/license.pdf`,
+          issuedAt: '2026-01-01',
+          expiresAt: '2027-01-01',
+        },
+        {
+          id: documentIds[1],
+          localVerificationId: verificationId,
+          documentType: 'itse_certificate',
+          storageKey: `locals/${localId}/verification/itse.pdf`,
+          issuedAt: '2026-01-01',
+          expiresAt: '2027-01-01',
+        },
+      ]);
+
+      const pending = await http()
+        .get('/api/v1/local-verification-documents/pending')
+        .set('Authorization', `Bearer ${token}`);
+      expect(pending.status).toBe(200);
+      expect(pending.body).toHaveLength(2);
+
+      const invalidRejection = await http()
+        .post(
+          `/api/v1/local-verification-documents/${documentIds[0]}/review`,
+        )
+        .set('Authorization', `Bearer ${token}`)
+        .send({ decision: 'rejected' });
+      expect(invalidRejection.status).toBe(422);
+
+      for (const documentId of documentIds) {
+        const reviewed = await http()
+          .post(`/api/v1/local-verification-documents/${documentId}/review`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ decision: 'approved' });
+        expect(reviewed.status).toBe(200);
+        expect(reviewed.body.reviewStatus).toBe('approved');
+      }
+
+      const detail = await http().get(
+        '/api/v1/locals/documentos-aprobados',
+      );
+      expect(detail.status).toBe(200);
+      expect(detail.body.isVerified).toBe(true);
+      expect(detail.body.verificationStatus).toBe('approved');
     });
   });
 

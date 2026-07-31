@@ -2458,6 +2458,64 @@
       "description": "Ranking global con asistencia validada, volumen y ventas atribuidas."
     }
   },
+  "verificationDocuments": {
+    "tab": "Documentos",
+    "title": "Licencias y certificados",
+    "description": "Mantén al día la documentación regulatoria del local. Cada renovación queda en revisión antes de actualizar la verificación.",
+    "types": {
+      "municipal_license": "Licencia de funcionamiento",
+      "itse_certificate": "ITSE / Defensa Civil",
+      "health_certificate": "Certificado sanitario o de fumigación",
+      "other": "Otro documento"
+    },
+    "status": {
+      "valid": "Vigente",
+      "expiring_soon": "Por vencer",
+      "expired": "Vencido",
+      "pending": "En revisión",
+      "rejected": "Rechazado"
+    },
+    "form": {
+      "file": "Archivo",
+      "fileHint": "PDF, JPG, PNG o WebP. Máximo 10 MB.",
+      "type": "Tipo de documento",
+      "issuedAt": "Fecha de emisión",
+      "expiresAt": "Fecha de vencimiento",
+      "submit": "Subir renovación",
+      "uploading": "Subiendo…",
+      "required": "Completa el archivo y las fechas.",
+      "invalidFile": "Usa un PDF o una imagen de hasta 10 MB.",
+      "uploaded": "Documento enviado a revisión.",
+      "failed": "No se pudo subir el documento."
+    },
+    "loading": "Cargando documentos…",
+    "empty": {
+      "title": "Aún no hay documentos",
+      "description": "Sube la licencia municipal y el certificado ITSE para iniciar la revisión."
+    },
+    "expires": "Vence el {date}",
+    "viewDocument": "Ver documento",
+    "review": {
+      "title": "Revisión de documentos de locales",
+      "description": "Revisa la evidencia pendiente. Aprobar o rechazar queda registrado en auditoría.",
+      "loading": "Cargando pendientes…",
+      "emptyTitle": "No hay documentos pendientes",
+      "emptyDescription": "La bandeja está al día.",
+      "expires": "vence el {date}",
+      "pending": "Pendiente",
+      "open": "Abrir documento",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "reason": "Motivo del rechazo",
+      "reasonPlaceholder": "Explica qué debe corregir el local",
+      "reasonRequired": "Indica el motivo del rechazo.",
+      "saved": "Revisión guardada."
+    },
+    "public": {
+      "title": "Verificación temporalmente no disponible",
+      "body": "El local puede estar renovando su documentación. RAVENUE volverá a mostrar la verificación cuando finalice la revisión."
+    }
+  },
   "brand": {
     "metadataTitle": "Laboratorio de marca",
     "hero": {

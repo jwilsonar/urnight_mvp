@@ -3,11 +3,13 @@ import type {
   CreateSupportTicketDto,
   LegalDocType,
   LegalDocumentResponse,
+  LocalVerificationDocumentResponse,
   NotificationResponse,
   PlatformSettingResponse,
   PublishLegalDocumentDto,
   ResolveSupportTicketDto,
   ReviewVerificationDto,
+  ReviewLocalVerificationDocumentDto,
   SupportTicketResponse,
   UpsertPlatformSettingDto,
   VerificationResponse,
@@ -118,4 +120,22 @@ export function reviewLocalVerification(id: string, dto: ReviewVerificationDto, 
     json: dto,
     token,
   });
+}
+
+export function listPendingLocalVerificationDocuments(token?: string) {
+  return apiFetch<LocalVerificationDocumentResponse[]>(
+    '/local-verification-documents/pending',
+    { token },
+  );
+}
+
+export function reviewLocalVerificationDocument(
+  id: string,
+  dto: ReviewLocalVerificationDocumentDto,
+  token?: string,
+) {
+  return apiFetch<LocalVerificationDocumentResponse>(
+    `/local-verification-documents/${id}/review`,
+    { method: 'POST', json: dto, token },
+  );
 }

@@ -87,6 +87,7 @@ async function main() {
     local,
     localImage,
     localVerification,
+    localVerificationDocument,
     affiliationRequest,
     localLocalType,
     localGenre,
@@ -326,7 +327,7 @@ async function main() {
   await db.insert(local).values([
     { id: L.a1, companyId: C.a, zoneId: Z.mira, name: 'Nocturna Club', slug: 'nocturna-club', description: 'La discoteca insignia de Miraflores. Tres ambientes, terraza y la mejor música urbana de Lima.', address: 'Av. José Larco 1234, Miraflores', latitude: -12.1211, longitude: -77.0298, googleMapsUrl: 'https://maps.google.com/?q=-12.1211,-77.0298', openingHours, socials: 'https://instagram.com/nocturnaclub', mainImageKey: 'https://picsum.photos/seed/locals-nocturna-main/1200/800', status: 'active', isVerified: true },
     { id: L.a2, companyId: C.a, zoneId: Z.isidro, name: 'Sky Lounge 360', slug: 'sky-lounge-360', description: 'Rooftop premium con vista panorámica de San Isidro. Coctelería de autor y DJ sets al atardecer.', address: 'Calle Las Begonias 545, San Isidro', latitude: -12.0931, longitude: -77.0227, googleMapsUrl: 'https://maps.google.com/?q=-12.0931,-77.0227', openingHours, socials: 'https://instagram.com/skylounge360', mainImageKey: 'https://picsum.photos/seed/locals-skylounge-main/1200/800', status: 'active', isVerified: true },
-    { id: L.b1, companyId: C.b, zoneId: Z.barr, name: 'Barranco Beats', slug: 'barranco-beats', description: 'Templo de la música electrónica en Barranco. Line-ups internacionales y sistema de sonido de élite.', address: 'Jr. Unión 280, Barranco', latitude: -12.1465, longitude: -77.0206, googleMapsUrl: 'https://maps.google.com/?q=-12.1465,-77.0206', openingHours, socials: 'https://instagram.com/barrancobeats', mainImageKey: 'https://picsum.photos/seed/locals-barranco-main/1200/800', status: 'active', isVerified: true },
+    { id: L.b1, companyId: C.b, zoneId: Z.barr, name: 'Barranco Beats', slug: 'barranco-beats', description: 'Templo de la música electrónica en Barranco. Line-ups internacionales y sistema de sonido de élite.', address: 'Jr. Unión 280, Barranco', latitude: -12.1465, longitude: -77.0206, googleMapsUrl: 'https://maps.google.com/?q=-12.1465,-77.0206', openingHours, socials: 'https://instagram.com/barrancobeats', mainImageKey: 'https://picsum.photos/seed/locals-barranco-main/1200/800', status: 'active', isVerified: false },
     { id: L.b2, companyId: C.b, zoneId: Z.surco, name: 'Karaoke Estelar', slug: 'karaoke-estelar', description: 'Salas privadas de karaoke con catálogo de 50k canciones. Ideal para cumpleaños y grupos.', address: 'Av. Caminos del Inca 2510, Surco', latitude: -12.1357, longitude: -76.9931, googleMapsUrl: 'https://maps.google.com/?q=-12.1357,-76.9931', openingHours, socials: 'https://instagram.com/karaokeestelar', mainImageKey: 'https://picsum.photos/seed/locals-estelar-main/1200/800', status: 'active', isVerified: false },
   ]);
 
@@ -360,11 +361,36 @@ async function main() {
   ]);
 
   // local_verification
-  await db.insert(localVerification).values([
+  const [verificationA1, verificationA2, verificationB1, verificationB2] = await db.insert(localVerification).values([
     { localId: L.a1, status: 'approved', licenseReference: 'LIC-MIRA-2026-0012', documentUrl: 'https://cdn.ravenue.pe/verif/a1.pdf', notes: 'Licencia municipal vigente y aforo verificado.', verifiedBy: U.superAdmin, reviewedAt: daysFromNow(-52), validUntil: '2026-12-31' },
     { localId: L.a2, status: 'approved', licenseReference: 'LIC-ISID-2026-0044', documentUrl: 'https://cdn.ravenue.pe/verif/a2.pdf', notes: 'Rooftop con certificado de Defensa Civil.', verifiedBy: U.superAdmin, reviewedAt: daysFromNow(-38), validUntil: '2026-12-31' },
-    { localId: L.b1, status: 'approved', licenseReference: 'LIC-BARR-2026-0099', documentUrl: 'https://cdn.ravenue.pe/verif/b1.pdf', notes: 'Aprobado.', verifiedBy: U.superAdmin, reviewedAt: daysFromNow(-21), validUntil: '2026-12-31' },
+    { localId: L.b1, status: 'expired', licenseReference: 'LIC-BARR-2025-0099', documentUrl: null, notes: 'Documentos vencidos; renovación pendiente.', verifiedBy: U.superAdmin, reviewedAt: daysFromNow(-380), validUntil: '2026-06-30' },
     { localId: L.b2, status: 'pending', licenseReference: 'LIC-SURCO-2026-0150', documentUrl: 'https://cdn.ravenue.pe/verif/b2.pdf', notes: 'En revisión: falta certificado de aforo.', verifiedBy: null, validUntil: null },
+  ]).returning({ id: localVerification.id });
+
+  if (!verificationA1 || !verificationA2 || !verificationB1 || !verificationB2) {
+    throw new Error('No se pudieron crear las verificaciones documentales del seed.');
+  }
+  const approvedDocument = (input: {
+    localVerificationId: string;
+    documentType: 'municipal_license' | 'itse_certificate';
+    storageKey: string;
+    expiresAt: string;
+  }) => ({
+    ...input,
+    issuedAt: '2026-01-15',
+    reviewStatus: 'approved' as const,
+    reviewedBy: U.superAdmin,
+    reviewedAt: daysFromNow(-30),
+  });
+  await db.insert(localVerificationDocument).values([
+    approvedDocument({ localVerificationId: verificationA1.id, documentType: 'municipal_license', storageKey: 'locals/nocturna-club/verification/licencia-municipal.pdf', expiresAt: '2027-12-31' }),
+    approvedDocument({ localVerificationId: verificationA1.id, documentType: 'itse_certificate', storageKey: 'locals/nocturna-club/verification/itse.pdf', expiresAt: '2027-12-31' }),
+    approvedDocument({ localVerificationId: verificationA2.id, documentType: 'municipal_license', storageKey: 'locals/sky-lounge-360/verification/licencia-municipal.pdf', expiresAt: daysFromNow(14).toISOString().slice(0, 10) }),
+    approvedDocument({ localVerificationId: verificationA2.id, documentType: 'itse_certificate', storageKey: 'locals/sky-lounge-360/verification/itse.pdf', expiresAt: '2027-12-31' }),
+    approvedDocument({ localVerificationId: verificationB1.id, documentType: 'municipal_license', storageKey: 'locals/barranco-beats/verification/licencia-municipal-vencida.pdf', expiresAt: '2026-06-30' }),
+    approvedDocument({ localVerificationId: verificationB1.id, documentType: 'itse_certificate', storageKey: 'locals/barranco-beats/verification/itse-vencido.pdf', expiresAt: '2026-06-30' }),
+    { localVerificationId: verificationB2.id, documentType: 'municipal_license', storageKey: 'locals/karaoke-estelar/verification/licencia-pendiente.pdf', issuedAt: '2026-07-01', expiresAt: '2027-07-01', reviewStatus: 'pending' },
   ]);
 
   // affiliation_request (pending / approved / rejected)
@@ -865,6 +891,8 @@ async function main() {
     { key: 'min_age', value: '18', valueType: 'number', updatedBy: U.superAdmin },
     { key: 'checkout_lock_ttl_seconds', value: '30', valueType: 'number', updatedBy: U.superAdmin },
     { key: 'maintenance_mode', value: 'false', valueType: 'boolean', updatedBy: U.superAdmin },
+    { key: 'verification_required_document_types', value: '["municipal_license","itse_certificate"]', valueType: 'json', updatedBy: U.superAdmin },
+    { key: 'verification_expiry_warning_days', value: '30', valueType: 'number', updatedBy: U.superAdmin },
     { key: 'support_email', value: 'soporte@urnight.pe', valueType: 'string', updatedBy: U.superAdmin },
     { key: 'terms_current_version', value: '1.0', valueType: 'string', updatedBy: U.superAdmin },
     { key: 'attribution_window_days', value: '7', valueType: 'number', updatedBy: U.superAdmin },

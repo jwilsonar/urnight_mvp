@@ -2451,6 +2451,64 @@
       "description": "Global ranking with validated attendance, volume, and attributed sales."
     }
   },
+  "verificationDocuments": {
+    "tab": "Documents",
+    "title": "Licenses and certificates",
+    "description": "Keep the venue's regulatory documents current. Every renewal is reviewed before verification is updated.",
+    "types": {
+      "municipal_license": "Operating license",
+      "itse_certificate": "ITSE / Civil Defense certificate",
+      "health_certificate": "Health or fumigation certificate",
+      "other": "Other document"
+    },
+    "status": {
+      "valid": "Current",
+      "expiring_soon": "Expiring soon",
+      "expired": "Expired",
+      "pending": "Under review",
+      "rejected": "Rejected"
+    },
+    "form": {
+      "file": "File",
+      "fileHint": "PDF, JPG, PNG, or WebP. 10 MB maximum.",
+      "type": "Document type",
+      "issuedAt": "Issue date",
+      "expiresAt": "Expiration date",
+      "submit": "Upload renewal",
+      "uploading": "Uploading…",
+      "required": "Add the file and both dates.",
+      "invalidFile": "Use a PDF or image up to 10 MB.",
+      "uploaded": "Document submitted for review.",
+      "failed": "The document could not be uploaded."
+    },
+    "loading": "Loading documents…",
+    "empty": {
+      "title": "No documents yet",
+      "description": "Upload the operating license and ITSE certificate to begin the review."
+    },
+    "expires": "Expires on {date}",
+    "viewDocument": "View document",
+    "review": {
+      "title": "Venue document review",
+      "description": "Review pending evidence. Approvals and rejections are recorded in the audit log.",
+      "loading": "Loading pending documents…",
+      "emptyTitle": "No pending documents",
+      "emptyDescription": "The review queue is up to date.",
+      "expires": "expires on {date}",
+      "pending": "Pending",
+      "open": "Open document",
+      "approve": "Approve",
+      "reject": "Reject",
+      "reason": "Rejection reason",
+      "reasonPlaceholder": "Explain what the venue needs to correct",
+      "reasonRequired": "Enter a rejection reason.",
+      "saved": "Review saved."
+    },
+    "public": {
+      "title": "Verification temporarily unavailable",
+      "body": "The venue may be renewing its documents. RAVENUE will display verification again after the review is complete."
+    }
+  },
   "brand": {
     "metadataTitle": "Brand Lab",
     "hero": {
