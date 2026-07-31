@@ -105,11 +105,21 @@ export async function truncateIdentity(client: DbClient): Promise<void> {
  * Agnóstico de módulo — para specs que cruzan bounded contexts por FK
  * (events→local, ticketing→event/user, etc.).
  */
+const truncateStatements = new WeakMap<DbClient, string>();
+
 export async function truncateAll(client: DbClient): Promise<void> {
-  const rows = await client.sql<{ tablename: string }[]>`
-    SELECT tablename FROM pg_tables
-    WHERE schemaname = 'public' AND tablename <> '__drizzle_migrations'`;
-  if (rows.length === 0) return;
-  const list = rows.map((r) => `"${r.tablename}"`).join(', ');
-  await client.sql.unsafe(`TRUNCATE ${list} RESTART IDENTITY CASCADE`);
+  // El esquema no cambia durante una corrida, así que la lista de tablas se
+  // resuelve una sola vez por cliente: esto se ejecuta en el beforeEach de cada
+  // test y la consulta a pg_tables se pagaba cientos de veces por suite.
+  let statement = truncateStatements.get(client);
+  if (statement === undefined) {
+    const rows = await client.sql<{ tablename: string }[]>`
+      SELECT tablename FROM pg_tables
+      WHERE schemaname = 'public' AND tablename <> '__drizzle_migrations'`;
+    if (rows.length === 0) return;
+    const list = rows.map((r) => `"${r.tablename}"`).join(', ');
+    statement = `TRUNCATE ${list} RESTART IDENTITY CASCADE`;
+    truncateStatements.set(client, statement);
+  }
+  await client.sql.unsafe(statement);
 }

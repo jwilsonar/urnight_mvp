@@ -22,10 +22,16 @@ type LocalDocumentType =
   | 'itse_certificate'
   | 'health_certificate';
 
-/** Limpieza activa complementaria a la expiración perezosa de disponibilidad. */
+/**
+ * Mantenimiento periódico de la cola `maintenance`. Despacha por `job.name`:
+ * - `expire-ticket-holds`: limpieza activa, complementaria a la expiración
+ *   perezosa de la disponibilidad (ADR 0009).
+ * - `maintain-local-verifications`: degrada a no verificado el local cuyos
+ *   documentos vencieron sin renovación aprobada, y avisa antes (ADR 0010).
+ */
 @Processor('maintenance')
-export class TicketHoldExpirationProcessor extends WorkerHost {
-  private readonly log = createLogger(TicketHoldExpirationProcessor.name);
+export class MaintenanceProcessor extends WorkerHost {
+  private readonly log = createLogger(MaintenanceProcessor.name);
 
   constructor(
     @Inject(DB) private readonly db: Database,

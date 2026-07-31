@@ -11,7 +11,7 @@ import {
   userRole,
   type DbClient,
 } from '@urnight/db';
-import { TicketHoldExpirationProcessor } from '../../../../../../worker/src/maintenance/ticket-hold-expiration.processor';
+import { MaintenanceProcessor } from '../../../../../../worker/src/maintenance/maintenance.processor';
 import {
   createNamedTestDb,
   ensureNamedDbMigrated,
@@ -48,9 +48,9 @@ describe('mantenimiento documental de locales (Postgres real)', () => {
         return {};
       },
     } as unknown as ConstructorParameters<
-      typeof TicketHoldExpirationProcessor
+      typeof MaintenanceProcessor
     >[1];
-    const processor = new TicketHoldExpirationProcessor(client.db, queue);
+    const processor = new MaintenanceProcessor(client.db, queue);
     const adminRoleId = randomUUID();
     const adminId = randomUUID();
     const companyId = randomUUID();
@@ -167,7 +167,7 @@ describe('mantenimiento documental de locales (Postgres real)', () => {
 
     const job = {
       name: 'maintain-local-verifications',
-    } as Parameters<TicketHoldExpirationProcessor['process']>[0];
+    } as Parameters<MaintenanceProcessor['process']>[0];
     await expect(processor.process(job)).resolves.toEqual({
       degraded: 1,
       warningsQueued: 1,

@@ -10,8 +10,8 @@ const VERIFICATION_SCHEDULER_ID = 'local-verification-maintenance';
 
 /** Registra un job periódico BullMQ; es idempotente entre reinicios del worker. */
 @Injectable()
-export class TicketHoldExpirationScheduler implements OnApplicationBootstrap {
-  private readonly log = createLogger(TicketHoldExpirationScheduler.name);
+export class MaintenanceScheduler implements OnApplicationBootstrap {
+  private readonly log = createLogger(MaintenanceScheduler.name);
 
   constructor(
     @InjectQueue('maintenance') private readonly queue: Queue,

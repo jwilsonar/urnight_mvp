@@ -8,6 +8,14 @@ services:
       POSTGRES_DB: urnight_dev
     ports:
       - '5433:5432'
+    # Stack LOCAL de desarrollo y tests: se prioriza velocidad sobre durabilidad.
+    # Las suites e2e hacen TRUNCATE de todas las tablas antes de cada test y ocho
+    # specs golpean esta misma instancia a la vez; el coste dominante es el fsync
+    # por tabla, que provocaba timeouts esporádicos del hook (test flaky).
+    # NO usar estos flags en producción: ante una caída sucia la base puede
+    # quedar corrupta. Aquí es aceptable porque se regenera con db:migrate + seed.
+    command: >-
+      postgres -c fsync=off -c synchronous_commit=off -c full_page_writes=off
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

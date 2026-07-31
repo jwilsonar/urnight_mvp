@@ -4,8 +4,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import { validateEnv, type Env } from './config/env.schema';
 import { buildPinoOptions } from './logging/logging.config';
-import { TicketHoldExpirationProcessor } from './maintenance/ticket-hold-expiration.processor';
-import { TicketHoldExpirationScheduler } from './maintenance/ticket-hold-expiration.scheduler';
+import { MaintenanceProcessor } from './maintenance/maintenance.processor';
+import { MaintenanceScheduler } from './maintenance/maintenance.scheduler';
 import { DbModule } from './db/db.module';
 import { EmailPort } from './notifications/email.port';
 import { LogEmailAdapter } from './notifications/log-email.adapter';
@@ -66,8 +66,8 @@ import { StoragePort } from './storage/storage.port';
   ],
   providers: [
     NotificationsProcessor,
-    TicketHoldExpirationProcessor,
-    TicketHoldExpirationScheduler,
+    MaintenanceProcessor,
+    MaintenanceScheduler,
     OutboxRelay,
     TicketPdfService,
     { provide: EmailPort, useClass: LogEmailAdapter },
