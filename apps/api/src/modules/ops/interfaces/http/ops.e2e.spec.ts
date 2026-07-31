@@ -60,7 +60,7 @@ async function seedUser(roles: RoleCode[] = ['user']): Promise<{ id: string; tok
 
 describe('Ops HTTP (e2e)', () => {
   describe('PlatformSettingsController (/platform-settings)', () => {
-    const VALID = { key: 'feature.flag', value: 'true', valueType: 'boolean' as const };
+    const VALID = { key: 'maintenance_mode', value: 'true', valueType: 'boolean' as const };
 
     it('GET /:key → 404 Problem+JSON si la key no existe (público)', async () => {
       const res = await http().get('/api/v1/platform-settings/desconocida');

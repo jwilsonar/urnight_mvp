@@ -12,6 +12,7 @@ export default defineConfig({
     root: './',
     include: ['src/**/*.e2e.spec.ts', 'test/**/*.e2e-spec.ts'],
     passWithNoTests: true,
+    hookTimeout: 30_000,
   },
   plugins: [swc.vite({ module: { type: 'es6' } })],
 });

@@ -74,10 +74,17 @@ async function seedUser(): Promise<string> {
   return id;
 }
 
-/** Mint de un token admin_local con un usuario real como sub y, si aplica, scope de local. */
+/** Mint de un token admin_local con el companyId real de la company dueña del local. */
 async function adminToken(localId?: string): Promise<{ token: string; userId: string }> {
   const userId = await seedUser();
-  const token = await signAccessToken(app, userId, ['admin_local'], localId ? { localId } : {});
+  let companyId: string | undefined;
+  if (localId) {
+    const [owner] = await client.sql<{ company_id: string }[]>`
+      SELECT company_id FROM local WHERE id = ${localId}`;
+    if (!owner) throw new Error(`Local e2e no encontrado: ${localId}`);
+    companyId = owner.company_id;
+  }
+  const token = await signAccessToken(app, userId, ['admin_local'], companyId ? { companyId } : {});
   return { token, userId };
 }
 
@@ -87,7 +94,7 @@ function buildEventDto(localId: string, slug = `fiesta-${randomUUID().slice(0, 8
     name: 'Noche Techno',
     slug,
     description: 'Una fiesta techno',
-    startsAt: '2026-07-01T22:00:00.000Z',
+    startsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     totalCapacity: 500,
     minAgeNote: '+18',
     dressCode: 'Casual',
