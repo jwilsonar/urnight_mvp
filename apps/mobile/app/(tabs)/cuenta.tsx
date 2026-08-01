@@ -1,17 +1,24 @@
-/** Cuenta: sesión nativa TO-BE (SD-02) + estado del servicio (health, SD-01). */
+/** Cuenta: sesión nativa (SD-02) + estado del servicio (health, SD-01). */
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
-import { fetchHealth } from '../../lib/api-client';
+import { useRouter } from 'expo-router';
+import type { UserProfileResponse } from '@urnight/contracts';
+import { fetchHealth, fetchMe } from '../../lib/api-client';
+import { useAuth } from '../../lib/auth-context';
 import { color, radius, space, type } from '../../lib/theme';
-import { Eyebrow } from '../../components/ui';
+import { Button, Eyebrow, LoadingState } from '../../components/ui';
 
 type ApiStatus = 'checking' | 'ok' | 'down';
 
 export default function AccountScreen() {
+  const router = useRouter();
+  const { status, claims, signOut, getAccessToken } = useAuth();
   const [apiStatus, setApiStatus] = useState<ApiStatus>('checking');
+  const [profile, setProfile] = useState<UserProfileResponse | null>(null);
+  const [signingOut, setSigningOut] = useState(false);
 
   const check = useCallback(async () => {
     try {
@@ -26,6 +33,37 @@ export default function AccountScreen() {
     void check();
   }, [check]);
 
+  // Perfil completo vía GET /auth/me; si falla se degrada a los claims del token.
+  useEffect(() => {
+    if (status !== 'authenticated') {
+      setProfile(null);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const token = await getAccessToken();
+      if (!token) return;
+      try {
+        const me = await fetchMe(token);
+        if (!cancelled) setProfile(me);
+      } catch {
+        if (!cancelled) setProfile(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [status, getAccessToken]);
+
+  async function onSignOut() {
+    setSigningOut(true);
+    try {
+      await signOut();
+    } finally {
+      setSigningOut(false);
+    }
+  }
+
   const statusColor =
     apiStatus === 'ok' ? color.success : apiStatus === 'down' ? color.error : color.smoke;
   const statusLabel =
@@ -39,16 +77,42 @@ export default function AccountScreen() {
       </View>
 
       <View style={styles.content}>
-        <View style={styles.card}>
-          <View style={styles.iconRing}>
-            <Ionicons name="person-outline" size={28} color={color.smoke} />
+        {status === 'restoring' ? (
+          <LoadingState label="Recuperando tu sesión…" />
+        ) : status === 'authenticated' ? (
+          <View style={styles.card}>
+            <View style={styles.iconRing}>
+              <Ionicons name="person" size={28} color={color.crimson} />
+            </View>
+            <Text style={styles.cardTitle}>
+              {profile?.fullName ?? claims?.email ?? 'Tu cuenta'}
+            </Text>
+            <Text style={styles.cardSubtitle}>{profile?.email ?? claims?.email ?? ''}</Text>
+            <Button
+              label={signingOut ? 'Cerrando sesión…' : 'Cerrar sesión'}
+              variant="secondary"
+              disabled={signingOut}
+              onPress={() => void onSignOut()}
+              style={styles.cardAction}
+            />
           </View>
-          <Text style={styles.cardTitle}>Inicia sesión, muy pronto</Text>
-          <Text style={styles.cardSubtitle}>
-            La sesión en el teléfono está en camino. Mientras tanto, tu cuenta y
-            tus compras viven en la web de Ravenue.
-          </Text>
-        </View>
+        ) : (
+          <View style={styles.card}>
+            <View style={styles.iconRing}>
+              <Ionicons name="person-outline" size={28} color={color.smoke} />
+            </View>
+            <Text style={styles.cardTitle}>Inicia sesión</Text>
+            <Text style={styles.cardSubtitle}>
+              Entra con tu cuenta de Ravenue para llevar tus entradas y tu noche
+              contigo.
+            </Text>
+            <Button
+              label="Ingresar"
+              onPress={() => router.push('/login')}
+              style={styles.cardAction}
+            />
+          </View>
+        )}
 
         <View style={styles.rowCard}>
           <Text style={styles.rowLabel}>Estado del servicio</Text>
@@ -115,6 +179,10 @@ const styles = StyleSheet.create({
     ...type.bodySm,
     color: color.textMuted,
     textAlign: 'center',
+  },
+  cardAction: {
+    marginTop: space.s3,
+    alignSelf: 'stretch',
   },
   rowCard: {
     backgroundColor: color.bgSurface,

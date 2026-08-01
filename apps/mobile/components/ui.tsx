@@ -5,8 +5,10 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
   type StyleProp,
+  type TextInputProps,
   type ViewStyle,
 } from 'react-native';
 import { color, radius, space, type } from '../lib/theme';
@@ -76,6 +78,25 @@ export function Button({
         {label}
       </Text>
     </Pressable>
+  );
+}
+
+/** Campo de formulario del DS: label + input oscuro + mensaje de error (espejo de FormField web). */
+export function Field({
+  label,
+  error,
+  ...inputProps
+}: TextInputProps & { label: string; error?: string }) {
+  return (
+    <View style={styles.field}>
+      <Text style={styles.fieldLabel}>{label}</Text>
+      <TextInput
+        placeholderTextColor={color.textFaint}
+        style={[styles.fieldInput, error ? styles.fieldInputError : null]}
+        {...inputProps}
+      />
+      {error ? <Text style={styles.fieldError}>{error}</Text> : null}
+    </View>
   );
 }
 
@@ -198,6 +219,31 @@ const styles = StyleSheet.create({
   },
   buttonTextDisabled: {
     color: color.textFaint,
+  },
+  field: {
+    gap: space.s2 - 2,
+  },
+  fieldLabel: {
+    ...type.label,
+    color: color.textSecondary,
+  },
+  fieldInput: {
+    height: 48,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: color.steel,
+    backgroundColor: color.fieldBg,
+    paddingHorizontal: space.s4 - 2,
+    ...type.body,
+    lineHeight: undefined,
+    color: color.textPrimary,
+  },
+  fieldInputError: {
+    borderColor: color.error,
+  },
+  fieldError: {
+    ...type.caption,
+    color: color.errorFg,
   },
   stateBox: {
     alignItems: 'center',
