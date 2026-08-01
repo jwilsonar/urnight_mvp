@@ -11,7 +11,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { Badge, Button, Card, CardContent } from "@urnight/ui";
-import { EventStatusPill } from "@/components/catalog/event-status-pill";
+import { StickyTicketSidebar } from "@/components/events/sticky-ticket-sidebar";
 import { TicketTypeList } from "@/components/events/ticket-type-list";
 import { FavoriteButton } from "@/components/favorites/favorite-button";
 import { Reveal } from "@/components/shared/reveal";
@@ -58,7 +58,7 @@ export async function generateMetadata({
   };
 }
 
-/** Fila de información del prototipo: icon-tile carmín + label/valor. */
+/** Fila de información del evento con icono sobre superficie neutra. */
 function InfoRow({
   icon,
   label,
@@ -70,7 +70,7 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-center gap-4 rounded-md border bg-field px-4 py-3.5">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-accent text-rose [&_svg]:size-4">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-sm border border-border bg-background text-muted-foreground [&_svg]:size-4">
         {icon}
       </div>
       <div className="min-w-0">
@@ -105,14 +105,6 @@ export default async function EventDetailPage({
   const local = locals.find((item) => item.id === event.localId) ?? null;
   const canBuy = event.status === "published";
 
-  const soldOut =
-    event.totalCapacity > 0 && event.ticketsSold >= event.totalCapacity;
-  const availability =
-    event.status === "cancelled"
-      ? "cancelled"
-      : soldOut
-        ? "soldOut"
-        : (event.catalogLabel ?? (canBuy ? "onSale" : null));
   const activePrices = ticketTypes
     .filter((t) => t.status !== "paused")
     .map((t) => t.price);
@@ -162,9 +154,6 @@ export default async function EventDetailPage({
           <div>
             <Reveal>
               <div className="mb-4 flex flex-wrap gap-2">
-                {availability ? (
-                  <EventStatusPill status={availability} />
-                ) : null}
                 {event.minAgeNote ? (
                   <Badge variant="destructive">{event.minAgeNote}</Badge>
                 ) : null}
@@ -288,8 +277,8 @@ export default async function EventDetailPage({
             </Reveal>
           </div>
 
-          {/* Sidebar sticky del prototipo: guardar/reportar, precio desde, entradas */}
-          <aside className="lg:sticky lg:top-24 lg:self-start">
+          {/* Sidebar bidireccional: en móvil vuelve al flujo normal. */}
+          <StickyTicketSidebar>
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center gap-2">
@@ -342,7 +331,7 @@ export default async function EventDetailPage({
                 </div>
               </CardContent>
             </Card>
-          </aside>
+          </StickyTicketSidebar>
         </div>
       </div>
     </div>

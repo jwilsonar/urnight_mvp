@@ -58,7 +58,7 @@ export default function AppearancePage() {
                 className={cn(
                   "relative flex min-h-11 items-center gap-3 rounded-lg border px-3 py-3 text-left transition-colors",
                   active
-                    ? "border-primary bg-background text-foreground shadow-sm"
+                    ? "border-accent-border bg-background text-foreground shadow-sm"
                     : "border-transparent text-muted-foreground hover:bg-background/70 hover:text-foreground",
                 )}
               >

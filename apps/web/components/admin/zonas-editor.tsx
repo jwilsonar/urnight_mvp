@@ -111,7 +111,7 @@ export function ZonasEditor({ value, onChange }: ZonasEditorProps) {
                   onClick={() => actualizar(zona.id, { color })}
                   className={cn(
                     "size-7 rounded-full border-2 border-background ring-offset-2 ring-offset-background transition-shadow",
-                    zona.color === color && "ring-2 ring-primary",
+                    zona.color === color && "ring-2 ring-ring",
                   )}
                   style={{ backgroundColor: color }}
                 />

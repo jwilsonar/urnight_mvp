@@ -141,9 +141,7 @@ export function LocalGallery({
           variant="secondary"
           size="sm"
           onClick={openOverview}
-          // Borde marcado (accent) sobre la foto: define los límites del botón,
-          // que con solo el fill translúcido se perdían contra la imagen.
-          className="absolute bottom-3 right-3 gap-2 border border-accent-border bg-background/90 shadow-md backdrop-blur hover:bg-background"
+          className="absolute bottom-3 right-3 gap-2 bg-background/90 shadow-md backdrop-blur hover:bg-background"
         >
           <Images className="h-4 w-4" weight="fill" />
           {t("viewGallery", { count })}
@@ -250,7 +248,7 @@ export function LocalGallery({
                       aria-label={t("goTo", { number: i + 1 })}
                       className={`relative h-14 w-20 shrink-0 overflow-hidden rounded-md bg-muted transition-opacity ${
                         i === index
-                          ? "ring-2 ring-primary"
+                          ? "ring-2 ring-ring"
                           : "opacity-60 hover:opacity-100"
                       }`}
                     >

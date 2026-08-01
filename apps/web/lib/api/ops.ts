@@ -34,9 +34,14 @@ import { apiFetch } from './client';
 /* ---------------------------------------------------------------- Ajustes -- */
 
 /** Lee un ajuste de plataforma por clave (GET /platform-settings/:key). Público. */
-export function getPlatformSetting(key: string, token?: string) {
+export function getPlatformSetting(
+  key: string,
+  token?: string,
+  opts?: { timeoutMs?: number },
+) {
   return apiFetch<PlatformSettingResponse>(`/platform-settings/${encodeURIComponent(key)}`, {
     token,
+    ...(opts?.timeoutMs !== undefined ? { timeoutMs: opts.timeoutMs } : {}),
   });
 }
 

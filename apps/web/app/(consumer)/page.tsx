@@ -13,6 +13,7 @@ import { Button } from "@urnight/ui";
 import { EventCard } from "@/components/catalog/event-card";
 import { LocalCard } from "@/components/catalog/local-card";
 import { WeekEventCarousel } from "@/components/home/week-event-carousel";
+import type { VerifiedTone } from "@/components/locals/verified-tone";
 import { Marquee } from "@/components/motion/marquee";
 import { NightCamera } from "@/components/motion/night-camera";
 import { ScrollReveal3d } from "@/components/motion/scroll-reveal-3d";
@@ -26,6 +27,14 @@ import { getEventCardPrices } from "@/lib/event-card-data";
 import { StorageImage } from "@/lib/storage/storage-context";
 
 export const revalidate = 60;
+
+// Temporal: muestra los cuatro tonos en el home hasta elegir uno definitivo.
+const HOME_VERIFIED_TONES = [
+  "green",
+  "blue",
+  "gold",
+  "crimson",
+] as const satisfies readonly VerifiedTone[];
 
 /* Icono Phosphor por nombre de género (el prototipo usa glifos por categoría). */
 function genreIcon(name: string) {
@@ -96,12 +105,9 @@ export default async function HomePage() {
         />
         <div className="relative mx-auto grid min-h-[calc(100svh-4rem)] w-full max-w-7xl items-center gap-[clamp(0.75rem,2svh,2rem)] px-4 py-[clamp(1rem,2.5svh,2rem)] sm:px-6 lg:grid-cols-[minmax(0,0.78fr)_minmax(32rem,1.22fr)] lg:gap-8 lg:px-8">
           <div className="order-2 min-w-0 lg:order-1">
-            <span className="rv-eyebrow inline-flex items-center gap-2 rounded-full border border-accent-border bg-accent px-3 py-1.5">
-              {t("hero.eyebrow")}
-            </span>
             <h1
               id="home-hero-title"
-              className="mt-[clamp(0.5rem,1.4svh,1rem)] max-w-xl font-display text-[clamp(2rem,4.6vw,3.5rem)] font-black leading-[0.98] tracking-tight"
+              className="max-w-xl font-display text-[clamp(2rem,4.6vw,3.5rem)] font-black leading-[0.98] tracking-tight"
             >
               {t("hero.title")}
             </h1>
@@ -109,13 +115,17 @@ export default async function HomePage() {
               {t("hero.description")}
             </p>
 
-            <div className="mt-[clamp(0.75rem,2svh,1.5rem)] grid max-w-md grid-cols-2 gap-2.5">
-              <Button className="w-full px-3" asChild>
+            <div className="mt-[clamp(0.75rem,2svh,1.5rem)] grid max-w-sm grid-cols-2 gap-2.5 sm:flex">
+              <Button className="w-full px-5 sm:w-40" asChild>
                 <Link href="/events">
                   {t("hero.eventsCta")} <ArrowRight className="size-4" />
                 </Link>
               </Button>
-              <Button className="w-full px-3" variant="outline" asChild>
+              <Button
+                className="w-full px-5 sm:w-40"
+                variant="outline"
+                asChild
+              >
                 <Link href="/locals">{t("hero.venuesCta")}</Link>
               </Button>
             </div>
@@ -227,7 +237,10 @@ export default async function HomePage() {
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
               {popular.map((local, i) => (
                 <ScrollReveal3d key={local.id} delay={i * 70}>
-                  <LocalCard local={local} />
+                  <LocalCard
+                    local={local}
+                    verifiedTone={HOME_VERIFIED_TONES[i] ?? "green"}
+                  />
                 </ScrollReveal3d>
               ))}
             </div>
@@ -238,13 +251,13 @@ export default async function HomePage() {
         {partner ? (
           <section className="pt-16">
             <NightCamera>
-              <div className="grid min-h-[390px] overflow-hidden rounded-xl border border-accent-border bg-[linear-gradient(120deg,var(--bg-elevated),var(--bg-base))] lg:grid-cols-[1.05fr_0.95fr]">
-                <div className="flex min-h-[390px] flex-col justify-end p-6 sm:p-10 lg:p-12">
+              <div className="grid min-h-[390px] overflow-hidden rounded-xl border border-border bg-[linear-gradient(120deg,var(--bg-elevated),var(--bg-base))] lg:grid-cols-[1.05fr_0.95fr]">
+                <div className="flex min-h-[390px] flex-col justify-center p-6 sm:p-10 lg:p-12">
                   <span className="inline-flex items-center gap-2 self-start text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">
                     <Star className="size-4 text-primary" weight="fill" />
                     {t("partner.badge")}
                   </span>
-                  <h2 className="mt-3 font-display text-4xl font-black leading-none tracking-tight sm:text-6xl">
+                  <h2 className="mt-5 font-display text-4xl font-black leading-none tracking-tight sm:text-6xl">
                     {partner.name}
                   </h2>
                   <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">

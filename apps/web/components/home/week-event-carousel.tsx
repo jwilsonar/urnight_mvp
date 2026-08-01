@@ -9,7 +9,7 @@ import type { EventResponse } from "@urnight/contracts";
 import { cn } from "@urnight/ui";
 import { StorageImage } from "@/lib/storage/storage-context";
 
-const MAX_VISIBLE_OFFSET = 2;
+const MAX_VISIBLE_OFFSET = 1;
 const AUTOPLAY_DELAY_MS = 3_000;
 const MANUAL_RESUME_DELAY_MS = 6_000;
 
@@ -134,7 +134,7 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
           const position = relativePosition(index, activeIndex, events.length);
           const visible = Math.abs(position) <= MAX_VISIBLE_OFFSET;
           const active = position === 0;
-          const spread = expanded ? 72 : 58;
+          const spread = expanded ? 62 : 54;
 
           return (
             <div
@@ -172,8 +172,10 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
                 }
                 style={{ zIndex: MAX_VISIBLE_OFFSET - Math.abs(position) + 1 }}
                 className={cn(
-                  "pointer-events-auto relative aspect-[3/4] w-[clamp(9.5rem,29vw,14rem)] overflow-hidden rounded-xl border bg-card shadow-overlay",
-                  active ? "border-primary" : "border-white/15 saturate-[0.82]",
+                  "pointer-events-auto relative isolate aspect-[3/4] w-[clamp(9.5rem,29vw,14rem)] overflow-hidden rounded-xl border bg-card shadow-overlay",
+                  active
+                    ? "border-border"
+                    : "border-border/70 saturate-[0.82]",
                   !visible && "pointer-events-none",
                 )}
               >
@@ -182,7 +184,7 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
                   tabIndex={visible ? 0 : -1}
                   aria-label={t("openEvent", { name: event.name })}
                   onFocus={() => select(index, true)}
-                  className="group absolute inset-0 rounded-[inherit] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
+                  className="group absolute inset-0 overflow-hidden rounded-[inherit] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
                 >
                   {event.flyerUrl ? (
                     <StorageImage
@@ -191,7 +193,7 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
                       fill
                       priority={activeIndex === 0 && index === 0}
                       sizes="(max-width: 640px) 45vw, (max-width: 1024px) 28vw, 224px"
-                      className="object-cover transition-transform duration-500 ease-[var(--ease-brand)] group-hover:scale-[1.03] motion-reduce:transition-none"
+                      className="rounded-[inherit] object-cover transition-transform duration-500 ease-[var(--ease-brand)] group-hover:scale-[1.03] motion-reduce:transition-none"
                     />
                   ) : (
                     <div className="rv-img-ph absolute inset-0">

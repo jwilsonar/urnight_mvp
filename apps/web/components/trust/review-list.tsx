@@ -2,7 +2,6 @@ import { ChatCircle, SealCheck } from "@phosphor-icons/react/dist/ssr";
 import type { ReviewResponse } from "@urnight/contracts";
 import { useFormatter, useTranslations } from "next-intl";
 import { Card, CardContent } from "@urnight/ui";
-import { EmptyState } from "@/components/shared/empty-state";
 import { StarRating } from "./star-rating";
 
 export function ReviewList({ reviews }: { reviews: ReviewResponse[] }) {
@@ -10,11 +9,20 @@ export function ReviewList({ reviews }: { reviews: ReviewResponse[] }) {
   const format = useFormatter();
   if (reviews.length === 0) {
     return (
-      <EmptyState
-        icon={<ChatCircle weight="duotone" />}
-        title={t("empty.title")}
-        description={t("empty.description")}
-      />
+      <div
+        className="flex flex-col items-center justify-center gap-3.5 rounded-lg border border-dashed px-6 py-16 text-center"
+        role="status"
+      >
+        <div className="flex size-[72px] items-center justify-center rounded-xl border border-border bg-background text-muted-foreground">
+          <ChatCircle className="size-[30px]" weight="duotone" />
+        </div>
+        <h3 className="font-heading text-xl font-extrabold">
+          {t("empty.title")}
+        </h3>
+        <p className="max-w-[420px] text-sm leading-relaxed text-muted-foreground">
+          {t("empty.description")}
+        </p>
+      </div>
     );
   }
 

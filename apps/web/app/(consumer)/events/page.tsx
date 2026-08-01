@@ -4,7 +4,6 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@urnight/ui";
 import { EventCard } from "@/components/catalog/event-card";
-import { EventPriceFilter } from "@/components/catalog/event-price-filter";
 import { ZoneFilter } from "@/components/catalog/zone-filter";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Reveal } from "@/components/shared/reveal";
@@ -33,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const PAGE_SIZE = 24;
 
-type EventsSearchParams = EventCatalogSearchParams;
+type EventsSearchParams = EventCatalogSearchParams & { date?: string };
 
 /** Href de una página conservando los filtros activos (compatible con ISR). */
 function pageHref(filters: EventsSearchParams, page: number): string {
@@ -55,12 +54,14 @@ export default async function EventsPage({
   );
   const minPrice = parsePriceFilter(filters.minPrice);
   const maxPrice = parsePriceFilter(filters.maxPrice);
-  const datePreset =
-    filters.datePreset === "today" ||
-    filters.datePreset === "tonight" ||
-    filters.datePreset === "weekend"
-      ? filters.datePreset
-      : undefined;
+  const requestedDatePreset = filters.datePreset ?? filters.date;
+  const datePreset: EventDatePreset | undefined =
+    requestedDatePreset === "tonight"
+      ? "today"
+      : requestedDatePreset === "today" || requestedDatePreset === "weekend"
+        ? requestedDatePreset
+        : undefined;
+  const hrefFilters = { ...filters, datePreset };
   const dateRange = datePreset
     ? getLimaDatePresetRange(datePreset)
     : { from: filters.from, to: filters.to };
@@ -93,19 +94,19 @@ export default async function EventsPage({
 
   /** Chips preservan la búsqueda activa; solo cambia el género (y resetea la página). */
   const chipHref = (genreId?: string) => {
-    return eventCatalogHref("/events", filters, { genreId });
+    return eventCatalogHref("/events", hrefFilters, { genreId });
   };
 
-  const datePresets: EventDatePreset[] = ["today", "tonight", "weekend"];
+  const datePresets: EventDatePreset[] = ["today", "weekend"];
   const dateHref = (preset?: EventDatePreset) => {
     if (!preset) {
-      return eventCatalogHref("/events", filters, {
+      return eventCatalogHref("/events", hrefFilters, {
         datePreset: undefined,
         from: undefined,
         to: undefined,
       });
     }
-    return eventCatalogHref("/events", filters, {
+    return eventCatalogHref("/events", hrefFilters, {
       datePreset: preset,
       from: undefined,
       to: undefined,
@@ -113,7 +114,7 @@ export default async function EventsPage({
   };
 
   const activeFilters: Array<{
-    kind: "query" | "zone" | "genre" | "tag" | "date" | "price";
+    kind: "query" | "zone" | "genre" | "tag" | "date";
     label: string;
     href: string;
   }> = [];
@@ -121,7 +122,7 @@ export default async function EventsPage({
     activeFilters.push({
       kind: "query",
       label: filters.q,
-      href: eventCatalogHref("/events", filters, { q: undefined }),
+      href: eventCatalogHref("/events", hrefFilters, { q: undefined }),
     });
   }
   const selectedZone = zones.find((zone) => zone.id === filters.zoneId);
@@ -129,7 +130,7 @@ export default async function EventsPage({
     activeFilters.push({
       kind: "zone",
       label: selectedZone?.name ?? t("filters.zone.fallback"),
-      href: eventCatalogHref("/events", filters, { zoneId: undefined }),
+      href: eventCatalogHref("/events", hrefFilters, { zoneId: undefined }),
     });
   }
   const selectedGenre = genres.find((genre) => genre.id === filters.genreId);
@@ -137,7 +138,7 @@ export default async function EventsPage({
     activeFilters.push({
       kind: "genre",
       label: selectedGenre?.name ?? t("filters.genre.fallback"),
-      href: eventCatalogHref("/events", filters, { genreId: undefined }),
+      href: eventCatalogHref("/events", hrefFilters, { genreId: undefined }),
     });
   }
   const selectedTag = tags.find((tag) => tag.id === filters.tagId);
@@ -145,7 +146,7 @@ export default async function EventsPage({
     activeFilters.push({
       kind: "tag",
       label: selectedTag?.name ?? t("filters.tagFallback"),
-      href: eventCatalogHref("/events", filters, { tagId: undefined }),
+      href: eventCatalogHref("/events", hrefFilters, { tagId: undefined }),
     });
   }
   if (datePreset || filters.from || filters.to) {
@@ -157,23 +158,7 @@ export default async function EventsPage({
       href: dateHref(),
     });
   }
-  if (minPrice !== undefined || maxPrice !== undefined) {
-    const label =
-      minPrice !== undefined && maxPrice !== undefined
-        ? `S/ ${minPrice}–${maxPrice}`
-        : minPrice !== undefined
-          ? `S/ ${minPrice}+`
-          : `≤ S/ ${maxPrice}`;
-    activeFilters.push({
-      kind: "price",
-      label,
-      href: eventCatalogHref("/events", filters, {
-        minPrice: undefined,
-        maxPrice: undefined,
-      }),
-    });
-  }
-  const restrictiveOrder = ["price", "tag", "genre", "zone", "date", "query"];
+  const restrictiveOrder = ["tag", "genre", "zone", "date", "query"];
   const suggestedFilter = restrictiveOrder
     .map((kind) => activeFilters.find((filter) => filter.kind === kind))
     .find(Boolean);
@@ -189,100 +174,94 @@ export default async function EventsPage({
         </div>
         {/* La búsqueda vive en el header (con sugerencias); aquí solo el modo calendario. */}
         <Button variant="secondary" size="sm" asChild>
-          <Link href={eventCatalogHref("/events/calendar", filters)}>
+          <Link href={eventCatalogHref("/events/calendar", hrefFilters)}>
             {t("calendarLink")}
           </Link>
         </Button>
       </div>
 
-      <div className="mb-8 grid gap-5 rounded-xl border border-border bg-card/40 p-4 lg:grid-cols-[14rem_1fr]">
-        <section className="space-y-2" aria-labelledby="events-zone-filter">
-          <h2
-            id="events-zone-filter"
-            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-          >
-            {t("filters.zone.title")}
-          </h2>
-          <ZoneFilter
-            zones={zones}
-            pathname="/events"
-            ariaLabel={t("filters.zone.aria")}
-            allLabel={t("filters.zone.all")}
-          />
-        </section>
-        <section className="space-y-2" aria-labelledby="events-price-filter">
-          <h2
-            id="events-price-filter"
-            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-          >
-            {t("filters.price.title")}
-          </h2>
-          <EventPriceFilter
-            key={`${filters.minPrice ?? ""}:${filters.maxPrice ?? ""}`}
-          />
-        </section>
-      </div>
-
-      <section className="mb-8 space-y-2" aria-labelledby="events-date-filter">
-        <h2
-          id="events-date-filter"
-          className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-        >
-          {t("filters.date.title")}
-        </h2>
-        <div className="flex flex-wrap gap-2.5">
-          <Link
-            href={dateHref()}
-            className="rv-chip w-[10.5rem] justify-center"
-            data-active={!datePreset && !filters.from && !filters.to}
-          >
-            {t("filters.date.any")}
-          </Link>
-          {datePresets.map((preset) => (
-            <Link
-              key={preset}
-              href={dateHref(preset)}
-              className="rv-chip w-[10.5rem] justify-center"
-              data-active={filters.datePreset === preset}
+      <div className="mb-8 rounded-xl border border-border bg-card/40 p-4 sm:p-5">
+        <div className="grid gap-6 lg:grid-cols-[12rem_minmax(0,1fr)] lg:items-start">
+          <section className="space-y-2" aria-labelledby="events-zone-filter">
+            <h2
+              id="events-zone-filter"
+              className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
             >
-              {t(`filters.date.${preset}`)}
-            </Link>
-          ))}
-        </div>
-      </section>
+              {t("filters.zone.title")}
+            </h2>
+            <ZoneFilter
+              zones={zones}
+              pathname="/events"
+              ariaLabel={t("filters.zone.aria")}
+              allLabel={t("filters.zone.all")}
+              className="sm:w-48"
+            />
+          </section>
 
-      {genres.length > 0 ? (
-        <section
-          className="mb-8 space-y-2"
-          aria-labelledby="events-genre-filter"
-        >
-          <h2
-            id="events-genre-filter"
-            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-          >
-            {t("filters.genre.title")}
-          </h2>
-          <div className="flex flex-wrap gap-2.5">
-            <Link
-              href={chipHref()}
-              className="rv-chip w-[5.8125rem] justify-center"
-              data-active={!filters.genreId}
+          {/* Filtro de precio oculto por decisión de producto; el componente se conserva. */}
+
+          <section className="space-y-2" aria-labelledby="events-date-filter">
+            <h2
+              id="events-date-filter"
+              className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
             >
-              <Sparkle className="size-4" weight="duotone" /> {t("all")}
-            </Link>
-            {genres.map((g) => (
+              {t("filters.date.title")}
+            </h2>
+            <div className="grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap">
               <Link
-                key={g.id}
-                href={chipHref(g.id)}
-                className="rv-chip"
-                data-active={filters.genreId === g.id}
+                href={dateHref()}
+                className="rv-chip w-full justify-center sm:w-[10.5rem]"
+                data-active={!datePreset && !filters.from && !filters.to}
               >
-                {g.name}
+                {t("filters.date.any")}
               </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
+              {datePresets.map((preset) => (
+                <Link
+                  key={preset}
+                  href={dateHref(preset)}
+                  className="rv-chip w-full justify-center sm:w-[10.5rem]"
+                  data-active={datePreset === preset}
+                >
+                  {t(`filters.date.${preset}`)}
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          {genres.length > 0 ? (
+            <section
+              className="space-y-2 lg:col-span-2"
+              aria-labelledby="events-genre-filter"
+            >
+              <h2
+                id="events-genre-filter"
+                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+              >
+                {t("filters.genre.title")}
+              </h2>
+              <div className="flex flex-wrap gap-2.5">
+                <Link
+                  href={chipHref()}
+                  className="rv-chip w-[5.8125rem] justify-center"
+                  data-active={!filters.genreId}
+                >
+                  <Sparkle className="size-4" weight="duotone" /> {t("all")}
+                </Link>
+                {genres.map((g) => (
+                  <Link
+                    key={g.id}
+                    href={chipHref(g.id)}
+                    className="rv-chip"
+                    data-active={filters.genreId === g.id}
+                  >
+                    {g.name}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
+        </div>
+      </div>
 
       {activeFilters.length > 0 ? (
         <section
@@ -371,7 +350,7 @@ export default async function EventsPage({
             >
               {page > 1 ? (
                 <Link
-                  href={pageHref(filters, page - 1)}
+                  href={pageHref(hrefFilters, page - 1)}
                   className="text-sm text-rose hover:underline"
                 >
                   ← {t("pagination.previous")}
@@ -382,7 +361,7 @@ export default async function EventsPage({
               </span>
               {hasNext ? (
                 <Link
-                  href={pageHref(filters, page + 1)}
+                  href={pageHref(hrefFilters, page + 1)}
                   className="text-sm text-rose hover:underline"
                 >
                   {t("pagination.next")} →

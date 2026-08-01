@@ -104,6 +104,33 @@ describe('Ops HTTP (e2e)', () => {
       expect(res.body?.errors).toBeDefined();
     });
 
+    it('valida y expone publicamente session.idle_timeout_minutes', async () => {
+      const admin = await seedUser(['super_admin']);
+      const invalid = await http()
+        .put('/api/v1/platform-settings')
+        .set('Authorization', `Bearer ${admin.token}`)
+        .send({
+          key: 'session.idle_timeout_minutes',
+          value: '4',
+          valueType: 'number',
+        });
+      expect(invalid.status).toBe(422);
+
+      const put = await http()
+        .put('/api/v1/platform-settings')
+        .set('Authorization', `Bearer ${admin.token}`)
+        .send({
+          key: 'session.idle_timeout_minutes',
+          value: '30',
+          valueType: 'number',
+        });
+      expect(put.status).toBe(200);
+
+      const get = await http().get('/api/v1/platform-settings/session.idle_timeout_minutes');
+      expect(get.status).toBe(200);
+      expect(get.body?.value).toBe('30');
+    });
+
     it('PUT → 200 super_admin hace upsert; GET /:key → 200 lo devuelve', async () => {
       const admin = await seedUser(['super_admin']);
       const put = await http()

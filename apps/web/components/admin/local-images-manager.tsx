@@ -295,7 +295,7 @@ function SortableImage({ image, onSetMain, onDelete, busy }: SortableImageProps)
       style={style}
       className={cn(
         'group relative aspect-video overflow-hidden rounded-lg border bg-muted',
-        isDragging && 'z-10 opacity-70 ring-2 ring-primary',
+        isDragging && 'z-10 opacity-70 ring-2 ring-ring',
       )}
     >
       {/* StorageImage resuelve keys/URLs del storage y decide `unoptimized` (dev http). */}

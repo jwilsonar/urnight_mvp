@@ -99,7 +99,7 @@ function FavoriteCard({ favorite }: { favorite: FavoriteResponse }) {
       : savedAt;
 
   const card = (
-    <Card className="flex h-full items-center gap-3 overflow-hidden p-0 transition-colors hover:border-primary">
+    <Card className="flex h-full items-center gap-3 overflow-hidden p-0 transition-colors hover:border-[var(--accent-border-subtle)] hover:bg-[var(--accent-soft-faint)]">
       <div className="relative h-16 w-16 shrink-0 bg-muted">
         {target?.imageUrl ? (
           <StorageImage

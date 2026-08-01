@@ -36,7 +36,7 @@ export default function RecoverPage() {
     >
       {sent ? (
         <div className="text-center">
-          <div className="mx-auto mb-6 flex size-24 items-center justify-center rounded-2xl border border-accent-border bg-accent shadow-glow">
+          <div className="mx-auto mb-6 flex size-24 items-center justify-center rounded-2xl border border-accent-border bg-accent shadow-sm">
             <EnvelopeSimple className="size-10 text-rose" weight="duotone" />
           </div>
           <h1 className="font-heading text-3xl font-extrabold tracking-tight">

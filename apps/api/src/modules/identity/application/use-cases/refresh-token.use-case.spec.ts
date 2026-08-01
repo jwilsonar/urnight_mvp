@@ -71,13 +71,33 @@ describe('RefreshTokenUseCase', () => {
     expect(result.refresh.token).not.toBe(first.refresh.token);
   });
 
-  it('rechaza reutilizar un refresh ya rotado y revoca toda la familia (posible robo)', async () => {
+  it('hace idempotentes dos refresh simultaneos dentro de la ventana de gracia', async () => {
+    const { users, issuer, store, useCase } = build();
+    const user = new UserBuilder().withId('u-race').build();
+    await users.create(user);
+    const first = await issuer.issueFor(user);
+
+    const [left, right] = await Promise.all([
+      useCase.execute({ refreshToken: first.refresh.token }),
+      useCase.execute({ refreshToken: first.refresh.token }),
+    ]);
+
+    expect(left.access.token).toBe(right.access.token);
+    expect(left.refresh.token).toBe(right.refresh.token);
+    expect(store.countFor('u-race')).toBe(1);
+    await expect(useCase.execute({ refreshToken: left.refresh.token })).resolves.toMatchObject({
+      user: { id: 'u-race' },
+    });
+  });
+
+  it('fuera de la gracia, reutilizar el jti revoca toda la familia (posible robo)', async () => {
     const { users, issuer, store, useCase } = build();
     const user = new UserBuilder().withId('u1').build();
     await users.create(user);
     const first = await issuer.issueFor(user);
 
     const rotated = await useCase.execute({ refreshToken: first.refresh.token }); // rota
+    store.expireRotations();
     // El token viejo ya no vale: su jti fue revocado.
     await expect(useCase.execute({ refreshToken: first.refresh.token })).rejects.toBeInstanceOf(
       InvalidTokenError,
