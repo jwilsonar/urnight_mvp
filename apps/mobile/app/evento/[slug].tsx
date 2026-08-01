@@ -1,7 +1,7 @@
 /** Ficha pública del evento: flyer, datos y tramos de entrada (SD-04 fase 2). */
 import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import type {
@@ -46,10 +46,12 @@ function TicketRow({ ticket }: { ticket: TicketTypeResponse }) {
 
 export default function EventDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
+  const router = useRouter();
   const [event, setEvent] = useState<EventResponse | null>(null);
   const [tickets, setTickets] = useState<TicketTypeResponse[]>([]);
   const [localName, setLocalName] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>('loading');
+  const hasTickets = tickets.some((t) => t.status === 'active' && t.remaining > 0);
 
   const load = useCallback(async () => {
     if (!slug) return;
@@ -147,11 +149,16 @@ export default function EventDetailScreen() {
           )}
         </View>
 
-        <Button label="Compra disponible en la web" disabled />
-        <Text style={styles.buyNote}>
-          La compra desde el teléfono llega pronto. Hoy tus entradas se compran en
-          la web de Ravenue.
-        </Text>
+        <Button
+          label={hasTickets ? 'Comprar entradas' : 'Sin entradas a la venta'}
+          disabled={!hasTickets}
+          onPress={() =>
+            router.push({
+              pathname: '/comprar/[eventId]',
+              params: { eventId: event.id, slug: event.slug },
+            })
+          }
+        />
       </View>
     </ScrollView>
   );
@@ -267,10 +274,5 @@ const styles = StyleSheet.create({
   soldOut: {
     ...type.label,
     color: color.errorFg,
-  },
-  buyNote: {
-    ...type.caption,
-    color: color.textFaint,
-    textAlign: 'center',
   },
 });
