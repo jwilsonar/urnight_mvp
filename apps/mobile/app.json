@@ -14,11 +14,20 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "pe.ravenue.mobile"
+      "bundleIdentifier": "pe.ravenue.mobile",
+      "associatedDomains": ["applinks:ravenue.pe"]
     },
     "android": {
       "package": "pe.ravenue.mobile",
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [{ "scheme": "https", "host": "ravenue.pe", "pathPrefix": "/p" }],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "experiments": {
       "typedRoutes": true

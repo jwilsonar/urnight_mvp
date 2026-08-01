@@ -21,6 +21,8 @@ export default function RootLayout() {
           options={{ headerTransparent: true, headerTitle: '' }}
         />
         <Stack.Screen name="entrada/[id]" options={{ title: 'Tu entrada' }} />
+        <Stack.Screen name="comprar/[eventId]" options={{ title: 'Comprar' }} />
+        <Stack.Screen name="p/[code]" options={{ title: 'Invitación' }} />
         <Stack.Screen
           name="login"
           options={{ presentation: 'modal', headerShown: false }}
