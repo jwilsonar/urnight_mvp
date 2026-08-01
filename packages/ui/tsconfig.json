@@ -2,6 +2,7 @@
   "extends": "@urnight/config/tsconfig.next.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "types": ["react"]
   },
   "include": ["src/**/*"],

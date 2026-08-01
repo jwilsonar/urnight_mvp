@@ -358,7 +358,9 @@
     },
     "card": {
       "facade": "Venue exterior",
-      "facadeNamed": "{name} exterior"
+      "facadeNamed": "{name} exterior",
+      "verified": "Verified venue",
+      "notVerified": "Unverified venue"
     },
     "crowd": {
       "title": "Crowd right now",

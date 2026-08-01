@@ -358,7 +358,9 @@
     },
     "card": {
       "facade": "Fachada del local",
-      "facadeNamed": "Fachada de {name}"
+      "facadeNamed": "Fachada de {name}",
+      "verified": "Local verificado",
+      "notVerified": "Local no verificado"
     },
     "crowd": {
       "title": "Ambiente ahora",
