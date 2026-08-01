@@ -11,6 +11,10 @@
  *  - atribución única por order, un referral_link por promoter
  *  - snapshots de precio/comisión denormalizados
  *
+ * Además del dataset manual (que cubre los invariantes finos), genera volumen
+ * con @faker-js/faker (locale es, semilla fija → reproducible): locales extra
+ * y una agenda de eventos que cubre los próximos 12 meses (+365 días).
+ *
  * Idempotente: TRUNCATE ... CASCADE de todas las tablas de la app y reinserta.
  *
  * Ejecutar:  pnpm --filter @urnight/db db:seed
@@ -19,6 +23,7 @@
  * de modo que las credenciales funcionan en el login real.
  */
 import { randomBytes, randomUUID } from 'node:crypto';
+import { fakerES as faker } from '@faker-js/faker';
 import { config } from 'dotenv';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
@@ -34,7 +39,7 @@ if (!DATABASE_URL) {
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-const uid = () => randomUUID();
+const uid = (): string => randomUUID();
 const qr = () => randomBytes(24).toString('hex'); // 48 chars hex (<=64), impredecible
 const N = (n: number) => n.toFixed(2); // numeric(10,2) → string
 const RATE = (n: number) => n.toFixed(4); // numeric(5,4) → string
@@ -50,6 +55,286 @@ const at = (date: Date, h: number, m = 0) => {
 
 // Contraseña común de demo (cumple política: 8+, mayús, minús, dígito, símbolo).
 const DEMO_PASSWORD = 'Urnight2026!';
+
+// ── Generadores faker ──────────────────────────────────────────────────────
+// Los bloques manuales de main() cubren los invariantes finos (orders, QR,
+// reviews verificadas, atribución). Estos generadores agregan volumen al
+// catálogo: locales extra y una agenda de eventos que cubre los próximos
+// 12 meses. Semilla fija → el dataset es reproducible entre corridas.
+faker.seed(20260730);
+
+type LocalInsert = typeof schema.local.$inferInsert;
+type LocalImageInsert = typeof schema.localImage.$inferInsert;
+type EventInsert = typeof schema.event.$inferInsert;
+type TicketTypeInsert = typeof schema.ticketType.$inferInsert;
+type EventImageInsert = typeof schema.eventImage.$inferInsert;
+
+const slugify = (s: string) =>
+  s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+// Slugs del dataset manual pre-registrados: idx_local_slug / idx_event_slug
+// son UNIQUE y los generados no deben colisionar con ellos.
+const takenSlugs = new Set<string>([
+  'nocturna-club', 'sky-lounge-360', 'barranco-beats', 'karaoke-estelar',
+  'neon-nights-vol-5', 'reggaeton-old-school', 'sunset-rooftop-sessions',
+  'techno-underground', 'halloween-madness', 'noche-de-karaoke',
+  'festival-cancelado', 'viernes-de-perreo', 'deep-house-terraza',
+  'salsa-en-vivo', 'karaoke-batalla-de-bandas', 'aniversario-nocturna',
+  'techno-marathon',
+]);
+const uniqueSlug = (base: string) => {
+  const root = slugify(base);
+  let slug = root;
+  for (let n = 2; takenSlugs.has(slug); n += 1) slug = `${root}-${n}`;
+  takenSlugs.add(slug);
+  return slug;
+};
+
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+// Nombres de local únicos: pool barajado de combinaciones prefijo × núcleo.
+const LOCAL_NAME_POOL = faker.helpers.shuffle(
+  ['Club', 'Bar', 'Lounge', 'Terraza', 'Sala', 'Estación', 'Templo', 'La Casa'].flatMap((prefix) =>
+    ['Eclipse', 'Aurora', 'Vinilo', 'Neón', 'Marea', 'Bruma', 'Faro', 'Ámbar', 'Zafiro', 'Luna Roja', 'Delirio', 'Trueno'].map(
+      (core) => `${prefix} ${core}`,
+    ),
+  ),
+);
+
+const LOCAL_DESCRIPTIONS: ((zone: string) => string)[] = [
+  (z) => `Uno de los imperdibles de ${z}: pista amplia, coctelería de autor y DJs residentes toda la semana.`,
+  (z) => `Punto de encuentro de la movida nocturna de ${z}. Sonido de primer nivel y ambientes temáticos.`,
+  (z) => `Espacio íntimo en el corazón de ${z}, ideal para previas, afters y música en vivo.`,
+  (z) => `El escenario favorito de ${z} para fiestas temáticas, shows en vivo y noches de estreno.`,
+];
+
+const OPENING_HOURS_POOL = [
+  { mon: null, tue: null, wed: '20:00-02:00', thu: '20:00-03:00', fri: '21:00-05:00', sat: '21:00-05:00', sun: '18:00-00:00' },
+  { mon: null, tue: '19:00-01:00', wed: '19:00-01:00', thu: '19:00-02:00', fri: '20:00-04:00', sat: '20:00-04:00', sun: null },
+  { mon: null, tue: null, wed: null, thu: '21:00-03:00', fri: '22:00-06:00', sat: '22:00-06:00', sun: null },
+];
+
+const EVENT_THEMES = [
+  'Noche Retro', 'Full Perreo', 'Glow Party', 'Sunset Session', 'Urban Fest',
+  'La Previa', 'Cumbia Total', 'Fiesta Blanca', 'Máscaras & Neón', 'Ritmo Latino',
+  'Warehouse Night', 'Karaoke Star', 'Afterwork Beats', 'Década 2000', 'Tropical Bass',
+];
+
+const EVENT_DESCRIPTIONS: ((genre: string) => string)[] = [
+  (g) => `Una noche entera de ${g}, con DJs invitados, visuales en vivo y sorpresas en pista.`,
+  (g) => `Line-up local e invitados especiales para una sesión de ${g} que se estira hasta la madrugada.`,
+  (g) => `${cap(g)} sin pausa: warm-up, set principal y cierre b2b. El aforo es limitado, llega temprano.`,
+  (g) => `Edición especial con lo mejor de la escena ${g}. Promociones en barra hasta la medianoche.`,
+];
+
+const CUSTOM_TAG_POOL = [
+  'show en vivo', 'barra premium', 'zona fumadores', 'ingreso hasta 1am',
+  'dress code flexible', 'estacionamiento',
+];
+
+type GeneratedLocal = {
+  row: LocalInsert & { id: string };
+  ownerId: string;
+  images: LocalImageInsert[];
+  typeIds: string[];
+  genreIds: string[];
+  tagIds: string[];
+};
+
+function buildGeneratedLocals(deps: {
+  companies: { id: string; ownerId: string }[];
+  zones: { id: string; name: string }[];
+  localTypeIds: string[];
+  genreIds: string[];
+  tagIds: string[];
+  count: number;
+}): GeneratedLocal[] {
+  return Array.from({ length: deps.count }, (_, i) => {
+    const name = LOCAL_NAME_POOL[i % LOCAL_NAME_POOL.length]!;
+    const slug = uniqueSlug(name);
+    const companyPick = faker.helpers.arrayElement(deps.companies);
+    const zonePick = faker.helpers.arrayElement(deps.zones);
+    const status = faker.helpers.weightedArrayElement([
+      { value: 'active', weight: 8 },
+      { value: 'draft', weight: 1 },
+      { value: 'inactive', weight: 1 },
+    ]);
+    // Coordenadas dentro del área urbana de Lima.
+    const latitude = faker.number.float({ min: -12.19, max: -12.03, fractionDigits: 4 });
+    const longitude = faker.number.float({ min: -77.06, max: -76.94, fractionDigits: 4 });
+    const mainImageKey = `https://picsum.photos/seed/locals-${slug}-main/1200/800`;
+    const id = uid();
+    return {
+      row: {
+        id,
+        companyId: companyPick.id,
+        zoneId: zonePick.id,
+        name,
+        slug,
+        description: faker.helpers.arrayElement(LOCAL_DESCRIPTIONS)(zonePick.name),
+        address: `${faker.location.street()} ${faker.number.int({ min: 100, max: 2500 })}, ${zonePick.name}`,
+        latitude,
+        longitude,
+        googleMapsUrl: `https://maps.google.com/?q=${latitude},${longitude}`,
+        openingHours: faker.helpers.arrayElement(OPENING_HOURS_POOL),
+        socials: `https://instagram.com/${slug.replace(/-/g, '')}`,
+        mainImageKey,
+        status,
+        isVerified: status === 'active' && faker.datatype.boolean({ probability: 0.6 }),
+      },
+      ownerId: companyPick.ownerId,
+      images: [
+        { localId: id, storageKey: mainImageKey, isMain: true, sortOrder: 0, width: 1600, height: 900, sizeBytes: faker.number.int({ min: 250_000, max: 550_000 }) },
+        ...Array.from({ length: faker.number.int({ min: 1, max: 3 }) }, (_g, g) => ({
+          localId: id,
+          storageKey: `https://picsum.photos/seed/locals-${slug}-${g + 1}/1200/800`,
+          isMain: false,
+          sortOrder: g + 1,
+          width: 1280,
+          height: 720,
+          sizeBytes: faker.number.int({ min: 200_000, max: 450_000 }),
+        })),
+      ],
+      typeIds: faker.helpers.arrayElements(deps.localTypeIds, { min: 1, max: 2 }),
+      genreIds: faker.helpers.arrayElements(deps.genreIds, { min: 1, max: 3 }),
+      tagIds: faker.helpers.arrayElements(deps.tagIds, { min: 1, max: 3 }),
+    };
+  });
+}
+
+// Un evento por bimestre y por local activo → la agenda cubre los 12 meses
+// siguientes sin huecos (referencia hasta +365 días).
+const AGENDA_BUCKETS: [number, number][] = [
+  [2, 60], [61, 120], [121, 180], [181, 240], [241, 300], [301, 365],
+];
+
+type GeneratedEvent = {
+  row: EventInsert & { id: string };
+  ticketTypes: TicketTypeInsert[];
+  images: EventImageInsert[];
+  genreIds: string[];
+  tagIds: string[];
+};
+
+function buildAnnualAgenda(deps: {
+  locals: { id: string; createdBy: string }[];
+  genres: { id: string; name: string }[];
+  tagIds: string[];
+}): GeneratedEvent[] {
+  return deps.locals.flatMap((loc) =>
+    AGENDA_BUCKETS.map(([minDay, maxDay]) => {
+      const id = uid();
+      const theme = faker.helpers.arrayElement(EVENT_THEMES);
+      const name = faker.helpers.weightedArrayElement([
+        { value: theme, weight: 5 },
+        { value: `${theme} vol. ${faker.number.int({ min: 2, max: 9 })}`, weight: 3 },
+        { value: `${theme} · Edición ${NOW.getFullYear()}`, weight: 2 },
+      ]);
+      const slug = uniqueSlug(name);
+      const startDay = faker.number.int({ min: minDay, max: maxDay });
+      const startsAt = at(daysFromNow(startDay), faker.number.int({ min: 19, max: 23 }));
+      const endsAt = new Date(startsAt.getTime() + faker.number.int({ min: 4, max: 8 }) * 60 * 60 * 1000);
+      // Lo cercano siempre está publicado (alimenta home/carruseles); lo lejano
+      // mezcla published/scheduled para cubrir ambos estados.
+      const status =
+        startDay <= 45
+          ? 'published'
+          : faker.helpers.weightedArrayElement([
+              { value: 'published', weight: 3 },
+              { value: 'scheduled', weight: 1 },
+            ]);
+      const publishedAt = status === 'published' ? daysFromNow(-faker.number.int({ min: 1, max: 21 })) : null;
+      const genres = faker.helpers.arrayElements(deps.genres, { min: 1, max: 2 });
+      const flyerUrl = `https://picsum.photos/seed/events-${slug}-flyer/1200/800`;
+
+      // La venta abre al publicar (o ~30 días antes si aún no se publica) y
+      // cierra al iniciar el evento. sold=0 → CHECK sold <= stock trivial.
+      const saleStartsAt = publishedAt ?? daysFromNow(Math.max(1, startDay - 30));
+      const ticketTypes: TicketTypeInsert[] = [
+        {
+          eventId: id,
+          name: 'General',
+          tierCode: 'general',
+          price: N(faker.number.int({ min: 7, max: 18 }) * 5),
+          stock: faker.number.int({ min: 120, max: 400 }),
+          sold: 0,
+          maxPerUser: faker.number.int({ min: 4, max: 8 }),
+          saleStartsAt,
+          saleEndsAt: startsAt,
+          status: 'active',
+        },
+      ];
+      if (faker.datatype.boolean({ probability: 0.55 })) {
+        ticketTypes.push({
+          eventId: id,
+          name: 'VIP',
+          tierCode: 'vip',
+          price: N(faker.number.int({ min: 20, max: 36 }) * 5),
+          stock: faker.number.int({ min: 40, max: 120 }),
+          sold: 0,
+          maxPerUser: 4,
+          saleStartsAt,
+          saleEndsAt: startsAt,
+          status: 'active',
+        });
+      }
+      if (faker.datatype.boolean({ probability: 0.25 })) {
+        ticketTypes.push({
+          eventId: id,
+          name: 'Premium Box',
+          tierCode: 'premium',
+          price: N(faker.number.int({ min: 40, max: 70 }) * 5),
+          stock: faker.number.int({ min: 10, max: 40 }),
+          sold: 0,
+          maxPerUser: 2,
+          saleStartsAt,
+          saleEndsAt: startsAt,
+          status: 'active',
+        });
+      }
+
+      return {
+        row: {
+          id,
+          localId: loc.id,
+          name,
+          slug,
+          description: faker.helpers.arrayElement(EVENT_DESCRIPTIONS)(genres[0]!.name),
+          startsAt,
+          endsAt,
+          flyerUrl,
+          totalCapacity: ticketTypes.reduce((sum, t) => sum + t.stock, 0),
+          ticketsSold: 0,
+          checkinsCount: 0,
+          status,
+          minAgeNote: '+18',
+          dressCode:
+            faker.helpers.maybe(
+              () => faker.helpers.arrayElement(['Casual', 'Smart casual', 'Urban chic', 'All black', 'Elegante sport', 'Libre']),
+              { probability: 0.8 },
+            ) ?? null,
+          customTags: faker.helpers.arrayElements(CUSTOM_TAG_POOL, { min: 0, max: 2 }),
+          createdBy: loc.createdBy,
+          publishedAt,
+        },
+        ticketTypes,
+        images: [
+          { eventId: id, url: flyerUrl, isFlyer: true, sortOrder: 0 },
+          ...(faker.datatype.boolean({ probability: 0.4 })
+            ? [{ eventId: id, url: `https://picsum.photos/seed/events-${slug}-1/1200/800`, isFlyer: false, sortOrder: 1 }]
+            : []),
+        ],
+        genreIds: genres.map((g) => g.id),
+        tagIds: faker.helpers.arrayElements(deps.tagIds, { min: 0, max: 2 }),
+      };
+    }),
+  );
+}
 
 async function main() {
   const { db, sql } = createDbClient(DATABASE_URL);
@@ -431,6 +716,39 @@ async function main() {
     { localId: L.b2, tagId: T.cumple },
   ]);
 
+  // ── 3.5 Locales generados (faker): volumen de catálogo ────────────────────
+  console.log('→ Locales generados (faker)...');
+
+  const zoneCatalog = [
+    { id: Z.mira, name: 'Miraflores' },
+    { id: Z.barr, name: 'Barranco' },
+    { id: Z.isidro, name: 'San Isidro' },
+    { id: Z.surco, name: 'Santiago de Surco' },
+    { id: Z.centro, name: 'Centro de Lima' },
+  ];
+  const generatedLocals = buildGeneratedLocals({
+    companies: [
+      { id: C.a, ownerId: U.ownerA },
+      { id: C.b, ownerId: U.ownerB },
+    ],
+    zones: zoneCatalog,
+    localTypeIds: Object.values(LT),
+    genreIds: Object.values(G),
+    tagIds: Object.values(T),
+    count: 8,
+  });
+  await db.insert(local).values(generatedLocals.map((l) => l.row));
+  await db.insert(localImage).values(generatedLocals.flatMap((l) => l.images));
+  await db.insert(localLocalType).values(
+    generatedLocals.flatMap((l) => l.typeIds.map((localTypeId) => ({ localId: l.row.id, localTypeId }))),
+  );
+  await db.insert(localGenre).values(
+    generatedLocals.flatMap((l) => l.genreIds.map((genreId) => ({ localId: l.row.id, genreId }))),
+  );
+  await db.insert(localTag).values(
+    generatedLocals.flatMap((l) => l.tagIds.map((tagId) => ({ localId: l.row.id, tagId }))),
+  );
+
   // ── 4. Events & Ticket Types ──────────────────────────────────────────────
   console.log('→ Events & Ticket Types...');
 
@@ -577,6 +895,48 @@ async function main() {
     { eventId: E.e6, tagId: T.cumple },
   ]);
 
+  // ── 4.5 Agenda anual generada (faker): eventos hasta +365 días ────────────
+  console.log('→ Agenda anual generada (faker, hasta +365 días)...');
+
+  const genreCatalog = [
+    { id: G.regg, name: 'reggaetón' },
+    { id: G.elec, name: 'electrónica' },
+    { id: G.house, name: 'house' },
+    { id: G.techno, name: 'techno' },
+    { id: G.salsa, name: 'salsa' },
+    { id: G.rock, name: 'rock' },
+    { id: G.pop, name: 'pop' },
+    { id: G.hiphop, name: 'hip-hop' },
+  ];
+  // Solo locales activos: los manuales + los generados con status 'active'.
+  const agendaLocals = [
+    { id: L.a1, createdBy: U.ownerA },
+    { id: L.a2, createdBy: U.ownerA },
+    { id: L.b1, createdBy: U.ownerB },
+    { id: L.b2, createdBy: U.ownerB },
+    ...generatedLocals
+      .filter((l) => l.row.status === 'active')
+      .map((l) => ({ id: l.row.id, createdBy: l.ownerId })),
+  ];
+  const annualAgenda = buildAnnualAgenda({
+    locals: agendaLocals,
+    genres: genreCatalog,
+    tagIds: Object.values(T),
+  });
+  await db.insert(event).values(annualAgenda.map((e) => e.row));
+  await db.insert(ticketType).values(annualAgenda.flatMap((e) => e.ticketTypes));
+  await db.insert(eventImage).values(annualAgenda.flatMap((e) => e.images));
+  await db.insert(eventGenre).values(
+    annualAgenda.flatMap((e) => e.genreIds.map((genreId) => ({ eventId: e.row.id, genreId }))),
+  );
+  const annualAgendaTags = annualAgenda.flatMap((e) =>
+    e.tagIds.map((tagId) => ({ eventId: e.row.id, tagId })),
+  );
+  if (annualAgendaTags.length > 0) {
+    await db.insert(eventTag).values(annualAgendaTags);
+  }
+  console.log(`   ${annualAgenda.length} eventos generados en ${agendaLocals.length} locales activos.`);
+
   // ── 6. Promoters & Promo Codes (antes de orders por las FK de atribución) ──
   console.log('→ Promoters & Promo Codes...');
 
@@ -688,7 +1048,7 @@ async function main() {
     if (opts.tickets?.length) {
       for (const t of opts.tickets) {
         const idx = opts.items.findIndex((it) => it.ticketTypeId === t.ticketTypeId);
-        const orderItemId = itemIds[idx >= 0 ? idx : 0];
+        const orderItemId = itemIds[idx >= 0 ? idx : 0]!;
         const ticketId = uid();
         await db.insert(ticket).values({
           id: ticketId,

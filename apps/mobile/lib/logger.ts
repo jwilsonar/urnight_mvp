@@ -7,7 +7,7 @@
 type Level = 'error' | 'warn' | 'info' | 'debug';
 type Fields = Record<string, unknown>;
 
-const APP = 'urnight-mobile';
+const APP = 'ravenue-mobile';
 const ORDER: Record<Level, number> = { error: 0, warn: 1, info: 2, debug: 3 };
 
 const isDev = process.env.NODE_ENV !== 'production';

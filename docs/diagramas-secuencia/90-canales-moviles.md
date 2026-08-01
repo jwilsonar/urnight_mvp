@@ -5,14 +5,14 @@
 > **Alcance.** El canal móvil del asistente (`apps/mobile`), representado con **7 diagramas Mermaid**
 > en formato *protocol data flow*, mismo estándar que el resto de la serie.
 >
-> **Advertencia de estado.** A diferencia de los otros documentos de la serie, aquí **casi todo es
-> TO-BE**. `apps/mobile` es hoy un andamiaje: tres archivos de producto y una pantalla que hace ping a
-> `/health`. Solo SD-01 documenta código existente. Los seis diagramas restantes son diseño propuesto,
-> marcados como tales, y están calcados de dos fuentes que ya funcionan en este repo: la app de puerta
-> (`apps/validator`, que resuelve sesión nativa, almacenamiento seguro y cola offline) y el consumidor
-> web (`apps/web`, que resuelve catálogo, checkout y billetera).
+> **Advertencia de estado.** El levantamiento nació TO-BE sobre un andamiaje; hoy `apps/mobile`
+> implementa la estructura de pestañas y el catálogo público de solo lectura: **SD-01 y las fases 1–2
+> de SD-04 son AS-IS**. Sesión, compra, billetera y push siguen siendo diseño propuesto, calcado de
+> dos fuentes que ya funcionan en este repo: la app de puerta (`apps/validator`, que resuelve sesión
+> nativa, almacenamiento seguro y cola offline) y el consumidor web (`apps/web`, que resuelve
+> catálogo, checkout y billetera).
 >
-> Fecha de levantamiento: 2026-07-28 · Rama `feat/rebrand-ravenue`.
+> Fecha de levantamiento: 2026-07-28 · Última sincronización: 2026-08-01 · Rama `feat/rebrand-ravenue`.
 
 ---
 
@@ -23,7 +23,7 @@
 | SD-01 | [Arranque de la aplicación](#sd-01--arranque-de-la-aplicación) | **AS-IS** — código existente |
 | SD-02 | [Sesión nativa: login y almacenamiento](#sd-02--sesión-nativa-login-y-almacenamiento) | TO-BE |
 | SD-03 | [Renovación del token y la carrera de rotación](#sd-03--renovación-del-token-y-la-carrera-de-rotación) | TO-BE |
-| SD-04 | [Catálogo, ficha y enlace profundo](#sd-04--catálogo-ficha-y-enlace-profundo) | TO-BE |
+| SD-04 | [Catálogo, ficha y enlace profundo](#sd-04--catálogo-ficha-y-enlace-profundo) | **AS-IS parcial** — fases 1–2 código, fase 3 TO-BE |
 | SD-05 | [Compra desde el móvil](#sd-05--compra-desde-el-móvil) | TO-BE |
 | SD-06 | [Billetera con QR sin red](#sd-06--billetera-con-qr-sin-red) | TO-BE |
 | SD-07 | [Registro de dispositivo y notificaciones](#sd-07--registro-de-dispositivo-y-notificaciones) | TO-BE |
@@ -36,13 +36,20 @@
 
 | Archivo | Líneas | Contenido |
 |---|---|---|
-| `app/_layout.tsx` | 11 | `Stack` de expo-router con `StatusBar`. Idéntico al del validador. |
-| `app/index.tsx` | 31 | Una pantalla: título, subtítulo *"Fase 1 (foundation)"* y el estado de `/health`. |
-| `lib/api-client.ts` | 33 | `getJson` tipado con log de red, más `fetchHealth()` y `fetchZones()`. |
+| `app/_layout.tsx` | 25 | `Stack` raíz con tema oscuro y la ruta `evento/[slug]` con header transparente. |
+| `app/(tabs)/_layout.tsx` | 57 | Tab bar: Inicio, Eventos, Billetera y Cuenta (Ionicons, tinte carmín). |
+| `app/(tabs)/index.tsx` | 170 | Inicio: hero del próximo evento + rail "Próximas noches" (`fetchUpcomingEvents`). |
+| `app/(tabs)/eventos.tsx` | 133 | Lista con búsqueda con debounce (`fetchEvents`), pull-to-refresh y estados. |
+| `app/(tabs)/billetera.tsx` | 80 | Estado vacío de marca: las entradas llegan con la sesión nativa (SD-06). |
+| `app/(tabs)/cuenta.tsx` | 154 | Sesión TO-BE + estado del servicio (`fetchHealth`) y versión de la app. |
+| `app/evento/[slug].tsx` | 276 | Ficha: flyer con scrim, tramos de entrada y CTA de compra deshabilitado. |
+| `components/` | 424 | `ui.tsx` (primitivos del DS), `event-card.tsx` y `flyer.tsx` (placeholder de marca). |
+| `lib/api-client.ts` | 105 | Cliente tipado: `resolveApiUrl()`, health, zones, events, upcoming, ticket-types y locals. |
+| `lib/theme.ts` + `lib/format.ts` | 129 | Tokens RAVENUE copiados de `globals.css` + formato es-PE de fecha y precio. |
 | `lib/logger.ts` | 65 | Logger compartido con el resto de apps nativas. |
 
-No hay autenticación, ni navegación más allá de la pantalla raíz, ni consumo de catálogo:
-`fetchZones()` está definido y **no se invoca desde ningún sitio**.
+No hay autenticación ni compra: el catálogo es de **solo lectura** sobre endpoints públicos.
+`fetchZones()` sigue definido y **no se invoca desde ningún sitio**.
 
 ### 2.2 Qué declara la configuración
 
@@ -50,13 +57,14 @@ No hay autenticación, ni navegación más allá de la pantalla raíz, ni consum
 
 | Declarado | Uso actual |
 |---|---|
-| `scheme: "urnight"` | Sin enlaces profundos configurados |
-| `expo-router` con `typedRoutes` | Una sola ruta |
+| `scheme: "ravenue"` | Sin enlaces profundos configurados |
+| `expo-router` con `typedRoutes` | Siete rutas: cuatro pestañas, la ficha `evento/[slug]` y los layouts |
+| `expo-linear-gradient` y `@expo/vector-icons` | En uso: scrims del hero/ficha, placeholder de flyer y tab bar |
 | `expo-notifications` | Sin uso |
 | `expo-sqlite` | Sin uso |
 | `react-native-maps` | Sin uso |
 | `expo-linking` | Sin uso |
-| `@urnight/contracts` | Solo para el tipo `ZoneResponse` del fetcher no usado |
+| `@urnight/contracts` | Tipos de events, ticket-types y locals en el cliente y las vistas |
 
 ### 2.3 Qué ya está resuelto en la app hermana
 
@@ -163,44 +171,47 @@ renderiza estos bloques de forma nativa.
 
 ### SD-01 · Arranque de la aplicación
 
-**AS-IS.** El único flujo que existe hoy, de punta a punta.
+**AS-IS.** Arranque real: navegación por pestañas y portada del catálogo.
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor U as Asistente
     participant APP as app/_layout.tsx
-    participant SCR as app/index.tsx
+    participant TABS as app/(tabs)/_layout.tsx
+    participant SCR as app/(tabs)/index.tsx
     participant API as lib/api-client.ts
     participant EDGE as Edge API
-    participant HC as HealthController
+    participant EC as EventsController
 
-    note over U, SCR: Fase 1 · Montaje de la única pantalla
+    note over U, SCR: Fase 1 · Montaje de la navegación por pestañas
     U->>APP: abre la aplicación
-    APP->>APP: Stack de expo-router con headerTitle UrNight
-    APP->>SCR: renderiza la ruta raíz
-    SCR-->>U: título, subtítulo "Fase 1 (foundation)" y estado "cargando…"
+    APP->>APP: Stack raíz con el tema oscuro RAVENUE (lib/theme.ts)
+    APP->>TABS: renderiza el grupo (tabs)
+    TABS-->>U: pestañas Inicio, Eventos, Billetera y Cuenta
+    TABS->>SCR: monta la pestaña Inicio
 
-    note over SCR, HC: Fase 2 · Comprobación de vida del API
-    SCR->>API: fetchHealth() dentro de useEffect
-    API->>EDGE: GET /api/v1/health · sin cabecera de autorización
-    EDGE->>HC: handler de salud
-    HC-->>EDGE: estado de base de datos y caché
-    alt respuesta correcta
-        EDGE-->>API: 200 OK · { status, info }
-        API-->>SCR: HealthResponse
-        SCR-->>U: "API: ok"
-    else respuesta no 2xx
-        EDGE-->>API: código de error
-        API->>API: log.warn con la ruta y el estado
-        API-->>SCR: el cuerpo se devuelve igualmente
-        note over API: getJson registra el fallo pero NO lanza ante un no-2xx:<br/>solo lanza si el fetch no llega a responder.
+    note over SCR, EC: Fase 2 · Portada con los próximos eventos
+    SCR->>API: fetchUpcomingEvents() dentro de useEffect
+    API->>API: resolveApiUrl() deriva el host del API del hostUri de Metro
+    API->>EDGE: GET /api/v1/events/upcoming · sin cabecera de autorización
+    EDGE->>EC: listado público de próximos eventos
+    EC-->>EDGE: eventos publicados ordenados por fecha
+    alt respuesta con eventos
+        EDGE-->>API: 200 OK · EventListResponse
+        API-->>SCR: eventos
+        SCR-->>U: hero con el primer evento y rail "Próximas noches"
+    else respuesta vacía
+        EDGE-->>API: 200 OK · lista vacía
+        API-->>SCR: lista vacía
+        SCR-->>U: estado vacío "Aún no hay noches anunciadas"
     else fallo de red
-        API->>API: log.error con el mensaje del error
+        API->>API: log.error con el mensaje del error (getJson)
         API-->>SCR: throw
-        SCR-->>U: "API: error (mensaje)"
+        SCR-->>U: ErrorState con acción Reintentar
     end
-    note over U, HC: Aquí termina todo el producto móvil actual. No hay sesión,<br/>ni catálogo, ni compra, ni billetera. fetchZones() existe sin usarse.
+    note over API: getJson registra un no-2xx con log.warn pero NO lanza:<br/>solo lanza si el fetch no llega a responder.
+    note over U, EC: La comprobación de /health vive ahora en la pestaña Cuenta:<br/>fetchHealth() pinta el estado del servicio en app/(tabs)/cuenta.tsx.<br/>Sigue sin haber sesión, compra ni billetera. fetchZones() existe sin usarse.
 ```
 
 ---
@@ -319,58 +330,68 @@ sequenceDiagram
 
 ### SD-04 · Catálogo, ficha y enlace profundo
 
-**TO-BE.** Todas las lecturas son públicas y ya existen: el móvil consume los mismos endpoints que el
-consumidor web, con los mismos tipos de `@urnight/contracts`.
+**AS-IS parcial.** Las fases 1 y 2 están implementadas en `apps/mobile` (lista con búsqueda y ficha
+con tramos): el móvil consume los mismos endpoints públicos que el consumidor web, con los mismos
+tipos de `@urnight/contracts`. La caché local y el enlace profundo de la fase 3 siguen TO-BE.
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor U as Asistente
-    participant OS as Sistema operativo
-    participant APP as Navegación de la app
-    participant CACHE as Caché local propuesta
-    participant API as api-client
+    participant LST as app/(tabs)/eventos.tsx
+    participant DET as app/evento/[slug].tsx
+    participant API as lib/api-client.ts
     participant EDGE as Edge API
+    participant OS as Sistema operativo
 
-    note over U, EDGE: Fase 1 · Catálogo y búsqueda
-    U->>APP: abre el listado de eventos
-    APP->>CACHE: consulta la copia local
-    alt copia fresca
-        CACHE-->>APP: eventos cacheados, pintado inmediato
-    else sin copia o vencida
-        APP->>API: getEvents con q, zona, género y etiqueta
-        API->>EDGE: GET /api/v1/events con la query
-        EDGE-->>API: 200 OK · EventResponse[]
-        API-->>CACHE: guarda la copia con su marca de tiempo
-        CACHE-->>APP: eventos
+    note over U, EDGE: Fase 1 · Catálogo y búsqueda (AS-IS)
+    U->>LST: abre la pestaña Eventos
+    LST->>API: fetchEvents() sin filtros
+    API->>EDGE: GET /api/v1/events
+    EDGE-->>API: 200 OK · EventListResponse
+    API-->>LST: eventos
+    LST-->>U: filas EventRow con flyer, fecha y nombre
+    opt búsqueda por texto
+        U->>LST: escribe en el buscador
+        LST->>LST: debounce de 350 ms antes de pedir
+        LST->>API: fetchEvents con q
+        API->>EDGE: GET /api/v1/events?q={q}
+        EDGE-->>API: 200 OK · EventListResponse filtrada
+        API-->>LST: resultados
+        LST-->>U: lista filtrada o estado vacío "Nada por aquí"
     end
-    APP-->>U: tarjetas de evento
-    note over APP, EDGE: El API ya soporta limit y offset en eventos, así que el listado<br/>puede pasar a scroll infinito sin tocar el backend.
+    note over LST: La caché local propuesta sigue TO-BE: cada apertura pide al API.<br/>El API ya soporta limit y offset, así que el listado puede pasar a<br/>scroll infinito sin tocar el backend.
 
-    note over U, EDGE: Fase 2 · Ficha del evento
-    U->>APP: entra a un evento
-    par Detalle
-        APP->>API: getEventBySlug(slug)
-    and Entradas
-        APP->>API: getEventTicketTypes(eventId)
-    and Reseñas
-        APP->>API: getReviews con eventId
+    note over U, EDGE: Fase 2 · Ficha del evento (AS-IS)
+    U->>LST: toca un evento
+    LST->>DET: router.push a /evento/{slug}
+    DET->>API: fetchEventBySlug(slug)
+    API->>EDGE: GET /api/v1/events/{slug}
+    EDGE-->>API: 200 OK · EventResponse
+    API-->>DET: detalle del evento
+    par Entradas
+        DET->>API: fetchEventTicketTypes(eventId)
+        API->>EDGE: GET /api/v1/events/{eventId}/ticket-types
+        EDGE-->>API: 200 OK · TicketTypeListResponse
+    and Nombre del local
+        DET->>API: fetchLocals()
+        API->>EDGE: GET /api/v1/locals
+        EDGE-->>API: 200 OK · LocalListResponse
+        DET->>DET: busca el local por el localId del evento
     end
-    API->>EDGE: tres GET públicos en paralelo
-    EDGE-->>API: 200 OK en cada uno
-    API-->>APP: evento, tramos y reseñas
-    APP-->>U: ficha con precio desde, disponibilidad y botón de compra
+    DET-->>U: flyer con scrim, tramos con precio y CTA deshabilitado de compra
+    note over DET: Promise.allSettled: si entradas o locales fallan, la ficha se<br/>pinta igual con lo que llegó. La compra sigue viviendo en la web.
 
-    note over OS, APP: Fase 3 · Enlace profundo del código de promotor
+    note over OS, DET: Fase 3 · Enlace profundo del código de promotor (TO-BE)
     U->>OS: pulsa un enlace WEB_PUBLIC_URL más /p/{code} recibido por mensajería
     alt la app tiene el enlace asociado
-        OS->>APP: abre la app con la ruta /p/{code}
-        APP->>API: resuelve el código de canje
+        OS->>DET: abre la app con la ruta /p/{code}
+        DET->>API: resuelve el código de canje
         EDGE-->>API: 200 OK · oferta con isFree y savings
-        APP-->>U: checkout con la entrada precargada
+        DET-->>U: checkout con la entrada precargada
     else la app no está asociada al dominio
         OS-->>U: abre el navegador
-        note over OS, APP: Estado actual: el scheme urnight está declarado en app.json pero<br/>no hay enlaces universales configurados, así que hoy siempre gana<br/>el navegador. Ver §9.
+        note over OS, DET: Estado actual: el scheme ravenue está declarado en app.json pero<br/>no hay enlaces universales configurados, así que hoy siempre gana<br/>el navegador. Ver §9.
     end
 ```
 
@@ -545,12 +566,13 @@ ellas, y las transaccionales (entradas emitidas) deben distinguirse de las promo
 
 Hallazgos de la lectura del código. Los cinco primeros condicionan cualquier plan sobre este canal.
 
-1. **La aplicación del asistente es un andamiaje.** Tres archivos de producto, unas 75 líneas: una
-   pantalla que hace ping a `/health`. No hay sesión, catálogo, compra ni billetera. `fetchZones()`
-   está definido y no se invoca desde ningún sitio.
+1. **El canal es un catálogo de solo lectura.** Ya hay navegación por pestañas, portada, lista con
+   búsqueda y ficha con tramos (SD-01 y SD-04), pero no hay sesión, compra ni billetera: los CTA de
+   compra están deshabilitados y remiten a la web. `fetchZones()` está definido y no se invoca desde
+   ningún sitio.
 2. **Las dependencias declaran una intención que el código no respalda.** `expo-notifications`,
    `expo-sqlite`, `react-native-maps` y `expo-linking` están instaladas y sin usar, y el `scheme`
-   `urnight` está declarado sin enlaces profundos configurados. Un enlace `/p/{code}` compartido por
+   `ravenue` está declarado sin enlaces profundos configurados. Un enlace `/p/{code}` compartido por
    un promotor abre hoy el navegador, no la app.
 3. **El patrón nativo ya resuelto no está extraído.** `apps/validator` implementa cliente HTTP con
    distinción entre fallo de red y respuesta de error, almacenamiento seguro del token, contexto de
