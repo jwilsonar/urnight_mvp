@@ -15,6 +15,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
     "@expo/vector-icons": "^15.0.3",
+    "@react-native-community/netinfo": "11.4.1",
     "@urnight/contracts": "workspace:*",
     "expo": "~54.0.0",
     "expo-constants": "~18.0.13",
@@ -25,14 +26,17 @@
     "expo-secure-store": "~15.0.8",
     "expo-sqlite": "~16.0.10",
     "expo-status-bar": "~3.0.9",
+    "qrcode": "^1.5.4",
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-maps": "1.20.1",
     "react-native-safe-area-context": "~5.6.2",
     "react-native-screens": "4.16.0",
+    "react-native-svg": "15.12.1",
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@types/qrcode": "^1.5.6",
     "@types/react": "~19.1.17",
     "@urnight/config": "workspace:*",
     "eslint": "catalog:",
