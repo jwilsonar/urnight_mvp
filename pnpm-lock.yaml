@@ -253,6 +253,9 @@ importers:
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@26.1.2)(lightningcss@1.33.0)(terser@5.49.0)
 
   apps/validator:
     dependencies:
@@ -12419,6 +12422,14 @@ snapshots:
     optionalDependencies:
       vite: 5.4.21(@types/node@22.20.1)(lightningcss@1.33.0)(terser@5.49.0)
 
+  '@vitest/mocker@2.1.9(vite@5.4.21(@types/node@26.1.2)(lightningcss@1.33.0)(terser@5.49.0))':
+    dependencies:
+      '@vitest/spy': 2.1.9
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 5.4.21(@types/node@26.1.2)(lightningcss@1.33.0)(terser@5.49.0)
+
   '@vitest/mocker@3.2.4(vite@5.4.21(@types/node@22.20.1)(lightningcss@1.33.0)(terser@5.49.0))':
     dependencies:
       '@vitest/spy': 3.2.4
@@ -17126,6 +17137,24 @@ snapshots:
       - supports-color
       - terser
 
+  vite-node@2.1.9(@types/node@26.1.2)(lightningcss@1.33.0)(terser@5.49.0):
+    dependencies:
+      cac: 6.7.14
+      debug: 4.4.3
+      es-module-lexer: 1.7.0
+      pathe: 1.1.2
+      vite: 5.4.21(@types/node@26.1.2)(lightningcss@1.33.0)(terser@5.49.0)
+    transitivePeerDependencies:
+      - '@types/node'
+      - less
+      - lightningcss
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+
   vite-plugin-storybook-nextjs@3.3.1(next@16.2.12(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(storybook@9.1.20(@testing-library/dom@10.4.1)(prettier@3.9.6)(vite@5.4.21(@types/node@22.20.1)(lightningcss@1.33.0)(terser@5.49.0)))(typescript@5.6.3)(vite@5.4.21(@types/node@22.20.1)(lightningcss@1.33.0)(terser@5.49.0)):
     dependencies:
       '@next/env': 16.0.0
@@ -17163,6 +17192,17 @@ snapshots:
       lightningcss: 1.33.0
       terser: 5.49.0
 
+  vite@5.4.21(@types/node@26.1.2)(lightningcss@1.33.0)(terser@5.49.0):
+    dependencies:
+      esbuild: 0.21.5
+      postcss: 8.5.25
+      rollup: 4.62.4
+    optionalDependencies:
+      '@types/node': 26.1.2
+      fsevents: 2.3.3
+      lightningcss: 1.33.0
+      terser: 5.49.0
+
   vitest@2.1.9(@types/node@22.20.1)(lightningcss@1.33.0)(terser@5.49.0):
     dependencies:
       '@vitest/expect': 2.1.9
@@ -17187,6 +17227,41 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.20.1
+    transitivePeerDependencies:
+      - less
+      - lightningcss
+      - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+
+  vitest@2.1.9(@types/node@26.1.2)(lightningcss@1.33.0)(terser@5.49.0):
+    dependencies:
+      '@vitest/expect': 2.1.9
+      '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@26.1.2)(lightningcss@1.33.0)(terser@5.49.0))
+      '@vitest/pretty-format': 2.1.9
+      '@vitest/runner': 2.1.9
+      '@vitest/snapshot': 2.1.9
+      '@vitest/spy': 2.1.9
+      '@vitest/utils': 2.1.9
+      chai: 5.3.3
+      debug: 4.4.3
+      expect-type: 1.4.0
+      magic-string: 0.30.21
+      pathe: 1.1.2
+      std-env: 3.10.0
+      tinybench: 2.9.0
+      tinyexec: 0.3.2
+      tinypool: 1.1.1
+      tinyrainbow: 1.2.0
+      vite: 5.4.21(@types/node@26.1.2)(lightningcss@1.33.0)(terser@5.49.0)
+      vite-node: 2.1.9(@types/node@26.1.2)(lightningcss@1.33.0)(terser@5.49.0)
+      why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@types/node': 26.1.2
     transitivePeerDependencies:
       - less
       - lightningcss
