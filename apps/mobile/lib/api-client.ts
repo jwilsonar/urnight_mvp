@@ -2,11 +2,18 @@ import Constants from 'expo-constants';
 import {
   problemDetailsSchema,
   type AuthTokensResponse,
+  type CreateOrderDto,
+  type CreateTicketHoldDto,
   type EventListResponse,
   type EventResponse,
   type LocalListResponse,
   type LoginDto,
+  type OrderResponse,
   type ProblemDetails,
+  type ResolveRedemptionCodeResponse,
+  type TicketHoldResponse,
+  type TicketListResponse,
+  type TicketResponse,
   type TicketTypeListResponse,
   type UserProfileResponse,
   type ZoneResponse,
@@ -219,4 +226,71 @@ export function fetchMe(accessToken: string): Promise<UserProfileResponse> {
   return request<UserProfileResponse>('/auth/me', 'mobile.api.auth_me', {
     token: accessToken,
   });
+}
+
+// --- Reserva de cupo y compra (SD-05, espejo de apps/web/lib/api/orders.ts) ---
+
+/** Reserva de cupo con TTL. `replaceHoldId` reemplaza el hold anterior de forma atómica. */
+export function createTicketHold(dto: CreateTicketHoldDto): Promise<TicketHoldResponse> {
+  return authed<TicketHoldResponse>('/ticket-holds', 'mobile.api.hold_create', {
+    method: 'POST',
+    json: dto,
+  });
+}
+
+/** Libera el cupo al salir del checkout. 204 sin cuerpo. */
+export function releaseTicketHold(holdId: string): Promise<void> {
+  return authed<void>(
+    `/ticket-holds/${encodeURIComponent(holdId)}`,
+    'mobile.api.hold_release',
+    { method: 'DELETE' },
+  );
+}
+
+/** Respuesta del checkout: la API crea y paga la orden en un paso (MockPayment). */
+export interface CheckoutResult {
+  order: OrderResponse;
+  tickets: TicketResponse[];
+}
+
+/**
+ * Compra. La cabecera `Idempotency-Key` hace que reintentar la MISMA clave
+ * reproduzca la orden en vez de duplicarla (SD-05). El móvil es el primer
+ * cliente que la usa: la web todavía no la manda.
+ */
+export function checkoutRequest(
+  dto: CreateOrderDto,
+  idempotencyKey: string,
+): Promise<CheckoutResult> {
+  return authed<CheckoutResult>('/orders/checkout', 'mobile.api.checkout', {
+    method: 'POST',
+    json: dto,
+    headers: { 'Idempotency-Key': idempotencyKey },
+  });
+}
+
+// --- Entradas (SD-06) ---
+
+/** Billetera del usuario autenticado: entradas con qrCode, qrImageKey y datos del evento. */
+export function fetchMyTickets(): Promise<TicketListResponse> {
+  return authed<TicketListResponse>('/tickets/me', 'mobile.api.tickets_mine');
+}
+
+// --- Códigos de promotor (SD-04 fase 3) ---
+
+/** Resuelve un código de canje. Público: no requiere sesión. */
+export function resolveRedemptionCode(code: string): Promise<ResolveRedemptionCodeResponse> {
+  return request<ResolveRedemptionCodeResponse>(
+    `/redemption-codes/${encodeURIComponent(code)}`,
+    'mobile.api.redemption_resolve',
+  );
+}
+
+/** Registra el clic de atribución del promotor. Best-effort: nunca bloquea la UI. */
+export function registerRedemptionClick(code: string): Promise<void> {
+  return request<void>(
+    `/redemption-codes/${encodeURIComponent(code)}/click`,
+    'mobile.api.redemption_click',
+    { method: 'POST' },
+  );
 }
