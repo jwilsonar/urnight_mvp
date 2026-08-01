@@ -390,7 +390,7 @@ export function EditEventDialog({
                   {customTags.map((t) => (
                     <span
                       key={t}
-                      className="inline-flex items-center gap-1 rounded-full border border-primary bg-primary/10 px-3 py-1 text-sm text-foreground"
+                      className="inline-flex items-center gap-1 rounded-full border border-accent-border bg-primary/10 px-3 py-1 text-sm font-semibold text-foreground"
                     >
                       {t}
                       <button

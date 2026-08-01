@@ -113,7 +113,7 @@ export function CheckoutClient({
             </Alert>
           ) : null}
 
-          <Card className="overflow-hidden border-primary/40">
+          <Card className="overflow-hidden border-accent-border">
             <div className="flex items-center gap-2 bg-primary/10 px-4 py-3">
               <Gift className="h-5 w-5 text-primary" weight="duotone" />
               <p className="text-sm font-medium">

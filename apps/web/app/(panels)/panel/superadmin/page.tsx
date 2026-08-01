@@ -93,7 +93,7 @@ export default function SuperAdminHomePage() {
               href={section.href}
               className="rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <Card className="h-full transition-colors hover:border-primary">
+              <Card className="h-full transition-colors hover:border-[var(--accent-border-subtle)] hover:bg-[var(--accent-soft-faint)]">
                 <CardHeader>
                   <Icon className="h-8 w-8 text-primary" weight="duotone" />
                   <CardTitle className="text-lg">{section.title}</CardTitle>

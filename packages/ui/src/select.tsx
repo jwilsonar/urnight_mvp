@@ -17,7 +17,7 @@ export const SelectTrigger = React.forwardRef<
     ref={ref}
     className={cn(
       // Patrón .field del DS (mismo tratamiento que Input).
-      'flex h-[46px] w-full items-center justify-between rounded-md border border-border bg-field px-3.5 py-2 text-sm transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
+      'flex h-[46px] w-full items-center justify-between rounded-md border border-border bg-field px-3.5 py-2 text-sm transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground/70 focus:outline-none focus:border-accent-border focus:ring-[3px] focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
       className,
     )}
     {...props}

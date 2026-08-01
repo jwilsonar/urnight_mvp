@@ -66,9 +66,9 @@ function Stepper({ current }: { current: number }) {
             className={cn(
               "flex size-7 items-center justify-center rounded-full border text-xs font-bold transition-colors",
               i < current
-                ? "border-primary bg-primary text-primary-foreground"
+                ? "border-transparent bg-primary text-primary-foreground"
                 : i === current
-                  ? "border-primary bg-accent text-rose"
+                  ? "border-accent-border bg-accent text-foreground"
                   : "border-border text-muted-foreground",
             )}
           >
@@ -339,7 +339,8 @@ export function ReservaWizard() {
                         onClick={() => pickMesa(m)}
                         className={cn(
                           "overflow-hidden rounded-md border bg-card text-left transition-[border-color,box-shadow,opacity]",
-                          mesa?.id === m.id && "border-primary shadow-glow",
+                          mesa?.id === m.id &&
+                            "border-accent-border bg-[var(--accent-soft-faint)]",
                           m.status === "reserved" &&
                             "cursor-not-allowed opacity-40",
                         )}
@@ -640,7 +641,7 @@ export function ReservaWizard() {
                     className={cn(
                       "flex cursor-pointer items-center gap-3 rounded-md border p-3.5 transition-colors",
                       birthday
-                        ? "border-primary bg-accent-soft"
+                        ? "border-accent-border bg-accent-soft"
                         : "bg-white/[0.02]",
                     )}
                   >
@@ -704,7 +705,8 @@ export function ReservaWizard() {
                       key={b.id}
                       className={cn(
                         "flex gap-3.5 rounded-md border bg-card p-3.5 transition-colors",
-                        (cart[b.id] ?? 0) > 0 && "border-primary",
+                        (cart[b.id] ?? 0) > 0 &&
+                          "border-accent-border bg-[var(--accent-soft-faint)]",
                       )}
                     >
                       <div className="rv-img-ph h-[86px] w-20 shrink-0 rounded-sm">

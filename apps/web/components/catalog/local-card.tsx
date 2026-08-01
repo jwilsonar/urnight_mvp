@@ -1,14 +1,32 @@
-import { MapPin } from "@phosphor-icons/react/dist/ssr";
+import { MapPin, SealCheck } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { LocalResponse } from "@urnight/contracts";
-import { Card, CardContent } from "@urnight/ui";
+import { Card, CardContent, cn } from "@urnight/ui";
+import {
+  VERIFIED_TONE_STYLES,
+  type VerifiedTone,
+} from "@/components/locals/verified-tone";
 import { StorageImage } from "@/lib/storage/storage-context";
 
-export function LocalCard({ local }: { local: LocalResponse }) {
+export function LocalCard({
+  local,
+  verifiedTone,
+}: {
+  local: LocalResponse;
+  verifiedTone?: VerifiedTone;
+}) {
   const t = useTranslations("locals.card");
   const href = `/locals/${local.slug}`;
   const initial = local.name.trim().charAt(0).toLocaleUpperCase();
+  const verified =
+    local.verificationStatus === undefined
+      ? local.isVerified
+      : local.verificationStatus === "approved";
+  // Temporal: un tono explícito activa la muestra visual de las cuatro cards
+  // del home. Sin la prop, la card respeta exclusivamente el estado real.
+  const showVerifiedBadge = verified || verifiedTone !== undefined;
+  const verifiedToneStyles = VERIFIED_TONE_STYLES[verifiedTone ?? "green"];
 
   return (
     <div className="group relative h-full rounded-lg focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background">
@@ -37,9 +55,19 @@ export function LocalCard({ local }: { local: LocalResponse }) {
 
           <div
             className="absolute bottom-0 left-4 z-10 flex size-14 translate-y-1/2 items-center justify-center rounded-md border border-accent-border bg-card font-display text-2xl font-black text-primary"
-            aria-hidden="true"
+            aria-label={showVerifiedBadge ? t("verified") : t("notVerified")}
           >
             {initial}
+            {showVerifiedBadge ? (
+              <SealCheck
+                className={cn(
+                  "absolute -bottom-1.5 -right-1.5 size-5 rounded-full ring-2",
+                  verifiedToneStyles.badge,
+                )}
+                weight="fill"
+                aria-hidden="true"
+              />
+            ) : null}
           </div>
         </div>
 

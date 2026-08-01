@@ -44,10 +44,10 @@ export function ChipSelect({
                 aria-pressed={active}
                 onClick={() => onToggle(o.id)}
                 className={cn(
-                  "whitespace-nowrap rounded-full border px-3 py-1 text-sm transition-colors",
+                  "whitespace-nowrap rounded-full border border-border bg-card px-3 py-1 text-sm font-medium transition-colors",
                   active
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "bg-card text-muted-foreground hover:border-primary hover:text-foreground",
+                    ? "border-accent-border bg-accent font-semibold text-foreground"
+                    : "text-muted-foreground hover:border-[var(--accent-border-subtle)] hover:bg-[var(--accent-soft-faint)] hover:text-foreground",
                 )}
               >
                 {o.name}

@@ -8,6 +8,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  cn,
 } from "@urnight/ui";
 
 const ALL = "all";
@@ -18,11 +19,13 @@ export function ZoneFilter({
   pathname,
   ariaLabel,
   allLabel,
+  className,
 }: {
   zones: ZoneResponse[];
   pathname: "/events" | "/locals";
   ariaLabel: string;
   allLabel: string;
+  className?: string;
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -39,7 +42,10 @@ export function ZoneFilter({
 
   return (
     <Select value={current} onValueChange={onChange}>
-      <SelectTrigger className="w-full sm:w-56" aria-label={ariaLabel}>
+      <SelectTrigger
+        className={cn("w-full sm:w-56", className)}
+        aria-label={ariaLabel}
+      >
         <SelectValue placeholder={allLabel} />
       </SelectTrigger>
       <SelectContent>

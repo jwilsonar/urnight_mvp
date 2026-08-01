@@ -43,7 +43,9 @@ function RadioChoice({
     <label
       className={cn(
         'flex cursor-pointer items-start gap-3 rounded-md border p-3.5 transition-colors',
-        checked ? 'border-primary bg-accent-soft' : 'bg-muted/30 hover:border-accent-border',
+        checked
+          ? 'border-accent-border bg-accent-soft'
+          : 'bg-muted/30 hover:border-[var(--accent-border-subtle)]',
       )}
     >
       <input

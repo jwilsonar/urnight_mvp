@@ -184,7 +184,7 @@ export function CartaItemDialog({
                       className={cn(
                         'rounded-full border px-3 py-1 text-xs font-semibold transition-colors duration-150',
                         active
-                          ? 'border-primary bg-accent text-rose'
+                          ? 'border-accent-border bg-accent text-foreground'
                           : 'border-border text-muted-foreground hover:border-strong',
                       )}
                     >

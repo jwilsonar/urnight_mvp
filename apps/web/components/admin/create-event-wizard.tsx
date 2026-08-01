@@ -61,9 +61,9 @@ function Stepper({ current }: { current: number }) {
             className={cn(
               'flex size-7 items-center justify-center rounded-full border text-xs font-bold transition-colors',
               index < current
-                ? 'border-primary bg-primary text-primary-foreground'
+                ? 'border-transparent bg-primary text-primary-foreground'
                 : index === current
-                  ? 'border-primary bg-accent-soft text-rose'
+                  ? 'border-accent-border bg-accent-soft text-foreground'
                   : 'border-border text-muted-foreground',
             )}
           >

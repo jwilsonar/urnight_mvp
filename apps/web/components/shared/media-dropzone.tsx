@@ -51,7 +51,8 @@ export function MediaDropzone({
       {...getRootProps()}
       className={cn(
         "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border px-6 py-8 text-center transition-colors",
-        isDragActive && "border-primary bg-primary/5",
+        isDragActive &&
+          "border-accent-border bg-[var(--accent-soft-faint)]",
         disabled && "pointer-events-none opacity-60",
       )}
     >

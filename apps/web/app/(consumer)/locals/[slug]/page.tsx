@@ -10,12 +10,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { Badge, Button, Card, CardContent } from "@urnight/ui";
+import { Badge, Button, Card, CardContent, cn } from "@urnight/ui";
 import { CrowdMeter } from "@/components/catalog/crowd-meter";
 import { EventCard } from "@/components/catalog/event-card";
 import { FavoriteButton } from "@/components/favorites/favorite-button";
 import { LocalGallery } from "@/components/locals/local-gallery";
 import { LocalMap } from "@/components/locals/local-map";
+import {
+  VERIFIED_TONE_STYLES,
+  verifiedToneForSlug,
+} from "@/components/locals/verified-tone";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Reveal } from "@/components/shared/reveal";
 import { ReportDialog } from "@/components/trust/report-dialog";
@@ -71,6 +75,9 @@ export default async function LocalDetailPage({
     local.verificationStatus === undefined
       ? local.isVerified
       : local.verificationStatus === "approved";
+  // Temporal: rota el tono por local hasta que producto elija uno definitivo.
+  const verifiedTone = verifiedToneForSlug(slug);
+  const verifiedToneStyles = VERIFIED_TONE_STYLES[verifiedTone];
   // Datos secundarios: si fallan, la página del local (ya cargada) degrada a
   // secciones vacías en vez de propagar al error boundary.
   const [events, reviews, images] = await Promise.all([
@@ -122,9 +129,17 @@ export default async function LocalDetailPage({
 
           {verified ? (
             <Reveal delay={80}>
-              <section className="mt-8 flex items-start gap-4 rounded-lg border border-success/30 bg-success/10 p-5">
+              <section
+                className={cn(
+                  "mt-8 flex items-start gap-4 rounded-lg border p-5",
+                  verifiedToneStyles.panel,
+                )}
+              >
                 <SealCheck
-                  className="mt-0.5 size-7 shrink-0 text-success"
+                  className={cn(
+                    "mt-0.5 size-7 shrink-0",
+                    verifiedToneStyles.icon,
+                  )}
                   weight="fill"
                   aria-hidden="true"
                 />

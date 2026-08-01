@@ -69,17 +69,17 @@
   --accent-deep: #a10f28;
   --accent-soft-faint: rgba(227, 23, 50, 0.06);
   --accent-soft: rgba(227, 23, 50, 0.14);
-  --accent-soft-strong: rgba(227, 23, 50, 0.22);
-  --accent-border-subtle: rgba(227, 23, 50, 0.2);
-  --accent-ring: rgba(227, 23, 50, 0.55);
-  --accent-glow: rgba(227, 23, 50, 0.4);
-  --accent-border: rgba(227, 23, 50, 0.35);
+  --accent-soft-strong: rgba(227, 23, 50, 0.14);
+  --accent-border-subtle: rgba(227, 23, 50, 0.16);
+  --accent-ring: rgba(227, 23, 50, 0.24);
+  --accent-glow: rgba(227, 23, 50, 0.18);
+  --accent-border: rgba(227, 23, 50, 0.22);
   --accent-hover-soft-faint: rgba(255, 31, 61, 0.06);
   --accent-hover-border-subtle: rgba(255, 31, 61, 0.2);
   --catalog-card-hover: linear-gradient(
     135deg,
-    rgba(227, 23, 50, 0.1) 0%,
-    rgba(227, 23, 50, 0.2) 100%
+    rgba(255, 255, 255, 0.025) 0%,
+    rgba(227, 23, 50, 0.055) 100%
   );
 
   /* ---- Estados semánticos: sólido + foreground legible + tinte + borde ---- */
@@ -134,9 +134,9 @@
   --shadow-card-md: var(--shadow-md);
   --shadow-card-lg: var(--shadow-lg);
   --shadow-card-xl: 0 30px 80px rgba(0, 0, 0, 0.6);
-  --glow-btn: 0 0 18px rgba(227, 23, 50, 0.35);
-  --glow-btn-lg: 0 0 32px rgba(227, 23, 50, 0.45);
-  --glow-chip: 0 0 16px rgba(227, 23, 50, 0.4);
+  --glow-btn: 0 0 8px rgba(227, 23, 50, 0.14);
+  --glow-btn-lg: 0 0 12px rgba(227, 23, 50, 0.16);
+  --glow-chip: 0 0 8px rgba(227, 23, 50, 0.14);
   --glow-text: 0 0 40px rgba(227, 23, 50, 0.5);
   --blur-nav: blur(14px);
   --blur-modal: blur(6px);
@@ -273,15 +273,15 @@
   --accent-deep: #a10f28;
   --accent-soft-faint: rgba(161, 15, 40, 0.05);
   --accent-soft: rgba(161, 15, 40, 0.1);
-  --accent-soft-strong: rgba(161, 15, 40, 0.16);
+  --accent-soft-strong: rgba(161, 15, 40, 0.1);
   --catalog-card-hover: linear-gradient(
     135deg,
-    rgba(227, 23, 50, 0.04) 0%,
-    rgba(227, 23, 50, 0.1) 100%
+    rgba(17, 18, 20, 0.015) 0%,
+    rgba(161, 15, 40, 0.04) 100%
   );
-  --accent-border-subtle: rgba(161, 15, 40, 0.2);
-  --accent-border: rgba(161, 15, 40, 0.42);
-  --accent-ring: #a10f28;
+  --accent-border-subtle: rgba(161, 15, 40, 0.16);
+  --accent-border: rgba(161, 15, 40, 0.22);
+  --accent-ring: rgba(161, 15, 40, 0.24);
 
   --overlay-scrim: rgba(17, 18, 20, 0.55);
   --auth-copy-shadow: none;
@@ -321,9 +321,9 @@
   --shadow-card-md: var(--shadow-md);
   --shadow-card-lg: var(--shadow-lg);
   --shadow-card-xl: 0 20px 54px rgba(17, 18, 20, 0.16);
-  --glow-btn: 0 4px 12px rgba(161, 15, 40, 0.16);
-  --glow-btn-lg: 0 8px 20px rgba(161, 15, 40, 0.2);
-  --glow-chip: 0 3px 10px rgba(161, 15, 40, 0.12);
+  --glow-btn: 0 3px 8px rgba(161, 15, 40, 0.08);
+  --glow-btn-lg: 0 5px 12px rgba(161, 15, 40, 0.1);
+  --glow-chip: 0 2px 8px rgba(161, 15, 40, 0.08);
   --glow-text: 0 4px 16px rgba(161, 15, 40, 0.12);
   --hero-scrim: linear-gradient(
     90deg,
@@ -347,7 +347,7 @@
   --popover-foreground: var(--text-primary);
   --primary: var(--rv-crimson);
   --primary-foreground: #ffffff;
-  --secondary: rgba(17, 18, 20, 0.06);
+  --secondary: transparent;
   --secondary-foreground: var(--text-primary);
   --field: rgba(17, 18, 20, 0.04);
   --muted: var(--bg-elevated);
@@ -660,7 +660,7 @@
   .rv-chip[data-active="true"] {
     background: var(--accent-soft-strong);
     border-color: var(--accent-border);
-    color: #fff;
+    color: var(--text-primary);
   }
 
   /* Carrusel horizontal con snap (categorías, rails de cards) */
@@ -806,7 +806,7 @@
      no un scale disfrazado. */
   .rv-poster:hover {
     transform: translateZ(48px);
-    box-shadow: var(--shadow-card-xl), var(--glow-btn-lg);
+    box-shadow: var(--shadow-card-xl);
   }
 
   /* ---------- Spotlight ---------- */
@@ -865,6 +865,7 @@
     );
     background-size: 300% 100%;
     background-position: 220% 0;
+    opacity: 0;
     /* Recortado con la silueta real del cuervo: sin esto la banda blanca cruza
        toda la caja del icono (incluidas las esquinas transparentes) y se lee
        como un rectángulo en vez de un brillo sobre la marca. */
@@ -878,7 +879,8 @@
     -webkit-mask-position: center;
   }
   .rv-logo3d[data-sweep="true"] .rv-logo3d__sweep {
-    animation: rv-sweep 1100ms var(--ease-brand);
+    opacity: 1;
+    animation: rv-sweep 1100ms var(--ease-brand) both;
   }
 
   /* Modo claro: jerarquía por borde + sombra, no por manchas oscuras. */
@@ -906,12 +908,6 @@
     background: rgba(255, 255, 255, 0.9);
     border-color: var(--border-strong);
     color: var(--text-primary);
-  }
-  .light .rv-chip[data-active="true"] {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: var(--primary-foreground);
-    box-shadow: var(--glow-chip);
   }
   .rv-auth-copy {
     text-shadow: var(--auth-copy-shadow);
@@ -961,11 +957,17 @@
 }
 
 @keyframes rv-sweep {
-  from {
+  0% {
     background-position: 220% 0;
+    opacity: 0;
   }
-  to {
+  15%,
+  85% {
+    opacity: 1;
+  }
+  100% {
     background-position: -120% 0;
+    opacity: 0;
   }
 }
 

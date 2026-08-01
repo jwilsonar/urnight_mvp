@@ -2,8 +2,7 @@ import { Ticket } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import type { TicketTypeResponse } from "@urnight/contracts";
-import { Badge, Button, Card, CardContent } from "@urnight/ui";
-import { tierLabel } from "@/components/admin/status-badges";
+import { Button, Card, CardContent } from "@urnight/ui";
 import { EmptyState } from "@/components/shared/empty-state";
 
 /** Lista de tipos de entrada. Regla: no se muestra precio sin stock disponible. */
@@ -37,10 +36,7 @@ export function TicketTypeList({
           <Card key={tt.id}>
             <CardContent className="flex items-center justify-between gap-4 p-4">
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{tt.name}</span>
-                  <Badge variant="outline">{tierLabel(tt.tierCode)}</Badge>
-                </div>
+                <span className="font-medium">{tt.name}</span>
                 {soldOut ? (
                   <span className="text-sm text-destructive">
                     {t("soldOut")}

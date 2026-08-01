@@ -12,6 +12,7 @@ import {
   getLimaDatePresetRange,
   parsePriceFilter,
   type EventCatalogSearchParams,
+  type EventDatePreset,
 } from "@/lib/catalog-filters";
 import { getEventCardPrices } from "@/lib/event-card-data";
 
@@ -24,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function EventsCalendarPage({
   searchParams,
 }: {
-  searchParams: Promise<EventCatalogSearchParams>;
+  searchParams: Promise<EventCatalogSearchParams & { date?: string }>;
 }) {
   const [t, format, filters] = await Promise.all([
     getTranslations("events.calendar"),
@@ -41,12 +42,13 @@ export default async function EventsCalendarPage({
     filters.minPrice ||
     filters.maxPrice,
   );
-  const datePreset =
-    filters.datePreset === "today" ||
-    filters.datePreset === "tonight" ||
-    filters.datePreset === "weekend"
-      ? filters.datePreset
-      : undefined;
+  const requestedDatePreset = filters.datePreset ?? filters.date;
+  const datePreset: EventDatePreset | undefined =
+    requestedDatePreset === "tonight"
+      ? "today"
+      : requestedDatePreset === "today" || requestedDatePreset === "weekend"
+        ? requestedDatePreset
+        : undefined;
   const dateRange = datePreset
     ? getLimaDatePresetRange(datePreset)
     : { from: filters.from, to: filters.to };

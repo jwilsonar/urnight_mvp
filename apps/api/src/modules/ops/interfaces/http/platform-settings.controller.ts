@@ -1,5 +1,6 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Put } from '@nestjs/common';
 import {
+  SESSION_IDLE_TIMEOUT_SETTING_KEY,
   upsertPlatformSettingSchema,
   type PlatformSettingResponse,
   type UpsertPlatformSettingDto,
@@ -25,6 +26,7 @@ const PUBLIC_SETTING_KEYS: ReadonlySet<string> = new Set([
   'support_email',
   'terms_current_version',
   'feature_flags',
+  SESSION_IDLE_TIMEOUT_SETTING_KEY,
 ]);
 
 /** Ajustes de plataforma. /api/v1/platform-settings. Lectura pública SOLO de claves en allowlist; escritura super_admin. */

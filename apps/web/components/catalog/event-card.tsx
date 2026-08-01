@@ -94,7 +94,7 @@ export function EventCard({
           </p>
 
           <dl className="mt-5 grid grid-cols-2 divide-x border-t">
-            <div className="min-w-0 py-3 pr-3">
+            <div className="flex min-w-0 flex-col items-center justify-center py-3 pr-3 text-center">
               <dt className="truncate text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
                 {t("priceLabel")}
               </dt>
@@ -109,7 +109,7 @@ export function EventCard({
                     })}
               </dd>
             </div>
-            <div className="min-w-0 py-3 pl-3">
+            <div className="flex min-w-0 flex-col items-center justify-center py-3 pl-3 text-center">
               <dt className="truncate text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
                 {t("dateLabel")}
               </dt>
