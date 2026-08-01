@@ -8,7 +8,13 @@ import {
   type ReactNode,
 } from 'react';
 import { AppState } from 'react-native';
-import { ApiError, loginRequest, logoutRequest, refreshRequest } from './api-client';
+import {
+  ApiError,
+  loginRequest,
+  logoutRequest,
+  refreshRequest,
+  setTokenProvider,
+} from './api-client';
 import {
   claimsOf,
   clearTokens,
@@ -102,6 +108,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (isTokenFresh(current.accessToken)) return current.accessToken;
     return refreshSingleFlight();
   }, [refreshSingleFlight]);
+
+  // El cliente HTTP obtiene el token de aquí, sin importar este módulo (evita
+  // el ciclo de dependencias). Se limpia al desmontar.
+  useEffect(() => {
+    setTokenProvider(getAccessToken);
+    return () => setTokenProvider(null);
+  }, [getAccessToken]);
 
   // Refresh proactivo al volver a primer plano en vez de esperar un 401 (SD-03).
   useEffect(() => {

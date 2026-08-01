@@ -11,7 +11,10 @@ import {
   type UserProfileResponse,
   type ZoneResponse,
 } from '@urnight/contracts';
+import { ApiError, NetworkError } from './errors';
 import { createLogger } from './logger';
+
+export { ApiError, NetworkError } from './errors';
 
 /**
  * Resuelve la URL base del API (§6). En dispositivo físico `localhost` apunta al
@@ -45,31 +48,14 @@ function withQuery(path: string, query?: QueryParams): string {
   return qs ? `${path}?${qs}` : path;
 }
 
-/**
- * Error HTTP del API en formato RFC 7807 (espejo de `ApiError` de
- * `apps/web/lib/api/client.ts`): expone status, `code` de dominio
- * (p. ej. `identity/invalid-credentials`) y errores por campo.
- */
-export class ApiError extends Error {
-  readonly status: number;
-  readonly code?: string;
-  readonly fieldErrors?: Record<string, string[]>;
-
-  constructor(status: number, problem?: Partial<ProblemDetails>) {
-    super(problem?.detail ?? problem?.title ?? `HTTP ${status}`);
-    this.name = 'ApiError';
-    this.status = status;
-    this.code = problem?.code;
-    this.fieldErrors = problem?.errors;
-  }
-}
-
 const REQUEST_TIMEOUT_MS = 15_000;
 
 interface RequestOptions {
-  method?: 'GET' | 'POST';
+  method?: 'GET' | 'POST' | 'DELETE';
   json?: unknown;
   token?: string;
+  /** Cabeceras extra (p. ej. `Idempotency-Key` del checkout, SD-05). */
+  headers?: Record<string, string>;
 }
 
 /**
@@ -86,6 +72,7 @@ async function request<T>(path: string, event: string, options: RequestOptions =
       headers: {
         ...(options.json !== undefined ? { 'Content-Type': 'application/json' } : {}),
         ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
+        ...options.headers,
       },
       body: options.json !== undefined ? JSON.stringify(options.json) : undefined,
       signal: controller.signal,
@@ -103,13 +90,41 @@ async function request<T>(path: string, event: string, options: RequestOptions =
     if (res.status === 204) return undefined as T;
     return (await res.json()) as T;
   } catch (err) {
-    if (!(err instanceof ApiError)) {
-      log.error({ path, err: (err as Error).message }, `${event}.network_error`);
-    }
-    throw err;
+    if (err instanceof ApiError) throw err;
+    log.error({ path, err: (err as Error).message }, `${event}.network_error`);
+    throw new NetworkError();
   } finally {
     clearTimeout(timer);
   }
+}
+
+type TokenProvider = () => Promise<string | null>;
+
+let tokenProvider: TokenProvider | null = null;
+
+/**
+ * Registra de dónde sale el access token. Lo llama `AuthProvider` al montar.
+ *
+ * Se inyecta en vez de importarse porque `lib/auth-context.tsx` ya importa este
+ * módulo: importarlo de vuelta cerraría el ciclo. La dependencia va en un solo
+ * sentido y así se queda.
+ */
+export function setTokenProvider(provider: TokenProvider | null): void {
+  tokenProvider = provider;
+}
+
+/**
+ * Petición autenticada: pide el token vigente al proveedor (que renueva con
+ * single-flight si hace falta, SD-03) y lo manda como Bearer.
+ */
+export async function authed<T>(
+  path: string,
+  event: string,
+  options: Omit<RequestOptions, 'token'> = {},
+): Promise<T> {
+  const token = await tokenProvider?.();
+  if (!token) throw new ApiError(401, { code: 'identity/unauthenticated' });
+  return request<T>(path, event, { ...options, token });
 }
 
 /** GET tipado con log de fallo de red (§6). */
