@@ -52,7 +52,7 @@ docs/diagramas-secuencia/
 | **5 · Checkout, Payments & Tickets** | `ORDER`, `ORDER_ITEM`, `PAYMENT`, `TICKET`, `ATTENDEE`, `QR_VALIDATION` | [`05-entradas-validacion.md`](./05-entradas-validacion.md) | 13 | `api/ticketing`, `apps/worker`, `web/checkout`, `apps/validator` |
 | **6 · Promoters & Promo Codes** | `PROMOTER`, `REFERRAL_LINK`, `SALE_ATTRIBUTION`, `PROMO_CODE*` | [`06-promotores-atribucion.md`](./06-promotores-atribucion.md) | 14 | `api/promoters`, `web/(panels)`, enlace corto |
 | **8 · Ops & Platform** | `AUDIT_LOG`, `PLATFORM_SETTING`, `SUPPORT_TICKET`, `NOTIFICATION`, `ANALYTICS_EVENT` | — **pendiente** | — | `edge/AuditInterceptor`, `apps/worker` |
-| *Transversal · canal móvil* | — (C4 §7: container `App Móvil`) | [`90-canales-moviles.md`](./90-canales-moviles.md) | 7 | `apps/mobile`, patrón tomado de `apps/validator` |
+| *Transversal · canal móvil* | — (C4 §7: container `App Móvil`) | [`90-canales-moviles.md`](./90-canales-moviles.md) | 7 | `apps/mobile`, patrón tomado de `apps/validator` y de `apps/web` |
 
 **Total: 90 diagramas.** Los dominios 2 y 7 comparten documento porque el recorrido del consumidor
 (descubrir → ver ficha → reseñar/reportar) atraviesa ambos sin corte natural. El dominio 8 aún no
@@ -94,10 +94,11 @@ Bloque 0 sub-flujo (tenant y consentimiento) · Bloque 1 alta del promotor (post
 invitar, aceptar/rechazar) · Bloque 2 asignación de eventos y cuotas · Bloque 3 códigos del promotor ·
 Bloque 4 clics, atribución en ventana de 7 días y liquidación · Bloque 5 estados.
 
-### [`90-canales-moviles.md`](./90-canales-moviles.md) — 7 diagramas · **mitad `AS-IS`**
-`apps/mobile` ya implementa pestañas, catálogo público y sesión nativa con par de tokens: `SD-01`,
-`SD-02`, `SD-03` y las fases 1–2 de `SD-04` documentan código existente. Compra, billetera y push
-(`SD-05` a `SD-07`) siguen siendo diseño propuesto, calcado de `apps/validator` y de `apps/web`.
+### [`90-canales-moviles.md`](./90-canales-moviles.md) — 7 diagramas · **casi todo `AS-IS`**
+`apps/mobile` implementa pestañas, catálogo público, sesión nativa con par de tokens, compra con
+reserva de cupo e idempotencia persistida, entradas con QR sin red y el enlace profundo del código de
+promotor: `SD-01` a `SD-06` documentan código existente. Solo el registro de dispositivos y push
+(`SD-07`) sigue siendo diseño propuesto, y depende de backend que aún no existe.
 
 ---
 

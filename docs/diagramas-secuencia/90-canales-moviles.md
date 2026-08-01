@@ -6,10 +6,10 @@
 > en formato *protocol data flow*, mismo estándar que el resto de la serie.
 >
 > **Advertencia de estado.** El levantamiento nació TO-BE sobre un andamiaje; hoy `apps/mobile`
-> implementa pestañas, catálogo público y **sesión nativa con par de tokens**: **SD-01, SD-02, SD-03
-> y las fases 1–2 de SD-04 son AS-IS**. Compra, billetera y push siguen siendo diseño propuesto,
-> calcado de dos fuentes que ya funcionan en este repo: la app de puerta (`apps/validator`) y el
-> consumidor web (`apps/web`, que resuelve catálogo, checkout y billetera).
+> implementa pestañas, catálogo público, **sesión nativa con par de tokens**, **compra con reserva
+> de cupo e idempotencia**, **entradas con QR sin red** y el **enlace profundo del código de
+> promotor**: **SD-01 a SD-06 son AS-IS**. Solo SD-07 (registro de dispositivos y push) sigue siendo
+> diseño propuesto, y depende de trabajo de backend que no existe todavía.
 >
 > Fecha de levantamiento: 2026-07-28 · Última sincronización: 2026-08-01 · Rama `feat/rebrand-ravenue`.
 
@@ -22,9 +22,9 @@
 | SD-01 | [Arranque de la aplicación](#sd-01--arranque-de-la-aplicación) | **AS-IS** — código existente |
 | SD-02 | [Sesión nativa: login y almacenamiento](#sd-02--sesión-nativa-login-y-almacenamiento) | **AS-IS** — código existente |
 | SD-03 | [Renovación del token y la carrera de rotación](#sd-03--renovación-del-token-y-la-carrera-de-rotación) | **AS-IS** — código existente |
-| SD-04 | [Catálogo, ficha y enlace profundo](#sd-04--catálogo-ficha-y-enlace-profundo) | **AS-IS parcial** — fases 1–2 código, fase 3 TO-BE |
-| SD-05 | [Compra desde el móvil](#sd-05--compra-desde-el-móvil) | TO-BE |
-| SD-06 | [Billetera con QR sin red](#sd-06--billetera-con-qr-sin-red) | TO-BE |
+| SD-04 | [Catálogo, ficha y enlace profundo](#sd-04--catálogo-ficha-y-enlace-profundo) | **AS-IS** — código existente |
+| SD-05 | [Compra desde el móvil](#sd-05--compra-desde-el-móvil) | **AS-IS** — código existente |
+| SD-06 | [Entradas con QR sin red](#sd-06--entradas-con-qr-sin-red) | **AS-IS** — código existente |
 | SD-07 | [Registro de dispositivo y notificaciones](#sd-07--registro-de-dispositivo-y-notificaciones) | TO-BE |
 
 ---
@@ -35,24 +35,35 @@
 
 | Archivo | Líneas | Contenido |
 |---|---|---|
-| `app/_layout.tsx` | 30 | `AuthProvider` + `Stack` raíz con tema oscuro, `evento/[slug]` y el modal `login`. |
-| `app/(tabs)/_layout.tsx` | 57 | Tab bar: Inicio, Eventos, Billetera y Cuenta (Ionicons, tinte carmín). |
-| `app/(tabs)/index.tsx` | 170 | Inicio: hero del próximo evento + rail "Próximas noches" (`fetchUpcomingEvents`). |
-| `app/(tabs)/eventos.tsx` | 133 | Lista con búsqueda con debounce (`fetchEvents`), pull-to-refresh y estados. |
-| `app/(tabs)/billetera.tsx` | 80 | Estado vacío de marca: las entradas llegan con la sesión nativa (SD-06). |
-| `app/(tabs)/cuenta.tsx` | 222 | Sesión real (SD-02): perfil vía `GET /auth/me`, login/logout y estado del servicio. |
-| `app/evento/[slug].tsx` | 276 | Ficha: flyer con scrim, tramos de entrada y CTA de compra deshabilitado. |
-| `app/login.tsx` | 193 | Login nativo (SD-02): `loginSchema` en local, `signIn` y mapeo de errores problem+json. |
-| `components/` | 470 | `ui.tsx` (primitivos del DS + `Field`), `event-card.tsx` y `flyer.tsx` (placeholder de marca). |
-| `lib/api-client.ts` | 207 | Cliente tipado: catálogo público + `request()` con `ApiError` y los endpoints de auth. |
-| `lib/auth.ts` | 106 | Par de tokens en `expo-secure-store`, claims (`claimsOf`) y frescura (`isTokenFresh`). |
-| `lib/auth-context.tsx` | 153 | `AuthProvider`: rehidratación, *single-flight* de refresh y logout con revocación. |
-| `lib/theme.ts` + `lib/format.ts` | 129 | Tokens RAVENUE copiados de `globals.css` + formato es-PE de fecha y precio. |
-| `lib/logger.ts` | 65 | Logger compartido con el resto de apps nativas. |
+| `app/_layout.tsx` | 32 | `AuthProvider` + `Stack` raíz: `evento/[slug]`, `entrada/[id]`, `comprar/[eventId]`, `p/[code]` y el modal `login`. |
+| `app/(tabs)/_layout.tsx` | 56 | Tab bar: Inicio, Eventos, Entradas y Cuenta (Ionicons, tinte carmín). |
+| `app/(tabs)/index.tsx` | 158 | Inicio: hero del próximo evento + rail "Próximas noches" (`fetchUpcomingEvents`). |
+| `app/(tabs)/eventos.tsx` | 123 | Lista con búsqueda con debounce (`fetchEvents`), pull-to-refresh y estados. |
+| `app/(tabs)/entradas.tsx` | 209 | Entradas (SD-06): `GET /tickets/me`, copia local y aviso de datos guardados sin red. |
+| `app/(tabs)/cuenta.tsx` | 209 | Sesión real (SD-02): perfil vía `GET /auth/me`, login/logout y estado del servicio. |
+| `app/evento/[slug].tsx` | 262 | Ficha: flyer con scrim, tramos de entrada y CTA que lleva al checkout. |
+| `app/comprar/[eventId].tsx` | 335 | Checkout (SD-05): tramo, asistentes, método de pago y estado de éxito con QR. |
+| `app/entrada/[id].tsx` | 154 | Entrada a pantalla completa (SD-06): QR grande, brillo al máximo y sello de estado. |
+| `app/p/[code].tsx` | 110 | Aterrizaje del código de promotor (SD-04 fase 3) con CTA al checkout precargado. |
+| `app/login.tsx` | 183 | Login nativo (SD-02): `loginSchema` en local, `signIn` y mapeo de errores problem+json. |
+| `components/` | 522 | `ui.tsx` (primitivos del DS + `Field`), `event-card.tsx`, `flyer.tsx` y `qr.tsx`. |
+| `lib/api-client.ts` | 259 | Cliente tipado: catálogo, auth, holds, checkout, entradas y códigos de canje. |
+| `lib/errors.ts` | 32 | `ApiError` (problem+json) y `NetworkError`: distinción que gobierna el reintento. |
+| `lib/auth.ts` | 96 | Par de tokens en `expo-secure-store`, claims (`claimsOf`) y frescura (`isTokenFresh`). |
+| `lib/auth-context.tsx` | 151 | `AuthProvider`: rehidratación, *single-flight* de refresh y logout con revocación. |
+| `lib/use-checkout.ts` | 229 | Máquina del checkout: ciclo de vida del hold, validación y envío con reintento. |
+| `lib/checkout-draft.ts` + `-rules.ts` | 105 | Borrador con clave de idempotencia y decisión de reutilizarla o estrenarla. |
+| `lib/checkout-errors.ts` | 41 | `code` de `CHECKOUT_ERROR_CODES` a copy de UX, e `isRetryable`. |
+| `lib/local-db.ts` | 33 | `expo-sqlite`: apertura y migración de `ticket_cache` y `checkout_draft`. |
+| `lib/tickets-cache.ts` + `-reconcile.ts` | 96 | Copia local de entradas: escritura, lectura y reconciliación con el backend. |
+| `lib/storage.ts` + `lib/storage-url.ts` | 32 | Key de S3 a URL renderizable (espejo de `storage-context.tsx` de la web). |
+| `lib/net.ts` | 21 | Estado de conexión con `NetInfo` y hook `useIsOnline`. |
+| `lib/theme.ts` + `lib/format.ts` | 117 | Tokens RAVENUE copiados de `globals.css` + formato es-PE de fecha y precio. |
+| `lib/logger.ts` | 55 | Logger compartido con el resto de apps nativas. |
+| `lib/*.spec.ts` | 189 | Vitest sobre los módulos puros: errores, reintento, borrador y reconciliación. |
 
-Hay sesión nativa con par de tokens (SD-02, SD-03); la compra sigue pendiente: el catálogo consume
-endpoints públicos y los CTA de compra remiten a la web. `fetchZones()` sigue definido y **no se
-invoca desde ningún sitio**.
+El canal ya compra, guarda las entradas y las muestra sin red. `fetchZones()` sigue definido y **no se
+invoca desde ningún sitio**. Lo que falta es el registro de dispositivos y el push (SD-07).
 
 ### 2.2 Qué declara la configuración
 
@@ -60,15 +71,20 @@ invoca desde ningún sitio**.
 
 | Declarado | Uso actual |
 |---|---|
-| `scheme: "ravenue"` | Sin enlaces profundos configurados |
-| `expo-router` con `typedRoutes` | Siete rutas: cuatro pestañas, la ficha `evento/[slug]` y los layouts |
+| `scheme: "ravenue"` | En uso: `ravenue://p/{code}` lo resuelve expo-router (SD-04 fase 3) |
+| `expo-router` con `typedRoutes` | Once rutas: cuatro pestañas, `evento/[slug]`, `entrada/[id]`, `comprar/[eventId]`, `p/[code]`, `login` y los layouts |
 | `expo-linear-gradient` y `@expo/vector-icons` | En uso: scrims del hero/ficha, placeholder de flyer y tab bar |
 | `expo-secure-store` | En uso: par de tokens de sesión en Keychain o Keystore (SD-02) |
+| `expo-sqlite` | En uso: `ticket_cache` y `checkout_draft` (`lib/local-db.ts`) |
+| `expo-linking` | En uso: enlaces `ravenue://p/{code}` resueltos por expo-router |
+| `expo-brightness` | En uso: brillo al máximo mientras el QR está visible (SD-06 fase 2) |
+| `expo-crypto` | En uso: `randomUUID()` de la clave de idempotencia (SD-05) |
+| `react-native-svg` y `qrcode` | En uso: `components/qr.tsx`, misma librería generadora que la web |
+| `@react-native-community/netinfo` | En uso: `lib/net.ts`, misma versión que `apps/validator` |
 | `expo-notifications` | Sin uso |
-| `expo-sqlite` | Sin uso |
 | `react-native-maps` | Sin uso |
-| `expo-linking` | Sin uso |
-| `@urnight/contracts` | Tipos de events, ticket-types, locals y auth (`loginSchema`, tokens, perfil, problem+json) |
+| `ios.associatedDomains` y `android.intentFilters` | Declarados e **inertes**: exigen dev build y `assetlinks.json` / AASA en el dominio |
+| `@urnight/contracts` | Tipos de events, ticket-types, locals, auth, checkout (`createOrderSchema`, holds, tickets) y códigos de canje |
 
 ### 2.3 Qué ya está resuelto en la app hermana
 
@@ -82,8 +98,8 @@ compartido sigue pendiente.
 | Token en almacenamiento seguro | ✅ `expo-secure-store` (Keychain o Keystore) | ✅ par completo access + refresh (`lib/auth.ts`) |
 | Contexto de sesión con rehidratación al arrancar | ✅ `AuthProvider` | ✅ `AuthProvider` (`lib/auth-context.tsx`) |
 | Decodificación local de claims para gating de UX | ✅ `isValidatorToken` | ✅ `claimsOf` + `isTokenFresh` |
-| Detección de reconexión | ✅ `NetInfo` | ❌ |
-| Cola local en SQLite | ✅ `offline-cache.ts` | ❌ (dependencia instalada) |
+| Detección de reconexión | ✅ `NetInfo` | ✅ `lib/net.ts`, misma versión |
+| Persistencia local en SQLite | ✅ `offline-cache.ts` — cola de escrituras pendientes | ✅ `lib/local-db.ts` — copia de entradas y borrador de compra |
 | Renovación del token | ❌ **tampoco lo hace el validador** — ver §9 | ✅ *single-flight* con rotación (SD-03) |
 
 ---
@@ -342,9 +358,10 @@ sequenceDiagram
 
 ### SD-04 · Catálogo, ficha y enlace profundo
 
-**AS-IS parcial.** Las fases 1 y 2 están implementadas en `apps/mobile` (lista con búsqueda y ficha
-con tramos): el móvil consume los mismos endpoints públicos que el consumidor web, con los mismos
-tipos de `@urnight/contracts`. La caché local y el enlace profundo de la fase 3 siguen TO-BE.
+**AS-IS.** Las tres fases están implementadas: lista con búsqueda, ficha con tramos y aterrizaje del
+código de promotor. El móvil consume los mismos endpoints públicos que el consumidor web, con los
+mismos tipos de `@urnight/contracts`. La caché local del catálogo sigue sin existir —cada apertura
+pide al API— y los enlaces universales quedan declarados pero inertes (ver §9).
 
 ```mermaid
 sequenceDiagram
@@ -352,6 +369,7 @@ sequenceDiagram
     actor U as Asistente
     participant LST as app/(tabs)/eventos.tsx
     participant DET as app/evento/[slug].tsx
+    participant PRM as app/p/[code].tsx
     participant API as lib/api-client.ts
     participant EDGE as Edge API
     participant OS as Sistema operativo
@@ -391,121 +409,167 @@ sequenceDiagram
         EDGE-->>API: 200 OK · LocalListResponse
         DET->>DET: busca el local por el localId del evento
     end
-    DET-->>U: flyer con scrim, tramos con precio y CTA deshabilitado de compra
-    note over DET: Promise.allSettled: si entradas o locales fallan, la ficha se<br/>pinta igual con lo que llegó. La compra sigue viviendo en la web.
+    DET-->>U: flyer con scrim, tramos con precio y CTA "Comprar entradas"
+    note over DET: Promise.allSettled: si entradas o locales fallan, la ficha se<br/>pinta igual con lo que llegó. El CTA lleva a /comprar/{eventId} (SD-05).
 
-    note over OS, DET: Fase 3 · Enlace profundo del código de promotor (TO-BE)
-    U->>OS: pulsa un enlace WEB_PUBLIC_URL más /p/{code} recibido por mensajería
-    alt la app tiene el enlace asociado
-        OS->>DET: abre la app con la ruta /p/{code}
-        DET->>API: resuelve el código de canje
-        EDGE-->>API: 200 OK · oferta con isFree y savings
-        DET-->>U: checkout con la entrada precargada
-    else la app no está asociada al dominio
+    note over OS, PRM: Fase 3 · Enlace profundo del código de promotor (AS-IS)
+    U->>OS: pulsa un enlace ravenue://p/{code} recibido por mensajería
+    alt scheme propio de la app
+        OS->>PRM: expo-router abre app/p/[code].tsx
+        PRM->>API: resolveRedemptionCode(code)
+        API->>EDGE: GET /api/v1/redemption-codes/{code} · sin cabecera de autorización
+        EDGE-->>API: 200 OK · ResolveRedemptionCodeResponse con isFree y savings
+        API-->>PRM: oferta del promotor
+        PRM-)EDGE: POST /api/v1/redemption-codes/{code}/click sin esperar respuesta
+        PRM-->>U: oferta con CTA a /comprar/{eventId} y el código precargado
+    else enlace https del dominio web
         OS-->>U: abre el navegador
-        note over OS, DET: Estado actual: el scheme ravenue está declarado en app.json pero<br/>no hay enlaces universales configurados, así que hoy siempre gana<br/>el navegador. Ver §9.
+        note over OS, PRM: Los enlaces universales están declarados en app.json pero inertes:<br/>exigen dev build y que el dominio sirva assetlinks.json y<br/>apple-app-site-association. Ver §9.
     end
+    note over PRM: El clic de atribución es fire-and-forget: si falla, la oferta se<br/>pinta igual. Nunca bloquea la pantalla.
 ```
 
 ### SD-05 · Compra desde el móvil
 
-**TO-BE.** El checkout ya es idempotente por cabecera. En móvil eso deja de ser un lujo: la red se
-cae a mitad de una compra con normalidad.
+**AS-IS.** El checkout real gira sobre **reserva de cupo con TTL**, igual que el consumidor web: el
+`holdId` viaja dentro de `items[]`. El móvil suma lo que la web todavía no manda, la cabecera
+`Idempotency-Key`, y la persiste: en móvil la red se cae a mitad de una compra con normalidad.
+Código: `app/comprar/[eventId].tsx`, `lib/use-checkout.ts`, `lib/checkout-draft.ts`,
+`lib/checkout-errors.ts`.
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor U as Asistente
-    participant APP as Pantalla de compra
-    participant IDK as Clave de idempotencia local
-    participant API as api-client
+    participant SCR as app/comprar/[eventId].tsx
+    participant HK as lib/use-checkout.ts
+    participant DFT as lib/checkout-draft.ts
+    participant API as lib/api-client.ts
     participant EDGE as Edge API
     participant CO as CheckoutUseCase
 
-    note over U, IDK: Fase 1 · Preparación del pedido
-    U->>APP: elige tramo y carga los asistentes
-    APP->>APP: valida mayoría de edad y tope por usuario con el esquema compartido
-    APP->>IDK: genera una clave de idempotencia y la persiste con el borrador
-    note over IDK: La clave se guarda ANTES de enviar y sobrevive al cierre de la app:<br/>es lo que permite reintentar sin cobrar dos veces.
+    note over U, EDGE: Fase 1 · Reserva de cupo
+    U->>SCR: abre /comprar/{eventId} desde la ficha
+    SCR->>HK: useCheckout con el evento y sus tramos
+    HK->>API: createTicketHold({ eventId, ticketTypeId, quantity })
+    API->>EDGE: POST /api/v1/ticket-holds · Authorization Bearer {accessToken}
+    alt cupo disponible
+        EDGE-->>API: 201 Created · TicketHoldResponse { id, expiresAt, status active }
+        API-->>HK: hold activo
+        HK-->>U: botón habilitado y cuenta atrás hasta expiresAt
+    else sin stock
+        EDGE-->>API: 409 · problem+json { code checkout/insufficient-stock }
+        API-->>HK: ApiError 409
+        HK-->>U: "Ya no quedan entradas suficientes en este tramo"
+    end
+    opt cambia de tramo o de cantidad
+        U->>SCR: ajusta la selección
+        HK->>API: createTicketHold con replaceHoldId
+        API->>EDGE: POST /api/v1/ticket-holds · { replaceHoldId }
+        EDGE-->>API: 201 Created · hold nuevo, el anterior queda liberado
+        API-->>HK: hold rotado
+    end
+    note over HK: Las llamadas se serializan en una cadena de promesas con contador<br/>de versión: dos cambios rápidos dejarían holds huérfanos ocupando<br/>stock hasta su TTL. Al salir se llama a DELETE /ticket-holds/{id}.
 
-    note over APP, CO: Fase 2 · Envío con reintento seguro
-    loop reintento ante fallo de red
-        APP->>API: checkout(dto, token, idempotencyKey)
+    note over U, DFT: Fase 2 · Borrador con clave de idempotencia
+    U->>SCR: completa asistentes, método de pago y código promocional
+    SCR->>SCR: attendeeInputSchema y createOrderSchema validan en local (zod de @urnight/contracts)
+    HK->>DFT: saveDraft con la clave de expo-crypto y estado sent
+    DFT-->>HK: guardado en SQLite
+    note over DFT: La clave se persiste ANTES de enviar y sobrevive a que el sistema<br/>mate la app: es lo que permite reintentar sin cobrar dos veces.<br/>keyForSubmission la reutiliza solo si el pedido no cambió.
+
+    note over HK, CO: Fase 3 · Envío con reintento seguro
+    loop reintento acotado, solo ante fallo de red
+        HK->>API: checkoutRequest(dto, idempotencyKey)
         API->>EDGE: POST /api/v1/orders/checkout · Bearer · Idempotency-Key
-        alt fallo de red, sin respuesta
-            API-->>APP: NetworkError
-            APP-->>U: "sin conexión, reintentando"
-            note over API, APP: Se reintenta con la MISMA clave. Si el primer intento llegó a<br/>crear la orden, el segundo la reproduce en vez de duplicarla.
+        alt sin respuesta del servidor
+            API-->>HK: NetworkError
+            HK-->>U: "Sin conexión, reintentando"
         else respuesta del servidor
             EDGE->>CO: execute con dedupe por clave
             alt la clave ya tenía orden asociada
                 CO-->>EDGE: reproduce la orden y sus entradas, sin cobrar de nuevo
             else primera vez
-                CO->>CO: barreras anti-sobreventa y cobro
+                CO->>CO: convierte el hold, aplica barreras anti-sobreventa y cobra
             end
             EDGE-->>API: 201 Created · { order, tickets }
-            API-->>APP: resultado
+            API-->>HK: resultado
         end
     end
+    note over API, EDGE: Un 409 checkout/stock-locked o un 402 checkout/payment-rejected NO se<br/>reintentan: son respuestas del servidor, no fallos de red (isRetryable).
 
-    note over APP, U: Fase 3 · Cierre
-    APP->>IDK: descarta la clave y el borrador
-    APP-->>U: compra confirmada, con las entradas ya disponibles en la billetera
-    note over APP, EDGE: Un 409 stock_locked o un 402 payment_rejected NO se reintentan:<br/>son respuestas del servidor, no fallos de red.
+    note over HK, U: Fase 4 · Cierre
+    HK->>DFT: upsertTickets guarda las entradas en ticket_cache
+    DFT-->>HK: copia local lista
+    HK->>DFT: clearDraft borra el borrador y su clave
+    HK-->>U: orden confirmada con el QR en pantalla y acceso a Entradas
+    note over U, DFT: Las entradas quedan en la copia local antes de salir de la pantalla:<br/>quien compra camino a la puerta ya tiene el QR sin red (SD-06).
 ```
 
 ---
 
-## 7. Bloque 3 · Billetera (TO-BE)
+## 7. Bloque 3 · Entradas (AS-IS)
 
-### SD-06 · Billetera con QR sin red
+### SD-06 · Entradas con QR sin red
 
-**TO-BE.** El caso de uso decisivo del canal: en la puerta de una discoteca puede no haber cobertura.
-El token del QR es la fuente de verdad y cabe en el dispositivo.
+**AS-IS.** El caso de uso decisivo del canal: en la puerta de una discoteca puede no haber cobertura.
+El token del QR es la fuente de verdad y cabe en el dispositivo. Código: `app/(tabs)/entradas.tsx`,
+`app/entrada/[id].tsx`, `lib/tickets-cache.ts`, `components/qr.tsx`.
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor U as Asistente
-    participant APP as Billetera
-    participant SQL as SQLite local propuesta
-    participant API as api-client
+    participant LST as app/(tabs)/entradas.tsx
+    participant DET as app/entrada/[id].tsx
+    participant CACHE as lib/tickets-cache.ts
+    participant API as lib/api-client.ts
     participant EDGE as Edge API
     actor V as Validador de puerta
 
     note over U, EDGE: Fase 1 · Sincronización cuando hay red
-    U->>APP: abre sus entradas
-    APP->>API: getMyTickets(token)
-    alt hay conexión
-        API->>EDGE: GET /api/v1/tickets/me · Bearer
-        EDGE-->>API: 200 OK · TicketResponse[] con qrCode, estado y datos del evento
-        API-->>APP: entradas
-        APP->>SQL: guarda entradas y token del QR en la base local
-        SQL-->>APP: almacenado
-        note over APP, SQL: Se persiste el token qrCode, no la imagen: pesa nada y permite<br/>generar el QR en el dispositivo aunque no haya red.
-    else sin conexión
-        API-->>APP: NetworkError
-        APP->>SQL: lee la última copia guardada
-        SQL-->>APP: entradas cacheadas
-        APP-->>U: aviso de "mostrando datos guardados"
+    U->>LST: abre la pestaña Entradas
+    alt sesión activa
+        LST->>API: fetchMyTickets()
+        API->>EDGE: GET /api/v1/tickets/me · Authorization Bearer {accessToken}
+        alt hay conexión
+            EDGE-->>API: 200 OK · TicketListResponse con qrCode, qrImageKey y datos del evento
+            API-->>LST: entradas
+            LST->>CACHE: writeTickets — INSERT OR REPLACE de las vigentes y DELETE de las ausentes
+            CACHE-->>LST: copia local actualizada
+            LST-->>U: vigentes arriba, usadas atenuadas debajo
+        else sin conexión
+            API-->>LST: NetworkError
+            LST->>CACHE: readCachedTickets()
+            CACHE-->>LST: entradas guardadas y hora de la última sincronización
+            LST-->>U: aviso "mostrando datos guardados"
+        end
+    else invitado
+        LST-->>U: EmptyState con acción Ingresar al modal /login
     end
+    note over CACHE: Se persiste el token qrCode, nunca la imagen: pesa nada y permite<br/>dibujar el QR en el dispositivo aunque no haya red. El contenido del<br/>token no se registra jamás en el log.
 
     note over U, V: Fase 2 · Presentación en puerta, sin red
-    U->>APP: abre la entrada del evento
-    APP->>APP: genera el QR localmente a partir del token
-    note over APP: Mismo criterio que la web: si existe la imagen en almacenamiento<br/>se muestra esa, y si no se dibuja desde el token. Ambas codifican<br/>lo mismo, así que el escaneo funciona igual.
-    APP->>APP: sube el brillo de la pantalla al máximo mientras el QR está visible
-    APP-->>U: código en pantalla
-    V->>APP: escanea el QR con la app de puerta
+    U->>DET: toca una entrada
+    DET->>CACHE: readCachedTickets() antes que la red — la puerta puede no tener cobertura
+    CACHE-->>DET: entrada
+    DET->>DET: components/qr.tsx genera el SVG desde el token con qrcode
+    note over DET: Con red y qrImageKey se muestra el PNG del storage resuelto por<br/>resolveStorageUrl. Sin red se dibuja desde el token. Ambos codifican<br/>lo mismo, así que el escaneo funciona igual.
+    DET->>DET: expo-brightness sube el brillo guardando el valor previo
+    DET-->>U: código en pantalla
+    V->>DET: escanea el QR con la app de puerta
     note over V: A partir de aquí manda la app del validador: veredicto online, o<br/>encolado offline con sincronización posterior.
+    U->>DET: sale de la entrada
+    DET->>DET: restaura el brillo previo, también al pasar a segundo plano
 
-    note over APP, EDGE: Fase 3 · Reconciliación del estado
-    APP->>API: al recuperar red, vuelve a pedir las entradas
+    note over DET, EDGE: Fase 3 · Reconciliación del estado
+    DET->>API: al enfocar o al recuperar red, vuelve a pedir las entradas
+    API->>EDGE: GET /api/v1/tickets/me · Authorization Bearer {accessToken}
     EDGE-->>API: 200 OK con la entrada ya en estado used
-    API-->>APP: estado actualizado
-    APP->>SQL: actualiza la copia local
-    APP-->>U: la entrada aparece como usada
-    note over APP, U: El estado local es una copia, nunca la verdad: quien decide si una<br/>entrada sirve es el backend en el momento del escaneo.
+    API-->>DET: estado actualizado
+    DET->>CACHE: writeTickets sobrescribe la copia local
+    DET-->>U: la entrada aparece como usada, con el sello sobre el QR
+    note over DET, U: El estado local es una copia, nunca la verdad: quien decide si una<br/>entrada sirve es el backend en el momento del escaneo.
 ```
 
 ---
@@ -578,19 +642,22 @@ ellas, y las transaccionales (entradas emitidas) deben distinguirse de las promo
 
 Hallazgos de la lectura del código. Los cinco primeros condicionan cualquier plan sobre este canal.
 
-1. **El canal ya tiene sesión, pero sigue sin compra ni billetera.** Hay navegación por pestañas,
-   portada, lista con búsqueda, ficha con tramos y sesión nativa con par de tokens (SD-01 a SD-04),
-   pero los CTA de compra siguen deshabilitados y remiten a la web. `fetchZones()` está definido y no
-   se invoca desde ningún sitio.
-2. **Las dependencias declaran una intención que el código no respalda.** `expo-notifications`,
-   `expo-sqlite`, `react-native-maps` y `expo-linking` están instaladas y sin usar, y el `scheme`
-   `ravenue` está declarado sin enlaces profundos configurados. Un enlace `/p/{code}` compartido por
-   un promotor abre hoy el navegador, no la app.
-3. **El patrón nativo ya resuelto no está extraído — y la duplicación ya ocurrió.** `apps/validator`
+1. **El canal ya compra y muestra entradas sin red.** Navegación por pestañas, portada, lista con
+   búsqueda, ficha, sesión nativa, checkout con reserva de cupo e idempotencia, entradas con QR
+   offline y aterrizaje del código de promotor (SD-01 a SD-06). Lo que queda abierto es SD-07 y
+   `fetchZones()`, que sigue definido y **no se invoca desde ningún sitio**.
+2. **Los enlaces universales siguen sin activar.** El scheme propio `ravenue://p/{code}` ya funciona
+   y lo resuelve expo-router. Pero `ios.associatedDomains` y `android.intentFilters` están declarados
+   e **inertes**: exigen un dev build (`eas.json`, que no existe) y que el dominio web sirva
+   `assetlinks.json` y `apple-app-site-association`. Un enlace `https` compartido por un promotor
+   sigue abriendo el navegador. De las dependencias declaradas sin usar quedan `expo-notifications`
+   (bloqueada por SD-07) y `react-native-maps`.
+3. **El patrón nativo ya resuelto no está extraído — y la duplicación creció.** `apps/validator`
    implementa cliente HTTP con distinción entre fallo de red y respuesta de error, almacenamiento
    seguro del token, contexto de sesión con rehidratación y decodificación local de claims.
    `apps/mobile` reimplementó ese patrón por su cuenta (SD-02): dos copias de `decodeSegment`,
-   dos `AuthProvider` y dos clientes HTTP. Extraerlo a un paquete compartido sigue pendiente.
+   dos `AuthProvider`, dos clientes HTTP y ahora también dos aperturas de SQLite y dos detecciones
+   de red. Extraerlo a un paquete compartido sigue pendiente.
 4. **El validador descarta el refresh token.** `AuthProvider` guarda solo `tokens.accessToken` en
    `SecureStore` y, ante un 401, cierra sesión y manda a login. En una noche de puerta eso significa
    re-loguear a mitad de turno. **El canal del asistente no debe copiar ese patrón**: debe guardar el
@@ -626,11 +693,11 @@ Derivado de lo anterior, no de una preferencia. Cada paso desbloquea al siguient
 |---|---|---|
 | 1 | Extraer el patrón nativo del validador a un paquete compartido | Evita duplicar sesión, cliente HTTP y cola offline en dos apps |
 | 2 | ~~Sesión con par de tokens, *single-flight* de renovación y logout real (SD-02, SD-03)~~ **Hecho** | Sin sesión no hay billetera ni compra, y la carrera de rotación rompe también la web |
-| 3 | Catálogo y ficha (SD-04) | Solo consume endpoints públicos que ya existen: es el tramo de menor riesgo |
-| 4 | Billetera con copia local del token del QR (SD-06) | Es el valor diferencial del canal frente a la web móvil |
-| 5 | Compra con clave de idempotencia persistida (SD-05) | Necesita sesión y ficha, y el backend ya la soporta |
+| 3 | ~~Catálogo y ficha (SD-04)~~ **Hecho** | Solo consume endpoints públicos que ya existen: es el tramo de menor riesgo |
+| 4 | ~~Entradas con copia local del token del QR (SD-06)~~ **Hecho** | Es el valor diferencial del canal frente a la web móvil |
+| 5 | ~~Compra con reserva de cupo y clave de idempotencia persistida (SD-05)~~ **Hecho** | Necesita sesión y ficha, y el backend ya las soporta |
 | 6 | Registro de dispositivos y push (SD-07) | Requiere trabajo de backend nuevo, no solo de la app |
-| 7 | Enlaces profundos y universales (SD-04, fase 3) | Cierra el circuito con los códigos de promotor |
+| 7 | ~~Enlace profundo por scheme propio (SD-04, fase 3)~~ **Hecho** · enlaces universales pendientes | Cierra el circuito con los códigos de promotor. Los universales exigen dev build y dominio |
 
 ---
 
@@ -638,9 +705,9 @@ Derivado de lo anterior, no de una preferencia. Cada paso desbloquea al siguient
 
 - **Fuente de verdad funcional:** `../der_class/PROJECT_SPECS.md` (§5 cubre los canales nativos). Toda
   desviación se registra como ADR en `docs/adr/`.
-- Este documento es mayoritariamente TO-BE: **cada diagrama que se implemente debe reescribirse como
-  AS-IS en el mismo PR**, con los nombres reales de archivos y casos de uso, y moverse su fila de la
-  tabla del §1.
+- Solo SD-07 sigue siendo TO-BE: **cuando se implemente debe reescribirse como AS-IS en el mismo
+  PR**, con los nombres reales de archivos y casos de uso, y moverse su fila de la tabla del §1.
 - Antes de mergear, ejecutar el comando de validación de §3: los 7 diagramas deben renderizar.
-- Cuando `apps/mobile` deje de ser un andamiaje, actualizar también la tabla del §2, que es lo que hoy
-  justifica el enfoque del documento.
+- El inventario del §2.1 se recuenta con
+  `git ls-files 'apps/mobile/app' 'apps/mobile/lib' 'apps/mobile/components'`: si un fichero cambia
+  de tamaño de forma apreciable, la tabla deja de describir el código.
