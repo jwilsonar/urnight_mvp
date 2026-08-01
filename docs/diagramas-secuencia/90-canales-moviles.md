@@ -6,11 +6,10 @@
 > en formato *protocol data flow*, mismo estándar que el resto de la serie.
 >
 > **Advertencia de estado.** El levantamiento nació TO-BE sobre un andamiaje; hoy `apps/mobile`
-> implementa la estructura de pestañas y el catálogo público de solo lectura: **SD-01 y las fases 1–2
-> de SD-04 son AS-IS**. Sesión, compra, billetera y push siguen siendo diseño propuesto, calcado de
-> dos fuentes que ya funcionan en este repo: la app de puerta (`apps/validator`, que resuelve sesión
-> nativa, almacenamiento seguro y cola offline) y el consumidor web (`apps/web`, que resuelve
-> catálogo, checkout y billetera).
+> implementa pestañas, catálogo público y **sesión nativa con par de tokens**: **SD-01, SD-02, SD-03
+> y las fases 1–2 de SD-04 son AS-IS**. Compra, billetera y push siguen siendo diseño propuesto,
+> calcado de dos fuentes que ya funcionan en este repo: la app de puerta (`apps/validator`) y el
+> consumidor web (`apps/web`, que resuelve catálogo, checkout y billetera).
 >
 > Fecha de levantamiento: 2026-07-28 · Última sincronización: 2026-08-01 · Rama `feat/rebrand-ravenue`.
 
@@ -21,8 +20,8 @@
 | # | Diagrama | Estado |
 |---|---|---|
 | SD-01 | [Arranque de la aplicación](#sd-01--arranque-de-la-aplicación) | **AS-IS** — código existente |
-| SD-02 | [Sesión nativa: login y almacenamiento](#sd-02--sesión-nativa-login-y-almacenamiento) | TO-BE |
-| SD-03 | [Renovación del token y la carrera de rotación](#sd-03--renovación-del-token-y-la-carrera-de-rotación) | TO-BE |
+| SD-02 | [Sesión nativa: login y almacenamiento](#sd-02--sesión-nativa-login-y-almacenamiento) | **AS-IS** — código existente |
+| SD-03 | [Renovación del token y la carrera de rotación](#sd-03--renovación-del-token-y-la-carrera-de-rotación) | **AS-IS** — código existente |
 | SD-04 | [Catálogo, ficha y enlace profundo](#sd-04--catálogo-ficha-y-enlace-profundo) | **AS-IS parcial** — fases 1–2 código, fase 3 TO-BE |
 | SD-05 | [Compra desde el móvil](#sd-05--compra-desde-el-móvil) | TO-BE |
 | SD-06 | [Billetera con QR sin red](#sd-06--billetera-con-qr-sin-red) | TO-BE |
@@ -36,20 +35,24 @@
 
 | Archivo | Líneas | Contenido |
 |---|---|---|
-| `app/_layout.tsx` | 25 | `Stack` raíz con tema oscuro y la ruta `evento/[slug]` con header transparente. |
+| `app/_layout.tsx` | 30 | `AuthProvider` + `Stack` raíz con tema oscuro, `evento/[slug]` y el modal `login`. |
 | `app/(tabs)/_layout.tsx` | 57 | Tab bar: Inicio, Eventos, Billetera y Cuenta (Ionicons, tinte carmín). |
 | `app/(tabs)/index.tsx` | 170 | Inicio: hero del próximo evento + rail "Próximas noches" (`fetchUpcomingEvents`). |
 | `app/(tabs)/eventos.tsx` | 133 | Lista con búsqueda con debounce (`fetchEvents`), pull-to-refresh y estados. |
 | `app/(tabs)/billetera.tsx` | 80 | Estado vacío de marca: las entradas llegan con la sesión nativa (SD-06). |
-| `app/(tabs)/cuenta.tsx` | 154 | Sesión TO-BE + estado del servicio (`fetchHealth`) y versión de la app. |
+| `app/(tabs)/cuenta.tsx` | 222 | Sesión real (SD-02): perfil vía `GET /auth/me`, login/logout y estado del servicio. |
 | `app/evento/[slug].tsx` | 276 | Ficha: flyer con scrim, tramos de entrada y CTA de compra deshabilitado. |
-| `components/` | 424 | `ui.tsx` (primitivos del DS), `event-card.tsx` y `flyer.tsx` (placeholder de marca). |
-| `lib/api-client.ts` | 105 | Cliente tipado: `resolveApiUrl()`, health, zones, events, upcoming, ticket-types y locals. |
+| `app/login.tsx` | 193 | Login nativo (SD-02): `loginSchema` en local, `signIn` y mapeo de errores problem+json. |
+| `components/` | 470 | `ui.tsx` (primitivos del DS + `Field`), `event-card.tsx` y `flyer.tsx` (placeholder de marca). |
+| `lib/api-client.ts` | 207 | Cliente tipado: catálogo público + `request()` con `ApiError` y los endpoints de auth. |
+| `lib/auth.ts` | 106 | Par de tokens en `expo-secure-store`, claims (`claimsOf`) y frescura (`isTokenFresh`). |
+| `lib/auth-context.tsx` | 153 | `AuthProvider`: rehidratación, *single-flight* de refresh y logout con revocación. |
 | `lib/theme.ts` + `lib/format.ts` | 129 | Tokens RAVENUE copiados de `globals.css` + formato es-PE de fecha y precio. |
 | `lib/logger.ts` | 65 | Logger compartido con el resto de apps nativas. |
 
-No hay autenticación ni compra: el catálogo es de **solo lectura** sobre endpoints públicos.
-`fetchZones()` sigue definido y **no se invoca desde ningún sitio**.
+Hay sesión nativa con par de tokens (SD-02, SD-03); la compra sigue pendiente: el catálogo consume
+endpoints públicos y los CTA de compra remiten a la web. `fetchZones()` sigue definido y **no se
+invoca desde ningún sitio**.
 
 ### 2.2 Qué declara la configuración
 
@@ -60,26 +63,28 @@ No hay autenticación ni compra: el catálogo es de **solo lectura** sobre endpo
 | `scheme: "ravenue"` | Sin enlaces profundos configurados |
 | `expo-router` con `typedRoutes` | Siete rutas: cuatro pestañas, la ficha `evento/[slug]` y los layouts |
 | `expo-linear-gradient` y `@expo/vector-icons` | En uso: scrims del hero/ficha, placeholder de flyer y tab bar |
+| `expo-secure-store` | En uso: par de tokens de sesión en Keychain o Keystore (SD-02) |
 | `expo-notifications` | Sin uso |
 | `expo-sqlite` | Sin uso |
 | `react-native-maps` | Sin uso |
 | `expo-linking` | Sin uso |
-| `@urnight/contracts` | Tipos de events, ticket-types y locals en el cliente y las vistas |
+| `@urnight/contracts` | Tipos de events, ticket-types, locals y auth (`loginSchema`, tokens, perfil, problem+json) |
 
 ### 2.3 Qué ya está resuelto en la app hermana
 
 `apps/validator` no es un andamiaje: implementa el patrón nativo completo contra el mismo API. El
-canal del asistente debería partir de ahí en vez de reinventarlo.
+canal del asistente partió de ese patrón **duplicándolo** (ver §9-3): extraerlo a un paquete
+compartido sigue pendiente.
 
 | Pieza | `apps/validator` | `apps/mobile` |
 |---|---|---|
-| Cliente HTTP con `NetworkError` frente a `ApiError` | ✅ `lib/api-client.ts` | ⚠️ Solo distingue el fallo de red en el log |
-| Token en almacenamiento seguro | ✅ `expo-secure-store` (Keychain o Keystore) | ❌ |
-| Contexto de sesión con rehidratación al arrancar | ✅ `AuthProvider` | ❌ |
-| Decodificación local de claims para gating de UX | ✅ `isValidatorToken` | ❌ |
+| Cliente HTTP con `NetworkError` frente a `ApiError` | ✅ `lib/api-client.ts` | ✅ `request()` con `ApiError` problem+json |
+| Token en almacenamiento seguro | ✅ `expo-secure-store` (Keychain o Keystore) | ✅ par completo access + refresh (`lib/auth.ts`) |
+| Contexto de sesión con rehidratación al arrancar | ✅ `AuthProvider` | ✅ `AuthProvider` (`lib/auth-context.tsx`) |
+| Decodificación local de claims para gating de UX | ✅ `isValidatorToken` | ✅ `claimsOf` + `isTokenFresh` |
 | Detección de reconexión | ✅ `NetInfo` | ❌ |
 | Cola local en SQLite | ✅ `offline-cache.ts` | ❌ (dependencia instalada) |
-| Renovación del token | ❌ **tampoco lo hace el validador** — ver §9 | ❌ |
+| Renovación del token | ❌ **tampoco lo hace el validador** — ver §9 | ✅ *single-flight* con rotación (SD-03) |
 
 ---
 
@@ -211,90 +216,95 @@ sequenceDiagram
         SCR-->>U: ErrorState con acción Reintentar
     end
     note over API: getJson registra un no-2xx con log.warn pero NO lanza:<br/>solo lanza si el fetch no llega a responder.
-    note over U, EC: La comprobación de /health vive ahora en la pestaña Cuenta:<br/>fetchHealth() pinta el estado del servicio en app/(tabs)/cuenta.tsx.<br/>Sigue sin haber sesión, compra ni billetera. fetchZones() existe sin usarse.
+    note over U, EC: La comprobación de /health vive ahora en la pestaña Cuenta:<br/>fetchHealth() pinta el estado del servicio en app/(tabs)/cuenta.tsx.<br/>La sesión nativa ya existe: AuthProvider rehidrata al arrancar (SD-02).<br/>Sigue sin haber compra ni billetera. fetchZones() existe sin usarse.
 ```
 
 ---
 
-## 5. Bloque 1 · Sesión nativa (TO-BE)
+## 5. Bloque 1 · Sesión nativa (AS-IS)
 
 ### SD-02 · Sesión nativa: login y almacenamiento
 
-**TO-BE.** El móvil **no puede** reutilizar el flujo de la web: Auth.js con handoff de `Credentials`
-es servidor a servidor. Tiene que hablar directo con el API, como ya hace el validador.
+**AS-IS.** El móvil **no** reutiliza el flujo de la web: Auth.js con handoff de `Credentials` es
+servidor a servidor. Habla directo con el API, como el validador, pero guardando el **par completo**
+de tokens. Código: `app/login.tsx`, `lib/auth-context.tsx`, `lib/auth.ts`, `lib/api-client.ts`.
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor U as Asistente
-    participant SCR as Pantalla de login propuesta
-    participant CTX as AuthProvider propuesto
+    participant SCR as app/login.tsx
+    participant CTX as AuthProvider (lib/auth-context.tsx)
     participant SEC as expo-secure-store
-    participant API as api-client
+    participant API as lib/api-client.ts
     participant EDGE as Edge API
 
-    note over U, SEC: Fase 1 · Rehidratación al arrancar
-    U->>SCR: abre la aplicación
-    CTX->>SEC: getItemAsync del par de tokens
-    SEC-->>CTX: tokens guardados o null
-    alt hay tokens válidos
-        CTX->>CTX: decodifica los claims en local solo para gating de UX
-        note over CTX: El servidor verifica la firma en cada petición. La lectura local<br/>de claims sirve para decidir qué pantalla mostrar, nada más.
-        CTX-->>SCR: sesión rehidratada, va al catálogo
-    else sin tokens o expirados
-        CTX-->>SCR: pantalla de login
+    note over U, SEC: Fase 1 · Rehidratación al arrancar (AuthProvider montado en app/_layout.tsx)
+    U->>CTX: abre la aplicación
+    CTX->>SEC: getStoredTokens() — getItemAsync del access y del refresh
+    SEC-->>CTX: par guardado o null
+    alt refresh token vigente
+        CTX->>CTX: claimsOf(accessToken) decodifica los claims solo para gating de UX
+        note over CTX: El servidor verifica la firma en cada petición. Aunque el access<br/>haya vencido la sesión sigue: se renovará on-demand (SD-03).
+        CTX-->>U: status authenticated — pestañas con sesión
+    else sin tokens o refresh vencido
+        CTX->>SEC: clearTokens() si quedaba un par muerto
+        CTX-->>U: status guest — la pestaña Cuenta ofrece "Ingresar"
 
         note over U, EDGE: Fase 2 · Autenticación directa contra el API
-        U->>SCR: correo y contraseña
-        SCR->>API: login(email, password)
+        U->>SCR: abre el modal /login y escribe correo y contraseña
+        SCR->>SCR: loginSchema.safeParse valida en local (zod de @urnight/contracts)
+        SCR->>CTX: signIn(email, password)
+        CTX->>API: loginRequest({ email, password })
         API->>EDGE: POST /api/v1/auth/login · { email, password }
         note over EDGE: Ruta sensible: 10 peticiones por minuto por IP y por correo,<br/>fail-closed, con bloqueo de 15 minutos tras 5 fallos.
         alt credenciales inválidas
-            EDGE-->>API: 401 · { code identity/invalid_credentials }
+            EDGE-->>API: 401 · problem+json { code identity/invalid-credentials }
             API-->>SCR: ApiError 401
-            SCR-->>U: mensaje genérico, sin revelar si la cuenta existe
+            SCR-->>U: "Correo o contraseña incorrectos", sin revelar si la cuenta existe
         else cuenta bloqueada por intentos
             EDGE-->>API: 429 más Retry-After
+            API-->>SCR: ApiError 429
             SCR-->>U: aviso de bloqueo temporal
         else credenciales correctas
             EDGE-->>API: 200 OK · AuthTokensResponse { accessToken, refreshToken, expiresIn }
 
             note over CTX, SEC: Fase 3 · Persistencia segura del PAR completo
-            CTX->>SEC: setItemAsync del accessToken y del refreshToken
+            CTX->>SEC: storeTokens() — setItemAsync del accessToken y del refreshToken
             note over CTX, SEC: Diferencia deliberada con el validador, que descarta el refresh<br/>token y obliga a re-login al vencer el access. Ver §9.
             SEC-->>CTX: guardado en Keychain o Keystore
             CTX-->>SCR: sesión iniciada
-            SCR-->>U: catálogo del asistente
+            SCR-->>U: router.back() — vuelve a la pestaña con sesión
         end
     end
 
-    note over U, EDGE: Fase 4 · Cierre de sesión
-    U->>CTX: cerrar sesión
-    CTX->>API: logout(refreshToken)
+    note over U, EDGE: Fase 4 · Cierre de sesión (pestaña Cuenta)
+    U->>CTX: signOut()
+    CTX->>API: logoutRequest(refreshToken)
     API->>EDGE: POST /api/v1/auth/logout · { refreshToken }
     EDGE-->>API: 204 No Content
-    note over API, EDGE: El móvil SÍ debe llamar a este endpoint, a diferencia de la web,<br/>que hoy no lo hace y deja el jti vivo en Redis hasta su TTL.
-    CTX->>SEC: deleteItemAsync de ambos tokens
-    CTX-->>U: vuelta a la pantalla de login
+    note over API, EDGE: El móvil SÍ llama a este endpoint, a diferencia de la web,<br/>que hoy no lo hace y deja el jti vivo en Redis hasta su TTL.<br/>Si la revocación falla por red se registra y se cierra en local igual.
+    CTX->>SEC: clearTokens() — deleteItemAsync de ambos tokens
+    CTX-->>U: status guest — la pestaña Cuenta vuelve a ofrecer "Ingresar"
 ```
 
 ### SD-03 · Renovación del token y la carrera de rotación
 
-**TO-BE.** El backend rota el refresh en un solo uso y, ante un `jti` ya consumido, **revoca toda la
-familia de sesiones del usuario**. En móvil eso es un riesgo concreto: varias pantallas despiertan a
-la vez.
+**AS-IS.** El backend rota el refresh en un solo uso y, ante un `jti` ya consumido, **revoca toda la
+familia de sesiones del usuario**. El móvil lo mitiga con un *single-flight* (`refreshInFlight` en
+`lib/auth-context.tsx`) y renovación anticipada al volver del segundo plano.
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant P1 as Pantalla A
     participant P2 as Pantalla B
-    participant MTX as Mutex de refresh propuesto
-    participant API as api-client
+    participant MTX as AuthProvider · refreshInFlight
+    participant API as lib/api-client.ts
     participant EDGE as Edge API
     participant RS as Redis · refresh store
 
-    note over P1, RS: Escenario del problema, si NO hay mutex
+    note over P1, RS: Escenario del problema, si NO hubiera mutex
     P1->>API: petición con el access token vencido
     P2->>API: petición con el mismo access token vencido
     API->>EDGE: dos POST /auth/refresh en paralelo con el MISMO refreshToken
@@ -305,23 +315,25 @@ sequenceDiagram
     EDGE->>RS: GET del jti para la segunda
     RS-->>EDGE: null, ese jti ya fue rotado
     EDGE->>RS: revokeAllForUser — borra TODA la familia de refresh
-    EDGE-->>API: 401 · { code identity/invalid_token }
+    EDGE-->>API: 401 · { code identity/invalid-token }
     note over EDGE, RS: Detección de reuso: el backend no distingue una carrera legítima<br/>de un token robado, y hace lo correcto desde su punto de vista.<br/>Efecto en el usuario: se cierra su sesión en el móvil Y en la web.
 
-    note over P1, RS: Diseño propuesto · una sola renovación en vuelo
-    P1->>MTX: solicita token vigente
-    P2->>MTX: solicita token vigente
+    note over P1, RS: Diseño implementado · una sola renovación en vuelo (getAccessToken)
+    P1->>MTX: getAccessToken()
+    P2->>MTX: getAccessToken()
+    MTX->>MTX: isTokenFresh detecta el access vencido (margen de 30s, igual que la web)
     MTX->>MTX: si ya hay una renovación en curso, ambas esperan la misma promesa
-    MTX->>API: refresh(refreshToken) una única vez
+    MTX->>API: refreshRequest(refreshToken) una única vez
     API->>EDGE: POST /api/v1/auth/refresh · { refreshToken }
     EDGE->>RS: valida y rota el jti
     RS-->>EDGE: rotación correcta
-    EDGE-->>API: 200 OK · nuevo par de tokens
+    EDGE-->>API: 200 OK · AuthTokensResponse con el par rotado
     API-->>MTX: par nuevo
-    MTX->>MTX: persiste el par y libera a quien esperaba
+    MTX->>MTX: storeTokens() persiste el par y libera a quien esperaba
     MTX-->>P1: access token vigente
     MTX-->>P2: el MISMO access token vigente
-    note over MTX: Patrón single-flight. Además conviene renovar de forma anticipada<br/>al volver del segundo plano, con margen, en vez de esperar al 401.
+    note over MTX: Si el refresh devuelve 401 o 400 la sesión murió: clearTokens()<br/>y vuelta a invitado (SD-02 fase 4 sin llamada al servidor).<br/>Un fallo de red NO cierra la sesión: se reintentará después.
+    note over MTX: Además del single-flight, un listener de AppState renueva de forma<br/>anticipada al volver la app a primer plano, en vez de esperar al 401.
 ```
 
 ---
@@ -566,19 +578,19 @@ ellas, y las transaccionales (entradas emitidas) deben distinguirse de las promo
 
 Hallazgos de la lectura del código. Los cinco primeros condicionan cualquier plan sobre este canal.
 
-1. **El canal es un catálogo de solo lectura.** Ya hay navegación por pestañas, portada, lista con
-   búsqueda y ficha con tramos (SD-01 y SD-04), pero no hay sesión, compra ni billetera: los CTA de
-   compra están deshabilitados y remiten a la web. `fetchZones()` está definido y no se invoca desde
-   ningún sitio.
+1. **El canal ya tiene sesión, pero sigue sin compra ni billetera.** Hay navegación por pestañas,
+   portada, lista con búsqueda, ficha con tramos y sesión nativa con par de tokens (SD-01 a SD-04),
+   pero los CTA de compra siguen deshabilitados y remiten a la web. `fetchZones()` está definido y no
+   se invoca desde ningún sitio.
 2. **Las dependencias declaran una intención que el código no respalda.** `expo-notifications`,
    `expo-sqlite`, `react-native-maps` y `expo-linking` están instaladas y sin usar, y el `scheme`
    `ravenue` está declarado sin enlaces profundos configurados. Un enlace `/p/{code}` compartido por
    un promotor abre hoy el navegador, no la app.
-3. **El patrón nativo ya resuelto no está extraído.** `apps/validator` implementa cliente HTTP con
-   distinción entre fallo de red y respuesta de error, almacenamiento seguro del token, contexto de
-   sesión con rehidratación, decodificación local de claims y detección de reconexión. Nada de eso
-   vive en un paquete compartido, así que el móvil del asistente lo duplicará salvo que se extraiga
-   antes.
+3. **El patrón nativo ya resuelto no está extraído — y la duplicación ya ocurrió.** `apps/validator`
+   implementa cliente HTTP con distinción entre fallo de red y respuesta de error, almacenamiento
+   seguro del token, contexto de sesión con rehidratación y decodificación local de claims.
+   `apps/mobile` reimplementó ese patrón por su cuenta (SD-02): dos copias de `decodeSegment`,
+   dos `AuthProvider` y dos clientes HTTP. Extraerlo a un paquete compartido sigue pendiente.
 4. **El validador descarta el refresh token.** `AuthProvider` guarda solo `tokens.accessToken` en
    `SecureStore` y, ante un 401, cierra sesión y manda a login. En una noche de puerta eso significa
    re-loguear a mitad de turno. **El canal del asistente no debe copiar ese patrón**: debe guardar el
@@ -586,18 +598,19 @@ Hallazgos de la lectura del código. Los cinco primeros condicionan cualquier pl
 5. **La rotación de un solo uso es peligrosa en móvil.** El backend revoca **toda** la familia de
    refresh del usuario cuando recibe un `jti` ya consumido, sin poder distinguir una carrera legítima
    de un robo. Varias pantallas despertando a la vez con el access token vencido disparan renovaciones
-   paralelas: la segunda cierra la sesión del usuario en el móvil **y en la web**. Requiere un
-   *single-flight* en el cliente y, preferiblemente, renovación anticipada al volver del segundo
-   plano.
+   paralelas: la segunda cierra la sesión del usuario en el móvil **y en la web**. El móvil del
+   asistente ya implementa la mitigación completa (single-flight `refreshInFlight` + renovación
+   anticipada con `AppState`, SD-03); el validador sigue sin renovar ningún token.
 6. **No existe registro de dispositivos.** Cero coincidencias de token de dispositivo en todo el
    repositorio: no hay tabla, ni endpoint, ni caso de uso. `PushPort` está cableado a `LogPushAdapter`
    y escribe en el log. El canal de notificaciones está abierto por el lado del worker y cerrado por
    el lado del dispositivo.
 7. **El móvil no puede reutilizar la sesión de la web.** Auth.js con handoff de `Credentials` es
    servidor a servidor por diseño. El móvil habla directo con `/auth/login`, `/auth/refresh` y
-   `/auth/logout`, igual que el validador. Conviene documentarlo para que no se intente lo contrario.
-8. **El móvil sí debería llamar a `POST /auth/logout`.** La web hoy no lo hace y deja el `jti` vivo en
-   Redis hasta su TTL. Es una oportunidad de no arrastrar la misma brecha al canal nuevo.
+   `/auth/logout`. Así está implementado en `apps/mobile` (SD-02), igual que en el validador.
+8. **El móvil ya llama a `POST /auth/logout`** y borra el par local aunque la revocación falle por
+   red (SD-02 fase 4). La web sigue sin hacerlo y deja el `jti` vivo en Redis hasta su TTL: la
+   brecha queda solo del lado web.
 9. **Varias brechas de otros dominios pegan aquí de lleno.** Sin entrega real de correo y push
    (`LogEmailAdapter` y `LogPushAdapter`), sin notificación de cancelación de evento y sin listados de
    trámites, el valor de una app nativa se reduce a comprar y mostrar el QR. Conviene priorizar esas
@@ -612,7 +625,7 @@ Derivado de lo anterior, no de una preferencia. Cada paso desbloquea al siguient
 | Paso | Qué | Por qué antes que lo demás |
 |---|---|---|
 | 1 | Extraer el patrón nativo del validador a un paquete compartido | Evita duplicar sesión, cliente HTTP y cola offline en dos apps |
-| 2 | Sesión con par de tokens, *single-flight* de renovación y logout real (SD-02, SD-03) | Sin sesión no hay billetera ni compra, y la carrera de rotación rompe también la web |
+| 2 | ~~Sesión con par de tokens, *single-flight* de renovación y logout real (SD-02, SD-03)~~ **Hecho** | Sin sesión no hay billetera ni compra, y la carrera de rotación rompe también la web |
 | 3 | Catálogo y ficha (SD-04) | Solo consume endpoints públicos que ya existen: es el tramo de menor riesgo |
 | 4 | Billetera con copia local del token del QR (SD-06) | Es el valor diferencial del canal frente a la web móvil |
 | 5 | Compra con clave de idempotencia persistida (SD-05) | Necesita sesión y ficha, y el backend ya la soporta |

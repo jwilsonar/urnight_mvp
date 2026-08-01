@@ -94,10 +94,10 @@ Bloque 0 sub-flujo (tenant y consentimiento) · Bloque 1 alta del promotor (post
 invitar, aceptar/rechazar) · Bloque 2 asignación de eventos y cuotas · Bloque 3 códigos del promotor ·
 Bloque 4 clics, atribución en ventana de 7 días y liquidación · Bloque 5 estados.
 
-### [`90-canales-moviles.md`](./90-canales-moviles.md) — 7 diagramas · **casi todo `TO-BE`**
-`apps/mobile` es hoy un andamiaje (una pantalla que hace ping a `/health`). Solo `SD-01` documenta
-código existente; los otros seis son diseño propuesto, calcados de `apps/validator` (sesión nativa,
-almacenamiento seguro, cola offline) y de `apps/web` (catálogo, checkout, billetera).
+### [`90-canales-moviles.md`](./90-canales-moviles.md) — 7 diagramas · **mitad `AS-IS`**
+`apps/mobile` ya implementa pestañas, catálogo público y sesión nativa con par de tokens: `SD-01`,
+`SD-02`, `SD-03` y las fases 1–2 de `SD-04` documentan código existente. Compra, billetera y push
+(`SD-05` a `SD-07`) siguen siendo diseño propuesto, calcado de `apps/validator` y de `apps/web`.
 
 ---
 
