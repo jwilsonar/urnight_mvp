@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import {
   problemDetailsSchema,
   type AuthTokensResponse,
@@ -6,7 +7,18 @@ import {
 } from '@urnight/contracts';
 import { createLogger } from './logger';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3101/api/v1';
+/**
+ * Resuelve la URL base del API (§6). En dispositivo físico `localhost` apunta al
+ * teléfono, no a la máquina de desarrollo: se deriva la IP del host de Metro
+ * (`hostUri`) y se asume el puerto del API local (3101, ADR-0001).
+ */
+function resolveApiUrl(): string {
+  if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
+  const host = Constants.expoConfig?.hostUri?.split(':')[0];
+  return host ? `http://${host}:3101/api/v1` : 'http://localhost:3101/api/v1';
+}
+
+const API_URL = resolveApiUrl();
 const log = createLogger('api');
 
 export interface HealthResponse {
