@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "UrNight Validador",
-    "slug": "urnight-validator",
-    "scheme": "urnight-validator",
+    "name": "Ravenue Validador",
+    "slug": "ravenue-validator",
+    "scheme": "ravenue-validator",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
@@ -12,19 +12,18 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "UrNight necesita la cámara para escanear códigos QR en puerta."
+          "cameraPermission": "Ravenue necesita la cámara para escanear códigos QR en puerta."
         }
       ],
-      "expo-status-bar",
       "expo-sqlite",
       "expo-secure-store"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "pe.urnight.validator"
+      "bundleIdentifier": "pe.ravenue.validator"
     },
     "android": {
-      "package": "pe.urnight.validator",
+      "package": "pe.ravenue.validator",
       "edgeToEdgeEnabled": true
     },
     "experiments": {

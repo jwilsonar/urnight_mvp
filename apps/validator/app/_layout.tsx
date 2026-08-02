@@ -16,7 +16,7 @@ function AuthGate() {
     else if (token && onLogin) router.replace('/');
   }, [token, isReady, segments, router]);
 
-  return <Stack screenOptions={{ headerTitle: 'UrNight Validador' }} />;
+  return <Stack screenOptions={{ headerTitle: 'Ravenue Validador' }} />;
 }
 
 export default function RootLayout() {
