@@ -1,4 +1,9 @@
-import type { AuthTokensResponse, QrValidationResponse } from '@urnight/contracts';
+import {
+  problemDetailsSchema,
+  type AuthTokensResponse,
+  type ProblemDetails,
+  type QrValidationResponse,
+} from '@urnight/contracts';
 import { createLogger } from './logger';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3101/api/v1';
@@ -23,11 +28,31 @@ export class NetworkError extends Error {
   }
 }
 
-/** Respuesta HTTP no-2xx del servidor. */
+/**
+ * Respuesta HTTP no-2xx del servidor, con el problem+json parseado (RFC 7807).
+ * `code` es lo que distingue un refresh rechazado (`identity/invalid-token`) de
+ * un 5xx transitorio, y por tanto lo que decide si la sesión muere (§2.5).
+ */
 export class ApiError extends Error {
-  constructor(readonly status: number) {
-    super(`api_error: ${status}`);
+  readonly status: number;
+  readonly code?: string;
+  readonly fieldErrors?: Record<string, string[]>;
+
+  constructor(status: number, problem?: Partial<ProblemDetails>) {
+    super(problem?.detail ?? problem?.title ?? `api_error: ${status}`);
     this.name = 'ApiError';
+    this.status = status;
+    this.code = problem?.code;
+    this.fieldErrors = problem?.errors;
+  }
+}
+
+/** Lee el cuerpo problem+json de una respuesta de error; `undefined` si no lo es. */
+async function problemOf(res: Response): Promise<Partial<ProblemDetails> | undefined> {
+  try {
+    return problemDetailsSchema.partial().parse(await res.json());
+  } catch {
+    return undefined;
   }
 }
 
@@ -60,8 +85,12 @@ export async function login(email: string, password: string): Promise<AuthTokens
     throw new NetworkError(err);
   }
   if (!res.ok) {
-    log.warn({ path: '/auth/login', status: res.status }, 'validator.api.login.error');
-    throw new ApiError(res.status);
+    const problem = await problemOf(res);
+    log.warn(
+      { path: '/auth/login', status: res.status, code: problem?.code },
+      'validator.api.login.error',
+    );
+    throw new ApiError(res.status, problem);
   }
   return (await res.json()) as AuthTokensResponse;
 }
@@ -96,8 +125,68 @@ export async function validateQr(
     throw new NetworkError(err);
   }
   if (!res.ok) {
-    log.warn({ path: '/validations/scan', status: res.status }, 'validator.api.validate.error');
-    throw new ApiError(res.status);
+    const problem = await problemOf(res);
+    log.warn(
+      { path: '/validations/scan', status: res.status, code: problem?.code },
+      'validator.api.validate.error',
+    );
+    throw new ApiError(res.status, problem);
   }
   return (await res.json()) as QrValidationResponse;
+}
+
+/**
+ * Renueva el par de tokens (POST /auth/refresh). La rotación del backend es de
+ * un solo uso: reutilizar un refresh ya consumido revoca TODA la familia del
+ * usuario, incluida su sesión web. Por eso el llamador debe serializar las
+ * renovaciones (single-flight en `auth-context`), nunca lanzarlas en paralelo.
+ */
+export async function refreshRequest(refreshToken: string): Promise<AuthTokensResponse> {
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    });
+  } catch (err) {
+    log.warn({ path: '/auth/refresh' }, 'validator.api.refresh.network_error');
+    throw new NetworkError(err);
+  }
+  if (!res.ok) {
+    const problem = await problemOf(res);
+    log.warn(
+      { path: '/auth/refresh', status: res.status, code: problem?.code },
+      'validator.api.refresh.error',
+    );
+    throw new ApiError(res.status, problem);
+  }
+  return (await res.json()) as AuthTokensResponse;
+}
+
+/**
+ * Cierra sesión en servidor revocando el refresh (POST /auth/logout, 204). El
+ * llamador borra el par local aunque esto falle: sin red no se puede revocar,
+ * pero tampoco se puede dejar la sesión viva en el dispositivo.
+ */
+export async function logoutRequest(refreshToken: string): Promise<void> {
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}/auth/logout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    });
+  } catch (err) {
+    log.warn({ path: '/auth/logout' }, 'validator.api.logout.network_error');
+    throw new NetworkError(err);
+  }
+  if (!res.ok) {
+    const problem = await problemOf(res);
+    log.warn(
+      { path: '/auth/logout', status: res.status, code: problem?.code },
+      'validator.api.logout.error',
+    );
+    throw new ApiError(res.status, problem);
+  }
 }
