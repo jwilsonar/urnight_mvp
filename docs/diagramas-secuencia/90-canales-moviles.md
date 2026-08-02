@@ -100,7 +100,7 @@ compartido sigue pendiente.
 | Decodificación local de claims para gating de UX | ✅ `isValidatorToken` | ✅ `claimsOf` + `isTokenFresh` |
 | Detección de reconexión | ✅ `NetInfo` | ✅ `lib/net.ts`, misma versión |
 | Persistencia local en SQLite | ✅ `offline-cache.ts` — cola de escrituras pendientes | ✅ `lib/local-db.ts` — copia de entradas y borrador de compra |
-| Renovación del token | ❌ **tampoco lo hace el validador** — ver §9 | ✅ *single-flight* con rotación (SD-03) |
+| Renovación del token | ✅ *single-flight* con rotación y `AppState` (`lib/session-rules.ts`) | ✅ *single-flight* con rotación (SD-03) |
 
 ---
 
@@ -658,16 +658,15 @@ Hallazgos de la lectura del código. Los cinco primeros condicionan cualquier pl
    `apps/mobile` reimplementó ese patrón por su cuenta (SD-02): dos copias de `decodeSegment`,
    dos `AuthProvider`, dos clientes HTTP y ahora también dos aperturas de SQLite y dos detecciones
    de red. Extraerlo a un paquete compartido sigue pendiente.
-4. **El validador descarta el refresh token.** `AuthProvider` guarda solo `tokens.accessToken` en
-   `SecureStore` y, ante un 401, cierra sesión y manda a login. En una noche de puerta eso significa
-   re-loguear a mitad de turno. **El canal del asistente no debe copiar ese patrón**: debe guardar el
-   par completo y renovar.
+4. ~~**El validador descarta el refresh token.**~~ **Cerrada.** `apps/validator` guarda el par completo
+   y renueva con *single-flight*, y un fallo de red al renovar ya no expulsa: la puerta sigue
+   escaneando y encolando mientras el refresh siga vigente.
 5. **La rotación de un solo uso es peligrosa en móvil.** El backend revoca **toda** la familia de
    refresh del usuario cuando recibe un `jti` ya consumido, sin poder distinguir una carrera legítima
    de un robo. Varias pantallas despertando a la vez con el access token vencido disparan renovaciones
    paralelas: la segunda cierra la sesión del usuario en el móvil **y en la web**. El móvil del
    asistente ya implementa la mitigación completa (single-flight `refreshInFlight` + renovación
-   anticipada con `AppState`, SD-03); el validador sigue sin renovar ningún token.
+   anticipada con `AppState`, SD-03), y el validador implementa ahora la misma.
 6. **No existe registro de dispositivos.** Cero coincidencias de token de dispositivo en todo el
    repositorio: no hay tabla, ni endpoint, ni caso de uso. `PushPort` está cableado a `LogPushAdapter`
    y escribe en el log. El canal de notificaciones está abierto por el lado del worker y cerrado por

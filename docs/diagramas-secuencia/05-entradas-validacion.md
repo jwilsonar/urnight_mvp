@@ -906,7 +906,8 @@ sequenceDiagram
             DB-->>UC: COMMIT
             UC-->>EDGE: { result, ticketId, attendeeName null, message }
             EDGE-->>APP: 200 OK · QrValidationResponse
-            APP-->>V: banner verde para valid, rojo para el resto
+            APP-->>V: veredicto a pantalla completa, verde para valid y rojo para el resto
+            note over APP, V: valid vibra una vez y se cierra solo a los 1500 ms. Los rechazos vibran<br/>doble y esperan toque. Un mismo QR se ignora durante 5000 ms tras leerlo.
         end
     end
 ```
@@ -934,11 +935,22 @@ sequenceDiagram
         EDGE-->>API: 200 OK · veredicto
         API-->>APP: QrValidationResponse
         APP-->>V: banner con el veredicto → SD-10
-    else 401 token inválido o expirado
+    else 401 el servidor rechaza el access
         EDGE-->>API: 401
         API-->>APP: ApiError 401
-        APP->>CTX: signOut()
-        APP-->>V: vuelta a la pantalla de login
+        APP->>CTX: refreshAccessToken()
+        alt la renovación devuelve un access nuevo
+            CTX-->>APP: access rotado
+            APP->>EDGE: reintento único de POST /api/v1/validations/scan
+            EDGE-->>APP: 200 OK · veredicto
+        else la renovación falla por red
+            CTX-->>APP: null
+            APP->>SQL: INSERT OR IGNORE INTO pending_checkin
+            APP-->>V: aviso ámbar de guardado offline
+        else el servidor rechaza el refresh con 401 o 400
+            CTX->>CTX: signOut()
+            APP-->>V: vuelta a la pantalla de login
+        end
     else fallo de red, sin respuesta del servidor
         API-->>APP: NetworkError
 
@@ -974,7 +986,8 @@ sequenceDiagram
         end
     end
     CTX-->>V: contador de check-ins pendientes actualizado
-    note over SQL, EDGE: scanned_at se guarda localmente pero NO viaja: ValidateQrDto no lo<br/>acepta, así que el check-in queda registrado con la hora de sincronización.
+    note over SQL, EDGE: scanned_at se guarda localmente pero NO llega a registrarse:<br/>validateQrSchema sí lo acepta, pero ValidateQrUseCase lo ignora, así que el<br/>check-in queda registrado con la hora de sincronización.
+    note over CTX, EDGE: El par de tokens se renueva con mutex single-flight. Un fallo de RED al<br/>renovar NO cierra la sesión: la puerta sigue escaneando y encolando mientras<br/>el refresh siga vigente. Solo un 401 o 400 del servidor la mata.
 ```
 
 ---
@@ -995,7 +1008,8 @@ sequenceDiagram
 | Entrega de entradas | job `send-order-tickets` | `OutboxRelay`, `NotificationsProcessor`, `TicketPdfService` | ⚠️ PDF y S3 reales, envío de correo y push en stub (ADR 0004) |
 | Consulta de entradas | `GET /tickets/me`, `GET /orders/{id}` | `ListMyTicketsUseCase`, `GetOrderUseCase` | ✅ Implementado |
 | Validación QR online | `POST /validations/scan` | `ValidateQrUseCase`, `markUsedIfValid` | ✅ Implementado con marca atómica |
-| Cola offline | — (local en el dispositivo) | `offline-cache.ts`, `AuthProvider.runSync` | ⚠️ Funciona, pero pierde la hora real del escaneo |
+| Cola offline | — (local en el dispositivo) | `offline-cache.ts`, `AuthProvider.runSync` | ⚠️ Funciona, pero pierde la hora real del escaneo y no tiene techo |
+| Sesión del validador | `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout` | `session-rules.ts`, `AuthProvider.refreshAccessToken` | ✅ Par de tokens con renovación single-flight |
 
 ---
 
@@ -1014,9 +1028,11 @@ condicionan la fidelidad de los diagramas.
    compensar.
 3. **`MockPaymentAdapter` aprueba siempre.** La rama de rechazo del diagrama es inalcanzable en
    ejecución: no existe pasarela real, y por tanto tampoco reembolsos ni cancelación de órdenes.
-4. **El check-in offline pierde su hora real.** `scannedAt` se persiste en SQLite pero no viaja:
-   `ValidateQrDto` no lo acepta. Un lote sincronizado a las 3 a.m. queda registrado con esa hora, no
-   con la del escaneo en puerta. Afecta a cualquier informe de aforo por franja.
+4. **El check-in offline pierde su hora real.** `scannedAt` se persiste en SQLite pero no llega a
+   registrarse. `validateQrSchema` **sí** lo acepta hoy, pero `ValidateQrUseCase` lo ignora: no hay
+   ninguna referencia a `scannedAt` en `apps/api/src/modules`. Un lote sincronizado a las 3 a.m. queda
+   registrado con esa hora, no con la del escaneo en puerta. Afecta a cualquier informe de aforo por
+   franja.
 5. **El validador no ve el nombre del asistente.** `QrValidationResponse.attendeeName` se devuelve
    siempre en `null`, así que en puerta no se puede contrastar el documento contra el titular de la
    entrada, que es justamente la razón de pedir los datos de cada asistente en el checkout.
