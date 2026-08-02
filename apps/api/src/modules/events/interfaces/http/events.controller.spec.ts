@@ -1,8 +1,23 @@
 import { describe, expect, it } from "vitest";
 import { EventBuilder } from "../../../../shared/testing/builders/events";
-import { toEventResponse } from "./events.controller";
+import {
+  toEventListItemResponse,
+  toEventResponse,
+} from "./events.controller";
 
 describe("toEventResponse catalogLabel", () => {
+  it("expone el score y la coincidencia total calculados por persistencia", () => {
+    const event = new EventBuilder().asPublished().build();
+
+    expect(
+      toEventListItemResponse(event, { matchScore: 3, matchesAll: true }),
+    ).toMatchObject({ matchScore: 3, matchesAll: true });
+    expect(toEventListItemResponse(event)).toMatchObject({
+      matchScore: 0,
+      matchesAll: true,
+    });
+  });
+
   it("marca pocas entradas solo cuando queda menos del 15% de un aforo real", () => {
     const low = new EventBuilder()
       .withTotalCapacity(100)

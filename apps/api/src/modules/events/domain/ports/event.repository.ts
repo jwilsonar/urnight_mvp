@@ -10,8 +10,8 @@ export type EventCatalogOrder = "soonest";
 export interface EventListFilter {
   localId?: string;
   zoneId?: string;
-  genreId?: string;
-  tagId?: string;
+  genreIds?: string[];
+  tagIds?: string[];
   q?: string;
   from?: Date;
   to?: Date;
@@ -26,12 +26,19 @@ export interface EventListFilter {
   availableAt?: Date;
 }
 
+/** Proyección de catálogo: aggregate + relevancia calculada por persistencia. */
+export interface EventListItem {
+  event: Event;
+  matchScore: number;
+  matchesAll: boolean;
+}
+
 export interface EventRepository {
   findById(id: string): Promise<Event | null>;
   findBySlug(slug: string): Promise<Event | null>;
   existsBySlug(slug: string): Promise<boolean>;
   /** Eventos públicos, futuros, con cupo y filtros de búsqueda (#3). */
-  listPublished(filter?: EventListFilter): Promise<Event[]>;
+  listPublished(filter?: EventListFilter): Promise<EventListItem[]>;
   /** Total exacto con los mismos filtros, ignorando limit/offset. */
   countPublished(filter?: EventListFilter): Promise<number>;
   /** Eventos más populares (tickets vendidos), para tendencia (#9). */

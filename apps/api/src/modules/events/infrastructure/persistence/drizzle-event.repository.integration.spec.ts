@@ -1,6 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import { type DbClient, company, local, ticketType } from "@urnight/db";
+import {
+  type DbClient,
+  company,
+  local,
+  musicGenre,
+  tag,
+  ticketType,
+} from "@urnight/db";
 import { Event } from "../../domain/entities/event.entity";
 import {
   createTestDb,
@@ -44,7 +51,7 @@ async function seedLocal(): Promise<string> {
 
 function buildEvent(
   localId: string,
-  overrides: Partial<{ slug: string }> = {},
+  overrides: Partial<{ slug: string; startsAt: Date }> = {},
 ): Event {
   const suffix = randomUUID().slice(0, 8);
   return Event.create({
@@ -52,7 +59,7 @@ function buildEvent(
     localId,
     name: `Fiesta ${suffix}`,
     slug: overrides.slug ?? `fiesta-${suffix}`,
-    startsAt: new Date("2027-07-01T22:00:00.000Z"),
+    startsAt: overrides.startsAt ?? new Date("2027-07-01T22:00:00.000Z"),
     totalCapacity: 500,
   });
 }
@@ -100,8 +107,8 @@ describe("DrizzleEventRepository (integration)", () => {
 
     const list = await repo.listPublished();
     expect(list).toHaveLength(1);
-    expect(list[0]?.id).toBe(published.id);
-    expect(list[0]?.status).toBe("published");
+    expect(list[0]?.event.id).toBe(published.id);
+    expect(list[0]?.event.status).toBe("published");
   });
 
   it("listPublished filtra por local (published-by-local)", async () => {
@@ -118,8 +125,8 @@ describe("DrizzleEventRepository (integration)", () => {
 
     const list = await repo.listPublished({ localId: localA });
     expect(list).toHaveLength(1);
-    expect(list[0]?.id).toBe(inA.id);
-    expect(list[0]?.localId).toBe(localA);
+    expect(list[0]?.event.id).toBe(inA.id);
+    expect(list[0]?.event.localId).toBe(localA);
   });
 
   it("filtra precios por el adaptador real sin duplicar eventos con dos tipos en rango", async () => {
@@ -163,8 +170,70 @@ describe("DrizzleEventRepository (integration)", () => {
 
     const list = await repo.listPublished({ minPrice: 50, maxPrice: 50 });
 
-    expect(list.map((candidate) => candidate.id)).toEqual([inRange.id]);
+    expect(list.map((candidate) => candidate.event.id)).toEqual([inRange.id]);
     expect(await repo.countPublished({ minPrice: 50, maxPrice: 50 })).toBe(1);
+  });
+
+  it("rankea géneros y tags en SQL antes de paginar y conserva el orden temporal dentro del score", async () => {
+    const localId = await seedLocal();
+    const genreA = randomUUID();
+    const genreB = randomUUID();
+    const tagA = randomUUID();
+    await client.db.insert(musicGenre).values([
+      { id: genreA, name: "Género A", slug: `genero-a-${genreA}` },
+      { id: genreB, name: "Género B", slug: `genero-b-${genreB}` },
+    ]);
+    await client.db
+      .insert(tag)
+      .values({ id: tagA, name: "Tag A", slug: `tag-a-${tagA}` });
+
+    const complete = buildEvent(localId, {
+      slug: "completo",
+      startsAt: new Date("2027-07-04T22:00:00.000Z"),
+    });
+    const twoEarly = buildEvent(localId, {
+      slug: "dos-temprano",
+      startsAt: new Date("2027-07-01T22:00:00.000Z"),
+    });
+    const twoLate = buildEvent(localId, {
+      slug: "dos-tardio",
+      startsAt: new Date("2027-07-02T22:00:00.000Z"),
+    });
+    const one = buildEvent(localId, {
+      slug: "uno",
+      startsAt: new Date("2027-07-03T22:00:00.000Z"),
+    });
+    const none = buildEvent(localId, { slug: "ninguno" });
+    for (const candidate of [complete, twoEarly, twoLate, one, none]) {
+      candidate.publish();
+      await repo.create(candidate);
+      await repo.update(candidate);
+    }
+    await repo.setGenres(complete.id, [genreA, genreB]);
+    await repo.setTags(complete.id, [tagA]);
+    await repo.setGenres(twoEarly.id, [genreA, genreB]);
+    await repo.setGenres(twoLate.id, [genreA]);
+    await repo.setTags(twoLate.id, [tagA]);
+    await repo.setGenres(one.id, [genreB]);
+
+    const filter = { genreIds: [genreA, genreB], tagIds: [tagA] };
+    const list = await repo.listPublished(filter);
+    const page = await repo.listPublished({ ...filter, limit: 1, offset: 0 });
+
+    expect(
+      list.map(({ event, matchScore, matchesAll }) => ({
+        slug: event.slug,
+        matchScore,
+        matchesAll,
+      })),
+    ).toEqual([
+      { slug: "completo", matchScore: 3, matchesAll: true },
+      { slug: "dos-temprano", matchScore: 2, matchesAll: false },
+      { slug: "dos-tardio", matchScore: 2, matchesAll: false },
+      { slug: "uno", matchScore: 1, matchesAll: false },
+    ]);
+    expect(page.map(({ event }) => event.slug)).toEqual(["completo"]);
+    expect(await repo.countPublished(filter)).toBe(4);
   });
 
   it("update persiste mutaciones del aggregate (publish → status + publishedAt)", async () => {

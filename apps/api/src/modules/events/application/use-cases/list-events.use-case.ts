@@ -1,8 +1,8 @@
 import { Inject, Injectable } from "@nestjs/common";
-import type { Event } from "../../domain/entities/event.entity";
 import {
   EVENT_REPOSITORY,
   type EventListFilter,
+  type EventListItem,
   type EventRepository,
 } from "../../domain/ports/event.repository";
 
@@ -13,7 +13,7 @@ export class ListEventsUseCase {
     @Inject(EVENT_REPOSITORY) private readonly events: EventRepository,
   ) {}
 
-  execute(filter?: EventListFilter): Promise<Event[]> {
+  execute(filter?: EventListFilter): Promise<EventListItem[]> {
     return this.events.listPublished({
       ...filter,
       availableAt: filter?.availableAt ?? new Date(),
@@ -22,7 +22,7 @@ export class ListEventsUseCase {
 
   async executePage(
     filter?: EventListFilter,
-  ): Promise<{ events: Event[]; total: number }> {
+  ): Promise<{ events: EventListItem[]; total: number }> {
     const sharedFilter = {
       ...filter,
       availableAt: filter?.availableAt ?? new Date(),
