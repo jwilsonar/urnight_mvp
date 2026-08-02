@@ -9,9 +9,11 @@ import type { EventResponse } from "@urnight/contracts";
 import { cn } from "@urnight/ui";
 import { StorageImage } from "@/lib/storage/storage-context";
 
-const MAX_VISIBLE_OFFSET = 1;
+const MAX_VISIBLE_OFFSET = 2;
 const AUTOPLAY_DELAY_MS = 3_000;
 const MANUAL_RESUME_DELAY_MS = 6_000;
+const CAROUSEL_EDGE_MASK =
+  "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)";
 
 function relativePosition(index: number, active: number, total: number) {
   const forward = (index - active + total) % total;
@@ -129,12 +131,19 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
         })}
       </p>
 
-      <div className="absolute inset-x-0 bottom-16 top-0 overflow-hidden">
+      <div
+        data-carousel-viewport
+        className="absolute inset-x-0 bottom-16 top-0 overflow-hidden"
+        style={{
+          maskImage: CAROUSEL_EDGE_MASK,
+          WebkitMaskImage: CAROUSEL_EDGE_MASK,
+        }}
+      >
         {events.map((event, index) => {
           const position = relativePosition(index, activeIndex, events.length);
           const visible = Math.abs(position) <= MAX_VISIBLE_OFFSET;
           const active = position === 0;
-          const spread = expanded ? 62 : 54;
+          const spread = expanded ? 72 : 58;
 
           return (
             <div
@@ -157,6 +166,11 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
                   opacity: visible ? (active ? 1 : 0.76) : 0,
                   x: `${position * spread}%`,
                   y: active ? 0 : Math.abs(position) * 18 + 8,
+                  // El abanico es parte del diseño. La rotación vive en el
+                  // elemento transformado, nunca en el que recorta, para que el
+                  // radio de la card no se rompa. Al medir la forma usar
+                  // offsetWidth/offsetHeight: el getBoundingClientRect de un
+                  // elemento rotado siempre sale más ancho y engaña.
                   rotate: position * (expanded ? 10 : 8),
                   scale: active ? 1 : 0.86 - Math.abs(position) * 0.04,
                 }}
@@ -172,35 +186,39 @@ export function WeekEventCarousel({ events }: { events: EventResponse[] }) {
                 }
                 style={{ zIndex: MAX_VISIBLE_OFFSET - Math.abs(position) + 1 }}
                 className={cn(
-                  "pointer-events-auto relative isolate aspect-[3/4] w-[clamp(9.5rem,29vw,14rem)] overflow-hidden rounded-xl border bg-card shadow-overlay",
-                  active
-                    ? "border-border"
-                    : "border-border/70 saturate-[0.82]",
+                  "pointer-events-auto relative aspect-[3/4] w-[clamp(9.5rem,29vw,14rem)]",
                   !visible && "pointer-events-none",
                 )}
               >
-                <Link
-                  href={`/events/${event.slug}`}
-                  tabIndex={visible ? 0 : -1}
-                  aria-label={t("openEvent", { name: event.name })}
-                  onFocus={() => select(index, true)}
-                  className="group absolute inset-0 overflow-hidden rounded-[inherit] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
+                <div
+                  data-carousel-card
+                  data-active={active}
+                  data-position={position}
+                  className="absolute inset-0 isolate overflow-hidden rounded-xl border border-border bg-card shadow-overlay"
                 >
-                  {event.flyerUrl ? (
-                    <StorageImage
-                      src={event.flyerUrl}
-                      alt={t("flyerAlt", { name: event.name })}
-                      fill
-                      priority={activeIndex === 0 && index === 0}
-                      sizes="(max-width: 640px) 45vw, (max-width: 1024px) 28vw, 224px"
-                      className="rounded-[inherit] object-cover transition-transform duration-500 ease-[var(--ease-brand)] group-hover:scale-[1.03] motion-reduce:transition-none"
-                    />
-                  ) : (
-                    <div className="rv-img-ph absolute inset-0">
-                      <span>{t("flyerFallback", { name: event.name })}</span>
-                    </div>
-                  )}
-                </Link>
+                  <Link
+                    href={`/events/${event.slug}`}
+                    tabIndex={visible ? 0 : -1}
+                    aria-label={t("openEvent", { name: event.name })}
+                    onFocus={() => select(index, true)}
+                    className="group absolute inset-0 overflow-hidden rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
+                  >
+                    {event.flyerUrl ? (
+                      <StorageImage
+                        src={event.flyerUrl}
+                        alt={t("flyerAlt", { name: event.name })}
+                        fill
+                        priority={activeIndex === 0 && index === 0}
+                        sizes="(max-width: 640px) 45vw, (max-width: 1024px) 28vw, 224px"
+                        className="rounded-xl object-cover transition-transform duration-500 ease-[var(--ease-brand)] group-hover:scale-[1.03] motion-reduce:transition-none"
+                      />
+                    ) : (
+                      <div className="rv-img-ph absolute inset-0 rounded-xl">
+                        <span>{t("flyerFallback", { name: event.name })}</span>
+                      </div>
+                    )}
+                  </Link>
+                </div>
               </m.div>
             </div>
           );
