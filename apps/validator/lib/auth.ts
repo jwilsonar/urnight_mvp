@@ -1,14 +1,19 @@
+import type { AuthTokensResponse } from '@urnight/contracts';
 import * as SecureStore from 'expo-secure-store';
 import { createLogger } from './logger';
 
 /**
- * Sesión del validador (§5): el access token JWT emitido por la API se guarda
- * en almacenamiento seguro del dispositivo (expo-secure-store, Keychain/Keystore)
- * y se adjunta a cada `validateQr`. La API exige rol `validator`; aquí sólo
- * decodificamos el payload para gating de UX (el servidor verifica la firma).
+ * Sesión del validador (§2.2 del diseño): el par de tokens emitido por la API
+ * se guarda en almacenamiento seguro del dispositivo (Keychain/Keystore). Este
+ * fichero contiene SOLO lo que toca plataforma; la lógica de claims y de
+ * decisión vive en `session-rules.ts`, que sí se puede probar.
+ *
+ * `ACCESS_KEY` conserva su valor histórico a propósito: cambiarlo invalidaría
+ * la sesión de cualquier dispositivo ya en uso.
  */
 const log = createLogger('auth');
-const TOKEN_KEY = 'urnight_validator_access_token';
+const ACCESS_KEY = 'urnight_validator_access_token';
+const REFRESH_KEY = 'urnight_validator_refresh_token';
 
 /** La cuenta autenticó pero no tiene rol `validator` → no puede validar en puerta. */
 export class NotValidatorError extends Error {
@@ -18,74 +23,38 @@ export class NotValidatorError extends Error {
   }
 }
 
-interface AccessClaims {
-  sub?: string;
-  roles?: string[];
-  exp?: number;
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
 }
 
-const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-
-/** Decodifica base64url → JSON sin depender de atob/Buffer (portable en RN/Hermes). */
-function decodeSegment(seg: string): AccessClaims | null {
+export async function getStoredTokens(): Promise<TokenPair | null> {
   try {
-    const norm = seg.replace(/-/g, '+').replace(/_/g, '/');
-    let bytes = '';
-    let buffer = 0;
-    let bits = 0;
-    for (const ch of norm) {
-      const idx = B64.indexOf(ch);
-      if (idx === -1) continue;
-      buffer = (buffer << 6) | idx;
-      bits += 6;
-      if (bits >= 8) {
-        bits -= 8;
-        bytes += String.fromCharCode((buffer >> bits) & 0xff);
-      }
-    }
-    const json = decodeURIComponent(
-      bytes
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join(''),
-    );
-    return JSON.parse(json) as AccessClaims;
-  } catch {
-    return null;
-  }
-}
-
-function claimsOf(token: string): AccessClaims | null {
-  const payload = token.split('.')[1];
-  if (!payload) return null;
-  return decodeSegment(payload);
-}
-
-/** ¿El token porta rol `validator` y no está expirado? (verificación local de UX). */
-export function isValidatorToken(token: string | null | undefined): token is string {
-  if (!token) return false;
-  const claims = claimsOf(token);
-  if (!claims?.roles?.includes('validator')) return false;
-  if (typeof claims.exp === 'number' && claims.exp * 1000 <= Date.now()) return false;
-  return true;
-}
-
-export async function getStoredToken(): Promise<string | null> {
-  try {
-    return await SecureStore.getItemAsync(TOKEN_KEY);
+    const [accessToken, refreshToken] = await Promise.all([
+      SecureStore.getItemAsync(ACCESS_KEY),
+      SecureStore.getItemAsync(REFRESH_KEY),
+    ]);
+    if (!accessToken || !refreshToken) return null;
+    return { accessToken, refreshToken };
   } catch (err) {
     log.warn({ err: (err as Error).message }, 'validator.auth.read_failed');
     return null;
   }
 }
 
-export async function storeToken(token: string): Promise<void> {
-  await SecureStore.setItemAsync(TOKEN_KEY, token);
+export async function storeTokens(tokens: AuthTokensResponse | TokenPair): Promise<void> {
+  await Promise.all([
+    SecureStore.setItemAsync(ACCESS_KEY, tokens.accessToken),
+    SecureStore.setItemAsync(REFRESH_KEY, tokens.refreshToken),
+  ]);
 }
 
-export async function clearToken(): Promise<void> {
+export async function clearTokens(): Promise<void> {
   try {
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    await Promise.all([
+      SecureStore.deleteItemAsync(ACCESS_KEY),
+      SecureStore.deleteItemAsync(REFRESH_KEY),
+    ]);
   } catch (err) {
     log.warn({ err: (err as Error).message }, 'validator.auth.clear_failed');
   }

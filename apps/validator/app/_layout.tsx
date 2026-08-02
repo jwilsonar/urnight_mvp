@@ -3,18 +3,18 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { AuthProvider, useAuth } from '../lib/auth-context';
 
-/** Redirige a /login sin sesión válida y fuera de /login con sesión (§5). */
+/** Redirige a /login sin sesión y fuera de /login con sesión (§5). */
 function AuthGate() {
-  const { token, isReady } = useAuth();
+  const { status } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isReady) return;
+    if (status === 'restoring') return;
     const onLogin = segments[0] === 'login';
-    if (!token && !onLogin) router.replace('/login');
-    else if (token && onLogin) router.replace('/');
-  }, [token, isReady, segments, router]);
+    if (status === 'guest' && !onLogin) router.replace('/login');
+    else if (status === 'authenticated' && onLogin) router.replace('/');
+  }, [status, segments, router]);
 
   return <Stack screenOptions={{ headerTitle: 'Ravenue Validador' }} />;
 }

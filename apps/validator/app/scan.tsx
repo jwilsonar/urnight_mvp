@@ -32,36 +32,69 @@ const PALETTE: Record<Verdict, { bg: string; label: string }> = {
  * conexión. El contenido del QR nunca se pinta ni se loguea (§6).
  */
 export default function ScanScreen() {
-  const { token, signOut } = useAuth();
+  const { getAccessToken, refreshAccessToken, signOut } = useAuth();
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
   const [lastCode, setLastCode] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [outcome, setOutcome] = useState<ScanOutcome | null>(null);
 
+  /** Encola el escaneo y deja el aviso ámbar en pantalla. */
+  async function queueOffline(code: string, scannedAt: string) {
+    await queueCheckin(code, scannedAt).catch((e) =>
+      log.error({ err: (e as Error).message }, 'validator.checkin.queue_failed'),
+    );
+    setOutcome({
+      verdict: 'offline',
+      message: 'Sin conexión. Se sincronizará al recuperar red.',
+    });
+  }
+
   async function handleScan(data: string) {
-    if (busy || data === lastCode || !token) return;
+    if (busy || data === lastCode) return;
     setBusy(true);
     setLastCode(data);
     // Solo metadatos: el contenido del QR nunca se loguea (§6).
     log.info({ length: data.length }, 'validator.qr.scanned');
     const scannedAt = new Date().toISOString();
     try {
+      const token = await getAccessToken();
+      if (!token) {
+        // Sin token utilizable. O no hubo red para renovar —y entonces la puerta
+        // sigue operando encolando (§2.5)— o la sesión murió, en cuyo caso el
+        // gate de _layout ya está llevando a login.
+        await queueOffline(data, scannedAt);
+        return;
+      }
       const res = await validateQr(data, token);
       log.info({ result: res.result }, 'validator.qr.validated');
       setOutcome({ verdict: res.result, message: res.message });
     } catch (err) {
       if (err instanceof NetworkError) {
         // Sin red: encolar offline y sincronizar al recuperar conexión (§5).
-        await queueCheckin(data, scannedAt).catch((e) =>
-          log.error({ err: (e as Error).message }, 'validator.checkin.queue_failed'),
-        );
-        setOutcome({ verdict: 'offline', message: 'Sin conexión. Se sincronizará al recuperar red.' });
+        await queueOffline(data, scannedAt);
       } else if (err instanceof ApiError && err.status === 401) {
-        // Token inválido/expirado: cerrar sesión y volver a login.
+        // El servidor rechazó el access aunque no hubiera expirado (revocado):
+        // renovar a la fuerza y reintentar UNA vez (§2.6).
         log.warn({}, 'validator.qr.unauthorized');
-        await signOut();
-        router.replace('/login');
+        const fresh = await refreshAccessToken();
+        if (!fresh) {
+          await queueOffline(data, scannedAt);
+          return;
+        }
+        try {
+          const res = await validateQr(data, fresh);
+          log.info({ result: res.result }, 'validator.qr.validated');
+          setOutcome({ verdict: res.result, message: res.message });
+        } catch (retryErr) {
+          if (retryErr instanceof NetworkError) {
+            await queueOffline(data, scannedAt);
+          } else {
+            log.warn({}, 'validator.qr.session_dead');
+            await signOut();
+            router.replace('/login');
+          }
+        }
       } else {
         log.error({ err: (err as Error).message }, 'validator.qr.validate_failed');
         setOutcome({ verdict: 'error', message: 'No se pudo validar. Inténtalo de nuevo.' });
