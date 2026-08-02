@@ -1,6 +1,7 @@
 import type { Event } from "../../../../modules/events/domain/entities/event.entity";
 import type {
   EventListFilter,
+  EventListItem,
   EventRepository,
 } from "../../../../modules/events/domain/ports/event.repository";
 import { InMemoryRepository } from "../in-memory.repository";
@@ -37,17 +38,20 @@ export class InMemoryEventRepository
     return this.values().some((e) => e.slug === slug);
   }
 
-  async listPublished(filter?: EventListFilter): Promise<Event[]> {
+  async listPublished(filter?: EventListFilter): Promise<EventListItem[]> {
     const q = filter?.q?.toLowerCase();
     const now = filter?.availableAt ?? new Date();
-    const results = this.values().filter((e) => {
-      if (e.status !== "published") return false;
-      if (e.startsAt < now) return false;
-      if (e.totalCapacity > 0 && e.ticketsSold >= e.totalCapacity) return false;
+    const genreIds = [...new Set(filter?.genreIds ?? [])];
+    const tagIds = [...new Set(filter?.tagIds ?? [])];
+    const requestedCount = genreIds.length + tagIds.length;
+    const results = this.values().flatMap((e) => {
+      if (e.status !== "published") return [];
+      if (e.startsAt < now) return [];
+      if (e.totalCapacity > 0 && e.ticketsSold >= e.totalCapacity) return [];
       if (filter?.localId !== undefined && e.localId !== filter.localId)
-        return false;
-      if (filter?.from && e.startsAt < filter.from) return false;
-      if (filter?.to && e.startsAt > filter.to) return false;
+        return [];
+      if (filter?.from && e.startsAt < filter.from) return [];
+      if (filter?.to && e.startsAt > filter.to) return [];
       if (filter?.minPrice !== undefined || filter?.maxPrice !== undefined) {
         const prices = this.ticketPricesByEvent.get(e.id) ?? [];
         const matches = prices.some(
@@ -55,15 +59,31 @@ export class InMemoryEventRepository
             (filter.minPrice === undefined || price >= filter.minPrice) &&
             (filter.maxPrice === undefined || price <= filter.maxPrice),
         );
-        if (!matches) return false;
+        if (!matches) return [];
       }
       if (q && !`${e.name} ${e.description ?? ""}`.toLowerCase().includes(q))
-        return false;
-      return true;
+        return [];
+      const eventGenres = new Set(this.genresByEvent.get(e.id) ?? []);
+      const eventTags = new Set(this.tagsByEvent.get(e.id) ?? []);
+      const matchScore =
+        genreIds.filter((id) => eventGenres.has(id)).length +
+        tagIds.filter((id) => eventTags.has(id)).length;
+      if (requestedCount > 0 && matchScore === 0) return [];
+      return [
+        {
+          event: e,
+          matchScore,
+          matchesAll: matchScore === requestedCount,
+        },
+      ];
     });
     results.sort((a, b) => {
-      const byDate = a.startsAt.getTime() - b.startsAt.getTime();
-      return byDate !== 0 ? byDate : a.id.localeCompare(b.id);
+      if (a.matchesAll !== b.matchesAll) return a.matchesAll ? -1 : 1;
+      if (a.matchScore !== b.matchScore) return b.matchScore - a.matchScore;
+      const byDate = a.event.startsAt.getTime() - b.event.startsAt.getTime();
+      return byDate !== 0
+        ? byDate
+        : a.event.id.localeCompare(b.event.id);
     });
     const offset = filter?.offset ?? 0;
     const end = filter?.limit !== undefined ? offset + filter.limit : undefined;

@@ -252,12 +252,12 @@ export default async function HomePage() {
           <section className="pt-16">
             <NightCamera>
               <div className="grid min-h-[390px] overflow-hidden rounded-xl border border-border bg-[linear-gradient(120deg,var(--bg-elevated),var(--bg-base))] lg:grid-cols-[1.05fr_0.95fr]">
-                <div className="flex min-h-[390px] flex-col justify-center p-6 sm:p-10 lg:p-12">
-                  <span className="inline-flex items-center gap-2 self-start text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">
+                <div className="relative flex min-h-[390px] flex-col justify-center p-6 sm:p-10 lg:p-12">
+                  <span className="absolute left-6 top-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground sm:left-10 sm:top-10 lg:left-12 lg:top-12">
                     <Star className="size-4 text-primary" weight="fill" />
                     {t("partner.badge")}
                   </span>
-                  <h2 className="mt-5 font-display text-4xl font-black leading-none tracking-tight sm:text-6xl">
+                  <h2 className="font-display text-4xl font-black leading-none tracking-tight sm:text-6xl">
                     {partner.name}
                   </h2>
                   <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">

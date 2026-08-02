@@ -48,7 +48,13 @@ export class CreateEventUseCase {
       saved.setFlyer(await promoteStagedFlyer(this.storage, saved.id, input.dto.flyerKey));
       saved = await this.events.update(saved);
     }
+    if (input.dto.genreIds !== undefined) {
+      await this.events.setGenres(saved.id, input.dto.genreIds);
+    }
+    if (input.dto.tagIds !== undefined) {
+      await this.events.setTags(saved.id, input.dto.tagIds);
+    }
     this.log.info({ eventId: saved.id, localId: saved.localId }, 'events.event.created');
-    return saved;
+    return (await this.events.findById(saved.id)) ?? saved;
   }
 }

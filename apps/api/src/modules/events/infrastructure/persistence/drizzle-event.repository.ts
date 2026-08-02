@@ -34,6 +34,7 @@ import { Event, type EventStatus } from "../../domain/entities/event.entity";
 import type {
   EventCatalogOrder,
   EventListFilter,
+  EventListItem,
   EventRepository,
 } from "../../domain/ports/event.repository";
 import {
@@ -96,6 +97,49 @@ export class DrizzleEventRepository implements EventRepository {
     return Boolean(row);
   }
 
+  private taxonomyMatch(filter?: EventListFilter): {
+    matchScore: SQL<number>;
+    matchesAll: SQL<boolean>;
+    requestedCount: number;
+  } {
+    const genreIds = [...new Set(filter?.genreIds ?? [])];
+    const tagIds = [...new Set(filter?.tagIds ?? [])];
+    const requestedCount = genreIds.length + tagIds.length;
+    if (requestedCount === 0) {
+      return {
+        matchScore: sql<number>`0`,
+        matchesAll: sql<boolean>`true`,
+        requestedCount,
+      };
+    }
+
+    const genreMatches =
+      genreIds.length === 0
+        ? sql<number>`0`
+        : sql<number>`(
+            select count(*)::int
+            from ${eventGenre}
+            where ${eventGenre.eventId} = ${event.id}
+              and ${inArray(eventGenre.genreId, genreIds)}
+          )`;
+    const tagMatches =
+      tagIds.length === 0
+        ? sql<number>`0`
+        : sql<number>`(
+            select count(*)::int
+            from ${eventTag}
+            where ${eventTag.eventId} = ${event.id}
+              and ${inArray(eventTag.tagId, tagIds)}
+          )`;
+    const matchScore = sql<number>`(${genreMatches} + ${tagMatches})::int`;
+
+    return {
+      matchScore,
+      matchesAll: sql<boolean>`${matchScore} = ${requestedCount}`,
+      requestedCount,
+    };
+  }
+
   private publishedConditions(filter?: EventListFilter): SQL[] {
     const at = filter?.availableAt ?? new Date();
     const activeHolds = activeEventHoldQuantitySql(event.id, at);
@@ -128,28 +172,9 @@ export class DrizzleEventRepository implements EventRepository {
         ),
       );
     }
-    if (filter?.genreId) {
-      conditions.push(
-        inArray(
-          event.id,
-          this.db
-            .select({ id: eventGenre.eventId })
-            .from(eventGenre)
-            .where(eq(eventGenre.genreId, filter.genreId)),
-        ),
-      );
-    }
-    if (filter?.tagId) {
-      conditions.push(
-        inArray(
-          event.id,
-          this.db
-            .select({ id: eventTag.eventId })
-            .from(eventTag)
-            .where(eq(eventTag.tagId, filter.tagId)),
-        ),
-      );
-    }
+    const taxonomyMatch = this.taxonomyMatch(filter);
+    if (taxonomyMatch.requestedCount > 0)
+      conditions.push(gt(taxonomyMatch.matchScore, 0));
     if (filter?.q) {
       const normalized = normalizeSearch(filter.q);
       if (normalized) {
@@ -206,17 +231,30 @@ export class DrizzleEventRepository implements EventRepository {
     return strategies[order];
   }
 
-  async listPublished(filter?: EventListFilter): Promise<Event[]> {
+  async listPublished(filter?: EventListFilter): Promise<EventListItem[]> {
+    const taxonomyMatch = this.taxonomyMatch(filter);
+    const rankingOrder =
+      taxonomyMatch.requestedCount > 0
+        ? [desc(taxonomyMatch.matchesAll), desc(taxonomyMatch.matchScore)]
+        : [];
     let query = this.db
-      .select(this.eventSelection(filter?.availableAt))
+      .select({
+        ...this.eventSelection(filter?.availableAt),
+        matchScore: taxonomyMatch.matchScore,
+        matchesAll: taxonomyMatch.matchesAll,
+      })
       .from(event)
       .where(and(...this.publishedConditions(filter)))
-      .orderBy(...this.publishedOrder(filter?.order))
+      .orderBy(...rankingOrder, ...this.publishedOrder(filter?.order))
       .$dynamic();
     if (filter?.limit !== undefined) query = query.limit(filter.limit);
     if (filter?.offset !== undefined) query = query.offset(filter.offset);
     const rows = await query;
-    return rows.map((r) => this.toDomain(r));
+    return rows.map((row) => ({
+      event: this.toDomain(row),
+      matchScore: Number(row.matchScore),
+      matchesAll: Boolean(row.matchesAll),
+    }));
   }
 
   async countPublished(filter?: EventListFilter): Promise<number> {

@@ -20,6 +20,7 @@ import {
   type CancelEventDto,
   type CreateEventDto,
   type EventCatalogLabel,
+  type EventListItemResponse,
   type EventListQuery,
   type EventResponse,
   type LocalStatsResponse,
@@ -73,10 +74,12 @@ export class EventsController {
   async list(
     @Res({ passthrough: true }) response: Response,
     @Query(new ZodValidationPipe(eventListQuerySchema)) query: EventListQuery,
-  ): Promise<EventResponse[]> {
+  ): Promise<EventListItemResponse[]> {
     const result = await this.listEvents.executePage(toEventFilter(query));
     response.setHeader("X-Total-Count", String(result.total));
-    return result.events.map((event) => toEventResponse(event));
+    return result.events.map(({ event, matchScore, matchesAll }) =>
+      toEventListItemResponse(event, { matchScore, matchesAll }),
+    );
   }
 
   /** Eventos de un local de MI empresa (todos los estados). Aislado por tenant. */
@@ -218,14 +221,27 @@ function toEventFilter(query: EventListQuery): EventListFilter {
     q: query.q,
     localId: query.localId,
     zoneId: query.zoneId,
-    genreId: query.genreId,
-    tagId: query.tagId,
+    genreIds: query.genreIds,
+    tagIds: query.tagIds,
     from: query.from ? new Date(query.from) : undefined,
     to: query.to ? new Date(query.to) : undefined,
     minPrice: query.minPrice,
     maxPrice: query.maxPrice,
     limit: query.limit,
     offset: query.offset,
+  };
+}
+
+export function toEventListItemResponse(
+  event: Event,
+  match: { matchScore: number; matchesAll: boolean } = {
+    matchScore: 0,
+    matchesAll: true,
+  },
+): EventListItemResponse {
+  return {
+    ...toEventResponse(event),
+    ...match,
   };
 }
 

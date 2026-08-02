@@ -8,13 +8,16 @@ import { EventCard } from "@/components/catalog/event-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getEvents, getLocals, getUpcomingEvents } from "@/lib/api/catalog";
 import {
-  eventCatalogHref,
   getLimaDatePresetRange,
   parsePriceFilter,
-  type EventCatalogSearchParams,
   type EventDatePreset,
 } from "@/lib/catalog-filters";
 import { getEventCardPrices } from "@/lib/event-card-data";
+import {
+  eventFiltersHref,
+  selectedFilterIds,
+  type EventsSearchParams,
+} from "../event-filter-url";
 
 export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function EventsCalendarPage({
   searchParams,
 }: {
-  searchParams: Promise<EventCatalogSearchParams & { date?: string }>;
+  searchParams: Promise<EventsSearchParams>;
 }) {
   const [t, format, filters] = await Promise.all([
     getTranslations("events.calendar"),
@@ -36,7 +39,9 @@ export default async function EventsCalendarPage({
     filters.q ||
     filters.zoneId ||
     filters.genreId ||
+    filters.genreIds ||
     filters.tagId ||
+    filters.tagIds ||
     filters.from ||
     filters.to ||
     filters.minPrice ||
@@ -52,13 +57,17 @@ export default async function EventsCalendarPage({
   const dateRange = datePreset
     ? getLimaDatePresetRange(datePreset)
     : { from: filters.from, to: filters.to };
+  const selectedGenreIds = selectedFilterIds(filters.genreIds, filters.genreId);
+  const selectedTagIds = selectedFilterIds(filters.tagIds, filters.tagId);
   const events = await (
     hasFilters || datePreset
       ? getEvents({
           q: filters.q,
           zoneId: filters.zoneId,
-          genreId: filters.genreId,
-          tagId: filters.tagId,
+          genreId: filters.genreIds ? undefined : filters.genreId,
+          genreIds: filters.genreIds ? selectedGenreIds : undefined,
+          tagId: filters.tagIds ? undefined : filters.tagId,
+          tagIds: filters.tagIds ? selectedTagIds : undefined,
           from: dateRange.from ?? new Date().toISOString(),
           to: dateRange.to,
           minPrice: parsePriceFilter(filters.minPrice),
@@ -96,7 +105,7 @@ export default async function EventsCalendarPage({
           <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <Button variant="secondary" size="sm" asChild>
-          <Link href={eventCatalogHref("/events", filters)}>
+          <Link href={eventFiltersHref("/events", filters)}>
             {t("viewList")} →
           </Link>
         </Button>

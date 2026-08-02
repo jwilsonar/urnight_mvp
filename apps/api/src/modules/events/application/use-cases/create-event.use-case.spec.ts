@@ -29,6 +29,22 @@ function dto(overrides: Partial<CreateEventDto> = {}): CreateEventDto {
 }
 
 describe('CreateEventUseCase', () => {
+  it('acepta y persiste el set completo de 8 géneros del catálogo actual', async () => {
+    const { useCase } = build();
+    const genreIds = Array.from(
+      { length: 8 },
+      (_, index) => `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+    );
+
+    const result = await useCase.execute({
+      dto: dto({ genreIds }),
+      createdBy: 'admin-1',
+      scope: SUPER_ADMIN_SCOPE,
+    });
+
+    expect(result.genreIds).toEqual(genreIds);
+  });
+
   it('crea un evento draft y lo persiste en el repositorio', async () => {
     const { events, useCase } = build();
 

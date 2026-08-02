@@ -24,6 +24,10 @@ export const createEventSchema = z.object({
   totalCapacity: z.number().int().min(0).default(0),
   minAgeNote: z.string().max(40).optional(),
   dressCode: z.string().max(120).optional(),
+  /** Categorías/géneros musicales iniciales del evento. */
+  genreIds: z.array(z.string().uuid()).max(20).optional(),
+  /** Etiquetas iniciales del catálogo. */
+  tagIds: z.array(z.string().uuid()).max(30).optional(),
 });
 export type CreateEventDto = z.infer<typeof createEventSchema>;
 
@@ -70,6 +74,25 @@ const optionalPriceSchema = z.preprocess(
   z.coerce.number().int().nonnegative().optional(),
 );
 
+const optionalUuidListSchema = (max: number) =>
+  z.preprocess(
+    (value) => {
+      if (value === undefined) return undefined;
+      const parts = Array.isArray(value) ? value : [value];
+      return parts
+        .flatMap((part) =>
+          typeof part === "string" ? part.split(",") : [part],
+        )
+        .map((part) => (typeof part === "string" ? part.trim() : part))
+        .filter((part) => part !== "");
+    },
+    z
+      .array(z.string().uuid())
+      .max(max)
+      .transform((values) => [...new Set(values)])
+      .optional(),
+  );
+
 export const eventListQuerySchema = z
   .object({
     q: z.string().trim().min(1).max(120).optional(),
@@ -77,6 +100,8 @@ export const eventListQuerySchema = z
     zoneId: z.string().uuid().optional(),
     genreId: z.string().uuid().optional(),
     tagId: z.string().uuid().optional(),
+    genreIds: optionalUuidListSchema(20),
+    tagIds: optionalUuidListSchema(20),
     from: z.string().datetime().optional(),
     to: z.string().datetime().optional(),
     minPrice: optionalPriceSchema,
@@ -85,6 +110,12 @@ export const eventListQuerySchema = z
     limit: z.coerce.number().int().min(1).max(60).optional(),
     offset: z.coerce.number().int().min(0).optional(),
   })
+  .transform((query) => ({
+    ...query,
+    genreIds:
+      query.genreIds ?? (query.genreId ? [query.genreId] : undefined),
+    tagIds: query.tagIds ?? (query.tagId ? [query.tagId] : undefined),
+  }))
   .refine(
     ({ minPrice, maxPrice }) =>
       minPrice === undefined || maxPrice === undefined || maxPrice >= minPrice,
@@ -131,7 +162,17 @@ export const eventResponseSchema = z.object({
 });
 export type EventResponse = z.infer<typeof eventResponseSchema>;
 
-export const eventListResponseSchema = z.array(eventResponseSchema);
+export const eventListItemResponseSchema = eventResponseSchema.extend({
+  /** Cantidad de géneros y tags solicitados que tiene el evento. */
+  matchScore: z.number().int().nonnegative(),
+  /** True cuando el evento coincide con todos los géneros y tags solicitados. */
+  matchesAll: z.boolean(),
+});
+export type EventListItemResponse = z.infer<
+  typeof eventListItemResponseSchema
+>;
+
+export const eventListResponseSchema = z.array(eventListItemResponseSchema);
 export type EventListResponse = z.infer<typeof eventListResponseSchema>;
 
 /** KPIs agregados de un local (#19/#22). */
