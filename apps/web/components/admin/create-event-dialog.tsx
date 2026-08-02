@@ -2,6 +2,7 @@
 
 import { Plus } from '@phosphor-icons/react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSession } from 'next-auth/react';
@@ -28,7 +29,9 @@ import {
   Textarea,
 } from '@urnight/ui';
 import { StagedImageField } from '@/components/shared/staged-image-field';
+import { ChipSelect, toggleChipSelection } from '@/components/shared/chip-select';
 import { createEvent } from '@/lib/api/admin';
+import { getMusicGenres } from '@/lib/api/catalog';
 import { queryKeys } from '@/lib/api/query-keys';
 import { useApiMutation } from '@/lib/api/use-api-mutation';
 import { useStagedUpload } from '@/lib/hooks/use-staged-upload';
@@ -58,11 +61,19 @@ export function CreateEventDialog({ localId }: { localId: string }) {
     totalCapacity: 0,
     minAgeNote: '',
     dressCode: '',
+    genreIds: [],
   });
 
   const form = useForm<z.input<typeof createEventSchema>, unknown, CreateEventDto>({
     resolver: zodResolver(createEventSchema),
     defaultValues: defaults(),
+  });
+
+  const { data: genres = [] } = useQuery({
+    queryKey: queryKeys.musicGenres,
+    queryFn: getMusicGenres,
+    enabled: open,
+    staleTime: 5 * 60_000,
   });
 
   const mutation = useApiMutation({
@@ -170,6 +181,20 @@ export function CreateEventDialog({ localId }: { localId: string }) {
                   <FormMessage />
                 </FormItem>
               )}
+            />
+
+            <ChipSelect
+              label="Géneros musicales"
+              options={genres}
+              selected={form.watch('genreIds') ?? []}
+              onToggle={(id) =>
+                form.setValue('genreIds', toggleChipSelection(form.getValues('genreIds') ?? [], id), {
+                  shouldDirty: true,
+                })
+              }
+              emptyHint="Aún no hay géneros en el catálogo."
+              selectAllLabel="Todos los géneros"
+              onSelectAll={(ids) => form.setValue('genreIds', ids, { shouldDirty: true })}
             />
 
             <div className="grid gap-4 sm:grid-cols-2">

@@ -88,7 +88,9 @@ export interface EventListParams {
   localId?: string;
   zoneId?: string;
   genreId?: string;
+  genreIds?: string[];
   tagId?: string;
+  tagIds?: string[];
   from?: string;
   to?: string;
   minPrice?: number;
@@ -105,7 +107,11 @@ export function getEvents(params?: EventListParams) {
       localId: params?.localId,
       zoneId: params?.zoneId,
       genreId: params?.genreId,
+      genreIds: params?.genreIds?.length
+        ? params.genreIds.join(",")
+        : undefined,
       tagId: params?.tagId,
+      tagIds: params?.tagIds?.length ? params.tagIds.join(",") : undefined,
       from: params?.from,
       to: params?.to,
       minPrice: params?.minPrice,
@@ -124,7 +130,9 @@ export async function getEventsPage(params: EventListParams) {
       localId: params.localId,
       zoneId: params.zoneId,
       genreId: params.genreId,
+      genreIds: params.genreIds?.length ? params.genreIds.join(",") : undefined,
       tagId: params.tagId,
+      tagIds: params.tagIds?.length ? params.tagIds.join(",") : undefined,
       from: params.from,
       to: params.to,
       minPrice: params.minPrice,

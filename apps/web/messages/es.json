@@ -204,6 +204,13 @@
         "title": "Género",
         "fallback": "Género"
       },
+      "tags": {
+        "title": "Etiquetas"
+      },
+      "more": {
+        "title": "Más filtros",
+        "description": "Géneros y etiquetas"
+      },
       "tagFallback": "Etiqueta",
       "date": {
         "title": "Fecha",
@@ -225,6 +232,10 @@
       "title": "Filtros activos",
       "clearAll": "Limpiar todo",
       "remove": "Quitar filtro {filter}"
+    },
+    "partialMatches": {
+      "title": "Coincidencias parciales",
+      "description": "También mostramos eventos que coinciden con parte de tu selección."
     },
     "loadError": {
       "title": "No pudimos cargar los eventos",

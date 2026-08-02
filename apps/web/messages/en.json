@@ -204,6 +204,13 @@
         "title": "Genre",
         "fallback": "Genre"
       },
+      "tags": {
+        "title": "Tags"
+      },
+      "more": {
+        "title": "More filters",
+        "description": "Genres and tags"
+      },
       "tagFallback": "Tag",
       "date": {
         "title": "Date",
@@ -225,6 +232,10 @@
       "title": "Active filters",
       "clearAll": "Clear all",
       "remove": "Remove {filter} filter"
+    },
+    "partialMatches": {
+      "title": "Partial matches",
+      "description": "We also show events that match part of your selection."
     },
     "loadError": {
       "title": "We couldn't load the events",

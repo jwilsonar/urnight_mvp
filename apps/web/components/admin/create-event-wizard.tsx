@@ -2,6 +2,7 @@
 
 import { ArrowLeft, ArrowRight, Check, Plus } from '@phosphor-icons/react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { type FieldPath, useForm } from 'react-hook-form';
 import { useSession } from 'next-auth/react';
@@ -30,7 +31,9 @@ import {
   cn,
 } from '@urnight/ui';
 import { StagedImageField } from '@/components/shared/staged-image-field';
+import { ChipSelect, toggleChipSelection } from '@/components/shared/chip-select';
 import { createEvent } from '@/lib/api/admin';
+import { getMusicGenres } from '@/lib/api/catalog';
 import { queryKeys } from '@/lib/api/query-keys';
 import { useApiMutation } from '@/lib/api/use-api-mutation';
 import { useStagedUpload } from '@/lib/hooks/use-staged-upload';
@@ -44,7 +47,7 @@ const STEPS = ['Básicos', 'Fecha y aforo', 'Detalles', 'Resumen'] as const;
 const STEP_FIELDS: FieldPath<EventFormInput>[][] = [
   ['name', 'slug', 'description'],
   ['startsAt', 'endsAt', 'totalCapacity'],
-  ['minAgeNote', 'dressCode'],
+  ['minAgeNote', 'dressCode', 'genreIds'],
 ];
 
 function blankToUndefined(value: string | undefined): string | undefined {
@@ -104,12 +107,20 @@ export function CreateEventWizard({ localId }: { localId: string }) {
     totalCapacity: 0,
     minAgeNote: '',
     dressCode: '',
+    genreIds: [],
   });
 
   const form = useForm<EventFormInput, unknown, CreateEventDto>({
     resolver: zodResolver(createEventSchema),
     defaultValues: defaults(),
     mode: 'onChange',
+  });
+
+  const { data: genres = [] } = useQuery({
+    queryKey: queryKeys.musicGenres,
+    queryFn: getMusicGenres,
+    enabled: open,
+    staleTime: 5 * 60_000,
   });
 
   const mutation = useApiMutation({
@@ -415,6 +426,24 @@ export function CreateEventWizard({ localId }: { localId: string }) {
                   />
                 </div>
 
+                <ChipSelect
+                  label="Géneros musicales"
+                  options={genres}
+                  selected={form.watch('genreIds') ?? []}
+                  onToggle={(id) =>
+                    form.setValue(
+                      'genreIds',
+                      toggleChipSelection(form.getValues('genreIds') ?? [], id),
+                      {
+                        shouldDirty: true,
+                      },
+                    )
+                  }
+                  emptyHint="Aún no hay géneros en el catálogo."
+                  selectAllLabel="Todos los géneros"
+                  onSelectAll={(ids) => form.setValue('genreIds', ids, { shouldDirty: true })}
+                />
+
                 <div className="space-y-2">
                   <Label>
                     Flyer <span className="text-muted-foreground">(opcional)</span>
@@ -454,6 +483,16 @@ export function CreateEventWizard({ localId }: { localId: string }) {
                   />
                   <SummaryRow label="Edad mínima" value={values.minAgeNote || 'Sin indicación'} />
                   <SummaryRow label="Vestimenta" value={values.dressCode || 'Sin indicación'} />
+                  <SummaryRow
+                    label="Géneros"
+                    value={
+                      genres.length > 0 && values.genreIds?.length === genres.length
+                        ? 'Todos los géneros'
+                        : values.genreIds?.length
+                          ? `${values.genreIds.length} seleccionados`
+                          : 'Sin géneros'
+                    }
+                  />
                   <SummaryRow label="Flyer" value={flyer.stagedKey ? 'Flyer listo' : 'Sin flyer'} />
                 </dl>
               </div>
