@@ -42,7 +42,7 @@ function RadioChoice({
   return (
     <label
       className={cn(
-        'flex cursor-pointer items-start gap-3 rounded-md border p-3.5 transition-colors',
+        'flex flex-1 cursor-pointer items-start gap-3 rounded-md border p-3.5 transition-colors',
         checked
           ? 'border-accent-border bg-accent-soft'
           : 'bg-muted/30 hover:border-[var(--accent-border-subtle)]',
@@ -113,9 +113,9 @@ export function PoliticaLocalForm({ localSlug }: { localSlug: string }) {
           <CardTitle>Reservas</CardTitle>
           <CardDescription>Define cuánto se adelanta y cómo se distribuye ese pago.</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-6 lg:grid-cols-2">
-          <fieldset className="space-y-3">
-            <legend className="text-sm font-bold">Adelanto de la reserva</legend>
+        <CardContent className="grid items-stretch gap-4 md:grid-cols-2">
+          <fieldset className="flex h-full min-w-0 flex-col gap-3 rounded-md border bg-muted/30 p-4">
+            <legend className="mb-1 px-1 text-sm font-bold">Adelanto de la reserva</legend>
             <RadioChoice
               name="adelanto"
               value="50"
@@ -134,8 +134,8 @@ export function PoliticaLocalForm({ localSlug }: { localSlug: string }) {
             />
           </fieldset>
 
-          <fieldset className="space-y-3">
-            <legend className="text-sm font-bold">Destino del adelanto</legend>
+          <fieldset className="flex h-full min-w-0 flex-col gap-3 rounded-md border bg-muted/30 p-4">
+            <legend className="mb-1 px-1 text-sm font-bold">Destino del adelanto</legend>
             <RadioChoice
               name="split-consumo"
               value="90"

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   CaretDown,
   CaretUp,
@@ -28,7 +29,38 @@ function conOrden(zonas: ZonaLocalDemo[]): ZonaLocalDemo[] {
   return zonas.map((zona, indice) => ({ ...zona, orden: indice + 1 }));
 }
 
+function AforoResumen({ total }: { total: number }) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-muted/30 px-4 py-3">
+      <span className="text-sm font-semibold">Aforo total del local</span>
+      <strong className="font-heading text-lg tabular-nums">
+        {total.toLocaleString("es-PE")} personas
+      </strong>
+    </div>
+  );
+}
+
+function NotaAforo() {
+  return (
+    <p className="text-sm leading-relaxed text-muted-foreground">
+      El aforo es la capacidad de referencia de la zona. El número de entradas a la venta se
+      define por evento, en los tipos de entrada (General / VIP / Premium).{" "}
+      <Link
+        href="/panel/admin/events"
+        className="font-semibold text-primary underline-offset-4 hover:underline"
+      >
+        Ir a eventos
+      </Link>
+      .
+    </p>
+  );
+}
+
 export function ZonasEditor({ value, onChange }: ZonasEditorProps) {
+  const aforoTotal = value
+    .filter((zona) => zona.activa)
+    .reduce((total, zona) => total + (zona.aforo ?? 0), 0);
+
   function actualizar(id: string, cambio: Partial<ZonaLocalDemo>) {
     onChange(
       value.map((zona) => (zona.id === id ? { ...zona, ...cambio } : zona)),
@@ -68,17 +100,21 @@ export function ZonasEditor({ value, onChange }: ZonasEditorProps) {
 
   if (value.length === 0) {
     return (
-      <EmptyState
-        compact
-        icon={<MapPinArea weight="duotone" />}
-        title="Sin zonas configuradas"
-        description="Agrega la primera zona para ordenar el acceso del local."
-        action={
-          <Button type="button" size="sm" onClick={agregar}>
-            <Plus weight="duotone" /> Agregar zona
-          </Button>
-        }
-      />
+      <div className="space-y-4">
+        <EmptyState
+          compact
+          icon={<MapPinArea weight="duotone" />}
+          title="Sin zonas configuradas"
+          description="Agrega la primera zona para ordenar el acceso del local."
+          action={
+            <Button type="button" size="sm" onClick={agregar}>
+              <Plus weight="duotone" /> Agregar zona
+            </Button>
+          }
+        />
+        <AforoResumen total={0} />
+        <NotaAforo />
+      </div>
     );
   }
 
@@ -88,7 +124,7 @@ export function ZonasEditor({ value, onChange }: ZonasEditorProps) {
         {value.map((zona, indice) => (
           <div
             key={zona.id}
-            className="grid gap-3 rounded-md border bg-muted/30 p-3.5 lg:grid-cols-[minmax(180px,1fr)_auto_auto_auto] lg:items-center"
+            className="grid gap-3 rounded-md border bg-muted/30 p-3.5 lg:grid-cols-[minmax(160px,1fr)_7rem_auto_auto_auto] lg:items-center"
           >
             <Input
               value={zona.nombre}
@@ -97,6 +133,28 @@ export function ZonasEditor({ value, onChange }: ZonasEditorProps) {
               }
               aria-label={`Nombre de la zona ${indice + 1}`}
             />
+
+            <label className="space-y-1.5">
+              <span className="block text-xs font-semibold text-muted-foreground">Aforo</span>
+              <Input
+                type="number"
+                min={0}
+                step={1}
+                inputMode="numeric"
+                value={zona.aforo ?? ""}
+                onChange={(event) => {
+                  const aforo = event.target.value;
+                  actualizar(zona.id, {
+                    aforo:
+                      aforo === ""
+                        ? undefined
+                        : Math.max(0, Math.floor(Number(aforo))),
+                  });
+                }}
+                aria-label={`Aforo de ${zona.nombre}`}
+                placeholder="Sin definir"
+              />
+            </label>
 
             <div
               className="flex items-center gap-1.5"
@@ -164,9 +222,13 @@ export function ZonasEditor({ value, onChange }: ZonasEditorProps) {
         ))}
       </div>
 
+      <AforoResumen total={aforoTotal} />
+
       <Button type="button" variant="outline" size="sm" onClick={agregar}>
         <Plus weight="duotone" /> Agregar zona
       </Button>
+
+      <NotaAforo />
     </div>
   );
 }

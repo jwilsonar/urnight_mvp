@@ -1,6 +1,6 @@
 'use client';
 
-import { UsersThree } from '@phosphor-icons/react';
+import { Minus, Plus, UsersThree } from '@phosphor-icons/react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { toast } from 'sonner';
 import {
@@ -37,6 +37,7 @@ export function PaloteoRegistrar({
   const [abierto, setAbierto] = useState(false);
   const [politica, setPolitica] = useState<PoliticaLocalDemo | null>(null);
   const [promotorId, setPromotorId] = useState('');
+  const [cantidad, setCantidad] = useState(1);
   const [nombreInvitado, setNombreInvitado] = useState('');
   const [zonaId, setZonaId] = useState('');
 
@@ -56,6 +57,14 @@ export function PaloteoRegistrar({
     .filter((zona) => zona.activa)
     .sort((a, b) => a.orden - b.orden);
 
+  function cambiarDialog(siguienteAbierto: boolean) {
+    setAbierto(siguienteAbierto);
+    if (!siguienteAbierto) {
+      setCantidad(1);
+      setNombreInvitado('');
+    }
+  }
+
   function confirmar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const promotor = PROMOTORES_LOCAL_DEMO.find((item) => item.id === promotorId);
@@ -65,17 +74,19 @@ export function PaloteoRegistrar({
     const paloteo = registrarPaloteoDemo({
       promotorId: promotor.id,
       promotorNombre: promotor.nombre,
+      cantidad,
       zonaId,
       ...(nombreLimpio ? { nombreInvitado: nombreLimpio } : {}),
     });
     onRegistrado?.(paloteo);
-    toast.success(`Ingreso registrado a nombre de ${promotor.nombre}`);
-    setNombreInvitado('');
-    setAbierto(false);
+    toast.success(
+      `${cantidad} ${cantidad === 1 ? 'ingreso registrado' : 'ingresos registrados'} a nombre de ${promotor.nombre}`,
+    );
+    cambiarDialog(false);
   }
 
   return (
-    <Dialog open={abierto} onOpenChange={setAbierto}>
+    <Dialog open={abierto} onOpenChange={cambiarDialog}>
       <DialogTrigger asChild>
         <Button type="button" size="sm">
           <UsersThree weight="duotone" /> Vengo de parte de…
@@ -108,7 +119,49 @@ export function PaloteoRegistrar({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nombre-paloteo">Nombre del invitado (opcional)</Label>
+              <Label htmlFor="cantidad-paloteo">Cantidad de personas</Label>
+              <div className="grid grid-cols-[3rem_minmax(0,1fr)_3rem] items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="size-12"
+                  onClick={() => setCantidad((actual) => Math.max(1, actual - 1))}
+                  disabled={cantidad <= 1}
+                  aria-label="Restar una persona"
+                >
+                  <Minus weight="bold" />
+                </Button>
+                <Input
+                  id="cantidad-paloteo"
+                  type="number"
+                  min={1}
+                  max={20}
+                  step={1}
+                  inputMode="numeric"
+                  value={cantidad}
+                  onChange={(event) => setCantidad(Math.min(20, Math.max(1, Math.floor(Number(event.target.value)))))}
+                  className="h-12 text-center font-heading text-xl font-bold tabular-nums"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="size-12"
+                  onClick={() => setCantidad((actual) => Math.min(20, actual + 1))}
+                  disabled={cantidad >= 20}
+                  aria-label="Sumar una persona"
+                >
+                  <Plus weight="bold" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">Máximo 20 personas por registro.</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="nombre-paloteo">
+                {cantidad > 1 ? 'Nombre del titular del grupo (opcional)' : 'Nombre del invitado (opcional)'}
+              </Label>
               <Input
                 id="nombre-paloteo"
                 value={nombreInvitado}
@@ -136,11 +189,11 @@ export function PaloteoRegistrar({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setAbierto(false)}>
+            <Button type="button" variant="outline" onClick={() => cambiarDialog(false)}>
               Cancelar
             </Button>
             <Button type="submit" disabled={!promotorId || !zonaId}>
-              Registrar ingreso
+              {cantidad === 1 ? 'Registrar ingreso' : `Registrar ${cantidad} ingresos`}
             </Button>
           </DialogFooter>
         </form>

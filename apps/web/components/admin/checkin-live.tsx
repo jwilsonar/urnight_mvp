@@ -17,6 +17,13 @@ interface FeedItem {
   promotorNombre?: string;
 }
 
+function nombreZona(zonaId: string): string {
+  return zonaId
+    .split('-')
+    .map((parte) => (parte.toLowerCase() === 'vip' ? 'VIP' : parte.charAt(0).toUpperCase() + parte.slice(1)))
+    .join(' ');
+}
+
 function horaCorta(fechaIso: string): string {
   return new Intl.DateTimeFormat('en-US', {
     hour: '2-digit',
@@ -31,7 +38,10 @@ function itemPaloteo(paloteo: PaloteoDemo): FeedItem {
     hora: horaCorta(paloteo.hora),
     orden: Date.parse(paloteo.hora),
     nombre: paloteo.nombreInvitado?.trim() || 'Invitado sin nombre',
-    detalle: `Zona · ${paloteo.zonaId}`,
+    detalle:
+      paloteo.cantidad > 1
+        ? `${paloteo.cantidad} personas · ${nombreZona(paloteo.zonaId)}`
+        : `Zona · ${paloteo.zonaId}`,
     valido: true,
     promotorNombre: paloteo.promotorNombre,
   };
@@ -57,6 +67,11 @@ export function CheckinLive() {
     return [...paloteos.map(itemPaloteo), ...validaciones].sort((a, b) => b.orden - a.orden);
   }, [paloteos]);
 
+  const totalPersonasPaloteo = useMemo(
+    () => paloteos.reduce((total, paloteo) => total + paloteo.cantidad, 0),
+    [paloteos],
+  );
+
   function agregarPaloteo(paloteo: PaloteoDemo) {
     setPaloteos((actuales) => [...actuales, paloteo]);
   }
@@ -67,7 +82,12 @@ export function CheckinLive() {
         <h2 className="flex items-center gap-2 font-heading text-lg font-bold">
           <QrCode className="size-5 text-rose" weight="duotone" /> Últimas validaciones
         </h2>
-        <PaloteoRegistrar onRegistrado={agregarPaloteo} />
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <Badge variant="info">
+            {totalPersonasPaloteo} {totalPersonasPaloteo === 1 ? 'persona por paloteo' : 'personas por paloteo'}
+          </Badge>
+          <PaloteoRegistrar onRegistrado={agregarPaloteo} />
+        </div>
       </div>
 
       <Card className="overflow-hidden p-0">

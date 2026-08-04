@@ -9,6 +9,7 @@ export interface PaloteoDemo {
   promotorId: string;
   promotorNombre: string;
   nombreInvitado?: string;
+  cantidad: number;
   zonaId: string;
   hora: string;
 }
@@ -29,6 +30,11 @@ export const PROMOTORES_LOCAL_DEMO: PromotorLocalDemo[] = [
 
 const PALOTEO_KEY = 'ravenue.paloteo';
 
+function normalizarCantidad(cantidad: unknown): number {
+  if (typeof cantidad !== 'number' || !Number.isFinite(cantidad)) return 1;
+  return Math.min(20, Math.max(1, Math.floor(cantidad)));
+}
+
 function guardarPaloteosDemo(paloteos: PaloteoDemo[]): void {
   if (typeof window === 'undefined') return;
 
@@ -40,10 +46,11 @@ function guardarPaloteosDemo(paloteos: PaloteoDemo[]): void {
 }
 
 export function registrarPaloteoDemo(
-  datos: Omit<PaloteoDemo, 'id' | 'hora'>,
+  datos: Omit<PaloteoDemo, 'id' | 'hora' | 'cantidad'> & { cantidad?: number },
 ): PaloteoDemo {
   const paloteo: PaloteoDemo = {
     ...datos,
+    cantidad: normalizarCantidad(datos.cantidad),
     id: `paloteo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     hora: new Date().toISOString(),
   };
@@ -57,7 +64,15 @@ export function listarPaloteosDemo(): PaloteoDemo[] {
 
   try {
     const raw = sessionStorage.getItem(PALOTEO_KEY);
-    return raw ? (JSON.parse(raw) as PaloteoDemo[]) : [];
+    if (!raw) return [];
+
+    const paloteos = JSON.parse(raw) as Array<
+      Omit<PaloteoDemo, 'cantidad'> & { cantidad?: number }
+    >;
+    return paloteos.map((paloteo) => ({
+      ...paloteo,
+      cantidad: normalizarCantidad(paloteo.cantidad),
+    }));
   } catch {
     return [];
   }

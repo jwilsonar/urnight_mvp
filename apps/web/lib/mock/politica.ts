@@ -7,6 +7,7 @@
 export interface ZonaLocalDemo {
   id: string;
   nombre: string;
+  aforo?: number;
   orden: number;
   color: string;
   activa: boolean;
@@ -44,14 +45,23 @@ export const POLITICA_DEFAULT: PoliticaLocalDemo = {
     {
       id: "general",
       nombre: "General",
+      aforo: 300,
       orden: 1,
       color: "#ff1f3d",
       activa: true,
     },
-    { id: "vip", nombre: "VIP", orden: 2, color: "#f59e0b", activa: true },
+    {
+      id: "vip",
+      nombre: "VIP",
+      aforo: 100,
+      orden: 2,
+      color: "#f59e0b",
+      activa: true,
+    },
     {
       id: "super-vip",
       nombre: "SUPER VIP",
+      aforo: 50,
       orden: 3,
       color: "#ef4444",
       activa: true,
