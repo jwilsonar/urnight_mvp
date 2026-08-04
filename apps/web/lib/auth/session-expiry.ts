@@ -1,7 +1,9 @@
 'use client';
 
+import type { QueryClient } from '@tanstack/react-query';
 import { signOut } from 'next-auth/react';
 import { ApiError } from '@/lib/api/client';
+import { clearClientQueryCache } from '@/lib/auth/client-sign-out';
 import { isSafeInternalPath } from '@/lib/utils/paths';
 
 /**
@@ -17,6 +19,12 @@ import { isSafeInternalPath } from '@/lib/utils/paths';
  */
 
 let handling = false;
+let sessionQueryClient: QueryClient | null = null;
+
+/** Registra la caché raíz para que cualquier recuperación de sesión la limpie. */
+export function setSessionExpiryQueryClient(queryClient: QueryClient): void {
+  sessionQueryClient = queryClient;
+}
 
 /** ¿Es un error de API que implica sesión inutilizable? */
 export function isSessionExpiredError(err: unknown): boolean {
@@ -34,7 +42,10 @@ export function handleSessionExpired(): void {
   const target = `/login?error=SessionExpired&callbackUrl=${encodeURIComponent(callbackUrl)}`;
   // `redirect: false` + navegación manual: el signOut de la beta de NextAuth v5
   // cambió la forma del parámetro de destino; así no dependemos de esa API.
-  void signOut({ redirect: false }).finally(() => {
+  const clearCache = sessionQueryClient
+    ? clearClientQueryCache(sessionQueryClient)
+    : Promise.resolve();
+  void clearCache.then(() => signOut({ redirect: false })).finally(() => {
     window.location.assign(target);
   });
 }

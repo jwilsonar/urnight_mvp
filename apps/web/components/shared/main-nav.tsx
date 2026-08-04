@@ -9,7 +9,6 @@ export const NAV_LINKS = [
   { href: "/", key: "home" },
   { href: "/events", key: "events" },
   { href: "/locals", key: "venues" },
-  { href: "/categorias", key: "categories" },
 ] as const;
 
 /** Navegación principal del sitio público (desktop). */

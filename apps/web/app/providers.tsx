@@ -16,6 +16,7 @@ import { NavigationScrollManager } from "@/components/shared/navigation-scroll-m
 import {
   handleSessionExpired,
   isSessionExpiredError,
+  setSessionExpiryQueryClient,
 } from "@/lib/auth/session-expiry";
 import { StorageProvider } from "@/lib/storage/storage-context";
 
@@ -34,10 +35,6 @@ import { StorageProvider } from "@/lib/storage/storage-context";
  * Vive en QueryCache/MutationCache para cubrir TODO el tráfico React Query sin
  * tocar cada componente.
  */
-const onApiError = (err: unknown): void => {
-  if (isSessionExpiredError(err)) handleSessionExpired();
-};
-
 /**
  * Cubre el caso que no dispara ningún request: cuando el refresh falla, la
  * sesión deja de entregar accessToken y las queries gateadas por `enabled`
@@ -103,14 +100,20 @@ export function Providers({
   children: ReactNode;
 }) {
   const [queryClient] = useState(
-    () =>
-      new QueryClient({
+    () => {
+      const onApiError = (err: unknown): void => {
+        if (isSessionExpiredError(err)) handleSessionExpired();
+      };
+      const client = new QueryClient({
         queryCache: new QueryCache({ onError: onApiError }),
         mutationCache: new MutationCache({ onError: onApiError }),
         defaultOptions: {
           queries: { staleTime: 60_000, refetchOnWindowFocus: false, retry: 1 },
         },
-      }),
+      });
+      setSessionExpiryQueryClient(client);
+      return client;
+    },
   );
 
   return (

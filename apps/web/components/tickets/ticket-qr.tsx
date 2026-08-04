@@ -1,11 +1,5 @@
-"use client";
-
-import { QrCode as QrIcon } from "@phosphor-icons/react";
-import Image from "next/image";
-import QRCode from "qrcode";
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { StorageImage } from "@/lib/storage/storage-context";
+import { BrandQr } from "@/components/shared/brand-qr";
 
 /**
  * QR de una entrada. Preferimos el PNG ya guardado en S3 (`qrImageKey`,
@@ -17,65 +11,19 @@ import { StorageImage } from "@/lib/storage/storage-context";
 export function TicketQr({
   qrImageKey,
   qrCode,
-  size = 112,
+  size = 160,
 }: {
   qrImageKey: string | null;
   qrCode: string;
   size?: number;
 }) {
   const t = useTranslations("tickets.qr");
-  const [dataUrl, setDataUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (qrImageKey) return;
-    let active = true;
-    QRCode.toDataURL(qrCode, {
-      margin: 1,
-      width: size * 2,
-      errorCorrectionLevel: "M",
-    })
-      .then((url) => {
-        if (active) setDataUrl(url);
-      })
-      .catch(() => {
-        /* sin QR visual: queda el token como referencia */
-      });
-    return () => {
-      active = false;
-    };
-  }, [qrImageKey, qrCode, size]);
-
-  if (qrImageKey) {
-    return (
-      <StorageImage
-        src={qrImageKey}
-        alt={t("alt")}
-        width={size}
-        height={size}
-        className="aspect-square shrink-0 rounded-md bg-white object-contain p-1"
-      />
-    );
-  }
-
-  if (dataUrl) {
-    return (
-      <Image
-        src={dataUrl}
-        alt={t("alt")}
-        width={size}
-        height={size}
-        unoptimized
-        className="aspect-square shrink-0 rounded-md bg-white object-contain p-1"
-      />
-    );
-  }
-
   return (
-    <div
-      className="flex shrink-0 items-center justify-center rounded-md border bg-muted"
-      style={{ width: size, height: size }}
-    >
-      <QrIcon className="h-10 w-10 text-muted-foreground" weight="duotone" />
-    </div>
+    <BrandQr
+      value={qrCode}
+      imageKey={qrImageKey}
+      alt={t("alt")}
+      size={size}
+    />
   );
 }

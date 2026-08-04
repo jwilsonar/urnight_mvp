@@ -142,7 +142,7 @@ export function PromoterRanking() {
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="grid gap-3 rounded-lg border bg-muted/20 p-4 md:grid-cols-2 xl:grid-cols-6">
-          <div className="space-y-1.5 md:col-span-2">
+          <div className="min-w-0 space-y-1.5 md:col-span-2">
             <Label htmlFor="ranking-event">{t("eventFilter")}</Label>
             <Input
               id="ranking-event"
@@ -157,7 +157,7 @@ export function PromoterRanking() {
               aria-invalid={Boolean(eventError)}
             />
           </div>
-          <div className="space-y-1.5">
+          <div className="min-w-0 space-y-1.5">
             <Label htmlFor="ranking-from">{t("from")}</Label>
             <Input
               id="ranking-from"
@@ -171,7 +171,7 @@ export function PromoterRanking() {
               }
             />
           </div>
-          <div className="space-y-1.5">
+          <div className="min-w-0 space-y-1.5">
             <Label htmlFor="ranking-to">{t("to")}</Label>
             <Input
               id="ranking-to"
@@ -182,8 +182,8 @@ export function PromoterRanking() {
               }
             />
           </div>
-          <div className="space-y-1.5">
-            <Label>{t("sortBy")}</Label>
+          <div className="min-w-0 space-y-1.5">
+            <Label htmlFor="ranking-sort">{t("sortBy")}</Label>
             <Select
               value={draft.sortBy}
               onValueChange={(value) =>
@@ -193,7 +193,7 @@ export function PromoterRanking() {
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger id="ranking-sort" className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -205,7 +205,8 @@ export function PromoterRanking() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-end gap-2">
+          <div className="min-w-0 space-y-1.5">
+            <Label htmlFor="ranking-order">{t("order")}</Label>
             <Select
               value={draft.order}
               onValueChange={(value) =>
@@ -215,7 +216,7 @@ export function PromoterRanking() {
                 }))
               }
             >
-              <SelectTrigger className="w-28">
+              <SelectTrigger id="ranking-order" className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -223,7 +224,13 @@ export function PromoterRanking() {
                 <SelectItem value="asc">{t("ascending")}</SelectItem>
               </SelectContent>
             </Select>
-            <Button type="button" onClick={apply}>
+          </div>
+          <div className="md:col-span-2 md:flex md:justify-end xl:col-span-6">
+            <Button
+              type="button"
+              onClick={apply}
+              className="w-full md:w-auto"
+            >
               <FunnelSimple className="size-4" weight="bold" />
               {t("apply")}
             </Button>

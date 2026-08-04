@@ -1,6 +1,7 @@
 "use client";
 
 import { List } from "@phosphor-icons/react";
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -16,7 +17,7 @@ import {
   SheetTrigger,
 } from "@urnight/ui";
 import { useHeaderMenuState } from "@/components/motion/hide-on-scroll-header";
-import { signOutAction } from "@/lib/auth-actions";
+import { clearCacheAndSignOut } from "@/lib/auth/client-sign-out";
 import {
   ROLE_PANEL_LABEL,
   canAccessPanels,
@@ -33,6 +34,20 @@ export function MobileNav() {
   const setHeaderMenuOpen = useHeaderMenuState();
   const pathname = usePathname();
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    if (isSigningOut) return;
+    setOpen(false);
+    setHeaderMenuOpen?.(false);
+    setIsSigningOut(true);
+    try {
+      await clearCacheAndSignOut(queryClient);
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   return (
     <Sheet
@@ -109,11 +124,8 @@ export function MobileNav() {
             <Button
               variant="ghost"
               className="justify-start px-3"
-              onClick={() => {
-                setOpen(false);
-                setHeaderMenuOpen?.(false);
-                void signOutAction();
-              }}
+              disabled={isSigningOut}
+              onClick={() => void handleSignOut()}
             >
               {t("signOut")}
             </Button>

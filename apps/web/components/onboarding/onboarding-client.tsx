@@ -1,6 +1,7 @@
 "use client";
 
 import { Sparkle } from "@phosphor-icons/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { signOut, useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
@@ -18,6 +19,7 @@ import {
 } from "@urnight/ui";
 import { getErrorMessage } from "@/lib/api/error-messages";
 import { completeOnboarding, updatePreferences } from "@/lib/api/identity";
+import { clearClientQueryCache } from "@/lib/auth/client-sign-out";
 import { regionalLocale, toBaseLocale } from "@/lib/i18n/config";
 import { isSafeInternalPath } from "@/lib/utils/paths";
 
@@ -42,6 +44,7 @@ export function OnboardingClient({
   const t = useTranslations("onboarding");
   const tErrors = useTranslations("auth.errors");
   const { data: session, update } = useSession();
+  const queryClient = useQueryClient();
   const [pending, startTransition] = useTransition();
   const [acceptsMarketing, setAcceptsMarketing] = useState(false);
   const [acceptsReminders, setAcceptsReminders] = useState(true);
@@ -51,9 +54,11 @@ export function OnboardingClient({
       JWT viejo y el POST falla 401 en loop). */
   function reLogin() {
     toast.error(t("sessionExpired"));
-    void signOut({
-      callbackUrl: `/login?callbackUrl=${encodeURIComponent("/onboarding")}`,
-    });
+    void clearClientQueryCache(queryClient).then(() =>
+      signOut({
+        callbackUrl: `/login?callbackUrl=${encodeURIComponent("/onboarding")}`,
+      }),
+    );
   }
 
   function finish() {

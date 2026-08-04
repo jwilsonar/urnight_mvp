@@ -86,7 +86,7 @@ function TicketSection({
         <h2 className="font-heading text-lg font-semibold">{title}</h2>
         <span className="text-sm text-muted-foreground">{tickets.length}</span>
       </div>
-      <div className="space-y-4">
+      <div className="grid gap-4">
         {tickets.map((ticket) => (
           <AccountTicketItem key={ticket.id} ticket={ticket} />
         ))}

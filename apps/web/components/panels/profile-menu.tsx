@@ -2,7 +2,6 @@
 
 import { ArrowSquareOut, Gauge, GearSix, SignOut } from '@phosphor-icons/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { useState } from 'react';
 import {
@@ -17,6 +16,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@urnight/ui';
+import { LocaleSwitcher } from '@/components/shared/locale-switcher';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
+import { clearCacheAndSignOut } from '@/lib/auth/client-sign-out';
 import { ROLE_PANEL_LABEL, primaryRole, roleHomePath } from '@/lib/utils/rbac';
 
 function initials(name?: string | null): string {
@@ -46,9 +48,7 @@ export function ProfileMenu({ user }: { user: ProfileMenuUser }) {
     if (isSigningOut) return;
     setIsSigningOut(true);
     try {
-      await queryClient.cancelQueries();
-      queryClient.clear();
-      await signOut({ redirect: true, callbackUrl: '/login' });
+      await clearCacheAndSignOut(queryClient);
     } finally {
       setIsSigningOut(false);
     }
@@ -70,6 +70,11 @@ export function ProfileMenu({ user }: { user: ProfileMenuUser }) {
           <span className="truncate text-xs font-normal text-muted-foreground">{user.email}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <div className="space-y-2 px-2 py-1 md:hidden">
+          <ThemeToggle showLabel />
+          <LocaleSwitcher id="panel-profile-language" showLabel />
+        </div>
+        <DropdownMenuSeparator className="md:hidden" />
         <DropdownMenuItem asChild>
           <Link href={panelHref}>
             <Gauge className="h-4 w-4" /> {panelLabel}

@@ -8,9 +8,11 @@ import {
   Ticket,
   UserCircle,
 } from "@phosphor-icons/react";
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import {
   Avatar,
   AvatarFallback,
@@ -24,7 +26,7 @@ import {
   DropdownMenuTrigger,
   Skeleton,
 } from "@urnight/ui";
-import { signOutAction } from "@/lib/auth-actions";
+import { clearCacheAndSignOut } from "@/lib/auth/client-sign-out";
 import {
   ROLE_PANEL_LABEL,
   canAccessPanels,
@@ -45,6 +47,18 @@ function initials(name?: string | null): string {
 export function UserMenu() {
   const t = useTranslations("nav");
   const { data: session, status } = useSession();
+  const queryClient = useQueryClient();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+    try {
+      await clearCacheAndSignOut(queryClient);
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   if (status === "loading") {
     return <Skeleton className="h-9 w-9 rounded-full" />;
@@ -120,9 +134,10 @@ export function UserMenu() {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
+          disabled={isSigningOut}
           onSelect={(event) => {
             event.preventDefault();
-            void signOutAction();
+            void handleSignOut();
           }}
         >
           <SignOut className="h-4 w-4" /> {t("signOut")}

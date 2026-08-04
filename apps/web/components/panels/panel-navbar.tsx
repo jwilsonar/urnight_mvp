@@ -2,7 +2,9 @@
 
 import { List } from '@phosphor-icons/react';
 import { Button } from '@urnight/ui';
+import { LocaleSwitcher } from '@/components/shared/locale-switcher';
 import { Logo } from '@/components/shared/logo';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
 import { roleHomePath } from '@/lib/utils/rbac';
 import { NotificationBell } from './notification-bell';
 import { ProfileMenu } from './profile-menu';
@@ -41,6 +43,10 @@ export function PanelNavbar({
         ) : null}
         <Logo href={roleHomePath(user.roles)} />
         <div className="ml-auto flex items-center gap-1">
+          <div className="hidden items-center gap-1 md:flex">
+            <ThemeToggle />
+            <LocaleSwitcher id="panel-navbar-language" />
+          </div>
           <NotificationBell />
           <ProfileMenu user={user} />
         </div>

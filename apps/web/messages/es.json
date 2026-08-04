@@ -525,6 +525,7 @@
       "title": "Conócenos",
       "us": "Sobre nosotros",
       "faq": "Preguntas frecuentes",
+      "categories": "Categorías",
       "affiliate": "Afiliar mi local"
     },
     "legal": {
@@ -543,6 +544,7 @@
     "clearCookies": "Limpiar cookies",
     "cookiesCleared": "Cookies limpias",
     "complaintsBook": "Libro de Reclamaciones",
+    "intermediationNotice": "RAVENUE es una plataforma de intermediación que publica y comercializa entradas y reservas por cuenta de los locales y organizadores. El organizador o local es el único responsable de la realización, calidad, contenido, aforo, seguridad y cumplimiento legal del evento, así como del ingreso y sus condiciones de acceso. RAVENUE no organiza los eventos ni responde por cambios de fecha, cancelaciones o incumplimientos del organizador; canaliza los reclamos conforme a los <terms>Términos y Condiciones</terms> y mediante el <complaints>Libro de Reclamaciones</complaints>.",
     "copyright": "Copyright © RAVENUE {year} · Todos los derechos reservados. Solo para mayores de 18 años."
   },
   "auth": {
@@ -1224,6 +1226,7 @@
     "confirmation": {
       "title": "¡Mesa reservada!",
       "description": "{table} para {count} personas · llegada {time}. Presenta el código al ingresar:",
+      "qrAlt": "Código QR de la reserva {code}",
       "creditActive": "Tu crédito de consumo de {amount} ya está activo en la carta del local",
       "noReentry": "Este local no permite reingreso una vez dentro",
       "backendDemo": "Demo: la reserva real y el QR llegan con el backend",
@@ -1333,6 +1336,7 @@
       "description": "Comparte un pase con cada invitado.",
       "share": "Compartir pases",
       "counter": "Pase {current} de {total}",
+      "qrAlt": "Código QR del pase {code}",
       "zones": { "general": "General", "vip": "VIP", "super-vip": "SUPER VIP" }
     }
   },
@@ -1360,6 +1364,10 @@
     "searchPlaceholder": "Buscar en la carta…",
     "searchAria": "Buscar productos en la carta",
     "all": "Todo",
+    "alcoholWarning": {
+      "excess": "Tomar bebidas alcohólicas en exceso es dañino.",
+      "minors": "Venta prohibida a menores de 18 años."
+    },
     "categories": {
       "cocteles": "Cócteles",
       "botellas": "Botellas",
@@ -1862,7 +1870,11 @@
             "El acceso final a cada local queda sujeto a sus normas de ingreso. Los locales son responsables de la prestación del servicio ofrecido."
           ],
           [
-            "5. Propiedad intelectual",
+            "5. Intermediación y responsabilidad del organizador",
+            "RAVENUE publica y comercializa entradas y reservas por cuenta de los locales y organizadores, sin asumir la organización de los eventos. El organizador o local es el único responsable de su realización, calidad, contenido, aforo, seguridad, cumplimiento legal, ingreso y condiciones de acceso. RAVENUE no responde por cambios de fecha, cancelaciones ni incumplimientos del organizador; canaliza los reclamos conforme a estos términos y al Libro de Reclamaciones."
+          ],
+          [
+            "6. Propiedad intelectual",
             "Todo el contenido, marca y diseño de RAVENUE están protegidos. No está permitida su reproducción sin autorización."
           ]
         ]
@@ -2429,6 +2441,7 @@
       "from": "Desde",
       "to": "Hasta",
       "sortBy": "Ordenar por",
+      "order": "Orden",
       "sales": "Ventas",
       "attendance": "Asistencia",
       "attendanceRate": "% asistencia",

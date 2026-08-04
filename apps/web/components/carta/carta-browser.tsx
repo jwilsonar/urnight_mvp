@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, MagnifyingGlass, Plus } from "@phosphor-icons/react";
+import { Check, MagnifyingGlass, Plus, Warning } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { Badge, Button, Card, Input, cn } from "@urnight/ui";
@@ -26,6 +26,13 @@ const TAG_VARIANT: Record<
   nuevo: "secondary",
 };
 
+const ALCOHOL_CATEGORY_IDS = new Set([
+  "cocteles",
+  "botellas",
+  "cervezas",
+  "shots",
+]);
+
 /**
  * Navegador de la carta: chips de categoría + búsqueda + grid de productos.
  * Pensado móvil-primero (se usa dentro del local, de noche, con una mano).
@@ -50,6 +57,9 @@ export function CartaBrowser() {
             .includes(q)),
     );
   }, [categoryId, locale, query, t]);
+  const showsAlcoholWarning = items.some((item) =>
+    ALCOHOL_CATEGORY_IDS.has(item.categoryId),
+  );
 
   return (
     <div className="space-y-5">
@@ -118,6 +128,20 @@ export function CartaBrowser() {
           ))}
         </div>
       )}
+
+      {showsAlcoholWarning ? (
+        <aside className="flex items-start gap-3 rounded-md border border-warning/30 bg-warning/5 px-4 py-3 text-sm">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-warning/10 text-warning">
+            <Warning aria-hidden="true" className="size-4" weight="duotone" />
+          </span>
+          <p className="pt-0.5 leading-relaxed text-muted-foreground">
+            <strong className="font-semibold text-foreground">
+              {t("alcoholWarning.excess")}
+            </strong>{" "}
+            {t("alcoholWarning.minors")}
+          </p>
+        </aside>
+      ) : null}
 
       <ProductSheet
         item={selected}

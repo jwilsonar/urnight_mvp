@@ -27,7 +27,7 @@ export async function SiteHeader() {
                 aparecen solo al interactuar con la marca. */}
             <Logo3D />
           </div>
-          <MainNav className="hidden shrink-0 lg:flex" />
+          <MainNav className="hidden shrink-0 lg:ml-4 lg:flex" />
         </div>
         <div aria-hidden="true" className="min-w-4 flex-1" />
         <div

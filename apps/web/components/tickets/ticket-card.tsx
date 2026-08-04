@@ -28,10 +28,14 @@ export function TicketCard({ ticket }: { ticket: TicketResponse }) {
   const format = useFormatter();
   return (
     <Card className="overflow-hidden">
-      <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-stretch">
-        <TicketQr qrImageKey={ticket.qrImageKey} qrCode={ticket.qrCode} />
+      <CardContent className="flex flex-col items-center gap-4 p-4 sm:flex-row sm:items-start">
+        <TicketQr
+          qrImageKey={ticket.qrImageKey}
+          qrCode={ticket.qrCode}
+          size={176}
+        />
 
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <div className="flex w-full min-w-0 flex-1 flex-col gap-2 self-stretch">
           <div className="flex items-start justify-between gap-2">
             <h3 className="min-w-0 font-heading text-lg font-bold leading-tight">
               {ticket.eventName ?? t("fallbackTitle")}

@@ -87,7 +87,7 @@ export interface ReservaHechaDemo {
 export const MIS_RESERVAS_DEMO: ReservaHechaDemo[] = [
   {
     id: 'r1',
-    codigo: 'UR-8F4K21',
+    codigo: 'RV-8F4K21',
     evento: 'Noche de Amatista',
     venue: 'Nocturna Club · Miraflores',
     fecha: 'Sáb 19 Abr · 11:00 PM',
@@ -98,7 +98,7 @@ export const MIS_RESERVAS_DEMO: ReservaHechaDemo[] = [
   },
   {
     id: 'r2',
-    codigo: 'UR-2M9X07',
+    codigo: 'RV-2M9X07',
     evento: 'Deep House Session',
     venue: 'Barranco Beats · Barranco',
     fecha: 'Sáb 26 Abr · 11:30 PM',
@@ -109,7 +109,7 @@ export const MIS_RESERVAS_DEMO: ReservaHechaDemo[] = [
   },
   {
     id: 'r3',
-    codigo: 'UR-7Q1B44',
+    codigo: 'RV-7Q1B44',
     evento: 'Reggaetón Night',
     venue: 'Nocturna Club · Miraflores',
     fecha: 'Vie 21 Mar · 10:30 PM',

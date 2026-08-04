@@ -1,6 +1,7 @@
 "use server";
 
 import { AuthError } from "next-auth";
+import { revalidatePath } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 import {
   loginSchema,
@@ -96,7 +97,8 @@ export async function registerAction(
 }
 
 export async function signOutAction(): Promise<void> {
-  await signOut({ redirectTo: "/" });
+  revalidatePath("/", "layout");
+  await signOut({ redirectTo: "/login" });
 }
 
 function toActionError(

@@ -525,6 +525,7 @@
       "title": "Discover",
       "us": "About us",
       "faq": "Frequently asked questions",
+      "categories": "Categories",
       "affiliate": "List my venue"
     },
     "legal": {
@@ -543,6 +544,7 @@
     "clearCookies": "Clear cookies",
     "cookiesCleared": "Cookies cleared",
     "complaintsBook": "Complaints Book",
+    "intermediationNotice": "RAVENUE is an intermediary platform that lists and sells tickets and bookings on behalf of venues and organizers. The organizer or venue is solely responsible for the event's delivery, quality, content, capacity, safety, and legal compliance, as well as admission and access conditions. RAVENUE does not organize events and is not responsible for date changes, cancellations, or organizer breaches; it routes claims under the <terms>Terms and Conditions</terms> and through the <complaints>Complaints Book</complaints>.",
     "copyright": "Copyright © RAVENUE {year} · All rights reserved. Adults 18+ only."
   },
   "auth": {
@@ -1227,6 +1229,7 @@
     "confirmation": {
       "title": "Your table is booked!",
       "description": "{table} for {count} people · arrival at {time}. Show this code at the door:",
+      "qrAlt": "QR code for booking {code}",
       "creditActive": "Your {amount} spending credit is now active on the venue menu",
       "noReentry": "This venue does not allow re-entry once you're inside",
       "backendDemo": "Demo: live bookings and QR codes are coming with the backend",
@@ -1336,6 +1339,7 @@
       "description": "Share one pass with each guest.",
       "share": "Share passes",
       "counter": "Pass {current} of {total}",
+      "qrAlt": "QR code for pass {code}",
       "zones": { "general": "General", "vip": "VIP", "super-vip": "SUPER VIP" }
     }
   },
@@ -1363,6 +1367,10 @@
     "searchPlaceholder": "Search the menu…",
     "searchAria": "Search menu items",
     "all": "All",
+    "alcoholWarning": {
+      "excess": "Excessive alcohol consumption is harmful.",
+      "minors": "Sale prohibited to anyone under 18."
+    },
     "categories": {
       "cocteles": "Cocktails",
       "botellas": "Bottles",
@@ -1859,7 +1867,11 @@
             "Final admission to each venue is subject to its entry rules. Venues are responsible for delivering the service offered."
           ],
           [
-            "5. Intellectual property",
+            "5. Intermediation and organizer responsibility",
+            "RAVENUE lists and sells tickets and bookings on behalf of venues and organizers without organizing the events itself. The organizer or venue is solely responsible for delivery, quality, content, capacity, safety, legal compliance, admission, and access conditions. RAVENUE is not responsible for date changes, cancellations, or organizer breaches; it routes claims under these terms and through the Complaints Book."
+          ],
+          [
+            "6. Intellectual property",
             "All RAVENUE content, branding, and design are protected. They may not be reproduced without permission."
           ]
         ]
@@ -2422,6 +2434,7 @@
       "from": "From",
       "to": "To",
       "sortBy": "Sort by",
+      "order": "Order",
       "sales": "Sales",
       "attendance": "Attendance",
       "attendanceRate": "Attendance %",

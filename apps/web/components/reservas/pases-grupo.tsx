@@ -1,49 +1,14 @@
 "use client";
 
 import { ShareNetwork } from "@phosphor-icons/react";
-import { Badge, Button, cn } from "@urnight/ui";
+import { Badge, Button } from "@urnight/ui";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { BrandQr } from "@/components/shared/brand-qr";
 import type { PaseReservaDemo } from "@/lib/mock/reservas";
 
 interface PasesGrupoProps {
   pases: PaseReservaDemo[];
-}
-
-function PseudoQr({ codigo }: { codigo: string }) {
-  const semilla = Array.from(codigo).reduce(
-    (total, caracter) => total + caracter.charCodeAt(0),
-    0,
-  );
-
-  return (
-    <div
-      aria-hidden="true"
-      className="grid size-14 shrink-0 grid-cols-7 gap-0.5 rounded-sm border bg-background p-1"
-    >
-      {Array.from({ length: 49 }, (_, indice) => {
-        const fila = Math.floor(indice / 7);
-        const columna = indice % 7;
-        // Tres marcas fijas y un patrón por código hacen reconocible el QR demo.
-        const esMarca =
-          (fila < 3 && columna < 3) ||
-          (fila < 3 && columna > 3) ||
-          (fila > 3 && columna < 3);
-        const activo =
-          esMarca || (semilla + indice * 7 + fila * columna) % 3 !== 0;
-
-        return (
-          <span
-            key={indice}
-            className={cn(
-              "aspect-square rounded-[1px]",
-              activo ? "bg-foreground" : "bg-muted",
-            )}
-          />
-        );
-      })}
-    </div>
-  );
 }
 
 export function PasesGrupo({ pases }: PasesGrupoProps) {
@@ -60,7 +25,7 @@ export function PasesGrupo({ pases }: PasesGrupoProps) {
 
   async function compartirPases() {
     const codigos = pases.map((pase) => pase.codigo).join("\n");
-    const texto = `${t("shareText", { code: "UR-DEMO-4821" })}\n${codigos}`;
+    const texto = `${t("shareText", { code: "RV-DEMO-4821" })}\n${codigos}`;
 
     if (typeof navigator.share === "function") {
       try {
@@ -99,7 +64,7 @@ export function PasesGrupo({ pases }: PasesGrupoProps) {
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {pases.map((pase) => (
           <article
             key={pase.id}
@@ -109,7 +74,11 @@ export function PasesGrupo({ pases }: PasesGrupoProps) {
               {t("counter", { current: pase.indice, total: pases.length })}
             </p>
             <div className="mt-3 flex flex-col items-center gap-3">
-              <PseudoQr codigo={pase.codigo} />
+              <BrandQr
+                value={pase.codigo}
+                alt={t("qrAlt", { code: pase.codigo })}
+                size={128}
+              />
               <code className="w-full truncate text-center font-mono text-xs font-bold">
                 {pase.codigo}
               </code>

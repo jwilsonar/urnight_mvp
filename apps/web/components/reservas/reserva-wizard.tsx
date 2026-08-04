@@ -35,6 +35,7 @@ import {
   cn,
 } from "@urnight/ui";
 import { PasesGrupo } from "@/components/reservas/pases-grupo";
+import { BrandQr } from "@/components/shared/brand-qr";
 import { otorgarCreditoDemo } from "@/lib/mock/credito";
 import { leerPoliticaDemo } from "@/lib/mock/politica";
 import {
@@ -51,6 +52,7 @@ import {
 
 const STEPS = ["table", "details", "bottles", "summary", "done"] as const;
 const RESERVA_ID_DEMO = "reserva-demo-4821";
+const RESERVA_CODIGO_DEMO = "RV-DEMO-4821";
 
 function Stepper({ current }: { current: number }) {
   const t = useTranslations("reserva");
@@ -269,9 +271,16 @@ export function ReservaWizard() {
                 })
               : null}
           </p>
-          <p className="mt-5 rounded-md border border-accent-border bg-accent px-6 py-4 font-mono text-2xl font-bold tracking-[0.2em] text-rose">
-            UR-DEMO-4821
-          </p>
+          <div className="mt-5 flex flex-col items-center gap-3">
+            <BrandQr
+              value={RESERVA_CODIGO_DEMO}
+              alt={t("confirmation.qrAlt", { code: RESERVA_CODIGO_DEMO })}
+              size={176}
+            />
+            <code className="rounded-md border border-accent-border bg-accent px-6 py-3 font-mono text-xl font-bold tracking-[0.16em] text-rose sm:text-2xl">
+              {RESERVA_CODIGO_DEMO}
+            </code>
+          </div>
           {confirmacion ? (
             <>
               <div className="mt-5 rounded-md border border-success-border bg-success-soft p-4 text-sm font-semibold text-success">

@@ -70,6 +70,7 @@ export function SiteFooter({
   const aboutLinks = [
     { href: "/nosotros", label: t("about.us") },
     { href: "/faq", label: t("about.faq") },
+    { href: "/categorias", label: t("about.categories") },
     { href: "/afiliar", label: t("about.affiliate") },
   ];
   const legalLinks = [
@@ -143,6 +144,28 @@ function FooterBottomBar() {
 
   return (
     <div className="border-t">
+      <div className="mx-auto max-w-7xl px-4 pt-5 sm:px-6 lg:px-8">
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          {t.rich("intermediationNotice", {
+            terms: (chunks) => (
+              <Link
+                href="/legal/terms"
+                className="font-semibold text-foreground underline-offset-4 hover:underline"
+              >
+                {chunks}
+              </Link>
+            ),
+            complaints: (chunks) => (
+              <Link
+                href="/reclamaciones"
+                className="font-semibold text-foreground underline-offset-4 hover:underline"
+              >
+                {chunks}
+              </Link>
+            ),
+          })}
+        </p>
+      </div>
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-4 px-4 py-5 sm:px-6 md:grid-cols-[minmax(0,1fr)_10rem_minmax(0,1fr)] lg:px-8">
         <Link
           href="/reclamaciones"
