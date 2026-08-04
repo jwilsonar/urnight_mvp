@@ -940,6 +940,7 @@
       },
       "people": "{count, plural, one {# person} other {# people}}",
       "code": "Code",
+      "qrAlt": "QR code for reservation {code}",
       "deposit": "{amount} deposit",
       "bookAnother": "Book another table"
     },

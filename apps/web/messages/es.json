@@ -937,6 +937,7 @@
       },
       "people": "{count, plural, one {# persona} other {# personas}}",
       "code": "Código",
+      "qrAlt": "Código QR de la reserva {code}",
       "deposit": "Depósito {amount}",
       "bookAnother": "Reservar otra mesa"
     },

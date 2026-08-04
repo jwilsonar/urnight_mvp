@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { Badge, Button, Card } from "@urnight/ui";
+import { BrandQr } from "@/components/shared/brand-qr";
 import { MIS_RESERVAS_DEMO } from "@/lib/mock/reservas";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -58,22 +59,31 @@ export default async function MisReservasPage() {
                     {t("people", { count: reserva.pax })} · {reserva.venue}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="rv-eyebrow !text-muted-foreground">
-                    {t("code")}
-                  </p>
-                  <p className="font-mono text-lg font-bold tracking-widest text-rose">
-                    {reserva.codigo}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {t("deposit", {
-                      amount: format.number(reserva.deposito, {
-                        style: "currency",
-                        currency: "PEN",
-                        maximumFractionDigits: 0,
-                      }),
-                    })}
-                  </p>
+                {/* El QR es lo que escanea la puerta; el código en texto queda
+                    como respaldo si el escáner falla. */}
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="rv-eyebrow !text-muted-foreground">
+                      {t("code")}
+                    </p>
+                    <p className="font-mono text-lg font-bold tracking-widest text-rose">
+                      {reserva.codigo}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {t("deposit", {
+                        amount: format.number(reserva.deposito, {
+                          style: "currency",
+                          currency: "PEN",
+                          maximumFractionDigits: 0,
+                        }),
+                      })}
+                    </p>
+                  </div>
+                  <BrandQr
+                    value={reserva.codigo}
+                    alt={t("qrAlt", { code: reserva.codigo })}
+                    size={104}
+                  />
                 </div>
               </div>
             </Card>

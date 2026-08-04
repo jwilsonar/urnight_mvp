@@ -32,7 +32,7 @@ function QrFrame({
       >
         <span className="relative aspect-square w-1/5 overflow-hidden rounded-lg border border-black/10 bg-white p-0.5 shadow-sm">
           <Image
-            src="/brand/icon-mark-black.png"
+            src="/brand/icon-mark-light.png"
             alt=""
             fill
             sizes={`${Math.ceil(size * 0.2)}px`}
