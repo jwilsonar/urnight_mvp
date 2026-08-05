@@ -25,7 +25,11 @@ import {
   registrarPaloteoDemo,
   type PaloteoDemo,
 } from '@/lib/mock/paloteo';
-import { leerPoliticaDemo, type PoliticaLocalDemo } from '@/lib/mock/politica';
+import {
+  etiquetaPulsera,
+  leerPoliticaDemo,
+  type PoliticaLocalDemo,
+} from '@/lib/mock/politica';
 
 const LOCAL_SLUG = 'nocturna-club';
 
@@ -57,6 +61,7 @@ export function PaloteoRegistrar({
   const zonasActivas = [...politica.zonas]
     .filter((zona) => zona.activa)
     .sort((a, b) => a.orden - b.orden);
+  const zonaSeleccionada = zonasActivas.find((zona) => zona.id === zonaId);
 
   function cambiarDialog(siguienteAbierto: boolean) {
     setAbierto(siguienteAbierto);
@@ -208,6 +213,18 @@ export function PaloteoRegistrar({
                   ))}
                 </SelectContent>
               </Select>
+              {/* El portero entrega la pulsera en el momento del ingreso: se la
+                  mostramos antes de confirmar, no solo después en el feed. */}
+              {zonaSeleccionada ? (
+                <p className="flex items-center gap-2 text-sm font-semibold">
+                  <span
+                    aria-hidden="true"
+                    className="size-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: zonaSeleccionada.color }}
+                  />
+                  Entregar pulsera: {etiquetaPulsera(zonaSeleccionada)}
+                </p>
+              ) : null}
             </div>
           </div>
 
