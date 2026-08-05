@@ -20,6 +20,9 @@ export type ErrorMessageKey =
   | "network"
   | "sessionFailed"
   | "mfaChallengePending"
+  | "invalidMfaCode"
+  | "mfaChallengeExpired"
+  | "mfaLocked"
   | "unexpected";
 
 export type ErrorMessageTranslator = (key: ErrorMessageKey) => string;
@@ -32,6 +35,9 @@ const CODE_MESSAGE_KEYS: Record<string, ErrorMessageKey> = {
     "documentAlreadyRegistered",
   [IDENTITY_ERROR_CODES.ACCOUNT_DISABLED]: "accountDisabled",
   [IDENTITY_ERROR_CODES.INVALID_TOKEN]: "invalidToken",
+  [IDENTITY_ERROR_CODES.INVALID_MFA_CODE]: "invalidMfaCode",
+  [IDENTITY_ERROR_CODES.MFA_CHALLENGE_EXPIRED]: "mfaChallengeExpired",
+  [IDENTITY_ERROR_CODES.MFA_LOCKED]: "mfaLocked",
 };
 
 const STATUS_MESSAGE_KEYS: Record<number, ErrorMessageKey> = {
@@ -46,8 +52,13 @@ const STATUS_MESSAGE_KEYS: Record<number, ErrorMessageKey> = {
 };
 
 const FALLBACK_ES: Record<ErrorMessageKey, string> = {
+  invalidMfaCode: "El código no es válido. Verifícalo e inténtalo de nuevo.",
+  mfaChallengeExpired:
+    "El desafío venció. Inicia sesión nuevamente para obtener otro.",
+  mfaLocked:
+    "Alcanzaste el límite de intentos. Inicia sesión nuevamente más tarde.",
   mfaChallengePending:
-    "Tu cuenta tiene verificación en dos pasos. La pantalla para ingresar el código aún no está disponible.",
+    "Completa la verificación en dos pasos para continuar.",
   invalidCredentials: "Correo o contraseña incorrectos.",
   underage: "Debes ser mayor de 18 años para registrarte.",
   emailAlreadyRegistered: "Ese correo ya está registrado.",

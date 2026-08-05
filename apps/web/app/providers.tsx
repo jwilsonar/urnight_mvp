@@ -15,6 +15,8 @@ import { MotionProvider } from "@/components/motion/motion-provider";
 import { NavigationScrollManager } from "@/components/shared/navigation-scroll-manager";
 import {
   handleSessionExpired,
+  handleMfaEnrollmentRequired,
+  isMfaEnrollmentRequiredError,
   isSessionExpiredError,
   setSessionExpiryQueryClient,
 } from "@/lib/auth/session-expiry";
@@ -30,10 +32,9 @@ import { StorageProvider } from "@/lib/storage/storage-context";
  */
 
 /**
- * Interceptor global: un 401 en cualquier query/mutación significa sesión
- * inutilizable (token revocado o vencido sin refresh) → re-login una sola vez.
- * Vive en QueryCache/MutationCache para cubrir TODO el tráfico React Query sin
- * tocar cada componente.
+ * Interceptor global: un 401 significa sesión inutilizable, salvo
+ * `identity/mfa-required`, que conserva la sesión y lleva al enrolamiento.
+ * Vive en QueryCache/MutationCache para cubrir todo el tráfico React Query.
  */
 /**
  * Cubre el caso que no dispara ningún request: cuando el refresh falla, la
@@ -102,7 +103,11 @@ export function Providers({
   const [queryClient] = useState(
     () => {
       const onApiError = (err: unknown): void => {
-        if (isSessionExpiredError(err)) handleSessionExpired();
+        if (isMfaEnrollmentRequiredError(err)) {
+          handleMfaEnrollmentRequired();
+        } else if (isSessionExpiredError(err)) {
+          handleSessionExpired();
+        }
       };
       const client = new QueryClient({
         queryCache: new QueryCache({ onError: onApiError }),

@@ -44,6 +44,12 @@ export function LoginForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
     setFormError(null);
     startTransition(async () => {
       const result = await loginAction(values);
+      if (result.mfaChallengeId) {
+        window.location.assign(
+          `/2fa?callbackUrl=${encodeURIComponent(callbackUrl)}`,
+        );
+        return;
+      }
       if (!result.ok) {
         setFormError(result.error ?? t("errors.loginFailed"));
         for (const [field, messages] of Object.entries(

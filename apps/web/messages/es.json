@@ -575,7 +575,10 @@
       "timeout": "La solicitud tardó demasiado. Revisa tu conexión e inténtalo de nuevo.",
       "network": "No pudimos conectar con el servicio. Revisa tu conexión e inténtalo de nuevo.",
       "sessionFailed": "No pudimos iniciar tu sesión. Inténtalo de nuevo.",
-      "mfaChallengePending": "Tu cuenta tiene verificación en dos pasos. La pantalla para ingresar el código aún no está disponible.",
+      "mfaChallengePending": "Completa la verificación en dos pasos para continuar.",
+      "invalidMfaCode": "El código no es válido. Verifícalo e inténtalo de nuevo.",
+      "mfaChallengeExpired": "El desafío venció. Inicia sesión nuevamente para obtener otro.",
+      "mfaLocked": "Alcanzaste el límite de intentos. Inicia sesión nuevamente más tarde.",
       "unexpected": "Ocurrió un error inesperado."
     }
   },
@@ -693,12 +696,23 @@
     "demo": "Demo — el envío real llega con el backend de recuperación"
   },
   "twoFactor": {
+    "metadataTitle": "Verificación en dos pasos",
     "title": "Verificación en 2 pasos",
-    "description": "Ingresa el código de 6 dígitos que enviamos a tu teléfono.",
+    "description": "Ingresa el código de 6 dígitos de tu aplicación de autenticación.",
+    "recoveryDescription": "Ingresa uno de tus códigos de recuperación. Cada código funciona una sola vez.",
     "digitAria": "Dígito {number}",
-    "complete": "Código completo",
-    "notReceived": "¿No te llegó el código?",
-    "demo": "Demo — la validación real llega con el backend de 2FA",
+    "expiresIn": "Este desafío vence en {time}",
+    "expired": "Este desafío ya venció",
+    "recoveryLabel": "Código de recuperación",
+    "recoveryPlaceholder": "Ingresa tu código de recuperación",
+    "verifying": "Verificando…",
+    "verify": "Verificar y continuar",
+    "startAgain": "Iniciar sesión de nuevo",
+    "useRecovery": "Usar un código de recuperación",
+    "useAuthenticator": "Usar la aplicación de autenticación",
+    "errors": {
+      "generic": "No pudimos verificar el código. Inténtalo de nuevo."
+    },
     "backToLogin": "Volver al inicio de sesión"
   },
   "verifyEmail": {
@@ -729,6 +743,11 @@
     "success": "¡Listo! Tu cuenta está configurada.",
     "sessionExpired": "Tu sesión expiró. Te llevamos a ingresar de nuevo."
   },
+  "panelMfaEnrollment": {
+    "title": "Tu panel está temporalmente restringido",
+    "description": "Por seguridad, debes activar la verificación en dos pasos antes de operar en el panel.",
+    "action": "Configurar ahora"
+  },
   "account": {
     "title": "Mi cuenta",
     "nav": {
@@ -744,6 +763,7 @@
       "notifications": "Notificaciones",
       "invitations": "Invitaciones",
       "friends": "Amigos",
+      "security": "Seguridad",
       "appearance": "Apariencia"
     },
     "appearance": {
@@ -756,6 +776,78 @@
       "systemHint": "Usa la configuración de tu dispositivo.",
       "lightHint": "Fondos claros y texto oscuro.",
       "darkHint": "La experiencia RAVENUE por defecto."
+    },
+    "security": {
+      "metadataTitle": "Seguridad de la cuenta",
+      "title": "Seguridad de la cuenta",
+      "description": "Protege tu cuenta con una aplicación de autenticación y códigos de recuperación.",
+      "loading": "Cargando el estado de verificación en dos pasos",
+      "refreshFailed": "El cambio se guardó, pero no pudimos renovar tu sesión. Guarda cualquier código visible y vuelve a iniciar sesión.",
+      "pending": {
+        "title": "Debes activar la verificación en dos pasos",
+        "description": "Tu acceso al panel está restringido hasta que completes el enrolamiento. Puedes seguir usando esta pantalla para configurarlo."
+      },
+      "loadError": {
+        "title": "No pudimos consultar tu seguridad",
+        "description": "Revisa tu conexión e inténtalo de nuevo.",
+        "retry": "Reintentar"
+      },
+      "errors": {
+        "invalidCode": "El código no es válido. Revisa tu aplicación e inténtalo de nuevo.",
+        "invalidPassword": "La contraseña es incorrecta.",
+        "alreadyEnrolled": "La verificación en dos pasos ya está activa.",
+        "notEnrolled": "No hay un enrolamiento pendiente para confirmar.",
+        "generic": "No pudimos completar la operación. Inténtalo de nuevo."
+      },
+      "enrollment": {
+        "title": "Activa la verificación en dos pasos",
+        "description": "Usa una aplicación compatible con TOTP para proteger el inicio de sesión.",
+        "start": "Comenzar configuración",
+        "starting": "Preparando…",
+        "scanTitle": "Escanea el código QR",
+        "scanDescription": "Abre tu aplicación de autenticación y agrega una cuenta escaneando este QR.",
+        "qrAlt": "Código QR para configurar la verificación en dos pasos de RAVENUE",
+        "manualHint": "Si no puedes escanearlo, ingresa este secreto manualmente en tu aplicación:",
+        "copySecret": "Copiar secreto",
+        "secretCopied": "Secreto copiado",
+        "confirmTitle": "Confirma la configuración",
+        "confirmDescription": "Ingresa el primer código de 6 dígitos que genera tu aplicación.",
+        "digitAria": "Dígito {number} del código de confirmación",
+        "confirm": "Confirmar y activar",
+        "confirming": "Confirmando…"
+      },
+      "enabled": {
+        "title": "Verificación en dos pasos activa",
+        "description": "Tu cuenta solicita un código adicional al iniciar sesión.",
+        "active": "Activa",
+        "confirmedAt": "Activada el",
+        "codesLeft": "Códigos disponibles",
+        "codesCount": "{count, plural, one {# código} other {# códigos}}",
+        "regenerate": "Regenerar códigos",
+        "revoke": "Desactivar MFA",
+        "regenerateTitle": "Regenerar códigos de recuperación",
+        "regenerateDescription": "Los códigos anteriores dejarán de funcionar. Confirma tu contraseña para continuar.",
+        "revokeTitle": "Desactivar la verificación en dos pasos",
+        "revokeDescription": "Tu cuenta quedará menos protegida. Los roles administrativos deberán enrolarse nuevamente para acceder al panel.",
+        "password": "Contraseña actual",
+        "cancel": "Cancelar",
+        "processing": "Procesando…",
+        "confirmRegenerate": "Regenerar códigos",
+        "confirmRevoke": "Desactivar"
+      },
+      "recoveryCodes": {
+        "title": "Guarda tus códigos de recuperación",
+        "description": "Te permiten entrar si pierdes acceso a tu aplicación de autenticación.",
+        "oneTimeTitle": "Se muestran una sola vez",
+        "oneTimeDescription": "Guárdalos ahora en un lugar seguro. RAVENUE no volverá a mostrar estos mismos códigos.",
+        "refreshFailed": "MFA quedó activo, pero la sesión no pudo renovarse. Guarda estos códigos y vuelve a iniciar sesión.",
+        "listAria": "Códigos de recuperación",
+        "copy": "Copiar todos",
+        "copied": "Códigos copiados",
+        "download": "Descargar .txt",
+        "downloadHeading": "Códigos de recuperación de RAVENUE",
+        "done": "Ya los guardé"
+      }
     },
     "profile": {
       "metadataTitle": "Perfil y ajustes",

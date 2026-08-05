@@ -4,6 +4,7 @@
  */
 export const queryKeys = {
   me: ['auth', 'me'] as const,
+  mfaStatus: ['auth', 'mfa-status'] as const,
   /** Favoritos del usuario autenticado (compartido por todos los FavoriteButton). */
   favorites: ['identity', 'favorites', 'me'] as const,
   /** Canjes de promo del usuario autenticado (#13). */

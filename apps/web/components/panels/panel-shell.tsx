@@ -1,8 +1,20 @@
 'use client';
 
+import { ShieldWarning } from '@phosphor-icons/react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { type ReactNode, useState } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@urnight/ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Button,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@urnight/ui';
 import { PanelNavbar } from './panel-navbar';
 import { PanelSidebar } from './panel-sidebar';
 import { sectionFromPath } from './nav-config';
@@ -12,6 +24,7 @@ interface PanelShellUser {
   email?: string | null;
   image?: string | null;
   roles?: readonly string[];
+  mfaPending?: boolean;
 }
 
 /**
@@ -21,6 +34,7 @@ interface PanelShellUser {
  * admin. En el selector raíz (/panel) no se muestra sidebar.
  */
 export function PanelShell({ user, children }: { user: PanelShellUser; children: ReactNode }) {
+  const t = useTranslations('panelMfaEnrollment');
   const pathname = usePathname();
   const section = sectionFromPath(pathname);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -37,7 +51,21 @@ export function PanelShell({ user, children }: { user: PanelShellUser; children:
         ) : null}
 
         <main className="min-w-0 flex-1">
-          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">{children}</div>
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+            {user.mfaPending ? (
+              <Alert className="mb-6 border-accent-border bg-accent/60">
+                <ShieldWarning aria-hidden="true" className="size-5 text-rose" />
+                <AlertTitle>{t('title')}</AlertTitle>
+                <AlertDescription className="space-y-3">
+                  <p>{t('description')}</p>
+                  <Button size="sm" asChild>
+                    <Link href="/account/seguridad">{t('action')}</Link>
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            ) : null}
+            {children}
+          </div>
         </main>
       </div>
 

@@ -17,6 +17,7 @@ const LINKS = [
   { href: "/account/notificaciones", key: "notifications" },
   { href: "/account/invitaciones", key: "invitations" },
   { href: "/account/amigos", key: "friends" },
+  { href: "/account/seguridad", key: "security" },
   { href: "/account/apariencia", key: "appearance" },
 ] as const;
 

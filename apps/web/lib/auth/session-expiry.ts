@@ -8,8 +8,8 @@ import { isSafeInternalPath } from '@/lib/utils/paths';
 
 /**
  * Manejo centralizado de sesión expirada en cliente. Dos señales convergen aquí:
- * - Un 401 del API en cualquier query/mutación (interceptor de QueryCache/
- *   MutationCache en providers.tsx): el token fue revocado o venció sin refresh.
+ * - Un 401 del API, excepto `identity/mfa-required`: el token fue revocado o
+ *   venció sin refresh.
  * - `session.error === 'RefreshAccessTokenError'` (SessionExpiryWatcher): el
  *   refresh falló y la sesión ya no entrega accessToken, así que las queries
  *   gateadas por `enabled` se apagan sin llegar a emitir un 401.
@@ -19,6 +19,7 @@ import { isSafeInternalPath } from '@/lib/utils/paths';
  */
 
 let handling = false;
+let handlingMfaEnrollment = false;
 let sessionQueryClient: QueryClient | null = null;
 
 /** Registra la caché raíz para que cualquier recuperación de sesión la limpie. */
@@ -28,7 +29,22 @@ export function setSessionExpiryQueryClient(queryClient: QueryClient): void {
 
 /** ¿Es un error de API que implica sesión inutilizable? */
 export function isSessionExpiredError(err: unknown): boolean {
-  return err instanceof ApiError && err.status === 401;
+  return (
+    err instanceof ApiError &&
+    err.status === 401 &&
+    err.code !== 'identity/mfa-required'
+  );
+}
+
+export function isMfaEnrollmentRequiredError(err: unknown): boolean {
+  return err instanceof ApiError && err.code === 'identity/mfa-required';
+}
+
+export function handleMfaEnrollmentRequired(): void {
+  if (handlingMfaEnrollment || typeof window === 'undefined') return;
+  if (window.location.pathname === '/account/seguridad') return;
+  handlingMfaEnrollment = true;
+  window.location.assign('/account/seguridad');
 }
 
 export function handleSessionExpired(): void {

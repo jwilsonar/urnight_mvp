@@ -23,13 +23,15 @@ export default async function PanelsLayout({ children }: { children: ReactNode }
     getLocale(),
     getMessages(),
   ]);
-  const { name, email, image, roles } = session.user;
+  const { name, email, image, roles, mfaPending } = session.user;
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <SessionProvider session={session}>
         <div className="min-h-dvh bg-muted/20" data-area="panels">
-          <PanelShell user={{ name, email, image, roles }}>{children}</PanelShell>
+          <PanelShell user={{ name, email, image, roles, mfaPending }}>
+            {children}
+          </PanelShell>
         </div>
       </SessionProvider>
     </NextIntlClientProvider>

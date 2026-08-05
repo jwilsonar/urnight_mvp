@@ -6,16 +6,27 @@ import { getLocale, getTranslations } from "next-intl/server";
 import {
   loginSchema,
   registerSchema,
+  useRecoveryCodeSchema,
+  verifyMfaChallengeSchema,
   type LoginDto,
   type RegisterDto,
 } from "@urnight/contracts";
 import { ApiError } from "./api/client";
 import { loginRequest, registerRequest } from "./api/auth/requests";
 import {
+  useMfaRecoveryCode,
+  verifyMfaChallenge,
+} from "./api/mfa";
+import {
   getErrorMessage,
   type ErrorMessageTranslator,
 } from "./api/error-messages";
 import { signIn, signOut } from "./auth";
+import {
+  clearPendingMfaChallenge,
+  readPendingMfaChallenge,
+  storePendingMfaChallenge,
+} from "./auth/mfa-challenge";
 import { toBaseLocale } from "./i18n/config";
 import { createLogger } from "./logger";
 import { zodErrorMapEn } from "./validation/zod-en";
@@ -51,6 +62,7 @@ async function establishSession(
       redirect: false,
       handoff: JSON.stringify(tokens),
     });
+    await clearPendingMfaChallenge();
     return { ok: true };
   } catch (err) {
     if (err instanceof AuthError) {
@@ -76,6 +88,10 @@ export async function loginAction(values: LoginDto): Promise<AuthActionResult> {
     // Con MFA activo el API no emite tokens: entrega un desafío que hay que
     // resolver antes de tener sesión (§5 de docs/spec-mfa-identity.md).
     if (outcome.kind === "mfa_challenge") {
+      await storePendingMfaChallenge({
+        challengeId: outcome.challengeId,
+        expiresAt: outcome.expiresAt,
+      });
       log.info({}, "web.auth.login.mfa_challenge");
       return {
         ok: false,
@@ -117,6 +133,70 @@ export async function signOutAction(): Promise<void> {
   await signOut({ redirectTo: "/login" });
 }
 
+export async function verifyMfaAction(code: string): Promise<AuthActionResult> {
+  const challenge = await readPendingMfaChallenge();
+  const { translate } = await authI18n();
+  if (!challenge || Date.parse(challenge.expiresAt) <= Date.now()) {
+    await clearPendingMfaChallenge();
+    return {
+      ok: false,
+      code: "identity/mfa-challenge-expired",
+      error: translate("mfaChallengeExpired"),
+    };
+  }
+
+  const parsed = verifyMfaChallengeSchema.safeParse({
+    challengeId: challenge.challengeId,
+    code,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: translate("invalidData") };
+  }
+
+  try {
+    const result = await establishSession(
+      await verifyMfaChallenge(parsed.data),
+      translate,
+    );
+    return result;
+  } catch (err) {
+    return handleMfaChallengeError(err, translate);
+  }
+}
+
+export async function useMfaRecoveryAction(
+  recoveryCode: string,
+): Promise<AuthActionResult> {
+  const challenge = await readPendingMfaChallenge();
+  const { translate } = await authI18n();
+  if (!challenge || Date.parse(challenge.expiresAt) <= Date.now()) {
+    await clearPendingMfaChallenge();
+    return {
+      ok: false,
+      code: "identity/mfa-challenge-expired",
+      error: translate("mfaChallengeExpired"),
+    };
+  }
+
+  const parsed = useRecoveryCodeSchema.safeParse({
+    challengeId: challenge.challengeId,
+    recoveryCode,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: translate("invalidData") };
+  }
+
+  try {
+    const result = await establishSession(
+      await useMfaRecoveryCode(parsed.data),
+      translate,
+    );
+    return result;
+  } catch (err) {
+    return handleMfaChallengeError(err, translate);
+  }
+}
+
 function toActionError(
   err: unknown,
   flow: "login" | "register",
@@ -133,6 +213,20 @@ function toActionError(
   }
   log.error({ flow, err: (err as Error).message }, "web.auth.unexpected_error");
   return { ok: false, error: getErrorMessage(err, translate) };
+}
+
+async function handleMfaChallengeError(
+  err: unknown,
+  translate: ErrorMessageTranslator,
+): Promise<AuthActionResult> {
+  const result = toActionError(err, "login", translate);
+  if (
+    result.code === "identity/mfa-challenge-expired" ||
+    result.code === "identity/mfa-locked"
+  ) {
+    await clearPendingMfaChallenge();
+  }
+  return result;
 }
 
 async function authI18n() {

@@ -36,7 +36,7 @@ const IDLE_SETTING_FETCH_TIMEOUT_MS = 2_000;
 const nowSeconds = (): number => Math.floor(Date.now() / 1000);
 
 type ActivityJwt = JWT & { lastActivityAt?: number };
-type ActivityUpdate = { activity?: boolean };
+type SessionUpdate = { activity?: boolean; forceTokenRefresh?: boolean };
 
 let idleTimeoutCache: { minutes: number; expiresAt: number } | undefined;
 let idleTimeoutRequest: Promise<number> | undefined;
@@ -135,9 +135,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth(async () => {
         }
         markActivity(activityToken);
 
-        // `update()` desde el cliente (p. ej. tras completar onboarding): re-sincroniza
-        // el perfil/roles autoritativos del backend sin esperar al vencimiento.
-        const activityOnly = (session as ActivityUpdate | undefined)?.activity === true;
+        // `update()` re-sincroniza perfil/roles. El enrolamiento MFA además
+        // fuerza refresh para reemplazar de inmediato el claim `mfaPending`.
+        const sessionUpdate = session as SessionUpdate | undefined;
+        const activityOnly = sessionUpdate?.activity === true;
+        if (
+          trigger === 'update' &&
+          sessionUpdate?.forceTokenRefresh === true
+        ) {
+          const refreshed = await refreshAccess(token);
+          if (!refreshed.error && refreshed.accessToken) {
+            const profile = await fetchMe(refreshed.accessToken).catch(() => null);
+            if (profile) {
+              refreshed.profile = profile;
+              refreshed.roles = profile.roles;
+            }
+          }
+          return refreshed;
+        }
         if (trigger === 'update' && !activityOnly && token.accessToken) {
           const profile = await fetchMe(token.accessToken).catch(() => null);
           if (profile) {
@@ -162,9 +177,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth(async () => {
         session.error = token.error;
         // Scope multi-tenant: se decodifica del access token vigente en cada
         // resolución (cubre también sesiones ya emitidas antes de este cambio).
-        const scope = session.accessToken ? decodeScope(session.accessToken) : { companyId: null, localId: null };
+        const scope = session.accessToken
+          ? decodeScope(session.accessToken)
+          : { companyId: null, localId: null, mfaPending: false };
         session.user.companyId = scope.companyId;
         session.user.localId = scope.localId;
+        session.user.mfaPending = scope.mfaPending;
         if (token.profile) {
           session.user.id = token.profile.id;
           session.user.name = token.profile.fullName;
@@ -261,7 +279,7 @@ function safeJson(value: unknown): unknown {
 }
 
 /**
- * Lee el scope multi-tenant (companyId/localId) de los claims del access token
+ * Lee scope multi-tenant y `mfaPending` de los claims del access token
  * del backend. No se verifica la firma (el backend la revalida en cada request):
  * solo se extraen los claims para autocompletar formularios con la empresa del
  * actor, de modo que el usuario nunca teclee su propio UUID de empresa.
@@ -269,20 +287,23 @@ function safeJson(value: unknown): unknown {
 function decodeScope(accessToken: string): {
   companyId: string | null;
   localId: string | null;
+  mfaPending: boolean;
 } {
   try {
     const payload = accessToken.split('.')[1];
-    if (!payload) return { companyId: null, localId: null };
+    if (!payload) return { companyId: null, localId: null, mfaPending: false };
     const claims = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as {
       companyId?: string | null;
       localId?: string | null;
+      mfaPending?: boolean;
     };
     return {
       companyId: claims.companyId ?? null,
       localId: claims.localId ?? null,
+      mfaPending: claims.mfaPending === true,
     };
   } catch {
-    return { companyId: null, localId: null };
+    return { companyId: null, localId: null, mfaPending: false };
   }
 }
 
