@@ -1,5 +1,6 @@
 import type {
   AuthTokensResponse,
+  LoginOutcomeResponse,
   RegisterDto,
   UserProfileResponse,
 } from '@urnight/contracts';
@@ -11,16 +12,23 @@ import { apiFetch } from '../client';
  * exponen al cliente).
  */
 
-export function loginRequest(input: { email: string; password: string }): Promise<AuthTokensResponse> {
-  return apiFetch<AuthTokensResponse>('/auth/login', { method: 'POST', json: input });
+/**
+ * Devuelve una unión: con MFA activo el API entrega un desafío en vez de
+ * tokens, así que quien la consuma debe discriminar por `kind`.
+ */
+export function loginRequest(input: {
+  email: string;
+  password: string;
+}): Promise<LoginOutcomeResponse> {
+  return apiFetch<LoginOutcomeResponse>('/auth/login', { method: 'POST', json: input });
 }
 
 export function registerRequest(input: RegisterDto): Promise<AuthTokensResponse> {
   return apiFetch<AuthTokensResponse>('/auth/register', { method: 'POST', json: input });
 }
 
-export function googleExchange(idToken: string): Promise<AuthTokensResponse> {
-  return apiFetch<AuthTokensResponse>('/auth/google', { method: 'POST', json: { idToken } });
+export function googleExchange(idToken: string): Promise<LoginOutcomeResponse> {
+  return apiFetch<LoginOutcomeResponse>('/auth/google', { method: 'POST', json: { idToken } });
 }
 
 export function refreshTokens(refreshToken: string): Promise<AuthTokensResponse> {

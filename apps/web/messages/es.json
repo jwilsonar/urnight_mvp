@@ -575,6 +575,7 @@
       "timeout": "La solicitud tardó demasiado. Revisa tu conexión e inténtalo de nuevo.",
       "network": "No pudimos conectar con el servicio. Revisa tu conexión e inténtalo de nuevo.",
       "sessionFailed": "No pudimos iniciar tu sesión. Inténtalo de nuevo.",
+      "mfaChallengePending": "Tu cuenta tiene verificación en dos pasos. La pantalla para ingresar el código aún no está disponible.",
       "unexpected": "Ocurrió un error inesperado."
     }
   },

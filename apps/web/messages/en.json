@@ -575,6 +575,7 @@
       "timeout": "The request took too long. Check your connection and try again.",
       "network": "We couldn't connect to the service. Check your connection and try again.",
       "sessionFailed": "We couldn't start your session. Please try again.",
+      "mfaChallengePending": "Your account has two-step verification. The screen to enter the code isn't available yet.",
       "unexpected": "Something unexpected happened. Please try again."
     }
   },

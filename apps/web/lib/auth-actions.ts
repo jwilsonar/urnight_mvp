@@ -31,6 +31,11 @@ export interface AuthActionResult {
   code?: string;
   /** Errores por campo para feedback inline en el formulario. */
   fieldErrors?: Record<string, string[]>;
+  /**
+   * Presente cuando la cuenta tiene MFA activo: el API no emitió tokens y hay
+   * que completar el desafío antes de tener sesión.
+   */
+  mfaChallengeId?: string;
 }
 
 /**
@@ -67,9 +72,20 @@ export async function loginAction(values: LoginDto): Promise<AuthActionResult> {
     };
   }
   try {
-    const tokens = await loginRequest(parsed.data);
+    const outcome = await loginRequest(parsed.data);
+    // Con MFA activo el API no emite tokens: entrega un desafío que hay que
+    // resolver antes de tener sesión (§5 de docs/spec-mfa-identity.md).
+    if (outcome.kind === "mfa_challenge") {
+      log.info({}, "web.auth.login.mfa_challenge");
+      return {
+        ok: false,
+        code: "identity/mfa-required",
+        error: translate("mfaChallengePending"),
+        mfaChallengeId: outcome.challengeId,
+      };
+    }
     log.info({}, "web.auth.login.success");
-    return establishSession(tokens, translate);
+    return establishSession(outcome.result, translate);
   } catch (err) {
     return toActionError(err, "login", translate);
   }

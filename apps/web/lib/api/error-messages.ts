@@ -19,6 +19,7 @@ export type ErrorMessageKey =
   | "timeout"
   | "network"
   | "sessionFailed"
+  | "mfaChallengePending"
   | "unexpected";
 
 export type ErrorMessageTranslator = (key: ErrorMessageKey) => string;
@@ -45,6 +46,8 @@ const STATUS_MESSAGE_KEYS: Record<number, ErrorMessageKey> = {
 };
 
 const FALLBACK_ES: Record<ErrorMessageKey, string> = {
+  mfaChallengePending:
+    "Tu cuenta tiene verificación en dos pasos. La pantalla para ingresar el código aún no está disponible.",
   invalidCredentials: "Correo o contraseña incorrectos.",
   underage: "Debes ser mayor de 18 años para registrarte.",
   emailAlreadyRegistered: "Ese correo ya está registrado.",

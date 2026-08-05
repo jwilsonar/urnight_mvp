@@ -112,7 +112,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth(async () => {
       async jwt({ token, user, account, trigger, session }) {
         // Sign-in con Google: canjear el id_token por el JWT del backend.
         if (account?.provider === 'google' && account.id_token) {
-          return markActivity(await hydrate(token, await googleExchange(account.id_token)));
+          const outcome = await googleExchange(account.id_token);
+          // Google con MFA activo tampoco emite tokens: sin pantalla de desafío
+          // en este flujo, se corta la sesión en vez de dejarla a medias.
+          if (outcome.kind === 'mfa_challenge') {
+            throw new Error('MfaChallengeRequired');
+          }
+          return markActivity(await hydrate(token, outcome.result));
         }
 
         // Sign-in con credenciales: el user ya trae tokens + perfil verificados.
