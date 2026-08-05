@@ -1,8 +1,10 @@
 import { Module } from "@nestjs/common";
 import { OpsModule } from "../ops/ops.module";
 import { PromoterCommissionPolicy } from "./application/config/commission";
+import { PromoterCascadeCommissionPolicy } from "./application/config/cascade-commission";
 import { ApplyPromoterUseCase } from "./application/use-cases/apply-promoter.use-case";
 import { AssignEventToPromoterUseCase } from "./application/use-cases/assign-event-to-promoter.use-case";
+import { AssignPromoterParentUseCase } from "./application/use-cases/assign-promoter-parent.use-case";
 import { AttributeSaleUseCase } from "./application/use-cases/attribute-sale.use-case";
 import { ConfirmPromoterAssociationUseCase } from "./application/use-cases/confirm-promoter-association.use-case";
 import { CreatePromoCodeUseCase } from "./application/use-cases/create-promo-code.use-case";
@@ -20,6 +22,10 @@ import { ListMyPromotersUseCase } from "./application/use-cases/list-my-promoter
 import { ListPendingAssociationsUseCase } from "./application/use-cases/list-pending-associations.use-case";
 import { ListPromoterAssignmentsUseCase } from "./application/use-cases/list-promoter-assignments.use-case";
 import { ListPromoterSalesUseCase } from "./application/use-cases/list-promoter-sales.use-case";
+import {
+  GetPromoterCascadePolicyUseCase,
+  UpdatePromoterCascadePolicyUseCase,
+} from "./application/use-cases/promoter-cascade-policy.use-case";
 import { RegisterRedemptionClickUseCase } from "./application/use-cases/register-promo-click.use-case";
 import { RegisterReferralClickUseCase } from "./application/use-cases/register-referral-click.use-case";
 import { RejectPromoterAssociationUseCase } from "./application/use-cases/reject-promoter-association.use-case";
@@ -33,6 +39,7 @@ import { PromoRedemptionService } from "./application/services/promo-redemption.
 import { OrderPaidSubscriber } from "./application/subscribers/order-paid.subscriber";
 import { PromoRedemptionPort } from "../../shared/ports/promo-redemption.port";
 import { PROMO_CODE_REPOSITORY } from "./domain/ports/promo-code.repository";
+import { PROMOTER_CASCADE_POLICY_REPOSITORY } from "./domain/ports/promoter-cascade-policy.repository";
 import { PROMOTER_ANALYTICS_REPOSITORY } from "./domain/ports/promoter-analytics.repository";
 import { PROMOTER_APPLICATION_REPOSITORY } from "./domain/ports/promoter-application.repository";
 import { PROMOTER_EVENT_REPOSITORY } from "./domain/ports/promoter-event.repository";
@@ -40,6 +47,7 @@ import { PROMOTER_REPOSITORY } from "./domain/ports/promoter.repository";
 import { REFERRAL_LINK_REPOSITORY } from "./domain/ports/referral-link.repository";
 import { SALE_ATTRIBUTION_REPOSITORY } from "./domain/ports/sale-attribution.repository";
 import { DrizzlePromoCodeRepository } from "./infrastructure/persistence/drizzle-promo-code.repository";
+import { DrizzlePromoterCascadePolicyRepository } from "./infrastructure/persistence/drizzle-promoter-cascade-policy.repository";
 import { DrizzlePromoterAnalyticsRepository } from "./infrastructure/persistence/drizzle-promoter-analytics.repository";
 import { DrizzlePromoterApplicationRepository } from "./infrastructure/persistence/drizzle-promoter-application.repository";
 import { DrizzlePromoterEventRepository } from "./infrastructure/persistence/drizzle-promoter-event.repository";
@@ -78,8 +86,12 @@ import { RedemptionsController } from "./interfaces/http/redemptions.controller"
     GetPromoterMetricsUseCase,
     GetMyPromoterMetricsUseCase,
     ListPromoterRankingUseCase,
+    AssignPromoterParentUseCase,
+    GetPromoterCascadePolicyUseCase,
+    UpdatePromoterCascadePolicyUseCase,
     RegisterReferralClickUseCase,
     PromoterCommissionPolicy,
+    PromoterCascadeCommissionPolicy,
     AttributeSaleUseCase,
     GetMyPromoterUseCase,
     AssignEventToPromoterUseCase,
@@ -93,6 +105,10 @@ import { RedemptionsController } from "./interfaces/http/redemptions.controller"
     OrderPaidSubscriber,
     { provide: PromoRedemptionPort, useClass: PromoRedemptionService },
     { provide: PROMOTER_REPOSITORY, useClass: DrizzlePromoterRepository },
+    {
+      provide: PROMOTER_CASCADE_POLICY_REPOSITORY,
+      useClass: DrizzlePromoterCascadePolicyRepository,
+    },
     {
       provide: PROMOTER_EVENT_REPOSITORY,
       useClass: DrizzlePromoterEventRepository,

@@ -30,6 +30,51 @@ export interface PromoterRankingRow {
   companyId: string;
   eligibleForRateRanking: boolean;
   totals: PromoterMetricTotals;
+  ownSales: PromoterRankingSales;
+  teamMemberCount?: number;
+  teamSales?: PromoterRankingSales;
+}
+
+export interface PromoterRankingSales {
+  salesCount: number;
+  salesByCurrency: PromoterMetricTotals["salesByCurrency"];
+}
+
+function ownSales(totals: PromoterMetricTotals): PromoterRankingSales {
+  return {
+    salesCount: totals.salesCount,
+    salesByCurrency: totals.salesByCurrency,
+  };
+}
+
+function aggregateTeamSales(
+  rows: PromoterMetricTotals[],
+): PromoterRankingSales {
+  const money = new Map<
+    string,
+    { grossAmount: number; commissionAmount: number }
+  >();
+  for (const totals of rows) {
+    for (const amounts of totals.salesByCurrency) {
+      const current = money.get(amounts.currency) ?? {
+        grossAmount: 0,
+        commissionAmount: 0,
+      };
+      current.grossAmount += amounts.grossAmount;
+      current.commissionAmount += amounts.commissionAmount;
+      money.set(amounts.currency, current);
+    }
+  }
+  return {
+    salesCount: rows.reduce((sum, totals) => sum + totals.salesCount, 0),
+    salesByCurrency: [...money.entries()]
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([currency, amounts]) => ({
+        currency,
+        grossAmount: Math.round(amounts.grossAmount * 100) / 100,
+        commissionAmount: Math.round(amounts.commissionAmount * 100) / 100,
+      })),
+  };
 }
 
 export interface PromoterRanking {
@@ -82,9 +127,9 @@ export class ListPromoterRankingUseCase {
       this.analytics.listFacts({ companyId, ...input.filter }),
     ]);
     const conflicts = new Map<string, PromoterAttributionConflict>();
-    const rows = promoters
-      .filter((promoter) => promoter.isActive())
-      .map((promoter): PromoterRankingRow => {
+    const activePromoters = promoters.filter((promoter) => promoter.isActive());
+    const metricsByPromoter = new Map(
+      activePromoters.map((promoter) => {
         const metrics = calculatePromoterMetrics(
           promoterIdentity(promoter),
           facts,
@@ -92,15 +137,36 @@ export class ListPromoterRankingUseCase {
         for (const conflict of metrics.conflicts) {
           conflicts.set(conflict.orderId, conflict);
         }
-        return {
-          promoterId: metrics.promoterId,
-          promoterName: metrics.promoterName,
-          companyId: metrics.companyId,
-          eligibleForRateRanking:
-            metrics.totals.invitedCount >= ATTENDANCE_RATE_MINIMUM_VOLUME,
-          totals: metrics.totals,
-        };
-      });
+        return [promoter.id, metrics] as const;
+      }),
+    );
+    const rows = activePromoters.map((promoter): PromoterRankingRow => {
+      const metrics = metricsByPromoter.get(promoter.id)!;
+      const children = activePromoters.filter(
+        (candidate) =>
+          candidate.parentPromoterId === promoter.id &&
+          candidate.companyId === promoter.companyId,
+      );
+      return {
+        promoterId: metrics.promoterId,
+        promoterName: metrics.promoterName,
+        companyId: metrics.companyId,
+        eligibleForRateRanking:
+          metrics.totals.invitedCount >= ATTENDANCE_RATE_MINIMUM_VOLUME,
+        totals: metrics.totals,
+        ownSales: ownSales(metrics.totals),
+        ...(children.length > 0
+          ? {
+              teamMemberCount: children.length,
+              teamSales: aggregateTeamSales(
+                children.map(
+                  (child) => metricsByPromoter.get(child.id)!.totals,
+                ),
+              ),
+            }
+          : {}),
+      };
+    });
 
     rows.sort((a, b) => {
       if (input.sortBy === "attendance_rate") {

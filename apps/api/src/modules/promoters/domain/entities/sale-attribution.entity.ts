@@ -7,6 +7,9 @@ export interface SaleAttributionProps {
   referralLinkId: string | null;
   commissionRate: number;
   commissionAmount: number;
+  headPromoterId: string | null;
+  headCommissionRate: number | null;
+  headCommissionAmount: number | null;
   status: SaleStatus;
   attributedAt: Date;
 }
@@ -22,6 +25,7 @@ export class SaleAttribution {
     referralLinkId: string | null;
     commissionRate: number;
     amount: number;
+    headCommission?: { promoterId: string; rate: number } | null;
   }): SaleAttribution {
     return new SaleAttribution({
       id: input.id,
@@ -30,13 +34,32 @@ export class SaleAttribution {
       referralLinkId: input.referralLinkId,
       commissionRate: input.commissionRate,
       commissionAmount: Math.round(input.amount * input.commissionRate * 100) / 100,
+      headPromoterId: input.headCommission?.promoterId ?? null,
+      headCommissionRate: input.headCommission?.rate ?? null,
+      // Es un costo adicional del local: no se resta de la comision del vendedor.
+      headCommissionAmount: input.headCommission
+        ? Math.round(input.amount * input.headCommission.rate * 100) / 100
+        : null,
       status: 'estimated',
       attributedAt: new Date(),
     });
   }
 
-  static fromPersistence(props: SaleAttributionProps): SaleAttribution {
-    return new SaleAttribution(props);
+  static fromPersistence(
+    props: Omit<
+      SaleAttributionProps,
+      'headPromoterId' | 'headCommissionRate' | 'headCommissionAmount'
+    > &
+      Partial<
+        Pick<SaleAttributionProps, 'headPromoterId' | 'headCommissionRate' | 'headCommissionAmount'>
+      >,
+  ): SaleAttribution {
+    return new SaleAttribution({
+      ...props,
+      headPromoterId: props.headPromoterId ?? null,
+      headCommissionRate: props.headCommissionRate ?? null,
+      headCommissionAmount: props.headCommissionAmount ?? null,
+    });
   }
 
   get id(): string {
@@ -56,6 +79,15 @@ export class SaleAttribution {
   }
   get commissionAmount(): number {
     return this.props.commissionAmount;
+  }
+  get headPromoterId(): string | null {
+    return this.props.headPromoterId;
+  }
+  get headCommissionRate(): number | null {
+    return this.props.headCommissionRate;
+  }
+  get headCommissionAmount(): number | null {
+    return this.props.headCommissionAmount;
   }
   get status(): SaleStatus {
     return this.props.status;

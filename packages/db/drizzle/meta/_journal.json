@@ -120,6 +120,13 @@
       "when": 1785902186304,
       "tag": "0016_chilly_arachne",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1785931975192,
+      "tag": "0017_giant_next_avengers",
+      "breakpoints": true
     }
   ]
 }

@@ -31,6 +31,7 @@ export const promoterResponseSchema = z.object({
   companyId: z.string().uuid(),
   localId: z.string().uuid().nullable(),
   userId: z.string().uuid().nullable(),
+  parentPromoterId: z.string().uuid().nullable().optional(),
   name: z.string(),
   status: promoterStatusSchema,
   invitedEmail: z.string().nullable(),

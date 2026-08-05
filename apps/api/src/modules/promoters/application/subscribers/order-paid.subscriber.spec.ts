@@ -7,6 +7,7 @@ import {
   InMemoryReferralLinkRepository,
   InMemorySaleAttributionRepository,
 } from "../../../../shared/testing/in-memory/promoters";
+import { FakePromoterCascadePolicyRepository } from "../../testing/fake-promoter-cascade-policy.repository";
 import { InMemoryPlatformSettingRepository } from "../../../../shared/testing/in-memory/ops";
 import {
   PromoterBuilder,
@@ -14,6 +15,7 @@ import {
 } from "../../../../shared/testing/builders/promoters";
 import { PlatformSettingBuilder } from "../../../../shared/testing/builders/ops";
 import { PromoterCommissionPolicy } from "../config/commission";
+import { PromoterCascadeCommissionPolicy } from "../config/cascade-commission";
 import { AttributeSaleUseCase } from "../use-cases/attribute-sale.use-case";
 import { OrderPaidSubscriber } from "./order-paid.subscriber";
 
@@ -34,6 +36,9 @@ function build() {
     promoters,
     attributions,
     new PromoterCommissionPolicy(settings),
+    new PromoterCascadeCommissionPolicy(
+      new FakePromoterCascadePolicyRepository(),
+    ),
   );
   const bus = new EventBus();
   const subscriber = new OrderPaidSubscriber(bus, attribute);

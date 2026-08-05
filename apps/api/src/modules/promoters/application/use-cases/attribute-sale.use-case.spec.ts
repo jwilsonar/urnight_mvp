@@ -5,6 +5,7 @@ import {
   InMemoryReferralLinkRepository,
   InMemorySaleAttributionRepository,
 } from "../../../../shared/testing/in-memory/promoters";
+import { FakePromoterCascadePolicyRepository } from "../../testing/fake-promoter-cascade-policy.repository";
 import { InMemoryPlatformSettingRepository } from "../../../../shared/testing/in-memory/ops";
 import {
   PromoterBuilder,
@@ -13,6 +14,7 @@ import {
 } from "../../../../shared/testing/builders/promoters";
 import { PlatformSettingBuilder } from "../../../../shared/testing/builders/ops";
 import { PromoterCommissionPolicy } from "../config/commission";
+import { PromoterCascadeCommissionPolicy } from "../config/cascade-commission";
 import { AttributeSaleUseCase } from "./attribute-sale.use-case";
 
 const PROMOTER_COMMISSION_RATE = 0.05;
@@ -22,6 +24,7 @@ function build() {
   const promoCodes = new InMemoryPromoCodeRepository();
   const promoters = new InMemoryPromoterRepository(links);
   const attributions = new InMemorySaleAttributionRepository();
+  const cascadePolicies = new FakePromoterCascadePolicyRepository();
   const settings = new InMemoryPlatformSettingRepository().seed(
     new PlatformSettingBuilder()
       .withKey("default_commission_rate")
@@ -34,8 +37,16 @@ function build() {
     promoters,
     attributions,
     new PromoterCommissionPolicy(settings),
+    new PromoterCascadeCommissionPolicy(cascadePolicies),
   );
-  return { links, promoCodes, promoters, attributions, useCase };
+  return {
+    links,
+    promoCodes,
+    promoters,
+    attributions,
+    cascadePolicies,
+    useCase,
+  };
 }
 
 /** Siembra un promotor activo con un link activo de código `code`. */
@@ -168,5 +179,52 @@ describe("AttributeSaleUseCase", () => {
     await useCase.execute({ orderId: "o1", referralCode: "REF1", amount: 200 });
 
     expect(attributions.size).toBe(0);
+  });
+
+  it("con la cascada apagada conserva exactamente la comision previa del vendedor", async () => {
+    const { links, promoters, attributions, cascadePolicies, useCase } =
+      build();
+    promoters.seed(new PromoterBuilder().withId("head").build());
+    const seller = new PromoterBuilder().withId("p1").build();
+    seller.assignParent("head");
+    promoters.seed(seller);
+    links.seed(
+      new ReferralLinkBuilder().withPromoterId("p1").withCode("REF1").build(),
+    );
+    cascadePolicies.seedForOrder("o1", {
+      localId: "local-1",
+      cascadeEnabled: false,
+      cascadePercentage: 10,
+    });
+
+    await useCase.execute({ orderId: "o1", referralCode: "REF1", amount: 200 });
+
+    expect(attributions.all[0]?.commissionAmount).toBe(10);
+    expect(attributions.all[0]?.headPromoterId).toBeNull();
+    expect(attributions.all[0]?.headCommissionAmount).toBeNull();
+  });
+
+  it("con cascada al 10 por ciento agrega la parte del cabeza sin reducir la del vendedor", async () => {
+    const { links, promoters, attributions, cascadePolicies, useCase } =
+      build();
+    promoters.seed(new PromoterBuilder().withId("head").build());
+    const seller = new PromoterBuilder().withId("p1").build();
+    seller.assignParent("head");
+    promoters.seed(seller);
+    links.seed(
+      new ReferralLinkBuilder().withPromoterId("p1").withCode("REF1").build(),
+    );
+    cascadePolicies.seedForOrder("o1", {
+      localId: "local-1",
+      cascadeEnabled: true,
+      cascadePercentage: 10,
+    });
+
+    await useCase.execute({ orderId: "o1", referralCode: "REF1", amount: 200 });
+
+    expect(attributions.all[0]?.commissionAmount).toBe(10);
+    expect(attributions.all[0]?.headPromoterId).toBe("head");
+    expect(attributions.all[0]?.headCommissionRate).toBe(0.1);
+    expect(attributions.all[0]?.headCommissionAmount).toBe(20);
   });
 });

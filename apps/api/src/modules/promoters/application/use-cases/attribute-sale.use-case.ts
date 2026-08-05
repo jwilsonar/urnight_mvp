@@ -2,6 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
 import { createLogger } from "../../../../shared/logging/logger";
 import { PromoterCommissionPolicy } from "../config/commission";
+import { PromoterCascadeCommissionPolicy } from "../config/cascade-commission";
 import { SaleAttribution } from "../../domain/entities/sale-attribution.entity";
 import {
   PROMO_CODE_REPOSITORY,
@@ -39,6 +40,7 @@ export class AttributeSaleUseCase {
     @Inject(SALE_ATTRIBUTION_REPOSITORY)
     private readonly attributions: SaleAttributionRepository,
     private readonly commissionPolicy: PromoterCommissionPolicy,
+    private readonly cascadePolicy: PromoterCascadeCommissionPolicy,
   ) {}
 
   async execute(input: {
@@ -67,6 +69,11 @@ export class AttributeSaleUseCase {
     const promoter = await this.promoters.findById(promoterId);
     if (!promoter || !promoter.isActive()) return;
     const commissionRate = await this.commissionPolicy.currentRate();
+    const cascadePolicy = await this.cascadePolicy.forOrder(input.orderId);
+    const head =
+      cascadePolicy.cascadeEnabled && promoter.parentPromoterId
+        ? await this.promoters.findById(promoter.parentPromoterId)
+        : null;
 
     const attribution = SaleAttribution.estimate({
       id: randomUUID(),
@@ -75,6 +82,12 @@ export class AttributeSaleUseCase {
       referralLinkId,
       commissionRate,
       amount: input.amount,
+      headCommission: head?.isActive()
+        ? {
+            promoterId: head.id,
+            rate: cascadePolicy.cascadePercentage / 100,
+          }
+        : null,
     });
     await this.attributions.create(attribution);
     this.log.info(

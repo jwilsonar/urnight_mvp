@@ -126,6 +126,20 @@ export const promoterRankingRowSchema = z.object({
   companyId: z.string().uuid(),
   eligibleForRateRanking: z.boolean(),
   totals: promoterMetricTotalsSchema,
+  /** `totals` se conserva como ventas propias para compatibilidad. */
+  ownSales: z
+    .object({
+      salesCount: z.number().int().nonnegative(),
+      salesByCurrency: z.array(promoterMoneyMetricSchema),
+    })
+    .optional(),
+  teamMemberCount: z.number().int().nonnegative().optional(),
+  teamSales: z
+    .object({
+      salesCount: z.number().int().nonnegative(),
+      salesByCurrency: z.array(promoterMoneyMetricSchema),
+    })
+    .optional(),
 });
 export type PromoterRankingRowResponse = z.infer<
   typeof promoterRankingRowSchema

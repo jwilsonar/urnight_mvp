@@ -6,12 +6,16 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   ParseUUIDPipe,
   Post,
+  Put,
   Query,
 } from "@nestjs/common";
 import {
   assignEventSchema,
+  assignPromoterParentSchema,
+  type AssignPromoterParentDto,
   generateRedemptionCodeSchema,
   type AssignEventDto,
   type AssignmentResponse,
@@ -19,6 +23,7 @@ import {
   createPromoterSchema,
   type GenerateRedemptionCodeDto,
   type PromoterAssociationResponse,
+  type PromoterCascadePolicyResponse,
   type PromoterMetricTotalsResponse,
   type PromoterMetricsQuery,
   promoterMetricsQuerySchema,
@@ -29,6 +34,8 @@ import {
   type RedemptionCodeResponse,
   type PromoterResponse,
   type PromoterSalesResponse,
+  updatePromoterCascadePolicySchema,
+  type UpdatePromoterCascadePolicyDto,
 } from "@urnight/contracts";
 import {
   CurrentUser,
@@ -39,6 +46,7 @@ import { Roles } from "../../../../edge/decorators/roles.decorator";
 import { tenantScopeOf } from "../../../../edge/tenant/tenant-scope.helper";
 import { ZodValidationPipe } from "../../../../edge/pipes/zod-validation.pipe";
 import { AssignEventToPromoterUseCase } from "../../application/use-cases/assign-event-to-promoter.use-case";
+import { AssignPromoterParentUseCase } from "../../application/use-cases/assign-promoter-parent.use-case";
 import { ConfirmPromoterAssociationUseCase } from "../../application/use-cases/confirm-promoter-association.use-case";
 import { CreatePromoterUseCase } from "../../application/use-cases/create-promoter.use-case";
 import { GenerateRedemptionCodeUseCase } from "../../application/use-cases/generate-my-code.use-case";
@@ -53,6 +61,10 @@ import {
   type PromoterRankingRow,
 } from "../../application/use-cases/list-promoter-ranking.use-case";
 import { ListMyAssignmentsUseCase } from "../../application/use-cases/list-my-assignments.use-case";
+import {
+  GetPromoterCascadePolicyUseCase,
+  UpdatePromoterCascadePolicyUseCase,
+} from "../../application/use-cases/promoter-cascade-policy.use-case";
 import { ListMyRedemptionCodesUseCase } from "../../application/use-cases/list-my-codes.use-case";
 import { ListMyPromotersUseCase } from "../../application/use-cases/list-my-promoters.use-case";
 import { ListPendingAssociationsUseCase } from "../../application/use-cases/list-pending-associations.use-case";
@@ -96,6 +108,9 @@ export class PromotersController {
     private readonly getPromoterMetrics: GetPromoterMetricsUseCase,
     private readonly getMyPromoterMetrics: GetMyPromoterMetricsUseCase,
     private readonly listPromoterRanking: ListPromoterRankingUseCase,
+    private readonly assignPromoterParent: AssignPromoterParentUseCase,
+    private readonly getCascadePolicy: GetPromoterCascadePolicyUseCase,
+    private readonly updateCascadePolicy: UpdatePromoterCascadePolicyUseCase,
   ) {}
 
   /** Promotores de MI empresa (admin_local). Aislado por tenant. */
@@ -127,6 +142,33 @@ export class PromotersController {
       conflicts: result.conflicts,
       rows: result.rows.map(toRankingRowResponse),
     };
+  }
+
+  @Roles("admin_local")
+  @Get("locals/:localId/cascade-policy")
+  async cascadePolicy(
+    @CurrentUser() actor: AuthUser,
+    @Param("localId", ParseUUIDPipe) localId: string,
+  ): Promise<PromoterCascadePolicyResponse> {
+    return this.getCascadePolicy.execute({
+      localId,
+      scope: tenantScopeOf(actor),
+    });
+  }
+
+  @Roles("admin_local")
+  @Put("locals/:localId/cascade-policy")
+  async configureCascadePolicy(
+    @CurrentUser() actor: AuthUser,
+    @Param("localId", ParseUUIDPipe) localId: string,
+    @Body(new ZodValidationPipe(updatePromoterCascadePolicySchema))
+    dto: UpdatePromoterCascadePolicyDto,
+  ): Promise<PromoterCascadePolicyResponse> {
+    return this.updateCascadePolicy.execute({
+      localId,
+      ...dto,
+      scope: tenantScopeOf(actor),
+    });
   }
 
   /** Promotor ACTIVO ligado a mi usuario (o `null` si no soy promotor). */
@@ -245,6 +287,24 @@ export class PromotersController {
     );
   }
 
+  /** Asigna o retira el cabeza; dominio impide ciclos, cruces de empresa y tres niveles. */
+  @Roles("admin_local")
+  @Patch(":id/parent")
+  async assignParent(
+    @CurrentUser() actor: AuthUser,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body(new ZodValidationPipe(assignPromoterParentSchema))
+    dto: AssignPromoterParentDto,
+  ): Promise<PromoterResponse> {
+    return toPromoterResponse(
+      await this.assignPromoterParent.execute({
+        promoterId: id,
+        parentPromoterId: dto.parentPromoterId,
+        scope: tenantScopeOf(actor),
+      }),
+    );
+  }
+
   /** Desasigna un evento de un promotor (admin_local). No afecta canjes ya hechos. */
   @Roles("admin_local")
   @Delete(":id/assignments/:promoterEventId")
@@ -350,6 +410,7 @@ function toPromoterResponse(
     companyId: promoter.companyId,
     localId: promoter.localId,
     userId: promoter.userId,
+    parentPromoterId: promoter.parentPromoterId,
     name: promoter.name,
     status: promoter.status,
     invitedEmail: promoter.invitedEmail,
@@ -489,5 +550,8 @@ function toRankingRowResponse(row: PromoterRankingRow) {
     companyId: row.companyId,
     eligibleForRateRanking: row.eligibleForRateRanking,
     totals: toMetricTotalsResponse(row.totals),
+    ownSales: row.ownSales,
+    teamMemberCount: row.teamMemberCount,
+    teamSales: row.teamSales,
   };
 }

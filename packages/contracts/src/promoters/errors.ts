@@ -15,6 +15,10 @@ export const PROMOTERS_ERROR_CODES = {
   ALLOCATION_EXHAUSTED: 'promoters/allocation-exhausted',
   ALLOCATION_EXCEEDS_STOCK: 'promoters/allocation-exceeds-stock',
   ASSIGNMENT_FORBIDDEN: 'promoters/assignment-forbidden',
+  HIERARCHY_CYCLE: 'promoters/hierarchy-cycle',
+  HIERARCHY_COMPANY_MISMATCH: 'promoters/hierarchy-company-mismatch',
+  HIERARCHY_DEPTH_EXCEEDED: 'promoters/hierarchy-depth-exceeded',
+  CASCADE_POLICY_LOCAL_NOT_FOUND: 'promoters/cascade-policy-local-not-found',
 } as const;
 
 export type PromotersErrorCode =

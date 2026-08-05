@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  type AnyPgColumn,
   boolean,
   check,
   index,
@@ -28,6 +29,9 @@ export const promoter = pgTable(
       .references(() => company.id, { onDelete: 'cascade' }),
     localId: uuid('local_id').references(() => local.id, { onDelete: 'set null' }),
     userId: uuid('user_id').references(() => user.id, { onDelete: 'set null' }),
+    parentPromoterId: uuid('parent_promoter_id').references((): AnyPgColumn => promoter.id, {
+      onDelete: 'set null',
+    }),
     name: varchar('name', { length: 160 }).notNull(),
     contactEmail: varchar('contact_email', { length: 160 }),
     contactPhone: varchar('contact_phone', { length: 20 }),
@@ -38,9 +42,34 @@ export const promoter = pgTable(
   },
   (t) => [
     index('idx_promoter_company').on(t.companyId),
+    index('idx_promoter_parent').on(t.parentPromoterId),
     check(
       'promoter_status_check',
       sql`${t.status} in ('active','inactive','suspended','pending')`,
+    ),
+  ],
+);
+
+/** Politica opcional de comision en cascada por local. Apagada por defecto. */
+export const promoterLocalPolicy = pgTable(
+  'promoter_local_policy',
+  {
+    id: id(),
+    localId: uuid('local_id')
+      .notNull()
+      .references(() => local.id, { onDelete: 'cascade' }),
+    cascadeEnabled: boolean('cascade_enabled').notNull().default(false),
+    cascadePercentage: numeric('cascade_percentage', { precision: 5, scale: 2 })
+      .notNull()
+      .default('0'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('idx_promoter_local_policy_local').on(t.localId),
+    check(
+      'promoter_local_policy_cascade_percentage_check',
+      sql`${t.cascadePercentage} >= 0 and ${t.cascadePercentage} <= 100`,
     ),
   ],
 );
@@ -106,12 +135,29 @@ export const saleAttribution = pgTable(
     }),
     commissionRate: numeric('commission_rate', { precision: 5, scale: 4 }).notNull(),
     commissionAmount: numeric('commission_amount', { precision: 10, scale: 2 }).notNull(),
+    /** Snapshot adicional del cabeza; nunca reduce commission_amount del vendedor. */
+    headPromoterId: uuid('head_promoter_id').references(() => promoter.id, {
+      onDelete: 'set null',
+    }),
+    headCommissionRate: numeric('head_commission_rate', {
+      precision: 5,
+      scale: 4,
+    }),
+    headCommissionAmount: numeric('head_commission_amount', {
+      precision: 10,
+      scale: 2,
+    }),
     status: varchar('status', { length: 12 }).notNull().default('estimated'),
     attributedAt: timestamp('attributed_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     uniqueIndex('idx_sale_attribution_order').on(t.orderId),
     index('idx_sale_attribution_promoter').on(t.promoterId),
+    index('idx_sale_attribution_head_promoter').on(t.headPromoterId),
+    check(
+      'sale_attribution_head_commission_rate_check',
+      sql`${t.headCommissionRate} is null or (${t.headCommissionRate} >= 0 and ${t.headCommissionRate} <= 1)`,
+    ),
     check('sale_attribution_status_check', sql`${t.status} in ('estimated','confirmed','void')`),
   ],
 );
@@ -235,6 +281,7 @@ export const promoterTicketAllocation = pgTable(
 );
 
 export type Promoter = typeof promoter.$inferSelect;
+export type PromoterLocalPolicy = typeof promoterLocalPolicy.$inferSelect;
 export type ReferralLink = typeof referralLink.$inferSelect;
 export type PromoCode = typeof promoCode.$inferSelect;
 export type SaleAttribution = typeof saleAttribution.$inferSelect;
