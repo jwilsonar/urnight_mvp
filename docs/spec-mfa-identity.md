@@ -65,6 +65,7 @@ Errores nuevos en `identity.errors.ts`, con sus códigos en `IDENTITY_ERROR_CODE
 
 | Clase | Código | HTTP |
 |---|---|---|
+| `MfaRequiredError` | `identity/mfa-required` | 401 |
 | `MfaAlreadyEnrolledError` | `identity/mfa-already-enrolled` | 409 |
 | `MfaNotEnrolledError` | `identity/mfa-not-enrolled` | 409 |
 | `InvalidMfaCodeError` | `identity/invalid-mfa-code` | 401 |
@@ -114,11 +115,17 @@ Sobre `auth.controller.ts` y un `mfa.controller.ts` nuevo bajo `interfaces/http/
 
 Los DTO y sus Zod van en `packages/contracts/src/identity/mfa.ts`, re-exportados desde `src/index.ts`, y la API los valida con el `ZodValidationPipe` global. Frontend y API tipan contra el mismo paquete.
 
-## 7. Opcionalidad y desbloqueo
+## 7. Obligatoriedad por rol y desbloqueo
 
-Resuelto en [ADR 0012](adr/0012-mfa-opcional-y-permiso-de-desbloqueo.md), que reemplaza la obligatoriedad del ADR 0008.
+Resuelto en [ADR 0012](adr/0012-mfa-obligatorio-por-rol-y-permiso-de-desbloqueo.md).
 
-**MFA es opcional para todos los roles.** Es una configuración de cuenta que la persona activa y desactiva cuando quiere. Al registrarse se recomienda, no se exige. Por tanto **no existe** `identity/mfa-required` como bloqueo de panel: ese código se elimina de la tabla de errores de la §3 y ningún guard exige segundo factor.
+**Obligatorio para `super_admin` y `admin_local`. Opcional y recomendado para `promoter`, `validator` y `user`**, que lo activan y desactivan desde su cuenta como en cualquier plataforma.
+
+**Las cuentas obligadas enrolan en el siguiente inicio de sesión**, sin corte duro ni migración manual. Un admin sin factor activo recibe sesión válida pero en **estado de enrolamiento pendiente**: solo alcanza `/mfa/enroll` y `/mfa/enroll/confirm`; cualquier otra ruta de panel responde `identity/mfa-required` (401). Aplica también a las cuentas de desarrollo ya creadas.
+
+Implementación de ese estado: el JWT lleva un flag `mfaPending`, y un guard del edge —después de `Auth`, junto a `Roles`— lo comprueba en las rutas de panel. **Este es el punto con más riesgo de toda la funcionalidad:** si un guard olvida la comprobación, un admin sin MFA opera con normalidad y la obligatoriedad es decorativa. Conviene que la comprobación viva en un solo sitio, como `tenantScopeOf`, y no repartida por controladores.
+
+En la web, `identity/mfa-required` **no** debe cerrar sesión: redirige al enrolamiento. El interceptor global de 401 de `providers.tsx` trata hoy cualquier 401 como sesión inutilizable, así que hay que exceptuar este código explícitamente.
 
 **Desbloquear es un permiso acotado.** Cuando alguien pierde el dispositivo y sus diez códigos, solo un operador autorizado le devuelve el acceso. Ser `super_admin` no basta:
 
