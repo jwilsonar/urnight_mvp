@@ -9,6 +9,7 @@ import {
 } from '@phosphor-icons/react';
 import { useEffect, useMemo, useState } from 'react';
 import { Badge, Card, Input } from '@urnight/ui';
+import { BoxesPuerta } from '@/components/admin/boxes-puerta';
 import { PaloteoRegistrar } from '@/components/admin/paloteo-registrar';
 import {
   documentoEnmascarado,
@@ -259,6 +260,10 @@ export function CheckinLive() {
           })
         )}
       </Card>
+
+      <div className="mt-8">
+        <BoxesPuerta />
+      </div>
     </section>
   );
 }

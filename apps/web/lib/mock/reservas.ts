@@ -120,6 +120,209 @@ export const MIS_RESERVAS_DEMO: ReservaHechaDemo[] = [
   },
 ];
 
+export interface ReservaLocalDemo {
+  id: string;
+  codigo: string;
+  titular: string;
+  /** Dato personal: en listados se enmascara y solo se revela al cotejar el pase. */
+  documento?: string;
+  mesa: string;
+  zonaId: string;
+  pax: number;
+  deposito: number;
+  estado: 'confirmada' | 'pendiente' | 'completada';
+  llegada?: string;
+  pases: PaseReservaDemo[];
+}
+
+function paseLocalDemo(
+  reservaId: string,
+  zonaId: string,
+  indice: number,
+  codigo: string,
+  titular = '',
+  estado: PaseReservaDemo['estado'] = 'activo',
+): PaseReservaDemo {
+  return {
+    id: `pase-${reservaId}-${indice}`,
+    codigo,
+    reservaId,
+    zonaId,
+    titular,
+    indice,
+    estado,
+  };
+}
+
+export const RESERVAS_LOCAL_DEMO: ReservaLocalDemo[] = [
+  {
+    id: 'reserva-local-1',
+    codigo: 'RV-8F4K21',
+    titular: 'Laura Mendoza',
+    documento: '70456004',
+    mesa: 'Box VIP 01',
+    zonaId: 'vip',
+    pax: 6,
+    deposito: 400,
+    estado: 'confirmada',
+    llegada: '11:00 PM',
+    pases: [
+      paseLocalDemo('reserva-local-1', 'vip', 1, 'PAS-A1B2C3', 'Laura Mendoza', 'usado'),
+      paseLocalDemo('reserva-local-1', 'vip', 2, 'PAS-D4E5F6', 'Diego Torres', 'usado'),
+      paseLocalDemo('reserva-local-1', 'vip', 3, 'PAS-G7H8J9', 'Camila Vega', 'usado'),
+      paseLocalDemo('reserva-local-1', 'vip', 4, 'PAS-K2L3M4', 'Marco Ruiz'),
+      paseLocalDemo('reserva-local-1', 'vip', 5, 'PAS-N5P6Q7', 'Valeria Soto'),
+      paseLocalDemo('reserva-local-1', 'vip', 6, 'PAS-R8S9T2', 'Bruno Díaz'),
+    ],
+  },
+  {
+    id: 'reserva-local-2',
+    codigo: 'RV-6N2C18',
+    titular: 'Andrés Salazar',
+    documento: '73192818',
+    mesa: 'Box VIP 02',
+    zonaId: 'vip',
+    pax: 5,
+    deposito: 400,
+    estado: 'pendiente',
+    llegada: '11:30 PM',
+    pases: [
+      paseLocalDemo('reserva-local-2', 'vip', 1, 'PAS-U3V4W5', 'Andrés Salazar'),
+      paseLocalDemo('reserva-local-2', 'vip', 2, 'PAS-X6Y7Z8'),
+      paseLocalDemo('reserva-local-2', 'vip', 3, 'PAS-B9C2D3'),
+      paseLocalDemo('reserva-local-2', 'vip', 4, 'PAS-E4F5G6'),
+      paseLocalDemo('reserva-local-2', 'vip', 5, 'PAS-H7J8K9'),
+    ],
+  },
+  {
+    id: 'reserva-local-3',
+    codigo: 'RV-9P3D52',
+    titular: 'Fernanda Rojas',
+    documento: '76841352',
+    mesa: 'Lounge Premium',
+    zonaId: 'super-vip',
+    pax: 6,
+    deposito: 800,
+    estado: 'confirmada',
+    llegada: '12:00 AM',
+    pases: [
+      paseLocalDemo('reserva-local-3', 'super-vip', 1, 'PAS-L2M3N4', 'Fernanda Rojas', 'usado'),
+      paseLocalDemo('reserva-local-3', 'super-vip', 2, 'PAS-P5Q6R7', 'Sofía Campos'),
+      paseLocalDemo('reserva-local-3', 'super-vip', 3, 'PAS-S8T9U2', 'Luciana Peña'),
+      paseLocalDemo('reserva-local-3', 'super-vip', 4, 'PAS-V3W4X5'),
+      paseLocalDemo('reserva-local-3', 'super-vip', 5, 'PAS-Y6Z7A8'),
+      paseLocalDemo('reserva-local-3', 'super-vip', 6, 'PAS-C9D2E3'),
+    ],
+  },
+  {
+    id: 'reserva-local-4',
+    codigo: 'RV-4T7M66',
+    titular: 'Javier Cruz',
+    documento: '71450766',
+    mesa: 'Box VIP 03',
+    zonaId: 'vip',
+    pax: 4,
+    deposito: 400,
+    estado: 'completada',
+    llegada: '10:45 PM',
+    pases: [
+      paseLocalDemo('reserva-local-4', 'vip', 1, 'PAS-F4G5H6', 'Javier Cruz', 'usado'),
+      paseLocalDemo('reserva-local-4', 'vip', 2, 'PAS-J7K8L9', 'Paola León', 'usado'),
+      paseLocalDemo('reserva-local-4', 'vip', 3, 'PAS-M2N3P4', 'Renzo Silva', 'usado'),
+      paseLocalDemo('reserva-local-4', 'vip', 4, 'PAS-Q5R6S7', 'María Paz', 'usado'),
+    ],
+  },
+];
+
+const RESERVAS_LOCAL_KEY = 'ravenue.reservas-local';
+
+function clonarReservasLocalDemo(
+  reservas: ReservaLocalDemo[],
+): ReservaLocalDemo[] {
+  return reservas.map((reserva) => ({
+    ...reserva,
+    pases: reserva.pases.map((pase) => ({ ...pase })),
+  }));
+}
+
+let reservasLocalMemoria = clonarReservasLocalDemo(RESERVAS_LOCAL_DEMO);
+
+function aplicarEstadosPersistidos(valor: unknown): ReservaLocalDemo[] {
+  if (!Array.isArray(valor)) return clonarReservasLocalDemo(RESERVAS_LOCAL_DEMO);
+
+  const estados = new Map<string, PaseReservaDemo['estado']>();
+  for (const entrada of valor) {
+    if (!entrada || typeof entrada !== 'object') continue;
+
+    const candidato = entrada as { id?: unknown; estado?: unknown; pases?: unknown };
+    const pases = Array.isArray(candidato.pases) ? candidato.pases : [candidato];
+    for (const pase of pases) {
+      if (!pase || typeof pase !== 'object') continue;
+
+      const pasePersistido = pase as { id?: unknown; estado?: unknown };
+      if (
+        typeof pasePersistido.id === 'string' &&
+        (pasePersistido.estado === 'activo' || pasePersistido.estado === 'usado')
+      ) {
+        estados.set(pasePersistido.id, pasePersistido.estado);
+      }
+    }
+  }
+
+  return clonarReservasLocalDemo(RESERVAS_LOCAL_DEMO).map((reserva) => ({
+    ...reserva,
+    pases: reserva.pases.map((pase) => ({
+      ...pase,
+      estado: estados.get(pase.id) ?? pase.estado,
+    })),
+  }));
+}
+
+export function listarReservasLocalDemo(): ReservaLocalDemo[] {
+  if (typeof window === 'undefined') {
+    return clonarReservasLocalDemo(RESERVAS_LOCAL_DEMO);
+  }
+
+  try {
+    const raw = sessionStorage.getItem(RESERVAS_LOCAL_KEY);
+    if (raw) reservasLocalMemoria = aplicarEstadosPersistidos(JSON.parse(raw));
+  } catch {
+    /* storage bloqueado o legado inválido: se conserva la copia en memoria */
+  }
+
+  return clonarReservasLocalDemo(reservasLocalMemoria);
+}
+
+function guardarReservasLocalDemo(reservas: ReservaLocalDemo[]): void {
+  reservasLocalMemoria = clonarReservasLocalDemo(reservas);
+  if (typeof window === 'undefined') return;
+
+  try {
+    sessionStorage.setItem(RESERVAS_LOCAL_KEY, JSON.stringify(reservas));
+  } catch {
+    /* storage bloqueado: la actualización queda disponible en memoria */
+  }
+}
+
+export function marcarPaseReservaUsadoDemo(
+  reservaId: string,
+  paseId: string,
+): ReservaLocalDemo[] {
+  const reservas = listarReservasLocalDemo().map((reserva) =>
+    reserva.id === reservaId
+      ? {
+          ...reserva,
+          pases: reserva.pases.map((pase) =>
+            pase.id === paseId ? { ...pase, estado: 'usado' as const } : pase,
+          ),
+        }
+      : reserva,
+  );
+
+  guardarReservasLocalDemo(reservas);
+  return clonarReservasLocalDemo(reservas);
+}
+
 function redondearSoles(monto: number): number {
   return Math.round(monto * 100) / 100;
 }
