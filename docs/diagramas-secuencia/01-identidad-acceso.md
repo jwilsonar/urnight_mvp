@@ -383,6 +383,7 @@ sequenceDiagram
     participant RL as RateLimitGuard
     participant RS as Redis
     participant UC as LoginUseCase
+    participant MS as MfaLoginService
     participant DB as PostgreSQL
 
     note over U, SA: Fase 1 · Envío de credenciales por Server Action
@@ -420,12 +421,25 @@ sequenceDiagram
                 UC->>DB: UPDATE "user" SET last_login_at = now() WHERE id = ?
                 DB-->>UC: 1 row
 
-                note over UC, SA: Fase 4 · Emisión de tokens y respuesta
-                note over UC: Emisión del par access + refresh → SD-A
-                UC-->>RL: AuthResult
-                RL->>RS: on finish 2xx → DEL ratelimit:login-fail:{email}
-                RL-->>SA: 200 OK · AuthTokensResponse
-                note over SA: Establecimiento de sesión web → SD-B → /post-login
+                note over UC, SA: Fase 4 · Bifurcación por MFA y respuesta
+                UC->>MS: complete(user)
+                MS->>DB: SELECT * FROM user_mfa_factor WHERE user_id = ? AND status = 'active'
+                DB-->>MS: factor o null
+                alt la cuenta tiene un factor activo
+                    MS->>RS: SET mfa:challenge:{challengeId} · TTL 5 min
+                    RS-->>MS: OK
+                    MS-->>UC: LoginOutcome kind mfa_challenge
+                    UC-->>RL: challengeId + expiresAt
+                    RL-->>SA: 200 OK · { kind mfa_challenge }
+                    note over SA: Sin tokens todavía. El desafío se resuelve en<br/>POST /api/v1/auth/mfa/verify → VerifyMfaChallengeUseCase.
+                else sin MFA
+                    note over MS: Emisión del par access + refresh → SD-A
+                    MS-->>UC: LoginOutcome kind session
+                    UC-->>RL: AuthResult
+                    RL->>RS: on finish 2xx → DEL ratelimit:login-fail:{email}
+                    RL-->>SA: 200 OK · { kind session, result }
+                    note over SA: Establecimiento de sesión web → SD-B → /post-login
+                end
             end
         end
     end
@@ -1056,7 +1070,7 @@ sequenceDiagram
 |---|---|---|---|
 | Registro | `POST /auth/register` | `RegisterUseCase`, `UserProvisioningService` | ✅ Implementado |
 | Verificación de email | `POST /auth/verify-email` | `VerifyEmailUseCase`, `JwtTokenService`, `OutboxRelay` + `NotificationsProcessor` | ⚠️ API y cadena outbox→worker listos; el envío es stub (`LogEmailAdapter`, ADR 0004) y la página `/verify-email` sigue sin cablear |
-| Inicio de sesión | `POST /auth/login` | `LoginUseCase`, `RateLimitGuard` | ✅ Implementado |
+| Inicio de sesión | `POST /auth/login` | `LoginUseCase`, `MfaLoginService`, `RateLimitGuard` | ✅ Implementado · devuelve `LoginOutcome`: sesión, o desafío si la cuenta tiene MFA activo |
 | Ciclo de vida de la sesión | `POST /auth/refresh`, `POST /auth/logout` | `RefreshTokenUseCase`, `LogoutUseCase`, `RedisRefreshTokenStore` | ⚠️ Refresh completo con rotación; el front no invoca `/auth/logout` |
 | Inicio de sesión con Google | `POST /auth/google` | `GoogleLoginUseCase`, `GoogleOidcVerifier` | ✅ Implementado (requiere credenciales OAuth configuradas) |
 | Recuperación de cuenta | — | `app/(auth)/recover/page.tsx` | ❌ Maqueta; sin backend (ver SD-05b) |
