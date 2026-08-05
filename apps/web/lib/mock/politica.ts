@@ -10,7 +10,12 @@ export interface ZonaLocalDemo {
   aforo?: number;
   orden: number;
   color: string;
+  pulseraEtiqueta?: string;
   activa: boolean;
+}
+
+export function etiquetaPulsera(zona: ZonaLocalDemo): string {
+  return zona.pulseraEtiqueta?.trim() || zona.nombre;
 }
 
 export interface ReglaMetaDemo {

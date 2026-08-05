@@ -53,16 +53,58 @@ export interface CheckinDemo {
   hora: string;
   nombre: string;
   tipo: 'General' | 'VIP' | 'Cortesía' | 'Reserva mesa' | 'Paloteo';
+  zonaId: string;
+  documento?: string;
   valido: boolean;
 }
 
 export const CHECKINS_DEMO: CheckinDemo[] = [
-  { hora: '12:42 AM', nombre: 'Sofía Castro', tipo: 'General', valido: true },
-  { hora: '12:41 AM', nombre: 'Mateo Rojas', tipo: 'VIP', valido: true },
-  { hora: '12:40 AM', nombre: 'QR ya utilizado', tipo: 'General', valido: false },
-  { hora: '12:38 AM', nombre: 'Valeria Cruz +7', tipo: 'Reserva mesa', valido: true },
-  { hora: '12:35 AM', nombre: 'Diego Vargas', tipo: 'Cortesía', valido: true },
-  { hora: '12:33 AM', nombre: 'Camila Yáñez', tipo: 'General', valido: true },
+  {
+    hora: '12:42 AM',
+    nombre: 'Sofía Castro',
+    tipo: 'General',
+    zonaId: 'general',
+    documento: '73148204',
+    valido: true,
+  },
+  {
+    hora: '12:41 AM',
+    nombre: 'Mateo Rojas',
+    tipo: 'VIP',
+    zonaId: 'vip',
+    documento: '46821957',
+    valido: true,
+  },
+  {
+    hora: '12:40 AM',
+    nombre: 'QR ya utilizado',
+    tipo: 'General',
+    zonaId: 'general',
+    valido: false,
+  },
+  {
+    hora: '12:38 AM',
+    nombre: 'Valeria Cruz +7',
+    tipo: 'Reserva mesa',
+    zonaId: 'super-vip',
+    documento: '70416328',
+    valido: true,
+  },
+  {
+    hora: '12:35 AM',
+    nombre: 'Diego Vargas',
+    tipo: 'Cortesía',
+    zonaId: 'general',
+    documento: '61957043',
+    valido: true,
+  },
+  {
+    hora: '12:33 AM',
+    nombre: 'Camila Yáñez',
+    tipo: 'General',
+    zonaId: 'general',
+    valido: true,
+  },
 ];
 
 /* ===== RRPP · Liquidaciones ===== */

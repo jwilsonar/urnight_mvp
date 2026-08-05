@@ -39,6 +39,7 @@ export function PaloteoRegistrar({
   const [promotorId, setPromotorId] = useState('');
   const [cantidad, setCantidad] = useState(1);
   const [nombreInvitado, setNombreInvitado] = useState('');
+  const [documento, setDocumento] = useState('');
   const [zonaId, setZonaId] = useState('');
 
   useEffect(() => {
@@ -62,6 +63,7 @@ export function PaloteoRegistrar({
     if (!siguienteAbierto) {
       setCantidad(1);
       setNombreInvitado('');
+      setDocumento('');
     }
   }
 
@@ -77,6 +79,7 @@ export function PaloteoRegistrar({
       cantidad,
       zonaId,
       ...(nombreLimpio ? { nombreInvitado: nombreLimpio } : {}),
+      ...(documento.trim() ? { documento } : {}),
     });
     onRegistrado?.(paloteo);
     toast.success(
@@ -158,18 +161,38 @@ export function PaloteoRegistrar({
               <p className="text-xs text-muted-foreground">Máximo 20 personas por registro.</p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="nombre-paloteo">
-                {cantidad > 1 ? 'Nombre del titular del grupo (opcional)' : 'Nombre del invitado (opcional)'}
-              </Label>
-              <Input
-                id="nombre-paloteo"
-                value={nombreInvitado}
-                onChange={(event) => setNombreInvitado(event.target.value)}
-                placeholder="Ej. Sofía Castro"
-                autoComplete="name"
-              />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="nombre-paloteo">
+                  {cantidad > 1
+                    ? 'Nombre del titular del grupo (opcional)'
+                    : 'Nombre del invitado (opcional)'}
+                </Label>
+                <Input
+                  id="nombre-paloteo"
+                  value={nombreInvitado}
+                  onChange={(event) => setNombreInvitado(event.target.value)}
+                  placeholder="Ej. Sofía Castro"
+                  autoComplete="name"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="documento-paloteo">Documento del titular (opcional)</Label>
+                <Input
+                  id="documento-paloteo"
+                  value={documento}
+                  onChange={(event) => setDocumento(event.target.value)}
+                  placeholder="Ej. 73148204"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  maxLength={20}
+                />
+              </div>
             </div>
+            <p className="text-xs text-muted-foreground">
+              En puerta se coteja con el DNI físico del titular antes de registrar el ingreso.
+            </p>
 
             <div className="space-y-2">
               <Label>Zona</Label>

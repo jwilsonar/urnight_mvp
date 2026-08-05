@@ -9,6 +9,7 @@ export interface PaloteoDemo {
   promotorId: string;
   promotorNombre: string;
   nombreInvitado?: string;
+  documento?: string;
   cantidad: number;
   zonaId: string;
   hora: string;
@@ -35,6 +36,27 @@ function normalizarCantidad(cantidad: unknown): number {
   return Math.min(20, Math.max(1, Math.floor(cantidad)));
 }
 
+function normalizarDocumento(documento: unknown): string | undefined {
+  if (typeof documento !== 'string') return undefined;
+
+  const normalizado = documento
+    .trim()
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .slice(0, 20)
+    .toUpperCase();
+  return normalizado || undefined;
+}
+
+// Dato personal: los listados siempre usan la versión enmascarada; el valor completo
+// solo se muestra durante el cotejo de la validación en curso.
+export function documentoEnmascarado(documento?: string): string | null {
+  const normalizado = normalizarDocumento(documento);
+  if (!normalizado) return null;
+  if (normalizado.length <= 3) return '*'.repeat(normalizado.length);
+
+  return `*****${normalizado.slice(-3)}`;
+}
+
 function guardarPaloteosDemo(paloteos: PaloteoDemo[]): void {
   if (typeof window === 'undefined') return;
 
@@ -48,8 +70,11 @@ function guardarPaloteosDemo(paloteos: PaloteoDemo[]): void {
 export function registrarPaloteoDemo(
   datos: Omit<PaloteoDemo, 'id' | 'hora' | 'cantidad'> & { cantidad?: number },
 ): PaloteoDemo {
+  const { documento: documentoIngresado, ...datosRestantes } = datos;
+  const documento = normalizarDocumento(documentoIngresado);
   const paloteo: PaloteoDemo = {
-    ...datos,
+    ...datosRestantes,
+    ...(documento ? { documento } : {}),
     cantidad: normalizarCantidad(datos.cantidad),
     id: `paloteo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     hora: new Date().toISOString(),
@@ -69,10 +94,16 @@ export function listarPaloteosDemo(): PaloteoDemo[] {
     const paloteos = JSON.parse(raw) as Array<
       Omit<PaloteoDemo, 'cantidad'> & { cantidad?: number }
     >;
-    return paloteos.map((paloteo) => ({
-      ...paloteo,
-      cantidad: normalizarCantidad(paloteo.cantidad),
-    }));
+    return paloteos.map((paloteo) => {
+      const { documento: documentoGuardado, ...datosRestantes } = paloteo;
+      const documento = normalizarDocumento(documentoGuardado);
+
+      return {
+        ...datosRestantes,
+        ...(documento ? { documento } : {}),
+        cantidad: normalizarCantidad(paloteo.cantidad),
+      };
+    });
   } catch {
     return [];
   }

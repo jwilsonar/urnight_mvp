@@ -124,15 +124,35 @@ export function ZonasEditor({ value, onChange }: ZonasEditorProps) {
         {value.map((zona, indice) => (
           <div
             key={zona.id}
-            className="grid gap-3 rounded-md border bg-muted/30 p-3.5 lg:grid-cols-[minmax(160px,1fr)_7rem_auto_auto_auto] lg:items-center"
+            className="grid gap-3 rounded-md border bg-muted/30 p-3.5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_7rem]"
           >
-            <Input
-              value={zona.nombre}
-              onChange={(event) =>
-                actualizar(zona.id, { nombre: event.target.value })
-              }
-              aria-label={`Nombre de la zona ${indice + 1}`}
-            />
+            <label className="space-y-1.5">
+              <span className="block text-xs font-semibold text-muted-foreground">Zona</span>
+              <Input
+                value={zona.nombre}
+                onChange={(event) =>
+                  actualizar(zona.id, { nombre: event.target.value })
+                }
+                aria-label={`Nombre de la zona ${indice + 1}`}
+              />
+            </label>
+
+            <label className="space-y-1.5">
+              <span className="block text-xs font-semibold text-muted-foreground">
+                Pulsera <span className="font-normal">(opcional)</span>
+              </span>
+              <Input
+                value={zona.pulseraEtiqueta ?? ""}
+                onChange={(event) =>
+                  actualizar(zona.id, { pulseraEtiqueta: event.target.value })
+                }
+                aria-label={`Pulsera de ${zona.nombre}`}
+                placeholder={zona.nombre}
+              />
+              <span className="block text-xs text-muted-foreground">
+                Si queda vacía, hereda el nombre de la zona.
+              </span>
+            </label>
 
             <label className="space-y-1.5">
               <span className="block text-xs font-semibold text-muted-foreground">Aforo</span>
@@ -156,67 +176,80 @@ export function ZonasEditor({ value, onChange }: ZonasEditorProps) {
               />
             </label>
 
-            <div
-              className="flex items-center gap-1.5"
-              aria-label={`Color de ${zona.nombre}`}
-            >
-              {COLORES_ZONA.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  aria-label={`Usar color ${color}`}
-                  aria-pressed={zona.color === color}
-                  onClick={() => actualizar(zona.id, { color })}
-                  className={cn(
-                    "size-7 rounded-full border-2 border-background ring-offset-2 ring-offset-background transition-shadow",
-                    zona.color === color && "ring-2 ring-ring",
-                  )}
-                  style={{ backgroundColor: color }}
+            <div className="flex flex-wrap items-center gap-4 lg:col-span-3">
+              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground">
+                    Color de pulsera
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Es el color de la pulsera que se entrega en puerta.
+                  </p>
+                </div>
+                <div
+                  className="flex items-center gap-1.5"
+                  role="group"
+                  aria-label={`Color de pulsera de ${zona.nombre}`}
+                >
+                  {COLORES_ZONA.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      aria-label={`Usar color ${color}`}
+                      aria-pressed={zona.color === color}
+                      onClick={() => actualizar(zona.id, { color })}
+                      className={cn(
+                        "size-7 rounded-full border-2 border-background ring-offset-2 ring-offset-background transition-shadow",
+                        zona.color === color && "ring-2 ring-ring",
+                      )}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold">
+                <Checkbox
+                  checked={zona.activa}
+                  onCheckedChange={(checked) =>
+                    actualizar(zona.id, { activa: checked === true })
+                  }
                 />
-              ))}
-            </div>
+                Activa
+              </label>
 
-            <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold">
-              <Checkbox
-                checked={zona.activa}
-                onCheckedChange={(checked) =>
-                  actualizar(zona.id, { activa: checked === true })
-                }
-              />
-              Activa
-            </label>
-
-            <div className="flex items-center justify-end gap-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => mover(indice, -1)}
-                disabled={indice === 0}
-                aria-label={`Subir ${zona.nombre}`}
-              >
-                <CaretUp weight="duotone" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => mover(indice, 1)}
-                disabled={indice === value.length - 1}
-                aria-label={`Bajar ${zona.nombre}`}
-              >
-                <CaretDown weight="duotone" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => eliminar(zona.id)}
-                aria-label={`Eliminar ${zona.nombre}`}
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash weight="duotone" />
-              </Button>
+              <div className="ml-auto flex items-center justify-end gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => mover(indice, -1)}
+                  disabled={indice === 0}
+                  aria-label={`Subir ${zona.nombre}`}
+                >
+                  <CaretUp weight="duotone" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => mover(indice, 1)}
+                  disabled={indice === value.length - 1}
+                  aria-label={`Bajar ${zona.nombre}`}
+                >
+                  <CaretDown weight="duotone" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => eliminar(zona.id)}
+                  aria-label={`Eliminar ${zona.nombre}`}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash weight="duotone" />
+                </Button>
+              </div>
             </div>
           </div>
         ))}
