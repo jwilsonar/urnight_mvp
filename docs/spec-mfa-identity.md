@@ -65,7 +65,6 @@ Errores nuevos en `identity.errors.ts`, con sus códigos en `IDENTITY_ERROR_CODE
 
 | Clase | Código | HTTP |
 |---|---|---|
-| `MfaRequiredError` | `identity/mfa-required` | 401 |
 | `MfaAlreadyEnrolledError` | `identity/mfa-already-enrolled` | 409 |
 | `MfaNotEnrolledError` | `identity/mfa-not-enrolled` | 409 |
 | `InvalidMfaCodeError` | `identity/invalid-mfa-code` | 401 |
@@ -115,14 +114,30 @@ Sobre `auth.controller.ts` y un `mfa.controller.ts` nuevo bajo `interfaces/http/
 
 Los DTO y sus Zod van en `packages/contracts/src/identity/mfa.ts`, re-exportados desde `src/index.ts`, y la API los valida con el `ZodValidationPipe` global. Frontend y API tipan contra el mismo paquete.
 
-## 7. Obligatoriedad por rol
+## 7. Opcionalidad y desbloqueo
 
-`super_admin` y `admin_local` deben tener MFA activo. Dos cosas que decidir con Wilson y que este documento **no** resuelve:
+Resuelto en [ADR 0012](adr/0012-mfa-opcional-y-permiso-de-desbloqueo.md), que reemplaza la obligatoriedad del ADR 0008.
 
-1. **Qué pasa con las cuentas existentes** que aún no lo tienen. Propuesta: se les permite iniciar sesión pero quedan en un estado "enrolamiento pendiente" que solo deja acceder a `/mfa/enroll`; el resto del panel responde `identity/mfa-required`. Un corte duro dejaría a los admins fuera de su propio panel.
-2. **Quién puede desbloquear** a alguien que perdió el dispositivo y los diez códigos. Propuesta: solo `super_admin`, con auditoría obligatoria — y para el propio `super_admin`, un procedimiento fuera de banda, porque si no se convierte en la puerta trasera del sistema.
+**MFA es opcional para todos los roles.** Es una configuración de cuenta que la persona activa y desactiva cuando quiere. Al registrarse se recomienda, no se exige. Por tanto **no existe** `identity/mfa-required` como bloqueo de panel: ese código se elimina de la tabla de errores de la §3 y ningún guard exige segundo factor.
 
-Cuando se decidan, van como ADR nuevo, no como comentario en el código.
+**Desbloquear es un permiso acotado.** Cuando alguien pierde el dispositivo y sus diez códigos, solo un operador autorizado le devuelve el acceso. Ser `super_admin` no basta:
+
+```
+mfa_unlock_operator
+  user_id     uuid PK FK user ON DELETE CASCADE
+  granted_by  uuid FK user
+  granted_at  timestamptz
+```
+
+Endpoint adicional:
+
+| Método | Ruta | Guard | Cuerpo | Respuesta |
+|---|---|---|---|---|
+| POST | `/mfa/unlock` | `@Roles('super_admin')` + operador | `{ userId, reason }` | `204` |
+
+El caso de uso `unlock-mfa.use-case.ts` exige **las dos condiciones** —rol `super_admin` y fila en `mfa_unlock_operator`— y audita `identity.mfa.unlocked` con quién desbloqueó a quién y por qué. Revocar el factor deja la cuenta sin MFA; la persona vuelve a enrolar desde cero.
+
+Queda **abierto y recomendado**: exigir MFA a los propios operadores de desbloqueo. Son el último recurso de recuperación de todos los demás. No es decisión de este documento.
 
 ## 8. Límites y auditoría
 
