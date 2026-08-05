@@ -63,6 +63,21 @@ describe('MFA use cases', () => {
     expect((await mfa.findCurrentFactor(user.id))?.status).toBe('pending');
   });
 
+  // Regresión: rotar el secreto en cada visita invalidaba un QR ya escaneado y
+  // dejaba a la persona en un bucle de "código inválido" sin explicación.
+  it('reutiliza el factor pendiente en vez de rotar el secreto ya escaneado', async () => {
+    const { users, user, mfa, totp } = await build();
+    const useCase = new StartMfaEnrollmentUseCase(mfa, totp, users);
+
+    const primera = await useCase.execute({ userId: user.id });
+    const idInicial = (await mfa.findCurrentFactor(user.id))?.id;
+    const segunda = await useCase.execute({ userId: user.id });
+
+    expect(segunda.secret).toBe(primera.secret);
+    expect(segunda.otpauthUri).toBe(primera.otpauthUri);
+    expect((await mfa.findCurrentFactor(user.id))?.id).toBe(idInicial);
+  });
+
   it('confirma con TOTP válido, activa el factor y devuelve diez recovery codes una sola vez', async () => {
     const { users, user, mfa, totp, hasher } = await build();
     await new StartMfaEnrollmentUseCase(mfa, totp, users).execute({ userId: user.id });

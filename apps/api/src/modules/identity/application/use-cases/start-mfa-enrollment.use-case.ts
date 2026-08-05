@@ -28,6 +28,17 @@ export class StartMfaEnrollmentUseCase {
     const user = await this.users.findById(input.userId);
     if (!user) throw new UserNotFoundError();
 
+    // Idempotente a propósito: si ya hay un factor pendiente se devuelve el
+    // mismo secreto. Rotarlo en cada visita invalidaba en silencio un QR ya
+    // escaneado, y la persona quedaba en un bucle de "código inválido" sin
+    // ninguna pista de por qué. Para cambiar de secreto hay que revocar antes.
+    if (existing?.status === 'pending') {
+      return {
+        otpauthUri: this.totp.buildOtpAuthUri(existing.secret, user.email),
+        secret: existing.secret,
+      };
+    }
+
     const secret = this.totp.generateSecret();
     await this.mfa.replacePendingFactor({
       id: randomUUID(),
