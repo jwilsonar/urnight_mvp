@@ -1,7 +1,7 @@
-import { Injectable, type OnModuleInit } from '@nestjs/common';
-import { createLogger } from '../../../../shared/logging/logger';
-import { EventBus } from '../../../../shared/event-bus/event-bus';
-import { AttributeSaleUseCase } from '../use-cases/attribute-sale.use-case';
+import { Injectable, type OnModuleInit } from "@nestjs/common";
+import { createLogger } from "../../../../shared/logging/logger";
+import { EventBus } from "../../../../shared/event-bus/event-bus";
+import { AttributeSaleUseCase } from "../use-cases/attribute-sale.use-case";
 
 interface OrderPaidShape {
   orderId: string;
@@ -10,10 +10,8 @@ interface OrderPaidShape {
 }
 
 /**
- * Suscriptor de OrderPaid (§3.2). Desacoplado de Checkout: reacciona al evento
- * por nombre y atribuye la venta al promotor del `referralCode` (best-effort).
- * Sin ventana de 7 días (ADR 0003): el gatillo está inerte mientras ningún
- * cliente informe `referralCode` (el corte de abajo lo cortocircuita).
+ * Suscriptor de OrderPaid (§3.2). Desacoplado de Checkout: resuelve referral o
+ * promo canjeado y toma el snapshot de comisión vigente (best-effort).
  */
 @Injectable()
 export class OrderPaidSubscriber implements OnModuleInit {
@@ -25,18 +23,23 @@ export class OrderPaidSubscriber implements OnModuleInit {
   ) {}
 
   onModuleInit(): void {
-    this.bus.subscribe('checkout.order_paid', async (event) => {
+    this.bus.subscribe("checkout.order_paid", async (event) => {
       const p = event.payload as OrderPaidShape;
-      if (!p.referralCode) return;
       try {
         await this.attribute.execute({
           orderId: p.orderId,
           referralCode: p.referralCode,
           amount: p.total,
         });
-        this.log.info({ orderId: p.orderId, referralCode: p.referralCode }, 'promoters.sale.attributed');
+        this.log.info(
+          { orderId: p.orderId, referralCode: p.referralCode },
+          "promoters.sale.attributed",
+        );
       } catch (err) {
-        this.log.warn({ orderId: p.orderId, err: (err as Error).message }, 'promoters.sale.attribution_failed');
+        this.log.warn(
+          { orderId: p.orderId, err: (err as Error).message },
+          "promoters.sale.attribution_failed",
+        );
       }
     });
   }

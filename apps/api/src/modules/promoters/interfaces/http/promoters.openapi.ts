@@ -1,13 +1,16 @@
 import {
   applyPromoterSchema,
+  assignPromoterParentSchema,
   createPromoCodeSchema,
   createPromoterSchema,
   promoCodeResponseSchema,
   promoValidationResponseSchema,
   promoterApplicationResponseSchema,
   promoterAssociationResponseSchema,
+  promoterCascadePolicyResponseSchema,
   promoterResponseSchema,
   promoterSalesResponseSchema,
+  updatePromoterCascadePolicySchema,
   reviewPromoterApplicationSchema,
   validatePromoCodeSchema,
 } from '@urnight/contracts';
@@ -26,6 +29,15 @@ export function registerPromotersDocs(): void {
   const Association = registry.register(
     'PromoterAssociationResponse',
     promoterAssociationResponseSchema,
+  );
+  const AssignParent = registry.register('AssignPromoterParentDto', assignPromoterParentSchema);
+  const CascadePolicy = registry.register(
+    'PromoterCascadePolicyResponse',
+    promoterCascadePolicyResponseSchema,
+  );
+  const UpdateCascadePolicy = registry.register(
+    'UpdatePromoterCascadePolicyDto',
+    updatePromoterCascadePolicySchema,
   );
   const ApplyPromoter = registry.register('ApplyPromoterDto', applyPromoterSchema);
   const ReviewApplication = registry.register(
@@ -100,6 +112,48 @@ export function registerPromotersDocs(): void {
     responses: {
       200: { description: 'Resumen de ventas', ...json(Sales) },
       404: problem('Promotor no encontrado'),
+    },
+  });
+
+  registry.registerPath({
+    method: 'patch',
+    path: '/promoters/{id}/parent',
+    tags: ['Promoters'],
+    summary: 'Asignar o retirar el cabeza de equipo de un promotor',
+    security: bearer,
+    request: { params: uuidParam('id'), body: json(AssignParent) },
+    responses: {
+      200: { description: 'Jerarquia actualizada', ...json(Promoter) },
+      404: problem('Promotor o cabeza no encontrado'),
+      409: problem('Ciclo de jerarquia'),
+      422: problem('Empresa distinta o profundidad excedida'),
+    },
+  });
+
+  registry.registerPath({
+    method: 'get',
+    path: '/promoters/locals/{localId}/cascade-policy',
+    tags: ['Promoters'],
+    summary: 'Consultar la politica local de comision en cascada',
+    security: bearer,
+    request: { params: uuidParam('localId') },
+    responses: {
+      200: { description: 'Politica vigente', ...json(CascadePolicy) },
+    },
+  });
+
+  registry.registerPath({
+    method: 'put',
+    path: '/promoters/locals/{localId}/cascade-policy',
+    tags: ['Promoters'],
+    summary: 'Configurar la comision en cascada de un local',
+    security: bearer,
+    request: {
+      params: uuidParam('localId'),
+      body: json(UpdateCascadePolicy),
+    },
+    responses: {
+      200: { description: 'Politica actualizada', ...json(CascadePolicy) },
     },
   });
 

@@ -9,7 +9,7 @@ import {
 } from '../../domain/errors/identity.errors';
 import { GoogleVerifier, type GoogleProfile } from '../../domain/ports/google-verifier.port';
 import { USER_REPOSITORY, type UserRepository } from '../../domain/ports/user.repository';
-import { TokenIssuer, type AuthResult } from '../services/token-issuer.service';
+import { MfaLoginService, type LoginOutcome } from '../services/mfa-login.service';
 import { UserProvisioningService } from '../services/user-provisioning.service';
 
 /**
@@ -24,11 +24,11 @@ export class GoogleLoginUseCase {
   constructor(
     @Inject(USER_REPOSITORY) private readonly users: UserRepository,
     private readonly google: GoogleVerifier,
-    private readonly issuer: TokenIssuer,
+    private readonly mfaLogin: MfaLoginService,
     private readonly provisioning: UserProvisioningService,
   ) {}
 
-  async execute(dto: GoogleLoginDto): Promise<AuthResult> {
+  async execute(dto: GoogleLoginDto): Promise<LoginOutcome> {
     this.log.debug({}, 'identity.login.started');
     const profile = await this.google.verify(dto.idToken);
 
@@ -52,7 +52,7 @@ export class GoogleLoginUseCase {
     await this.users.update(user);
 
     this.log.info({ userId: user.id, provider: 'google' }, 'identity.login.success');
-    return this.issuer.issueFor(user);
+    return this.mfaLogin.complete(user);
   }
 
   private async linkExisting(user: User, googleSub: string): Promise<User> {

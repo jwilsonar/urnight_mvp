@@ -22,6 +22,7 @@ import { ErrorState } from '@/components/shared/error-state';
 import { ApplyPromoterForm } from './apply-promoter-form';
 import { AssignedEventsTable } from './assigned-events-table';
 import { PromoCodeValidator } from './promo-code-validator';
+import { PromoterKpis } from './promoter-kpis';
 import { PromoterSales } from './promoter-sales';
 import { ReferralLinkCard } from './referral-link-card';
 
@@ -72,6 +73,8 @@ export function PromoterDashboard() {
         />
       ) : promoter ? (
         <div className="space-y-8">
+          {/* KPIs del prototipo (pantalla 79), con datos reales de atribuciones. */}
+          <PromoterKpis promoterId={promoter.id} referralLink={promoter.referralLink} />
           {promoter.referralLink ? <ReferralLinkCard link={promoter.referralLink} /> : null}
 
           <Tabs defaultValue="events" className="space-y-6">

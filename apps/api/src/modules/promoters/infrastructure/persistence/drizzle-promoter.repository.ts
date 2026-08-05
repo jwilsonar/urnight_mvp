@@ -24,6 +24,7 @@ export class DrizzlePromoterRepository implements PromoterRepository {
       companyId: entity.companyId,
       localId: entity.localId,
       userId: entity.userId,
+      parentPromoterId: entity.parentPromoterId,
       name: entity.name,
       contactEmail: entity.contactEmail,
       contactPhone: entity.contactPhone,
@@ -56,7 +57,11 @@ export class DrizzlePromoterRepository implements PromoterRepository {
   async update(entity: Promoter, tx?: unknown): Promise<void> {
     await this.exec(tx)
       .update(promoter)
-      .set({ userId: entity.userId, status: entity.status })
+      .set({
+        userId: entity.userId,
+        parentPromoterId: entity.parentPromoterId,
+        status: entity.status,
+      })
       .where(eq(promoter.id, entity.id));
   }
 
@@ -111,6 +116,7 @@ export class DrizzlePromoterRepository implements PromoterRepository {
       companyId: row.companyId,
       localId: row.localId,
       userId: row.userId,
+      parentPromoterId: row.parentPromoterId,
       name: row.name,
       contactEmail: row.contactEmail,
       contactPhone: row.contactPhone,

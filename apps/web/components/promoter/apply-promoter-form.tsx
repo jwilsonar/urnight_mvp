@@ -3,7 +3,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckCircle } from '@phosphor-icons/react';
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
 import {
@@ -31,6 +32,7 @@ import { useApiMutation } from '@/lib/api/use-api-mutation';
 
 /** Formulario de postulación a promotor (POST /promoter-applications). */
 export function ApplyPromoterForm() {
+  const t = useTranslations('promotorApply');
   const { data: session } = useSession();
   const token = session?.accessToken;
   const [submitted, setSubmitted] = useState<PromoterApplicationResponse | null>(null);
@@ -48,7 +50,7 @@ export function ApplyPromoterForm() {
   const mutation = useApiMutation({
     mutationFn: (values: ApplyPromoterDto) => applyPromoter(values, token),
     setError: form.setError,
-    successMessage: 'Postulación enviada. Te avisaremos cuando sea revisada.',
+    successMessage: t('successToast'),
     onSuccess: (application) => {
       setSubmitted(application);
       form.reset({ name: '', contactEmail: '', contactPhone: '', socials: '' });
@@ -69,15 +71,19 @@ export function ApplyPromoterForm() {
     return (
       <Alert>
         <CheckCircle className="h-4 w-4" />
-        <AlertTitle>Postulación recibida</AlertTitle>
+        <AlertTitle>{t('success.title')}</AlertTitle>
         <AlertDescription>
-          Tu postulación <span className="font-medium">{submitted.name}</span> está en estado{' '}
-          <span className="font-medium">{submitted.status}</span>. Un administrador la revisará
-          pronto.
+          {t.rich('success.description', {
+            name: submitted.name,
+            status: submitted.status,
+            strong: (chunks: ReactNode) => (
+              <span className="font-medium">{chunks}</span>
+            ),
+          })}
         </AlertDescription>
         <div className="mt-3">
           <Button variant="outline" size="sm" onClick={() => setSubmitted(null)}>
-            Enviar otra postulación
+            {t('success.submitAnother')}
           </Button>
         </div>
       </Alert>
@@ -92,9 +98,9 @@ export function ApplyPromoterForm() {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nombre o marca</FormLabel>
+              <FormLabel>{t('fields.name.label')}</FormLabel>
               <FormControl>
-                <Input placeholder="Tu nombre artístico o marca" {...field} />
+                <Input placeholder={t('fields.name.placeholder')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -107,12 +113,13 @@ export function ApplyPromoterForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>
-                Correo de contacto <span className="text-muted-foreground">(opcional)</span>
+                {t('fields.contactEmail.label')}{' '}
+                <span className="text-muted-foreground">{t('optional')}</span>
               </FormLabel>
               <FormControl>
                 <Input
                   type="email"
-                  placeholder="tu@correo.com"
+                  placeholder={t('fields.contactEmail.placeholder')}
                   value={field.value ?? ''}
                   onChange={(event) =>
                     field.onChange(event.target.value === '' ? undefined : event.target.value)
@@ -133,12 +140,13 @@ export function ApplyPromoterForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>
-                Teléfono <span className="text-muted-foreground">(opcional)</span>
+                {t('fields.contactPhone.label')}{' '}
+                <span className="text-muted-foreground">{t('optional')}</span>
               </FormLabel>
               <FormControl>
                 <Input
                   type="tel"
-                  placeholder="+51 9XX XXX XXX"
+                  placeholder={t('fields.contactPhone.placeholder')}
                   value={field.value ?? ''}
                   onChange={(event) =>
                     field.onChange(event.target.value === '' ? undefined : event.target.value)
@@ -159,11 +167,12 @@ export function ApplyPromoterForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>
-                Redes sociales <span className="text-muted-foreground">(opcional)</span>
+                {t('fields.socials.label')}{' '}
+                <span className="text-muted-foreground">{t('optional')}</span>
               </FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Instagram, TikTok, etc. — cuéntanos tu alcance."
+                  placeholder={t('fields.socials.placeholder')}
                   rows={3}
                   value={field.value ?? ''}
                   onChange={(event) =>
@@ -174,14 +183,14 @@ export function ApplyPromoterForm() {
                   ref={field.ref}
                 />
               </FormControl>
-              <FormDescription>Comparte enlaces que muestren tu comunidad.</FormDescription>
+              <FormDescription>{t('fields.socials.description')}</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
         <Button type="submit" className="w-full" disabled={mutation.isPending}>
-          {mutation.isPending ? 'Enviando…' : 'Enviar postulación'}
+          {mutation.isPending ? t('sending') : t('submit')}
         </Button>
       </form>
     </Form>

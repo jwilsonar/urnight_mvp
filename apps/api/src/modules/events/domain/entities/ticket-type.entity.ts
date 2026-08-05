@@ -10,6 +10,7 @@ export interface TicketTypeProps {
   currency: string;
   stock: number;
   sold: number;
+  available: number;
   maxPerUser: number | null;
   saleStartsAt: Date | null;
   saleEndsAt: Date | null;
@@ -42,6 +43,7 @@ export class TicketType {
       currency: input.currency,
       stock: input.stock,
       sold: 0,
+      available: input.stock,
       maxPerUser: input.maxPerUser ?? null,
       saleStartsAt: input.saleStartsAt ?? null,
       saleEndsAt: input.saleEndsAt ?? null,
@@ -55,7 +57,7 @@ export class TicketType {
   }
 
   remaining(): number {
-    return this.props.stock - this.props.sold;
+    return this.props.available;
   }
 
   isAvailable(): boolean {

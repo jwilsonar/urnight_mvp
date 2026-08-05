@@ -4,6 +4,7 @@
  */
 export const queryKeys = {
   me: ['auth', 'me'] as const,
+  mfaStatus: ['auth', 'mfa-status'] as const,
   /** Favoritos del usuario autenticado (compartido por todos los FavoriteButton). */
   favorites: ['identity', 'favorites', 'me'] as const,
   /** Canjes de promo del usuario autenticado (#13). */
@@ -22,21 +23,28 @@ export const queryKeys = {
   /** Promotores de la empresa del actor (panel admin, scoped por tenant). */
   myPromoters: ['promoters', 'mine'] as const,
   localImages: (localId: string) => ['companies', 'local-images', localId] as const,
+  localVerificationDocuments: (localId: string) =>
+    ['companies', 'local-verification-documents', localId] as const,
+  pendingLocalVerificationDocuments: [
+    'companies',
+    'local-verification-documents',
+    'pending',
+  ] as const,
   events: (localId?: string) => ['events', 'list', { localId }] as const,
   event: (slug: string) => ['events', 'event', slug] as const,
   ticketTypes: (eventId: string) => ['events', 'ticket-types', eventId] as const,
   promoterSales: (promoterId: string) => ['promoters', 'sales', promoterId] as const,
+  promoterMetricsMe: (filter: Record<string, unknown> = {}) => ['promoters', 'metrics', 'me', filter] as const,
+  promoterRanking: (filter: Record<string, unknown>) => ['promoters', 'ranking', filter] as const,
   promoterAssociations: ['promoters', 'associations', 'me'] as const,
   /** Promotor activo del usuario de sesión (panel promotor). */
   myPromoter: ['promoters', 'me'] as const,
   /** Asignaciones de un promotor (vista admin). */
-  promoterAssignments: (promoterId: string) =>
-    ['promoters', 'assignments', promoterId] as const,
+  promoterAssignments: (promoterId: string) => ['promoters', 'assignments', promoterId] as const,
   /** Eventos asignados al promotor de sesión. */
   myAssignments: ['promoters', 'assignments', 'me'] as const,
   /** Códigos de canje de una asignación (gestión del promotor). */
-  redemptionCodes: (promoterEventId: string) =>
-    ['promoters', 'redemption-codes', promoterEventId] as const,
+  redemptionCodes: (promoterEventId: string) => ['promoters', 'redemption-codes', promoterEventId] as const,
   platformSetting: (key: string) => ['ops', 'platform-setting', key] as const,
   notificationsMe: ['ops', 'notifications', 'me'] as const,
 } as const;

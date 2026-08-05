@@ -8,6 +8,8 @@ import type {
   EventListResponse,
   EventResponse,
   LocalListResponse,
+  LocalVerificationDocumentResponse,
+  ConfirmLocalVerificationDocumentDto,
   LocalResponse,
   LocalStatsResponse,
   RequestVerificationDto,
@@ -101,6 +103,24 @@ export function requestLocalVerification(id: string, dto: RequestVerificationDto
     json: dto,
     token,
   });
+}
+
+export function listLocalVerificationDocuments(id: string, token: string) {
+  return apiFetch<LocalVerificationDocumentResponse[]>(
+    `/locals/${id}/verification-documents`,
+    { token },
+  );
+}
+
+export function confirmLocalVerificationDocument(
+  id: string,
+  dto: ConfirmLocalVerificationDocumentDto,
+  token: string,
+) {
+  return apiFetch<LocalVerificationDocumentResponse>(
+    `/locals/${id}/verification-documents`,
+    { method: 'POST', json: dto, token },
+  );
 }
 
 export function createEvent(dto: CreateEventDto, token: string) {

@@ -1,7 +1,14 @@
-import { ArrowLeft } from '@phosphor-icons/react/dist/ssr';
+import {
+  ArrowLeft,
+  CalendarBlank,
+  DoorOpen,
+  Megaphone,
+  Ticket,
+} from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import {
   Card,
   CardContent,
@@ -14,12 +21,14 @@ import {
   TabsList,
   TabsTrigger,
 } from '@urnight/ui';
-import { CreateEventDialog } from '@/components/admin/create-event-dialog';
+import { CreateEventWizard } from '@/components/admin/create-event-wizard';
 import { EventsTable } from '@/components/admin/events-table';
 import { LocalActions } from '@/components/admin/local-actions';
 import { LocalImagesManager } from '@/components/admin/local-images-manager';
+import { LocalVerificationDocumentsManager } from '@/components/admin/local-verification-documents-manager';
 import { RequestVerificationButton } from '@/components/admin/request-verification-button';
 import { LocalStatusBadge, VerifiedBadge } from '@/components/admin/status-badges';
+import { StatCard } from '@/components/shared/stat-card';
 import { getLocalById, getLocalStats } from '@/lib/api/admin';
 import { requireAccessToken } from '@/lib/auth-helpers';
 import { formatDateOnly } from '@/lib/utils';
@@ -34,6 +43,7 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ id
   if (!local) notFound();
 
   const stats = await getLocalStats(token, id).catch(() => null);
+  const verificationT = await getTranslations('verificationDocuments');
 
   return (
     <div className="space-y-6">
@@ -81,6 +91,7 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ id
           <TabsTrigger value="resumen">Resumen</TabsTrigger>
           <TabsTrigger value="eventos">Eventos</TabsTrigger>
           <TabsTrigger value="galeria">Galería</TabsTrigger>
+          <TabsTrigger value="documentos">{verificationT('tab')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="resumen" className="space-y-6 pt-4">
@@ -91,12 +102,28 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ id
                 <CardDescription>Indicadores agregados de este local (#22).</CardDescription>
               </CardHeader>
               <CardContent>
-                <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                  <Kpi label="Eventos" value={stats.eventsCount} />
-                  <Kpi label="Publicados" value={stats.publishedCount} />
-                  <Kpi label="Entradas vendidas" value={stats.ticketsSold} />
-                  <Kpi label="Check-ins" value={stats.checkins} />
-                </dl>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  <StatCard
+                    label="Eventos"
+                    value={stats.eventsCount}
+                    icon={<CalendarBlank weight="duotone" />}
+                  />
+                  <StatCard
+                    label="Publicados"
+                    value={stats.publishedCount}
+                    icon={<Megaphone weight="duotone" />}
+                  />
+                  <StatCard
+                    label="Entradas vendidas"
+                    value={stats.ticketsSold}
+                    icon={<Ticket weight="duotone" />}
+                  />
+                  <StatCard
+                    label="Check-ins"
+                    value={stats.checkins}
+                    icon={<DoorOpen weight="duotone" />}
+                  />
+                </div>
               </CardContent>
             </Card>
           ) : null}
@@ -124,7 +151,7 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ id
         <TabsContent value="eventos" className="space-y-4 pt-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-heading text-xl font-semibold">Eventos</h2>
-            <CreateEventDialog localId={local.id} />
+            <CreateEventWizard localId={local.id} />
           </div>
           <EventsTable localId={local.id} />
         </TabsContent>
@@ -139,16 +166,19 @@ export default async function LocalDetailPage({ params }: { params: Promise<{ id
           </div>
           <LocalImagesManager localId={local.id} />
         </TabsContent>
-      </Tabs>
-    </div>
-  );
-}
 
-function Kpi({ label, value }: { label: string; value: number }) {
-  return (
-    <div>
-      <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="font-heading text-2xl font-bold">{value}</dd>
+        <TabsContent value="documentos" className="space-y-4 pt-4">
+          <div>
+            <h2 className="font-heading text-xl font-semibold">
+              {verificationT('title')}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {verificationT('description')}
+            </p>
+          </div>
+          <LocalVerificationDocumentsManager localId={local.id} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

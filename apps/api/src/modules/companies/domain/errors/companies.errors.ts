@@ -41,6 +41,14 @@ export class VerificationNotFoundError extends DomainError {
   }
 }
 
+export class VerificationDocumentNotFoundError extends DomainError {
+  readonly status = 404;
+  readonly code = COMPANIES_ERROR_CODES.VERIFICATION_DOCUMENT_NOT_FOUND;
+  constructor() {
+    super('Documento de verificación no encontrado.');
+  }
+}
+
 export class AffiliationNotFoundError extends DomainError {
   readonly status = 404;
   readonly code = COMPANIES_ERROR_CODES.AFFILIATION_NOT_FOUND;

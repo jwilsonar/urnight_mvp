@@ -2,7 +2,7 @@
 
 import { PanelPageHeader } from '@/components/panels/panel-page-header';
 import { PromoterGate } from '@/components/promoter/promoter-gate';
-import { PromoterSales } from '@/components/promoter/promoter-sales';
+import { PromoterSalesWithRefresh } from '@/components/promoter/promoter-sales-with-refresh';
 
 /** Ventas y comisiones atribuidas al promotor. */
 export default function PromoterSalesPage() {
@@ -12,7 +12,9 @@ export default function PromoterSalesPage() {
         title="Ventas y comisiones"
         description="Compras atribuidas a tu promotor."
       />
-      <PromoterGate>{(promoter) => <PromoterSales promoterId={promoter.id} />}</PromoterGate>
+      <PromoterGate>
+        {(promoter) => <PromoterSalesWithRefresh promoterId={promoter.id} />}
+      </PromoterGate>
     </div>
   );
 }

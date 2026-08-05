@@ -1,7 +1,9 @@
 'use client';
 
-import { ArrowSquareOut, Gauge, GearSix, SignOut, Ticket } from '@phosphor-icons/react';
+import { ArrowSquareOut, Gauge, GearSix, SignOut } from '@phosphor-icons/react';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useState } from 'react';
 import {
   Avatar,
   AvatarFallback,
@@ -14,7 +16,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@urnight/ui';
-import { signOutAction } from '@/lib/auth-actions';
+import { LocaleSwitcher } from '@/components/shared/locale-switcher';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
+import { clearCacheAndSignOut } from '@/lib/auth/client-sign-out';
 import { ROLE_PANEL_LABEL, primaryRole, roleHomePath } from '@/lib/utils/rbac';
 
 function initials(name?: string | null): string {
@@ -35,8 +39,20 @@ interface ProfileMenuUser {
 
 /** Avatar + menú de cuenta del panel (ir al panel, ajustes, ver sitio, salir). */
 export function ProfileMenu({ user }: { user: ProfileMenuUser }) {
+  const queryClient = useQueryClient();
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const panelHref = roleHomePath(user.roles);
   const panelLabel = ROLE_PANEL_LABEL[primaryRole(user.roles)];
+
+  async function handleSignOut() {
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+    try {
+      await clearCacheAndSignOut(queryClient);
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   return (
     <DropdownMenu>
@@ -54,6 +70,11 @@ export function ProfileMenu({ user }: { user: ProfileMenuUser }) {
           <span className="truncate text-xs font-normal text-muted-foreground">{user.email}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <div className="space-y-2 px-2 py-1 md:hidden">
+          <ThemeToggle showLabel />
+          <LocaleSwitcher id="panel-profile-language" showLabel />
+        </div>
+        <DropdownMenuSeparator className="md:hidden" />
         <DropdownMenuItem asChild>
           <Link href={panelHref}>
             <Gauge className="h-4 w-4" /> {panelLabel}
@@ -65,23 +86,19 @@ export function ProfileMenu({ user }: { user: ProfileMenuUser }) {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/account/tickets">
-            <Ticket className="h-4 w-4" /> Mis entradas
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
           <Link href="/">
             <ArrowSquareOut className="h-4 w-4" /> Ver sitio
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
+          disabled={isSigningOut}
           onSelect={(event) => {
             event.preventDefault();
-            void signOutAction();
+            void handleSignOut();
           }}
         >
-          <SignOut className="h-4 w-4" /> Cerrar sesión
+          <SignOut className="h-4 w-4" /> {isSigningOut ? 'Cerrando…' : 'Cerrar sesión'}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

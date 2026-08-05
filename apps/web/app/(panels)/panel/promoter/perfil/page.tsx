@@ -2,8 +2,8 @@
 
 import type { PromoterStatusValue } from '@urnight/contracts';
 import { PanelPageHeader } from '@/components/panels/panel-page-header';
+import { PersonalizableReferralLinkCard } from '@/components/promoter/personalizable-referral-link-card';
 import { PromoterGate } from '@/components/promoter/promoter-gate';
-import { ReferralLinkCard } from '@/components/promoter/referral-link-card';
 import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@urnight/ui';
 import { formatDateOnly } from '@/lib/utils';
 
@@ -47,7 +47,14 @@ export default function PromoterProfilePage() {
                 ) : null}
               </CardContent>
             </Card>
-            {promoter.referralLink ? <ReferralLinkCard link={promoter.referralLink} /> : null}
+            {promoter.referralLink ? (
+              <PersonalizableReferralLinkCard
+                promoterId={promoter.id}
+                promoterName={promoter.name}
+                link={promoter.referralLink}
+                allowPersonalization
+              />
+            ) : null}
           </div>
         )}
       </PromoterGate>

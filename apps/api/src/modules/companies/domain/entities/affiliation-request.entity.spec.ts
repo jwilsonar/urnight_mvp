@@ -10,6 +10,8 @@ describe('AffiliationRequest (solicitud de afiliación)', () => {
       legalName: '  Aurora S.A.C.  ',
       ruc: '20512345678',
       commercialName: '  Aurora  ',
+      termsAccepted: true,
+      legalDeclarationAccepted: true,
       submittedBy: 'user-1',
     });
     expect(request.status).toBe('pending');
@@ -19,6 +21,10 @@ describe('AffiliationRequest (solicitud de afiliación)', () => {
     expect(request.companyId).toBeNull();
     expect(request.localId).toBeNull();
     expect(request.rejectionReason).toBeNull();
+    expect(request.termsAccepted).toBe(true);
+    expect(request.termsAcceptedAt).toBeInstanceOf(Date);
+    expect(request.legalDeclarationAccepted).toBe(true);
+    expect(request.legalDeclarationAcceptedAt).toBeInstanceOf(Date);
   });
 
   it('aprobar vincula empresa+local, fija revisor y deja de estar pending', () => {
@@ -52,6 +58,10 @@ describe('AffiliationRequest (solicitud de afiliación)', () => {
       contactName: null,
       contactEmail: null,
       contactPhone: null,
+      termsAccepted: true,
+      termsAcceptedAt: new Date(),
+      legalDeclarationAccepted: true,
+      legalDeclarationAcceptedAt: new Date(),
       status: 'approved',
       rejectionReason: null,
       submittedBy: null,

@@ -8,6 +8,7 @@ export interface AuthUser {
   readonly roles: Role[];
   readonly companyId?: string;
   readonly localId?: string;
+  readonly mfaPending?: boolean;
 }
 
 /** Inyecta el usuario autenticado en un handler: `@CurrentUser() user`. */

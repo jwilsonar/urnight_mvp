@@ -113,7 +113,7 @@ export function CreateSupportTicketForm({ onCreated }: { onCreated?: () => void 
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    rows={4}
+                    rows={3}
                     placeholder="Detalles, pasos para reproducir, contexto…"
                     value={field.value ?? ''}
                     onChange={(event) =>

@@ -1,0 +1,2784 @@
+{
+  "common": {
+    "benefits": "Beneficios",
+    "demo": "Demo",
+    "password": {
+      "show": "Mostrar contraseña",
+      "hide": "Ocultar contraseña"
+    },
+    "error": {
+      "title": "Algo salió mal",
+      "description": "No pudimos cargar esta sección. Inténtalo de nuevo.",
+      "retry": "Reintentar"
+    },
+    "favorites": {
+      "added": "Agregado a favoritos.",
+      "removed": "Quitado de favoritos.",
+      "error": "No pudimos actualizar tus favoritos.",
+      "saved": "En favoritos",
+      "save": "Favoritos"
+    },
+    "reviews": {
+      "empty": {
+        "title": "Aún no hay reseñas",
+        "description": "¡Sé el primero en opinar!"
+      },
+      "count": "({count, plural, one {# reseña} other {# reseñas}})",
+      "verifiedPurchase": "Compra verificada",
+      "ratingAria": "{value} de 5 estrellas"
+    },
+    "reviewForm": {
+      "ratingRequired": "Selecciona una calificación.",
+      "success": "¡Gracias por tu reseña!",
+      "rating": "Calificación",
+      "stars": "{count, plural, one {# estrella} other {# estrellas}}",
+      "comment": "Comentario (opcional)",
+      "placeholder": "¿Qué te pareció?",
+      "sending": "Enviando…",
+      "submit": "Publicar reseña"
+    },
+    "report": {
+      "action": "Reportar",
+      "commentRequired": "Describe el motivo del reporte.",
+      "success": "Reporte enviado. Gracias por avisarnos.",
+      "title": "Reportar {target}",
+      "target": {
+        "local": "local",
+        "event": "evento"
+      },
+      "description": "Cuéntanos qué está mal. Nuestro equipo lo revisará.",
+      "reasonLabel": "Motivo",
+      "reason": {
+        "cancelled": "El evento fue cancelado",
+        "wrong_price": "Precio incorrecto",
+        "wrong_location": "Ubicación incorrecta",
+        "unsafe": "Situación insegura",
+        "other": "Otro"
+      },
+      "commentLabel": "Comentario",
+      "commentOptional": "Comentario (opcional)",
+      "placeholder": "Describe el problema…",
+      "cancel": "Cancelar",
+      "sending": "Enviando…",
+      "submit": "Enviar reporte"
+    },
+    "language": {
+      "label": "Idioma",
+      "spanish": "ES · Español",
+      "english": "EN · English"
+    },
+    "theme": {
+      "change": "Cambiar tema",
+      "activateLight": "Activar modo claro",
+      "activateDark": "Activar modo oscuro"
+    }
+  },
+  "metadata": {
+    "title": "RAVENUE — Vida nocturna en Perú",
+    "description": "Descubre locales y eventos de vida nocturna en Perú. Compra entradas, guarda favoritos y deja reseñas."
+  },
+  "nav": {
+    "home": "Inicio",
+    "events": "Eventos",
+    "venues": "Locales",
+    "categories": "Categorías",
+    "mainAria": "Navegación principal",
+    "mobileAria": "Navegación móvil",
+    "openMenu": "Abrir menú",
+    "signIn": "Ingresar",
+    "createAccount": "Crear cuenta",
+    "userMenu": "Menú de usuario",
+    "profile": "Mi perfil",
+    "myTickets": "Mis entradas",
+    "saved": "Guardados",
+    "invitations": "Invitaciones",
+    "signOut": "Cerrar sesión"
+  },
+  "search": {
+    "placeholder": "Buscar eventos, locales…",
+    "shortPlaceholder": "Buscar…",
+    "label": "Buscar",
+    "aria": "Buscar eventos y locales",
+    "clear": "Limpiar búsqueda",
+    "searching": "Buscando…",
+    "events": "Eventos",
+    "venues": "Locales",
+    "viewAll": "Ver todos los resultados",
+    "noMatches": "Sin coincidencias para “{query}”.",
+    "searchAnyway": "Buscar igual",
+    "page": {
+      "metadata": {
+        "title": "Búsqueda",
+        "description": "Busca eventos y locales de vida nocturna en Perú."
+      },
+      "title": "Búsqueda",
+      "placeholder": "Buscar eventos, locales o DJs…",
+      "initial": {
+        "title": "¿Qué quieres encontrar?",
+        "description": "Escribe el nombre de un evento, local o DJ para empezar."
+      },
+      "error": {
+        "title": "No pudimos completar la búsqueda",
+        "description": "Inténtalo de nuevo en unos minutos."
+      },
+      "empty": {
+        "title": "Sin resultados para “{term}”",
+        "description": "Prueba con otro término o revisa la ortografía.",
+        "action": "Limpiar búsqueda"
+      },
+      "events": "Eventos",
+      "venues": "Locales"
+    }
+  },
+  "home": {
+    "viewAll": "Ver todos",
+    "all": "Todos",
+    "hero": {
+      "eyebrow": "Esta semana en Lima",
+      "titleAria": "Tu próxima noche empieza en RAVENUE",
+      "titleLine1": "Tu próxima noche",
+      "titleLine2": "empieza en",
+      "title": "Las noches que mueven tu semana",
+      "description": "Flyers reales, fechas cercanas y entradas en un solo lugar. Elige el plan y arma la noche con tus amigos.",
+      "eventsCta": "Ver eventos",
+      "venuesCta": "Ver locales",
+      "stats": {
+        "events": "Eventos este mes",
+        "venues": "Locales verificados",
+        "people": "Personas felices"
+      },
+      "carousel": {
+        "label": "Próximos eventos",
+        "instructions": "Usa las flechas izquierda y derecha para cambiar el evento. Cada flyer visible abre el detalle de su evento.",
+        "flyerAlt": "Flyer de {name}",
+        "flyerFallback": "Flyer de {name}",
+        "openEvent": "Abrir {name}",
+        "previous": "Evento anterior",
+        "next": "Evento siguiente",
+        "indicators": "Elegir evento",
+        "goTo": "Ir al evento {position}",
+        "activeAnnouncement": "Evento {current} de {total}: {name}",
+        "position": "{current} de {total}",
+        "emptyTitle": "La próxima fecha se está preparando",
+        "emptyDescription": "Todavía no hay eventos próximos publicados. Revisa el catálogo para descubrir nuevas noches."
+      }
+    },
+    "featured": {
+      "title": "Próximos eventos",
+      "subtitle": "Las fechas más cercanas, ordenadas para que elijas tu siguiente noche."
+    },
+    "marquee": [
+      "Miraflores",
+      "Reggaetón",
+      "Barranco",
+      "Techno",
+      "San Isidro",
+      "House",
+      "Surco",
+      "Electrónica"
+    ],
+    "popular": {
+      "title": "Los más populares",
+      "subtitle": "Locales que están rompiéndola este mes."
+    },
+    "partner": {
+      "badge": "EL POINT",
+      "fallbackDescription": "La mejor música de Lima cada fin de semana. Vive una noche que no vas a olvidar.",
+      "viewVenue": "Ver local"
+    }
+  },
+  "events": {
+    "metadata": {
+      "title": "Eventos",
+      "description": "Próximas fiestas, conciertos y eventos de vida nocturna en Perú."
+    },
+    "title": "Eventos",
+    "description": "Compra tus entradas para las próximas fiestas.",
+    "calendarLink": "Calendario",
+    "all": "Todos",
+    "results": "{count, plural, =0 {0 resultados} one {# resultado} other {# resultados}}",
+    "filters": {
+      "zone": {
+        "title": "Zona / distrito",
+        "aria": "Filtrar eventos por zona o distrito",
+        "all": "Todas las zonas",
+        "fallback": "Zona"
+      },
+      "genre": {
+        "title": "Género",
+        "fallback": "Género"
+      },
+      "tags": {
+        "title": "Etiquetas"
+      },
+      "more": {
+        "title": "Más filtros",
+        "description": "Géneros y etiquetas"
+      },
+      "tagFallback": "Etiqueta",
+      "date": {
+        "title": "Fecha",
+        "any": "Cualquier fecha",
+        "today": "Hoy",
+        "tonight": "Esta noche",
+        "weekend": "Este fin de semana",
+        "custom": "Rango de fechas"
+      },
+      "price": {
+        "title": "Precio",
+        "minimum": "Mínimo (S/)",
+        "maximum": "Máximo (S/)",
+        "apply": "Aplicar",
+        "invalidRange": "El máximo debe ser igual o mayor que el mínimo."
+      }
+    },
+    "active": {
+      "title": "Filtros activos",
+      "clearAll": "Limpiar todo",
+      "remove": "Quitar filtro {filter}"
+    },
+    "partialMatches": {
+      "title": "Coincidencias parciales",
+      "description": "También mostramos eventos que coinciden con parte de tu selección."
+    },
+    "loadError": {
+      "title": "No pudimos cargar los eventos",
+      "description": "Inténtalo de nuevo en unos minutos."
+    },
+    "empty": {
+      "title": "No hay eventos",
+      "description": "Aún no hay eventos publicados. Vuelve pronto.",
+      "action": "Explorar locales",
+      "filteredTitle": "No encontramos eventos",
+      "filteredDescription": "La combinación es muy restrictiva. Prueba quitando {filter}.",
+      "removeFilter": "Quitar {filter}"
+    },
+    "pagination": {
+      "aria": "Paginación",
+      "previous": "Anterior",
+      "page": "Página {page}",
+      "next": "Siguiente"
+    },
+    "card": {
+      "status": {
+        "draft": "Borrador",
+        "scheduled": "Próximamente",
+        "published": "En venta",
+        "cancelled": "Cancelado",
+        "finished": "Finalizado"
+      },
+      "catalog": {
+        "popular": "Popular",
+        "trending": "Tendencia",
+        "fewTickets": "Pocas entradas"
+      },
+      "flyerAlt": "Flyer del evento",
+      "flyerAltNamed": "Flyer de {name}",
+      "soldOut": "Agotado",
+      "venueFallback": "Local por anunciar",
+      "priceLabel": "Desde",
+      "priceUnavailable": "Por anunciar",
+      "dateLabel": "Día"
+    },
+    "detail": {
+      "metadataDescription": "Entradas para {name} en RAVENUE.",
+      "heroPlaceholder": "Hero · {name}",
+      "back": "Volver",
+      "onSale": "En venta",
+      "soldOut": "Agotado",
+      "date": "Fecha",
+      "schedule": "Horario",
+      "venue": "Lugar",
+      "dressCode": "Dress code",
+      "description": "Descripción",
+      "where": "Dónde es",
+      "venuePlaceholder": "Local",
+      "viewVenue": "Ver local",
+      "reviews": "Reseñas",
+      "priceFrom": "Precio desde",
+      "perPerson": "por persona",
+      "tickets": "Entradas",
+      "bookTable": "Reservar mesa",
+      "securePurchase": "Compra segura · Verificado por RAVENUE."
+    },
+    "tickets": {
+      "empty": {
+        "title": "Aún no hay entradas a la venta",
+        "description": "Vuelve pronto para conseguir la tuya."
+      },
+      "soldOut": "Agotado",
+      "available": "{count, plural, one {# disponible} other {# disponibles}}",
+      "buy": "Comprar entradas",
+      "unavailable": "Las entradas no están disponibles por ahora."
+    },
+    "trending": {
+      "metadata": {
+        "title": "Tendencias",
+        "description": "Los eventos más populares de la vida nocturna ahora mismo."
+      },
+      "title": "Tendencias",
+      "description": "Lo más caliente de la noche ahora mismo.",
+      "loadError": {
+        "title": "No pudimos cargar las tendencias",
+        "description": "Inténtalo de nuevo en unos minutos."
+      },
+      "empty": {
+        "title": "Aún no hay tendencias",
+        "description": "Cuando los eventos empiecen a venderse aparecerán aquí."
+      }
+    },
+    "calendar": {
+      "metadataTitle": "Calendario de eventos",
+      "title": "Calendario",
+      "description": "Próximos eventos agrupados por fecha.",
+      "viewList": "Ver lista",
+      "empty": {
+        "title": "No hay eventos próximos",
+        "description": "Vuelve pronto para ver el calendario."
+      }
+    }
+  },
+  "locals": {
+    "metadata": {
+      "title": "Locales",
+      "description": "Descubre discotecas y bares de vida nocturna en Perú."
+    },
+    "title": "Locales",
+    "description": "Encuentra los mejores lugares de la noche.",
+    "filterAria": "Filtrar por zona",
+    "allZones": "Todas las zonas",
+    "zoneFallback": "Zona",
+    "results": "{count, plural, =0 {0 locales} one {# local} other {# locales}}",
+    "active": {
+      "title": "Filtros activos",
+      "clearAll": "Limpiar todo",
+      "remove": "Quitar filtro {filter}"
+    },
+    "loadError": {
+      "title": "No pudimos cargar los locales",
+      "description": "Inténtalo de nuevo en unos minutos."
+    },
+    "empty": {
+      "title": "No hay locales",
+      "description": "No encontramos locales para esta zona. Prueba con otra.",
+      "action": "Ver todos los locales",
+      "filteredTitle": "No encontramos locales",
+      "filteredDescription": "La combinación es muy restrictiva. Prueba quitando {filter}.",
+      "removeFilter": "Quitar {filter}"
+    },
+    "affiliate": {
+      "title": "¿Tienes un local?",
+      "description": "Únete a RAVENUE, publica tus eventos, gestiona tu aforo y llega a miles de personas que buscan dónde ir esta noche.",
+      "action": "Afiliar mi local"
+    },
+    "card": {
+      "facade": "Fachada del local",
+      "facadeNamed": "Fachada de {name}",
+      "verified": "Local verificado",
+      "notVerified": "Local no verificado"
+    },
+    "crowd": {
+      "title": "Ambiente ahora",
+      "demo": "Demo",
+      "level": {
+        "bajo": "Ambiente tranquilo",
+        "medio": "Buen ambiente",
+        "lleno": "Casi lleno"
+      },
+      "wait": "Espera aprox. {minutes} min",
+      "noLine": "Sin cola",
+      "updated": "Actualizado hace {minutes} min"
+    },
+    "detail": {
+      "metadataDescription": "Descubre {name} en RAVENUE.",
+      "verifiedByRavenue": "Verificado por RAVENUE",
+      "lastReviewed": "Última revisión: {date}",
+      "reviewDateUnavailable": "La fecha de la última revisión no está disponible.",
+      "venueType": "Discoteca · Bar",
+      "upcomingEvents": "{count, plural, =0 {Próximos eventos} other {Próximos eventos (#)}}",
+      "emptyEvents": {
+        "title": "Sin eventos próximos",
+        "description": "Este local aún no publica sus siguientes fechas."
+      },
+      "reviews": "{count, plural, =0 {Reseñas} other {Reseñas (#)}}",
+      "directionsFor": "Para ir a {name}",
+      "mapPlaceholder": "Mapa · Ubicación",
+      "directions": "Cómo llegar",
+      "bookTable": "Reservar mesa",
+      "viewMenu": "Ver carta del local",
+      "mapUnavailable": "Mapa no disponible"
+    },
+    "gallery": {
+      "photoAlt": "{name}, foto {number}",
+      "viewGallery": "Ver galería ({count})",
+      "title": "Galería de {name}",
+      "photoCount": "{count, plural, one {# foto} other {# fotos}}",
+      "viewPhoto": "Ver foto",
+      "overview": "Vista general",
+      "previous": "Foto anterior",
+      "next": "Foto siguiente",
+      "goTo": "Ir a la foto {number}"
+    }
+  },
+  "categories": {
+    "metadata": {
+      "title": "Categorías",
+      "description": "Explora la vida nocturna por zona, género musical y etiqueta."
+    },
+    "title": "Categorías",
+    "description": "Explora por zona, género musical y etiqueta.",
+    "empty": {
+      "title": "Sin categorías",
+      "description": "Aún no hay zonas, géneros ni etiquetas configuradas."
+    },
+    "zones": "Zonas",
+    "genres": "Géneros musicales",
+    "tags": "Etiquetas"
+  },
+  "notificaciones": {
+    "title": "Notificaciones",
+    "loading": "Cargando…",
+    "loadError": "No pudimos cargar tus notificaciones.",
+    "retry": "Reintentar",
+    "empty": "Sin notificaciones",
+    "status": {
+      "queued": "En cola",
+      "sent": "Enviada",
+      "failed": "Fallida"
+    },
+    "viewAll": "Ver todas y personalizar",
+    "customize": {
+      "title": "Personaliza tus notificaciones",
+      "description": "Elige cómo y sobre qué eventos quieres recibir avisos."
+    },
+    "recent": "Actividad reciente",
+    "errorDescription": "Inténtalo de nuevo en unos minutos.",
+    "emptyDescription": "Cuando tengas novedades sobre tus entradas o eventos aparecerán aquí.",
+    "channel": {
+      "email": "Correo",
+      "push": "Push"
+    }
+  },
+  "faq": {
+    "page": {
+      "metadata": {
+        "title": "Preguntas frecuentes",
+        "description": "Resolvemos las dudas más comunes sobre cómo usar RAVENUE."
+      },
+      "eyebrow": "Ayuda",
+      "title": "Preguntas frecuentes",
+      "description": "Resolvemos las dudas más comunes sobre cómo usar RAVENUE.",
+      "contact": {
+        "title": "¿Aún necesitas ayuda?",
+        "description": "Nuestro equipo responde en menos de 24 horas, todos los días.",
+        "action": "Escríbenos"
+      }
+    },
+    "browser": {
+      "searchLabel": "Buscar una pregunta",
+      "searchPlaceholder": "Busca una pregunta…",
+      "categoriesAria": "Categorías de preguntas",
+      "categories": {
+        "all": "Todas",
+        "purchases": "Compras",
+        "reservations": "Reservas",
+        "account": "Cuenta"
+      },
+      "empty": {
+        "title": "No encontramos esa pregunta",
+        "description": "Prueba con otra palabra o revisa una categoría diferente."
+      },
+      "items": [
+        {
+          "category": "purchases",
+          "question": "¿Cómo compro una entrada?",
+          "answer": "Elige el evento, selecciona el tipo de entrada y la cantidad, ingresa tus datos y paga de forma segura. Recibirás tu QR en “Mis entradas”."
+        },
+        {
+          "category": "reservations",
+          "question": "¿Puedo reservar una mesa?",
+          "answer": "Sí. En el detalle del local o evento elige “Reservar mesa”, selecciona la zona, paga el depósito y recibe tu confirmación con QR."
+        },
+        {
+          "category": "purchases",
+          "question": "¿Cómo funciona el ingreso con QR?",
+          "answer": "Muestra el código QR de tu entrada o reserva en la puerta del local. Es único e intransferible."
+        },
+        {
+          "category": "purchases",
+          "question": "¿Puedo cancelar una compra?",
+          "answer": "Las cancelaciones dependen de la política de cada evento. Encuentra la opción en el detalle de tu entrada o reserva."
+        },
+        {
+          "category": "account",
+          "question": "¿Por qué piden mi documento?",
+          "answer": "RAVENUE es solo para mayores de 18 años. Validamos tu documento automáticamente por la seguridad de la comunidad."
+        },
+        {
+          "category": "account",
+          "question": "¿Cómo afilio mi local?",
+          "answer": "Ingresa a “Afiliar mi local”, completa los datos de tu negocio y nuestro equipo revisará tu solicitud."
+        }
+      ]
+    }
+  },
+  "footer": {
+    "homeAria": "RAVENUE, inicio",
+    "tagline": "Donde la noche encuentra su lugar.",
+    "about": {
+      "title": "Conócenos",
+      "us": "Sobre nosotros",
+      "faq": "Preguntas frecuentes",
+      "categories": "Categorías",
+      "affiliate": "Afiliar mi local"
+    },
+    "legal": {
+      "title": "Legales",
+      "terms": "Términos y condiciones",
+      "privacy": "Políticas de privacidad",
+      "cookies": "Políticas de cookies",
+      "beneficiary": "Declaración del Beneficiario Final",
+      "additionalUses": "Cláusulas de usos adicionales"
+    },
+    "follow": "Síguenos",
+    "comingSoonTitle": "{network}: próximamente",
+    "comingSoonAria": "{network} (próximamente)",
+    "help": "Ayuda",
+    "contact": "Contáctanos",
+    "clearCookies": "Limpiar cookies",
+    "cookiesCleared": "Cookies limpias",
+    "complaintsBook": "Libro de Reclamaciones",
+    "intermediationNotice": "RAVENUE es una plataforma de intermediación que publica y comercializa entradas y reservas por cuenta de los locales y organizadores. El organizador o local es el único responsable de la realización, calidad, contenido, aforo, seguridad y cumplimiento legal del evento, así como del ingreso y sus condiciones de acceso. RAVENUE no organiza los eventos ni responde por cambios de fecha, cancelaciones o incumplimientos del organizador; canaliza los reclamos conforme a los <terms>Términos y Condiciones</terms> y mediante el <complaints>Libro de Reclamaciones</complaints>.",
+    "copyright": "Copyright © RAVENUE {year} · Todos los derechos reservados. Solo para mayores de 18 años."
+  },
+  "auth": {
+    "boundaryTitle": "Error de autenticación",
+    "redirecting": "Redirigiendo…",
+    "google": {
+      "continue": "Continuar con Google"
+    },
+    "errors": {
+      "invalidCredentials": "Correo o contraseña incorrectos.",
+      "underage": "Debes ser mayor de 18 años para registrarte.",
+      "emailAlreadyRegistered": "Ese correo ya está registrado.",
+      "documentAlreadyRegistered": "Ese documento ya está registrado.",
+      "accountDisabled": "Esta cuenta está deshabilitada.",
+      "invalidToken": "El enlace expiró o no es válido.",
+      "unauthorized": "No autorizado. Inicia sesión nuevamente.",
+      "forbidden": "No tienes permisos para realizar esta acción.",
+      "notFound": "No encontramos lo que buscas.",
+      "conflict": "La operación entra en conflicto con el estado actual.",
+      "invalidData": "Revisa los datos ingresados.",
+      "tooManyRequests": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
+      "server": "Error del servidor. Inténtalo más tarde.",
+      "unavailable": "El servicio no está disponible temporalmente. Inténtalo en unos minutos.",
+      "timeout": "La solicitud tardó demasiado. Revisa tu conexión e inténtalo de nuevo.",
+      "network": "No pudimos conectar con el servicio. Revisa tu conexión e inténtalo de nuevo.",
+      "sessionFailed": "No pudimos iniciar tu sesión. Inténtalo de nuevo.",
+      "mfaChallengePending": "Completa la verificación en dos pasos para continuar.",
+      "invalidMfaCode": "El código no es válido. Verifícalo e inténtalo de nuevo.",
+      "mfaChallengeExpired": "El desafío venció. Inicia sesión nuevamente para obtener otro.",
+      "mfaLocked": "Alcanzaste el límite de intentos. Inicia sesión nuevamente más tarde.",
+      "unexpected": "Ocurrió un error inesperado."
+    }
+  },
+  "login": {
+    "metadata": {
+      "title": "Ingresar",
+      "description": "Ingresa a tu cuenta de RAVENUE."
+    },
+    "hero": {
+      "label": "Acceso · Vida nocturna",
+      "title": "Tu noche te está esperando.",
+      "description": "Entra y sigue donde lo dejaste: guardados, entradas y mucho más.",
+      "events": "320+ eventos",
+      "venues": "85 locales",
+      "booking": "Mesa + entrada"
+    },
+    "back": "Volver",
+    "noAccount": "¿No tienes cuenta?",
+    "register": "Regístrate aquí",
+    "title": "¡RAVENUE te da la bienvenida!",
+    "subtitle": "Ingresa a tu cuenta",
+    "sessionExpired": "Tu sesión expiró. Inicia sesión nuevamente.",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "continueWith": "o continuar con",
+    "form": {
+      "email": "Correo",
+      "emailPlaceholder": "tu@correo.com",
+      "password": "Contraseña",
+      "submitting": "Ingresando…",
+      "submit": "Ingresar",
+      "errors": {
+        "loginFailed": "No pudimos iniciar sesión.",
+        "invalidField": "Dato inválido"
+      }
+    }
+  },
+  "register": {
+    "metadata": {
+      "title": "Crear cuenta",
+      "description": "Crea tu cuenta en RAVENUE. Solo para mayores de 18 años."
+    },
+    "hero": {
+      "label": "Registro · Vida nocturna",
+      "title": "Únete a la noche limeña.",
+      "description": "Crea tu cuenta gratis, guarda tus locales favoritos y compra entradas en segundos.",
+      "tickets": "Entradas al toque",
+      "favorites": "Guarda favoritos"
+    },
+    "back": "Volver",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "logIn": "Ingresar",
+    "title": "Crea tu cuenta",
+    "subtitle": "Descubre la mejor vida nocturna del Perú.",
+    "continueWith": "o continuar con",
+    "form": {
+      "firstName": "Nombres",
+      "firstNamePlaceholder": "ej. Piero",
+      "lastName": "Apellidos",
+      "lastNamePlaceholder": "ej. Rivera",
+      "email": "Correo",
+      "emailPlaceholder": "tu@correo.com",
+      "password": "Contraseña",
+      "passwordHelper": "Usa al menos 8 caracteres combinando letras mayúsculas, minúsculas, números y símbolos.",
+      "birthDate": "Fecha de nacimiento",
+      "birthDateHint": "Debes ser mayor de 18 años.",
+      "phone": "Celular",
+      "phoneHint": "9 dígitos, empieza con 9.",
+      "documentType": "Documento",
+      "documentTypePlaceholder": "Tipo",
+      "documentTypes": {
+        "dni": "DNI",
+        "ce": "Carné de extranjería",
+        "passport": "Pasaporte"
+      },
+      "documentNumber": "Número",
+      "documentNumberPlaceholder": "Documento",
+      "marketing": "Quiero recibir novedades y promociones por correo.",
+      "submitting": "Creando cuenta…",
+      "submit": "Crear cuenta",
+      "errors": {
+        "passwordLength": "La contraseña debe tener al menos 8 caracteres.",
+        "passwordLong": "La contraseña no puede superar los 72 caracteres.",
+        "passwordUppercase": "La contraseña debe incluir al menos una letra mayúscula.",
+        "passwordLowercase": "La contraseña debe incluir al menos una letra minúscula.",
+        "passwordNumber": "La contraseña debe incluir al menos un número.",
+        "passwordSymbol": "La contraseña debe incluir al menos un símbolo.",
+        "phoneRequired": "Ingresa tu número de celular.",
+        "phone": "El teléfono debe tener 9 dígitos y empezar con 9.",
+        "dni": "El DNI debe tener 8 dígitos.",
+        "document": "El documento debe tener entre 8 y 20 caracteres.",
+        "fullNameRequired": "Nombres y apellidos son obligatorios.",
+        "fullName": "Ingresa tus nombres y apellidos.",
+        "createFailed": "No pudimos crear tu cuenta.",
+        "invalidField": "Dato inválido"
+      }
+    }
+  },
+  "recover": {
+    "hero": {
+      "label": "Recuperar · Noche",
+      "title": "Recupera tu acceso en 2 minutos.",
+      "description": "Ingresa el correo con el que te registraste y te enviaremos las instrucciones."
+    },
+    "title": "¿Contraseña olvidada?",
+    "description": "Te enviaremos instrucciones para reiniciarla a tu correo.",
+    "email": "Correo electrónico",
+    "emailPlaceholder": "tu@correo.com",
+    "submit": "Enviar enlace",
+    "backToLogin": "Volver al inicio de sesión",
+    "sent": {
+      "title": "Revisa tu correo",
+      "beforeEmail": "Si",
+      "afterEmail": "está registrado, recibirás las instrucciones para reiniciar tu contraseña."
+    },
+    "demo": "Demo — el envío real llega con el backend de recuperación"
+  },
+  "twoFactor": {
+    "metadataTitle": "Verificación en dos pasos",
+    "title": "Verificación en 2 pasos",
+    "description": "Ingresa el código de 6 dígitos de tu aplicación de autenticación.",
+    "recoveryDescription": "Ingresa uno de tus códigos de recuperación. Cada código funciona una sola vez.",
+    "digitAria": "Dígito {number}",
+    "expiresIn": "Este desafío vence en {time}",
+    "expired": "Este desafío ya venció",
+    "recoveryLabel": "Código de recuperación",
+    "recoveryPlaceholder": "Ingresa tu código de recuperación",
+    "verifying": "Verificando…",
+    "verify": "Verificar y continuar",
+    "startAgain": "Iniciar sesión de nuevo",
+    "useRecovery": "Usar un código de recuperación",
+    "useAuthenticator": "Usar la aplicación de autenticación",
+    "errors": {
+      "generic": "No pudimos verificar el código. Inténtalo de nuevo."
+    },
+    "backToLogin": "Volver al inicio de sesión"
+  },
+  "verifyEmail": {
+    "title": "Verifica tu correo",
+    "descriptionLineOne": "Te enviamos un enlace a tu correo.",
+    "descriptionLineTwo": "Confírmalo para activar tu cuenta.",
+    "notReceived": "¿No te llegó el correo?",
+    "resent": "Enlace reenviado",
+    "resend": "Reenviar enlace",
+    "demo": "Demo — la verificación real llega con el backend de emails",
+    "goToLogin": "Ir al inicio de sesión"
+  },
+  "onboarding": {
+    "metadataTitle": "Bienvenido",
+    "welcomeName": "¡Bienvenido, {name}!",
+    "welcome": "¡Bienvenido a RAVENUE!",
+    "description": "Configura tus preferencias para terminar. Podrás cambiarlas luego desde tu cuenta.",
+    "reminders": {
+      "label": "Recordatorios de eventos",
+      "description": "Te avisamos antes de los eventos para los que tengas entradas."
+    },
+    "marketing": {
+      "label": "Novedades y promociones",
+      "description": "Recibe ofertas y recomendaciones de vida nocturna."
+    },
+    "submitting": "Configurando…",
+    "submit": "Empezar a explorar",
+    "success": "¡Listo! Tu cuenta está configurada.",
+    "sessionExpired": "Tu sesión expiró. Te llevamos a ingresar de nuevo."
+  },
+  "panelMfaEnrollment": {
+    "title": "Tu panel está temporalmente restringido",
+    "description": "Por seguridad, debes activar la verificación en dos pasos antes de operar en el panel.",
+    "action": "Configurar ahora"
+  },
+  "account": {
+    "title": "Mi cuenta",
+    "nav": {
+      "aria": "Navegación de cuenta",
+      "profile": "Perfil",
+      "tickets": "Mis entradas",
+      "saved": "Guardados",
+      "reservations": "Reservas",
+      "wallet": "Wallet",
+      "levels": "Niveles",
+      "points": "Puntos",
+      "referrals": "Referidos",
+      "notifications": "Notificaciones",
+      "invitations": "Invitaciones",
+      "friends": "Amigos",
+      "security": "Seguridad",
+      "appearance": "Apariencia"
+    },
+    "appearance": {
+      "metadataTitle": "Apariencia",
+      "title": "Apariencia",
+      "description": "Elige cómo quieres ver RAVENUE en este dispositivo.",
+      "system": "Sistema",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "systemHint": "Usa la configuración de tu dispositivo.",
+      "lightHint": "Fondos claros y texto oscuro.",
+      "darkHint": "La experiencia RAVENUE por defecto."
+    },
+    "security": {
+      "metadataTitle": "Seguridad de la cuenta",
+      "title": "Seguridad de la cuenta",
+      "description": "Protege tu cuenta con una aplicación de autenticación y códigos de recuperación.",
+      "loading": "Cargando el estado de verificación en dos pasos",
+      "refreshFailed": "El cambio se guardó, pero no pudimos renovar tu sesión. Guarda cualquier código visible y vuelve a iniciar sesión.",
+      "pending": {
+        "title": "Debes activar la verificación en dos pasos",
+        "description": "Tu acceso al panel está restringido hasta que completes el enrolamiento. Puedes seguir usando esta pantalla para configurarlo."
+      },
+      "loadError": {
+        "title": "No pudimos consultar tu seguridad",
+        "description": "Revisa tu conexión e inténtalo de nuevo.",
+        "retry": "Reintentar"
+      },
+      "errors": {
+        "invalidCode": "El código no es válido. Revisa tu aplicación e inténtalo de nuevo.",
+        "invalidPassword": "La contraseña es incorrecta.",
+        "alreadyEnrolled": "La verificación en dos pasos ya está activa.",
+        "notEnrolled": "No hay un enrolamiento pendiente para confirmar.",
+        "generic": "No pudimos completar la operación. Inténtalo de nuevo."
+      },
+      "enrollment": {
+        "title": "Activa la verificación en dos pasos",
+        "description": "Usa una aplicación compatible con TOTP para proteger el inicio de sesión.",
+        "start": "Comenzar configuración",
+        "starting": "Preparando…",
+        "scanTitle": "Escanea el código QR",
+        "scanDescription": "Abre tu aplicación de autenticación y agrega una cuenta escaneando este QR.",
+        "qrAlt": "Código QR para configurar la verificación en dos pasos de RAVENUE",
+        "manualHint": "Si no puedes escanearlo, ingresa este secreto manualmente en tu aplicación:",
+        "copySecret": "Copiar secreto",
+        "secretCopied": "Secreto copiado",
+        "confirmTitle": "Confirma la configuración",
+        "confirmDescription": "Ingresa el primer código de 6 dígitos que genera tu aplicación.",
+        "digitAria": "Dígito {number} del código de confirmación",
+        "confirm": "Confirmar y activar",
+        "confirming": "Confirmando…",
+        "errors": {
+          "invalidCode": "El código no es válido. Revísalo e inténtalo de nuevo.",
+          "invalidPassword": "La contraseña no es correcta.",
+          "alreadyEnrolled": "Ya tienes la verificación en dos pasos activa.",
+          "notEnrolled": "Todavía no has activado la verificación en dos pasos.",
+          "generic": "No pudimos completar la operación. Inténtalo de nuevo."
+        }
+      },
+      "enabled": {
+        "title": "Verificación en dos pasos activa",
+        "description": "Tu cuenta solicita un código adicional al iniciar sesión.",
+        "active": "Activa",
+        "confirmedAt": "Activada el",
+        "codesLeft": "Códigos disponibles",
+        "codesCount": "{count, plural, one {# código} other {# códigos}}",
+        "regenerate": "Regenerar códigos",
+        "revoke": "Desactivar MFA",
+        "regenerateTitle": "Regenerar códigos de recuperación",
+        "regenerateDescription": "Los códigos anteriores dejarán de funcionar. Confirma tu contraseña para continuar.",
+        "revokeTitle": "Desactivar la verificación en dos pasos",
+        "revokeDescription": "Tu cuenta quedará menos protegida. Los roles administrativos deberán enrolarse nuevamente para acceder al panel.",
+        "password": "Contraseña actual",
+        "cancel": "Cancelar",
+        "processing": "Procesando…",
+        "confirmRegenerate": "Regenerar códigos",
+        "confirmRevoke": "Desactivar",
+        "errors": {
+          "invalidCode": "El código no es válido. Revísalo e inténtalo de nuevo.",
+          "invalidPassword": "La contraseña no es correcta.",
+          "alreadyEnrolled": "Ya tienes la verificación en dos pasos activa.",
+          "notEnrolled": "Todavía no has activado la verificación en dos pasos.",
+          "generic": "No pudimos completar la operación. Inténtalo de nuevo."
+        }
+      },
+      "recoveryCodes": {
+        "title": "Guarda tus códigos de recuperación",
+        "description": "Te permiten entrar si pierdes acceso a tu aplicación de autenticación.",
+        "oneTimeTitle": "Se muestran una sola vez",
+        "oneTimeDescription": "Guárdalos ahora en un lugar seguro. RAVENUE no volverá a mostrar estos mismos códigos.",
+        "refreshFailed": "MFA quedó activo, pero la sesión no pudo renovarse. Guarda estos códigos y vuelve a iniciar sesión.",
+        "listAria": "Códigos de recuperación",
+        "copy": "Copiar todos",
+        "copied": "Códigos copiados",
+        "download": "Descargar .txt",
+        "downloadHeading": "Códigos de recuperación de RAVENUE",
+        "done": "Ya los guardé"
+      }
+    },
+    "profile": {
+      "metadataTitle": "Perfil y ajustes",
+      "title": "Perfil",
+      "description": "Revisa y edita tus datos de contacto.",
+      "name": "Nombre",
+      "rolesLabel": "Roles",
+      "roles": {
+        "user": "Usuario",
+        "admin_local": "Admin local",
+        "promoter": "Promotor",
+        "validator": "Validador",
+        "super_admin": "Super admin"
+      },
+      "favorites": {
+        "title": "Favoritos",
+        "description": "Locales y eventos que guardaste."
+      },
+      "redemptions": {
+        "title": "Canjes de promociones",
+        "description": "Códigos promocionales que usaste."
+      },
+      "preferencesTitle": "Preferencias",
+      "preferencesDescription": "Idioma, notificaciones y avisos de tu cuenta.",
+      "form": {
+        "imageTypeError": "Elige una imagen JPG, PNG o WebP.",
+        "imageSizeError": "La foto no debe superar 5 MB.",
+        "emailError": "Ingresa un correo válido.",
+        "phoneError": "Ingresa un teléfono válido.",
+        "success": "Datos de perfil guardados en modo demo.",
+        "previewAlt": "Vista previa de la foto de perfil",
+        "currentAlt": "Foto de perfil actual",
+        "photo": "Foto de perfil",
+        "photoHint": "JPG, PNG o WebP · máximo 5 MB.",
+        "choosePhoto": "Elegir foto",
+        "email": "Correo",
+        "phone": "Teléfono",
+        "save": "Guardar datos"
+      }
+    },
+    "tickets": {
+      "metadataTitle": "Mis entradas",
+      "error": {
+        "title": "No pudimos cargar tus entradas",
+        "description": "Inténtalo de nuevo en unos minutos."
+      },
+      "empty": {
+        "title": "No tienes entradas",
+        "description": "Cuando compres entradas aparecerán aquí con su código QR.",
+        "action": "Explorar eventos"
+      },
+      "upcoming": "Próximas",
+      "past": "Pasadas",
+      "review": {
+        "action": "Dejar reseña",
+        "title": "Reseñar evento",
+        "description": "Comparte tu experiencia con otros usuarios."
+      }
+    },
+    "saved": {
+      "title": "Guardados",
+      "description": "Eventos y locales que marcaste como favoritos.",
+      "events": "Eventos",
+      "venues": "Locales"
+    },
+    "favoritesList": {
+      "loading": "Cargando favoritos…",
+      "error": {
+        "title": "No pudimos cargar tus favoritos",
+        "description": "Inténtalo de nuevo en unos minutos."
+      },
+      "empty": {
+        "venuesTitle": "Aún no guardas locales",
+        "title": "Aún no tienes favoritos",
+        "description": "Guarda eventos y locales con el corazón para tenerlos a mano y no perderte nada.",
+        "venuesAction": "Descubrir locales",
+        "eventsAction": "Descubrir eventos"
+      },
+      "savedOn": "Guardado el {date}",
+      "venue": "Local",
+      "event": "Evento"
+    },
+    "invitations": {
+      "title": "Invitaciones de promotor",
+      "description": "Solicitudes de empresas para que seas su promotor. Acéptalas para activar tu enlace de referido y tu panel de promotor.",
+      "accepted": "¡Asociación confirmada! Ya eres promotor de esta empresa.",
+      "rejected": "Invitación rechazada.",
+      "cardDescription": "Una empresa te invitó a ser su promotor. Confirma para activar tu enlace de referido.",
+      "reject": "Rechazar",
+      "confirming": "Confirmando…",
+      "accept": "Aceptar",
+      "loadError": "No pudimos cargar tus invitaciones.",
+      "empty": {
+        "title": "Sin invitaciones pendientes",
+        "description": "Cuando una empresa te invite a ser su promotor, verás aquí la solicitud para aceptarla o rechazarla."
+      }
+    },
+    "redemptionsList": {
+      "loading": "Cargando canjes…",
+      "empty": {
+        "title": "Aún no tienes canjes",
+        "description": "Los códigos que canjees aparecerán aquí.",
+        "action": "Explorar eventos"
+      },
+      "discount": "Descuento {amount}"
+    },
+    "sessionRecovery": {
+      "title": "Necesitamos renovar tu sesión",
+      "description": "Vuelve a iniciar sesión para cargar tus entradas sin perder esta ruta.",
+      "action": "Volver a iniciar sesión"
+    },
+    "friends": {
+      "title": "Amigos",
+      "pageDescription": "Encuentra a tu grupo y recuerda las noches que compartieron.",
+      "demo": "Demo: llega con el backend social",
+      "kpis": {
+        "total": "Total amigos",
+        "requests": "Solicitudes pendientes",
+        "events": "Eventos compartidos"
+      },
+      "requests": "Solicitudes",
+      "mutualFriends": "{count, plural, one {# amigo en común} other {# amigos en común}}",
+      "accept": "Aceptar",
+      "ignore": "Ignorar",
+      "yourFriends": "Tus amigos",
+      "description": "Personas con las que compartiste una noche RAVENUE.",
+      "searchLabel": "Buscar por nombre",
+      "searchPlaceholder": "Ej. Valentina",
+      "levels": {
+        "Bronce": "Bronce",
+        "Plata": "Plata",
+        "Oro": "Oro",
+        "Diamante": "Diamante"
+      },
+      "lastNight": "Última noche: {value}",
+      "nights": {
+        "mateo-rojas": "Nocturna Club · 08 Jul",
+        "valentina-diaz": "Sky Lounge 360 · 05 Jul",
+        "lucia-paredes": "Barranco Beats · 28 Jun",
+        "carlos-nunez": "Nocturna Club · 21 Jun",
+        "daniela-rios": "Karaoke Estelar · 15 Jun",
+        "joaquin-bravo": "Sky Lounge 360 · 08 Jun"
+      },
+      "eventsTogether": "{count, plural, one {# evento juntos} other {# eventos juntos}}",
+      "emptySearch": "No encontramos amigos con ese nombre."
+    },
+    "wallet": {
+      "title": "Wallet RAVENUE",
+      "description": "Tu saldo, reembolsos y movimientos en un solo lugar.",
+      "demo": "Demo: llega con el backend de wallet",
+      "availableBalance": "Saldo disponible",
+      "equivalence": "≈ 1 botella premium · ≈ 2 entradas general",
+      "topUp": "Recargar saldo",
+      "withdraw": "Retirar a banco",
+      "recent": "Movimientos recientes",
+      "transactions": [
+        {
+          "date": "18 May 23:42",
+          "concept": "Reembolso · Reggaetón Night cancelado"
+        },
+        { "date": "12 May 19:08", "concept": "Compra · Deep House Session" },
+        { "date": "10 May 14:11", "concept": "Recarga · Yape ····8431" },
+        { "date": "08 May 21:30", "concept": "Reserva mesa · Nocturna Club" },
+        {
+          "date": "03 May 11:55",
+          "concept": "Puntos canjeados (200 pts → S/ 20)"
+        },
+        { "date": "25 Abr 18:42", "concept": "Compra · Latin Pop Rooftop" }
+      ]
+    },
+    "reservations": {
+      "title": "Mis reservas",
+      "description": "Tus mesas reservadas: códigos, estados y detalles.",
+      "demo": "Demo: llega con el backend de reservas",
+      "status": {
+        "confirmada": "Confirmada",
+        "pendiente": "Pendiente de pago",
+        "completada": "Completada"
+      },
+      "items": {
+        "r1": { "date": "Sáb 19 Abr · 11:00 PM", "table": "Box VIP 01" },
+        "r2": { "date": "Sáb 26 Abr · 11:30 PM", "table": "Mesa 07 · Pista" },
+        "r3": { "date": "Vie 21 Mar · 10:30 PM", "table": "Lounge Premium" }
+      },
+      "people": "{count, plural, one {# persona} other {# personas}}",
+      "code": "Código",
+      "qrAlt": "Código QR de la reserva {code}",
+      "deposit": "Depósito {amount}",
+      "bookAnother": "Reservar otra mesa"
+    },
+    "referrals": {
+      "title": "Programa de referidos",
+      "description": "Trae a tus amigos. Gana puntos. Vive una noche VIP gratis.",
+      "demo": "Demo: llega con el backend de referidos",
+      "inviteCode": "Tu código de invitación",
+      "copied": "Copiado",
+      "copyLink": "Copiar link",
+      "invitedFriends": "Amigos invitados",
+      "goal": "{count} para premio",
+      "remaining": "Te faltan <strong>{count, plural, one {# amigo} other {# amigos}}</strong> para tu <reward>noche VIP gratis</reward>.",
+      "pointsEarned": "Puntos RAVENUE ganados",
+      "pointsShort": "pts",
+      "pointsDescription": "Cada amigo que se registre y compre su primera entrada te da <points>+30 pts</points>.",
+      "yourReferrals": "Tus referidos",
+      "items": [
+        { "status": "+30 pts · Compró su primera entrada", "date": "22 Abr" },
+        { "status": "+30 pts · Compró su primera entrada", "date": "15 Abr" },
+        { "status": "+30 pts · Compró su primera entrada", "date": "02 Abr" },
+        { "status": "Aún no compra entrada", "date": "28 Mar" }
+      ]
+    },
+    "preferences": {
+      "success": "Preferencias de notificaciones actualizadas.",
+      "channel": {
+        "label": "Canal principal",
+        "email": "Correo",
+        "push": "Mensaje / push"
+      },
+      "scope": {
+        "label": "Alcance",
+        "all": "Cada evento",
+        "favorites": "Solo favoritos"
+      },
+      "types": {
+        "label": "Tipos de aviso",
+        "reminders": {
+          "label": "Recordatorios de eventos",
+          "description": "Avisos antes de los eventos para los que tienes entradas."
+        },
+        "eventUpdates": {
+          "label": "Cambios y novedades",
+          "description": "Horarios, ubicaciones y nuevos eventos según tu alcance."
+        },
+        "promotions": {
+          "label": "Promociones y beneficios",
+          "description": "Ofertas, puntos y oportunidades de canje."
+        },
+        "social": {
+          "label": "Invitaciones y amigos",
+          "description": "Actividad de grupos, pases e invitaciones."
+        }
+      },
+      "saving": "Guardando…",
+      "save": "Guardar preferencias"
+    }
+  },
+  "puntos": {
+    "title": "Puntos",
+    "description": "Revisa tu saldo, elige beneficios y consulta cómo lo acumulaste.",
+    "demo": "Demo: llega con el backend de fidelización",
+    "balance": "Saldo disponible",
+    "pointsShort": "pts",
+    "equivalent": "Equivalen a {amount}",
+    "validity": "Vigencia: 12 meses desde su emisión.",
+    "redeem": {
+      "title": "Canjear",
+      "description": "El canje es demostrativo y todavía no descuenta puntos."
+    },
+    "history": {
+      "title": "Historial",
+      "date": "Fecha",
+      "concept": "Concepto",
+      "points": "Puntos",
+      "items": [
+        {
+          "date": "12 Jul",
+          "concept": "Compra de entrada · Neon Nights vol.5"
+        },
+        { "date": "10 Jul", "concept": "Pedido de carta · Nocturna Club" },
+        { "date": "08 Jul", "concept": "Referido: Daniela Vega" },
+        { "date": "06 Jul", "concept": "Check-in validado · Sunset Rooftop" },
+        { "date": "03 Jul", "concept": "Canje: S/ 20 a wallet" },
+        {
+          "date": "28 Jun",
+          "concept": "Compra grupal de entradas · Barranco Beats"
+        },
+        {
+          "date": "21 Jun",
+          "concept": "Compra grupal de entradas · Noche Latina"
+        },
+        {
+          "date": "14 Jun",
+          "concept": "Pedido grupal de carta · Sky Lounge 360"
+        }
+      ]
+    },
+    "redemptionGrid": {
+      "pointsShort": "pts",
+      "successTitle": "¡Canje exitoso, disfruta!",
+      "missing": "Te faltan {count} pts",
+      "redeem": "Canjear",
+      "successDescription": "{item} ya está disponible en tu cuenta.",
+      "done": "Listo",
+      "confirmTitle": "Confirmar canje",
+      "confirmDescription": "¿Seguro que quieres canjear {item} por {points} puntos?",
+      "cancel": "Cancelar",
+      "confirm": "Sí, canjear",
+      "options": {
+        "wallet-20": {
+          "name": "S/ 20 en wallet",
+          "description": "Saldo para tu próxima compra en RAVENUE."
+        },
+        "trago-cortesia": {
+          "name": "Trago de cortesía",
+          "description": "Un trago seleccionado en locales participantes."
+        },
+        "cola-preferente": {
+          "name": "Cola preferente x1",
+          "description": "Ingreso por la fila preferente una vez."
+        },
+        "botella-premium": {
+          "name": "Botella premium −20%",
+          "description": "Descuento en una botella premium seleccionada."
+        },
+        "mesa-vip": {
+          "name": "Mesa VIP garantizada",
+          "description": "Reserva prioritaria en un local participante."
+        }
+      }
+    },
+    "levels": {
+      "metadataTitle": "Niveles y badges",
+      "title": "Tu nivel RAVENUE",
+      "description": "Sube de nivel acumulando puntos. Cada nivel desbloquea perks.",
+      "demo": "Demo: llega con el backend de puntos",
+      "currentLevel": "Nivel actual",
+      "pointsShort": "pts",
+      "nextLevel": "Próximo nivel",
+      "remaining": "te faltan {count}",
+      "viewHistory": "Ver historial",
+      "redeemPoints": "Canjear puntos",
+      "badgesTitle": "Tus badges",
+      "unlocked": "{unlocked} de {total} desbloqueados",
+      "locked": "Bloqueado",
+      "levelNames": {
+        "Bronce": "Bronce",
+        "Plata": "Plata",
+        "Oro": "Oro",
+        "Diamante": "Diamante"
+      },
+      "badges": [
+        { "name": "Primera vez", "description": "Primera entrada comprada" },
+        { "name": "Reserva VIP", "description": "Primera mesa VIP reservada" },
+        {
+          "name": "10 noches en Barranco",
+          "description": "10 eventos en Barranco"
+        },
+        {
+          "name": "Madrugador",
+          "description": "Compra antes de las 8 PM 5 veces"
+        },
+        { "name": "Mesa VIP x3", "description": "3 boxes VIP reservados" },
+        {
+          "name": "Cumpleaños RAVENUE",
+          "description": "Celebra tu cumple con nosotros"
+        },
+        {
+          "name": "Trotamundos",
+          "description": "Visita 5 distritos distintos"
+        },
+        { "name": "Maratonista", "description": "10 noches en un mes" },
+        { "name": "Conexión Lima", "description": "Trae 10 amigos a RAVENUE" },
+        { "name": "Local favorito", "description": "5 visitas al mismo local" },
+        { "name": "Crítico fino", "description": "10 reseñas escritas" },
+        { "name": "Hasta el amanecer", "description": "5 afterhours completos" }
+      ]
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "homeAria": "RAVENUE, inicio",
+    "securePayment": "Pago seguro",
+    "eventUnavailable": "Este evento no tiene entradas a la venta en este momento.",
+    "ticketsLoadError": "No pudimos cargar las entradas en este momento. Inténtalo de nuevo en unos minutos.",
+    "invalidPromoterCode": "El código de promotor no es válido o expiró, así que la entrada gratis no se aplicó. Puedes continuar con la compra normal.",
+    "freeUnavailable": "La entrada gratis de este código ya no está disponible (agotada o pausada).",
+    "noTickets": "No hay entradas disponibles para este evento.",
+    "freeOffer": "Tu promotor {promoter} te brinda una <strong>entrada GRATIS</strong> al evento",
+    "savings": "Ahorras <strong>{amount}</strong>",
+    "yourDetails": "Tus datos",
+    "total": "Total",
+    "free": "GRATIS",
+    "issuing": "Emitiendo…",
+    "receiveTicket": "Recibir entrada",
+    "courtesyNote": "Cortesía del promotor. No se realizará ningún cargo.",
+    "ticket": "Entrada",
+    "ticketType": "Tipo de entrada",
+    "select": "Selecciona",
+    "quantity": "Cantidad",
+    "removeTicket": "Quitar entrada",
+    "addTicket": "Agregar entrada",
+    "attendees": "Asistentes",
+    "payment": "Pago",
+    "paymentMethod": "Método de pago",
+    "paymentMethods": {
+      "card": "Tarjeta",
+      "yape": "Yape",
+      "plin": "Plin"
+    },
+    "promoCode": "Código promocional",
+    "optional": "(opcional)",
+    "testPayment": "Pago de prueba (MVP). No se realizará ningún cargo real.",
+    "processing": "Procesando…",
+    "pay": "Pagar {amount}",
+    "sessionExpired": "Tu sesión venció. Vuelve a iniciar sesión.",
+    "checkoutError": "No pudimos procesar tu compra. Inténtalo nuevamente.",
+    "validation": {
+      "ticketType": "Selecciona un tipo de entrada",
+      "fullName": "Ingresa el nombre completo",
+      "document": "Ingresa un documento válido de 8 a 20 caracteres",
+      "birthDate": "Ingresa una fecha de nacimiento válida",
+      "adult": "Debes ser mayor de 18 años"
+    },
+    "errorBoundary": {
+      "title": "Error en el checkout",
+      "description": "No pudimos cargar el checkout. Inténtalo nuevamente.",
+      "retry": "Reintentar"
+    },
+    "attendee": {
+      "title": "Asistente {number}",
+      "remove": "Quitar",
+      "useMyDetails": "Soy yo: usar los datos de mi cuenta",
+      "fullName": "Nombre completo",
+      "fullNamePlaceholder": "Nombre y apellido",
+      "document": "Documento",
+      "documentTypes": {
+        "dni": "DNI",
+        "ce": "Carné de extranjería",
+        "passport": "Pasaporte"
+      },
+      "number": "Número",
+      "birthDate": "Fecha de nacimiento"
+    },
+    "success": {
+      "confirmed": "¡Pago confirmado! Tu orden <strong>{code}</strong> está lista.",
+      "summary": "Resumen",
+      "subtotal": "Subtotal",
+      "discount": "Descuento",
+      "total": "Total",
+      "tickets": "Tus entradas",
+      "viewTickets": "Ver mis entradas"
+    }
+  },
+  "reserva": {
+    "metadata": {
+      "title": "Reserva tu mesa",
+      "description": "Elige tu mesa, arma tu noche y asegura tu box con RAVENUE."
+    },
+    "title": "Reserva tu mesa",
+    "secure": "Reserva segura",
+    "demo": "Demo: reserva simulada",
+    "progress": "Progreso de la reserva",
+    "steps": {
+      "table": "Mesa",
+      "details": "Detalles",
+      "bottles": "Botellas",
+      "summary": "Resumen",
+      "done": "Listo"
+    },
+    "remove": "Quitar",
+    "add": "Agregar",
+    "people": "{count, plural, one {# persona} other {# personas}}",
+    "event": { "placeholder": "Evento", "date": "Sáb 19 Abr" },
+    "tables": {
+      "m1": { "label": "Mesa 04 · Pista" },
+      "m2": { "label": "Mesa 07 · Pista" },
+      "m3": { "label": "Box VIP 01" },
+      "m4": { "label": "Box VIP 02" },
+      "m5": { "label": "Lounge Premium" },
+      "m6": { "label": "Box VIP 03" },
+      "m7": { "label": "Mesa 11 · Pista" },
+      "m8": { "label": "Mesa 12 · Pista" }
+    },
+    "confirmation": {
+      "title": "¡Mesa reservada!",
+      "description": "{table} para {count} personas · llegada {time}. Presenta el código al ingresar:",
+      "qrAlt": "Código QR de la reserva {code}",
+      "creditActive": "Tu crédito de consumo de {amount} ya está activo en la carta del local",
+      "noReentry": "Este local no permite reingreso una vez dentro",
+      "backendDemo": "Demo: la reserva real y el QR llegan con el backend",
+      "moreEvents": "Ver más eventos",
+      "home": "Volver al inicio"
+    },
+    "table": {
+      "title": "Elige tu mesa",
+      "view": { "lista": "Lista", "planta": "Vista de planta" },
+      "placeholder": {
+        "Pista": "Mesa · Pista",
+        "VIP": "Box · VIP",
+        "Lounge": "Lounge · Premium"
+      },
+      "zone": { "Pista": "Pista", "VIP": "VIP", "Lounge": "Lounge" },
+      "fewLeft": "Pocas",
+      "reserved": "Reservada",
+      "available": "Disponible",
+      "selection": "Tu selección",
+      "minimum": "Mín. {amount}",
+      "deposit": "Depósito {amount}",
+      "depositTitle": "Tu depósito se descuenta del consumo en el local.",
+      "depositDescription": "No es un cargo extra. Si consumes más del mínimo, solo pagas la diferencia en caja."
+    },
+    "floor": {
+      "aria": "Plano del local",
+      "danceFloor": "PISTA",
+      "vip": "BOX VIP",
+      "lounge": "LOUNGE",
+      "bar": "⬆ Barra",
+      "entrance": "⬇ Entrada principal"
+    },
+    "details": {
+      "title": "Detalles de tu reserva",
+      "eventDate": "Fecha del evento",
+      "fixedByEvent": "Fijada por el evento",
+      "arrival": "Hora estimada de llegada",
+      "groupSize": "Tamaño del grupo",
+      "maximum": "Máx. {count} para esta mesa",
+      "host": "A nombre de quién",
+      "hostPlaceholder": "ej. Piero Rivera",
+      "hostError": "Ingresa el nombre de la persona titular de la reserva.",
+      "birthday": "Es mi cumpleaños",
+      "birthdayHint": "Avisamos al local; pueden tener una sorpresa preparada",
+      "birthdayBadge": "Cumple",
+      "notes": "Notas para el local (opcional)",
+      "notesPlaceholder": "ej. Llegamos un poco tarde, tenemos un amigo alérgico al maní…"
+    },
+    "bottles": {
+      "title": "Preventa de botellas",
+      "skip": "Saltar",
+      "description": "Aprovecha precios de preventa. Las dejan listas en tu mesa cuando llegues.",
+      "items": {
+        "b1": {
+          "name": "Johnnie Walker Black",
+          "brand": "Whisky",
+          "promo": "-15% en preventa"
+        },
+        "b2": {
+          "name": "Absolut Original",
+          "brand": "Vodka",
+          "promo": "-10% en preventa"
+        },
+        "b3": { "name": "Don Julio Reposado", "brand": "Tequila" },
+        "b4": {
+          "name": "Moët & Chandon Brut",
+          "brand": "Champagne",
+          "promo": "Botella + 2 mixers"
+        },
+        "b5": { "name": "Bombay Sapphire", "brand": "Gin" },
+        "b6": { "name": "Red Bull (pack de 4)", "brand": "Energizante" }
+      }
+    },
+    "review": {
+      "title": "Revisa tu reserva",
+      "table": "Mesa",
+      "group": "Grupo",
+      "groupValue": "{count} personas · llegada {time}",
+      "host": "Anfitrión",
+      "birthday": "Cumpleaños",
+      "yes": "Sí",
+      "bottles": "Botellas en preventa",
+      "advance": "Adelanto a pagar hoy ({percent}%)",
+      "credit": "Crédito de consumo ({percent}%)",
+      "creditHint": "Se canjea en la carta del local",
+      "serviceFee": "Comisión de servicio",
+      "total": "Total al confirmar",
+      "demoNotice": "Vista de demostración: el cobro del depósito se habilitará cuando exista el backend de reservas. Confirmar no genera ningún cargo."
+    },
+    "summary": {
+      "title": "Resumen",
+      "capacity": "{count} personas máx. · Mínimo {amount}",
+      "deposit": "Depósito",
+      "appliedToSpend": "Aplicable a consumo",
+      "bottles": "Botellas",
+      "selectTable": "Selecciona una mesa para continuar."
+    },
+    "confirm": "Confirmar reserva",
+    "continue": "Continuar",
+    "back": "Volver",
+    "passes": {
+      "copied": "Códigos de los pases copiados.",
+      "copyError": "No se pudieron copiar los pases. Inténtalo nuevamente.",
+      "shareText": "Pases de la reserva {code}",
+      "shareTitle": "Pases de grupo RAVENUE",
+      "title": "Pases de tu grupo",
+      "description": "Comparte un pase con cada invitado.",
+      "share": "Compartir pases",
+      "counter": "Pase {current} de {total}",
+      "qrAlt": "Código QR del pase {code}",
+      "zones": { "general": "General", "vip": "VIP", "super-vip": "SUPER VIP" }
+    }
+  },
+  "carta": {
+    "page": {
+      "metadataTitle": "Carta de {name}",
+      "metadataDescription": "Pide bebidas y piqueos de {name} para recoger en {zone}.",
+      "demo": "Demo · carta en el local",
+      "verifiedTicket": "Entrada verificada",
+      "title": "Carta de {name}",
+      "pickup": "Recojo: {zone}",
+      "hours": "Pedidos: {schedule}",
+      "description": "Pide desde tu mesa o la pista. Te avisamos cuando esté listo para recoger.",
+      "unavailable": {
+        "title": "Carta no disponible",
+        "description": "Este local todavía no recibe pedidos desde RAVENUE."
+      },
+      "pickupZones": {
+        "nocturna-club": "Barra principal",
+        "sky-lounge-360": "Mini bar · Terraza",
+        "barranco-beats": "Barra central",
+        "karaoke-estelar": "Barra de salas"
+      }
+    },
+    "searchPlaceholder": "Buscar en la carta…",
+    "searchAria": "Buscar productos en la carta",
+    "all": "Todo",
+    "alcoholWarning": {
+      "excess": "Tomar bebidas alcohólicas en exceso es dañino.",
+      "minors": "Venta prohibida a menores de 18 años."
+    },
+    "categories": {
+      "cocteles": "Cócteles",
+      "botellas": "Botellas",
+      "cervezas": "Cervezas",
+      "shots": "Shots",
+      "sin-alcohol": "Sin alcohol",
+      "piqueos": "Piqueos"
+    },
+    "tags": {
+      "2x1": "2×1",
+      "especialidad": "Especialidad de la casa",
+      "nuevo": "Nuevo",
+      "popular": "Más pedido"
+    },
+    "empty": {
+      "title": "No encontramos productos",
+      "description": "Prueba otra búsqueda o categoría.",
+      "action": "Limpiar filtros"
+    },
+    "viewItem": "Ver {item}",
+    "soldOut": "Agotado",
+    "addAria": "Agregar {item}",
+    "addAnotherAria": "Agregar otro {item}; hay {count} en el carrito",
+    "items": {
+      "i1": {
+        "name": "Pisco Sour",
+        "description": "Clásico peruano: pisco quebranta, limón, jarabe y amargo de angostura."
+      },
+      "i2": {
+        "name": "Chilcano de Maracuyá",
+        "description": "Pisco, ginger ale y pulpa de maracuyá. Refrescante y con carácter."
+      },
+      "i3": {
+        "name": "Mojito Clásico",
+        "description": "Ron blanco, hierbabuena fresca, lima y soda."
+      },
+      "i4": {
+        "name": "Gin Tonic de la Casa",
+        "description": "Gin premium, tónica artesanal y botánicos seleccionados."
+      },
+      "i5": {
+        "name": "Laguna Azul",
+        "description": "Vodka, curaçao azul y limón. El favorito de la pista."
+      },
+      "i6": {
+        "name": "Botella Vodka Premium",
+        "description": "Incluye 4 energizantes + hielo ilimitado para tu mesa."
+      },
+      "i7": {
+        "name": "Botella Whisky 12 años",
+        "description": "Incluye 2 ginger ale + hielo. Servicio en mesa."
+      },
+      "i8": {
+        "name": "Botella Ron Añejo",
+        "description": "Incluye 4 colas + limones. Ideal para grupos."
+      },
+      "i9": {
+        "name": "Champagne Brut",
+        "description": "Burbujas para celebrar. Incluye copas para toda la mesa."
+      },
+      "i10": {
+        "name": "Cerveza Artesanal IPA",
+        "description": "IPA local de barril, 473 ml."
+      },
+      "i11": {
+        "name": "Cerveza Clásica",
+        "description": "Lager nacional bien helada, 355 ml."
+      },
+      "i12": {
+        "name": "Balde de Cervezas ×6",
+        "description": "Seis clásicas en hielo. Para compartir."
+      },
+      "i13": {
+        "name": "Tanda de Tequila ×4",
+        "description": "Cuatro shots con sal y limón."
+      },
+      "i14": {
+        "name": "Jäger Bomb",
+        "description": "El infaltable con energizante."
+      },
+      "i15": {
+        "name": "Limonada Frozen",
+        "description": "Limonada helada con hierbabuena."
+      },
+      "i16": {
+        "name": "Energizante",
+        "description": "Lata de 355 ml bien fría."
+      },
+      "i17": {
+        "name": "Agua Mineral",
+        "description": "Con o sin gas, 500 ml."
+      },
+      "i18": {
+        "name": "Tequeños ×8",
+        "description": "Rellenos de queso con guacamole de la casa."
+      },
+      "i19": {
+        "name": "Alitas BBQ ×10",
+        "description": "Bañadas en salsa BBQ ahumada."
+      },
+      "i20": {
+        "name": "Piqueo Criollo",
+        "description": "Chicharrón, choclo y salsas para compartir."
+      }
+    },
+    "cart": {
+      "viewAria": "Ver pedido: {count} productos, total {total}",
+      "pickup": "Recoge en <strong>{zone}</strong>",
+      "view": "Ver pedido",
+      "title": "Tu pedido",
+      "each": "{amount} c/u",
+      "removeAria": "Quitar {item}",
+      "addAria": "Agregar {item}",
+      "total": "Total",
+      "split": "Dividir cuenta",
+      "confirm": "Confirmar pedido",
+      "demoNote": "Demo: no se realizará ningún cobro."
+    },
+    "product": {
+      "removeOne": "Quitar uno",
+      "addOne": "Agregar uno",
+      "addWithPrice": "Agregar · {amount}",
+      "soldOutTonight": "Agotado por esta noche"
+    },
+    "credit": {
+      "creditAvailable": "Tienes {amount} de crédito de consumo disponible",
+      "creditNote": "Se aplicará automáticamente al confirmar tu pedido."
+    },
+    "order": {
+      "eyebrow": "Pedido en el local",
+      "summary": "Resumen de tu pedido",
+      "pickup": "Recojo en {zone}",
+      "orderTotal": "Total del pedido",
+      "credit": "Crédito aplicado",
+      "payTotal": "Saldo por pagar",
+      "confirm": "Confirmar pedido",
+      "backToMenu": "Volver a la carta",
+      "pickupCode": "Código de recojo",
+      "creditRedeemed": "Usaste {amount} de tu crédito de consumo",
+      "remainingBalance": "Te quedan {amount} disponibles",
+      "orderMore": "Pedir algo más",
+      "demo": "Demo: el estado avanza automáticamente"
+    },
+    "status": {
+      "aria": "Estado del pedido",
+      "received": {
+        "label": "Pedido recibido",
+        "hint": "El local ya recibió tu pedido."
+      },
+      "preparing": {
+        "label": "Preparando",
+        "hint": "Están armando tu pedido."
+      },
+      "ready": {
+        "label": "Listo para recoger",
+        "hint": "Muéstrales tu código en la zona de recojo."
+      }
+    },
+    "split": {
+      "title": "Dividir la cuenta",
+      "description": "Genera un enlace de pago para cada persona.",
+      "people": "Personas",
+      "range": "Entre 2 y 8",
+      "removePerson": "Quitar persona",
+      "addPerson": "Agregar persona",
+      "perPerson": "A cada uno le toca {amount}",
+      "paid": "Pagó",
+      "linkSent": "Enlace enviado",
+      "sendLink": "Enviar enlace",
+      "demo": "Demo: los enlaces no generan cobros reales"
+    }
+  },
+  "affiliate": {
+    "metadata": {
+      "title": "Afilia tu local",
+      "description": "Suma tu discoteca o bar a RAVENUE y empieza a vender entradas."
+    },
+    "eyebrow": "Para locales",
+    "title": "Tu discoteca, llena y sin caos en la puerta",
+    "description": "Centraliza entradas, reservas y promotores para que tu equipo opere la noche con información clara, desde la venta hasta el ingreso.",
+    "stats": {
+      "venues": "Locales",
+      "events": "Eventos al mes",
+      "nightOwls": "Personas"
+    },
+    "benefits": {
+      "1": "Puerta rápida sin colas",
+      "2": "Reservas verificables sin reclamos",
+      "3": "Promotores con link propio y metas claras",
+      "4": "Reporte semanal listo para tu reunión"
+    },
+    "formTitle": "Afilia tu local a RAVENUE",
+    "formDescription": "Vende entradas, gestiona eventos y llega a más gente. Déjanos tus datos y te contactamos.",
+    "howItWorks": "Cómo funciona",
+    "stepsTitle": "De la solicitud a una operación ordenada",
+    "steps": {
+      "1": {
+        "title": "Afíliate",
+        "description": "Cuéntanos sobre tu local y nuestro equipo revisará la solicitud contigo."
+      },
+      "2": {
+        "title": "Configura tu política",
+        "description": "Define zonas, reservas y promotores según cómo funciona realmente tu operación."
+      },
+      "3": {
+        "title": "Opera más fácil",
+        "description": "Reservas, listas y cortesías en un solo panel, siempre al día."
+      }
+    },
+    "form": {
+      "errors": {
+        "commercialName": "Indica el nombre del local.",
+        "legalName": "Indica la razón social.",
+        "ruc": "El RUC debe tener 11 dígitos",
+        "address": "Indica la dirección del local.",
+        "contactName": "Indica el nombre del responsable.",
+        "contactEmail": "Indica un correo de contacto.",
+        "email": "Ingresa un correo válido.",
+        "contactPhone": "Indica un teléfono de contacto.",
+        "phoneLong": "El teléfono es demasiado largo.",
+        "termsAccepted": "Debes aceptar los Términos y Condiciones y la Política de Privacidad.",
+        "legalDeclarationAccepted": "Debes confirmar que el local cuenta con los permisos vigentes para operar."
+      },
+      "successToast": "Solicitud enviada. Te contactaremos pronto.",
+      "successTitle": "Solicitud recibida",
+      "successDescription": "La afiliación de <strong>{venue}</strong> está en estado <strong>{status}</strong>. Un administrador la revisará pronto.",
+      "status": {
+        "pending": "pendiente",
+        "approved": "aprobada",
+        "rejected": "rechazada"
+      },
+      "commercialName": "Nombre del local",
+      "commercialNamePlaceholder": "ej. Nocturna Club",
+      "legalName": "Razón social",
+      "legalNamePlaceholder": "Nombre registrado en SUNAT",
+      "ruc": "RUC",
+      "rucPlaceholder": "11 dígitos",
+      "address": "Dirección",
+      "addressPlaceholder": "Av. / Calle, distrito",
+      "contact": "Contacto",
+      "contactPlaceholder": "Nombre del responsable",
+      "phone": "Teléfono",
+      "email": "Correo de contacto",
+      "emailPlaceholder": "contacto@local.com",
+      "socials": "Redes sociales",
+      "optional": "(opcional)",
+      "socialsPlaceholder": "https://instagram.com/tulocal · @tulocal en TikTok · tuweb.com",
+      "socialsHint": "Pega los links o @usuarios de tus redes, separados por comas.",
+      "legal": {
+        "termsConsent": "Acepto los <terms>Términos y Condiciones</terms> y la <privacy>Política de Privacidad</privacy> de vinculación de locales en RAVENUE.",
+        "declaration": "Declaro que el local cuenta con todos los permisos vigentes para operar: licencia de funcionamiento, autorización para la venta de bebidas alcohólicas, certificado de seguridad (ITSE) y los demás requisitos exigidos por la normativa peruana.",
+        "required": "Debes aceptar ambos consentimientos legales antes de enviar la solicitud."
+      },
+      "sending": "Enviando…",
+      "submit": "Enviar solicitud"
+    }
+  },
+  "ayuda": {
+    "metadata": {
+      "title": "Centro de ayuda",
+      "description": "Encuentra respuestas y contáctanos si necesitas más ayuda."
+    },
+    "eyebrow": "Ayuda",
+    "title": "¿En qué te ayudamos?",
+    "description": "Busca tu tema o revisa las preguntas frecuentes. Si no encuentras respuesta, escríbenos.",
+    "topics": {
+      "tickets": {
+        "title": "Entradas y compras",
+        "description": "Cómo comprar, recibir tu QR y qué hacer si un evento se cancela."
+      },
+      "payments": {
+        "title": "Pagos y reembolsos",
+        "description": "Métodos de pago, tiempos de reembolso y saldo en tu wallet."
+      },
+      "account": {
+        "title": "Cuenta y verificación",
+        "description": "Registro, verificación de edad (+18) y recuperación de acceso."
+      },
+      "complaints": {
+        "title": "Libro de Reclamaciones",
+        "description": "Registra formalmente una queja o reclamo sobre el servicio."
+      }
+    },
+    "contact": {
+      "title": "¿Aún necesitas ayuda?",
+      "description": "Nuestro equipo responde en menos de 24 horas, todos los días.",
+      "action": "Escríbenos"
+    }
+  },
+  "about": {
+    "metadata": {
+      "title": "Sobre nosotros",
+      "description": "RAVENUE nació en Lima para reunir en un solo lugar lo mejor de la noche: eventos, bares y discotecas verificados."
+    },
+    "eyebrow": "Conócenos",
+    "title": "La noche se vive mejor cuando todo fluye",
+    "description": "RAVENUE nació en Lima para reunir en un solo lugar lo mejor de la noche: eventos, bares y discotecas verificados.",
+    "stats": {
+      "events": "Eventos este mes",
+      "venues": "Locales verificados",
+      "nightOwls": "Personas felices"
+    },
+    "history": { "eyebrow": "Nuestra historia", "title": "Lo que nos mueve" },
+    "sections": {
+      "mission": {
+        "title": "Nuestra misión",
+        "body": "Hacer que salir sea simple y seguro. Queremos que descubras dónde ir, compres tu entrada y armes el plan con tus amigos en segundos."
+      },
+      "whatWeDo": {
+        "title": "Qué hacemos",
+        "body": "Te contactamos con locales verificados. Compra de entradas, reserva de mesas, listas y beneficios, todo dentro de una experiencia pensada para la noche."
+      },
+      "venues": {
+        "title": "Para los locales",
+        "body": "Damos a discotecas y bares herramientas para publicar eventos, gestionar su aforo, vender entradas y reservar mesas, llegando a miles de personas que buscan dónde salir."
+      },
+      "commitment": {
+        "title": "Compromiso",
+        "body": "Plataforma solo para mayores de 18 años. Verificamos documentos, protegemos tus datos y combatimos la reventa para que vivas la noche con tranquilidad."
+      }
+    }
+  },
+  "contacto": {
+    "metadata": {
+      "title": "Contacto",
+      "description": "Ponte en contacto con el equipo de RAVENUE."
+    },
+    "eyebrow": "Estamos para ayudarte",
+    "title": "Contáctanos",
+    "description": "Cuéntanos qué necesitas y prepararemos tu mensaje para nuestro equipo de soporte.",
+    "support": {
+      "title": "Atención RAVENUE",
+      "description": "Al enviar, se abrirá tu aplicación de correo para completar el envío."
+    },
+    "form": {
+      "errors": {
+        "name": "Ingresa tu nombre.",
+        "email": "Ingresa un correo válido.",
+        "subject": "Cuéntanos brevemente el asunto.",
+        "message": "El mensaje debe tener al menos 10 caracteres."
+      },
+      "success": "Mensaje listo. Abriremos tu correo para enviarlo.",
+      "mailName": "Nombre",
+      "mailEmail": "Correo",
+      "name": "Nombre",
+      "email": "Email",
+      "subject": "Asunto",
+      "message": "Mensaje",
+      "submit": "Enviar mensaje"
+    }
+  },
+  "canjear": {
+    "metadataTitle": "Canjear código",
+    "freeTicket": "Entrada gratis",
+    "percentDiscount": "{value}% de descuento",
+    "amountDiscount": "{amount} de descuento",
+    "specialBenefit": "Beneficio especial",
+    "invalid": {
+      "title": "Código no válido",
+      "description": "Este código no existe, expiró o ya fue usado.",
+      "action": "Explorar eventos"
+    },
+    "courtesy": "Cortesía de {promoter} · código <codeTag>{code}</codeTag>",
+    "promoterCode": "Código de promotor · código <codeTag>{code}</codeTag>",
+    "savings": "Ahorras <strong>{amount}</strong>",
+    "continue": "Ver evento y continuar"
+  },
+  "guest": { "metadataTitle": "Lista de invitados" },
+  "invitado": {
+    "demoBadge": "Demo: lista de invitados",
+    "invalid": {
+      "title": "Link no válido o vencido",
+      "description": "Pídele al promotor un enlace activo para ingresar a su lista."
+    },
+    "full": {
+      "title": "Cupo de invitados completo",
+      "description": "Este promotor ya emitió todos los códigos disponibles para el evento."
+    },
+    "issued": {
+      "title": "Ya estás en la lista",
+      "description": "Guarda este código. Está emitido a nombre de {name}.",
+      "doorTitle": "Preséntalo en puerta",
+      "doorDescription": "El equipo del local validará tu código al llegar."
+    },
+    "form": {
+      "eyebrow": "Invitación de promotor",
+      "title": "{promoter} te invita a la lista",
+      "description": "Registra tu nombre y recibe tu código personal de ingreso.",
+      "nameLabel": "Nombre completo",
+      "namePlaceholder": "Ej. Valeria Cruz",
+      "submit": "Obtener mi código",
+      "remaining": "{count, plural, one {Queda # código disponible.} other {Quedan # códigos disponibles.}}"
+    }
+  },
+  "complaints": {
+    "metadata": {
+      "title": "Libro de Reclamaciones",
+      "description": "Registra una queja o reclamo sobre los servicios de RAVENUE."
+    },
+    "eyebrow": "Ayuda",
+    "title": "Libro de Reclamaciones",
+    "description": "Conforme al Código de Protección y Defensa del Consumidor (Ley N.º 29571), registra aquí tu queja o reclamo sobre los servicios de RAVENUE.",
+    "required": "Todos los campos son obligatorios.",
+    "type": { "reclamo": "reclamo", "queja": "queja" },
+    "success": {
+      "title": "Hoja registrada",
+      "description": "Tu {type} quedó registrado con el código <strong>{code}</strong>. Recibirás respuesta en un máximo de 15 días hábiles al correo indicado.",
+      "demo": "Demo: el registro real llega con el backend de soporte"
+    },
+    "form": {
+      "type": "Tipo de solicitud",
+      "claim": "Reclamo (producto o servicio)",
+      "complaint": "Queja (atención al cliente)",
+      "document": "Documento de identidad",
+      "documentPlaceholder": "DNI / CE",
+      "name": "Nombre completo",
+      "namePlaceholder": "Tu nombre",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "tu@correo.com",
+      "detail": "Detalle del reclamo o queja",
+      "detailPlaceholder": "Cuéntanos qué pasó, incluyendo fecha, evento o local si aplica…",
+      "demo": "Demo: sin backend de soporte aún",
+      "submit": "Registrar hoja"
+    }
+  },
+  "promoterApplication": {
+    "metadataTitle": "Postular a promotor",
+    "eyebrow": "Para promotores",
+    "title": "Haz crecer tu comunidad y cobra con cuentas claras",
+    "description": "Lleva a tu gente a las mejores noches con herramientas que registran cada invitado, venta y comisión sin trabajo manual.",
+    "stats": {
+      "events": "Eventos al mes",
+      "venues": "Locales",
+      "nightOwls": "Personas"
+    },
+    "benefits": {
+      "1": "Tu link propio: tus invitados sacan su código solos",
+      "2": "Metas y bonos claros, sin discusiones.",
+      "3": "Comisión por venta de box y mesa",
+      "4": "Liquidaciones transparentes"
+    },
+    "formTitle": "Conviértete en promotor",
+    "formDescription": "Postula para vender entradas y ganar comisiones por tus referidos. Un local revisará tu solicitud."
+  },
+  "promotorApply": {
+    "successToast": "Postulación enviada. Te avisaremos cuando sea revisada.",
+    "success": {
+      "title": "Postulación recibida",
+      "description": "Tu postulación <strong>{name}</strong> está en estado <strong>{status}</strong>. Un administrador la revisará pronto.",
+      "submitAnother": "Enviar otra postulación"
+    },
+    "optional": "(opcional)",
+    "fields": {
+      "name": {
+        "label": "Nombre o marca",
+        "placeholder": "Tu nombre artístico o marca"
+      },
+      "contactEmail": {
+        "label": "Correo de contacto",
+        "placeholder": "tu@correo.com"
+      },
+      "contactPhone": {
+        "label": "Teléfono",
+        "placeholder": "+51 9XX XXX XXX"
+      },
+      "socials": {
+        "label": "Redes sociales",
+        "placeholder": "Instagram, TikTok, etc. Cuéntanos tu alcance.",
+        "description": "Comparte enlaces que muestren tu comunidad."
+      }
+    },
+    "sending": "Enviando…",
+    "submit": "Enviar postulación"
+  },
+  "legal": {
+    "fallbackTitle": "Legal",
+    "publishedVersion": "Versión {version} · vigente desde {date}",
+    "viewDocument": "Ver documento",
+    "docs": {
+      "terms": {
+        "crumb": "Legales",
+        "title": "Términos y condiciones",
+        "updated": "Última actualización: mayo 2026",
+        "intro": "Estos términos regulan el uso de la plataforma RAVENUE y los servicios ofrecidos a través de ella.",
+        "sections": [
+          [
+            "1. Aceptación",
+            "Al crear una cuenta o usar RAVENUE aceptas estos términos y condiciones, así como nuestras políticas de privacidad y de cookies."
+          ],
+          [
+            "2. Uso de la plataforma",
+            "RAVENUE es una plataforma exclusiva para mayores de 18 años que conecta usuarios con eventos y locales. Debes brindar información veraz y mantener la confidencialidad de tu cuenta."
+          ],
+          [
+            "3. Compra de entradas y reservas",
+            "Las compras y reservas se rigen por las condiciones de cada evento y local. RAVENUE actúa como intermediario tecnológico para la venta y gestión."
+          ],
+          [
+            "4. Responsabilidades",
+            "El acceso final a cada local queda sujeto a sus normas de ingreso. Los locales son responsables de la prestación del servicio ofrecido."
+          ],
+          [
+            "5. Intermediación y responsabilidad del organizador",
+            "RAVENUE publica y comercializa entradas y reservas por cuenta de los locales y organizadores, sin asumir la organización de los eventos. El organizador o local es el único responsable de su realización, calidad, contenido, aforo, seguridad, cumplimiento legal, ingreso y condiciones de acceso. RAVENUE no responde por cambios de fecha, cancelaciones ni incumplimientos del organizador; canaliza los reclamos conforme a estos términos y al Libro de Reclamaciones."
+          ],
+          [
+            "6. Propiedad intelectual",
+            "Todo el contenido, marca y diseño de RAVENUE están protegidos. No está permitida su reproducción sin autorización."
+          ]
+        ]
+      },
+      "privacy": {
+        "crumb": "Legales",
+        "title": "Políticas de privacidad",
+        "updated": "Última actualización: mayo 2026",
+        "intro": "Explicamos qué datos recopilamos, con qué fin y cómo los protegemos.",
+        "sections": [
+          [
+            "Datos que recopilamos",
+            "Datos de registro (nombre, correo, documento, teléfono), información de compras y reservas, y datos de uso de la plataforma."
+          ],
+          [
+            "Cómo los usamos",
+            "Para gestionar tu cuenta, procesar compras y reservas, verificar tu mayoría de edad, prevenir fraude y mejorar tu experiencia."
+          ],
+          [
+            "Protección",
+            "Tus datos se almacenan cifrados y aplicamos medidas de seguridad para evitar accesos no autorizados."
+          ],
+          [
+            "Tus derechos",
+            "Puedes acceder, rectificar o solicitar la eliminación de tus datos escribiéndonos desde el centro de ayuda."
+          ]
+        ]
+      },
+      "cookies": {
+        "crumb": "Legales",
+        "title": "Políticas de cookies",
+        "updated": "Última actualización: mayo 2026",
+        "intro": "Usamos cookies para que la plataforma funcione correctamente y mejorar tu experiencia.",
+        "sections": [
+          [
+            "¿Qué son las cookies?",
+            "Pequeños archivos que se guardan en tu dispositivo para recordar tus preferencias y mantener tu sesión activa."
+          ],
+          [
+            "Tipos de cookies",
+            "Esenciales (necesarias para el funcionamiento), de rendimiento (analíticas anónimas) y de personalización (recordar tus filtros y preferencias)."
+          ],
+          [
+            "Gestión",
+            "Puedes limpiar las cookies desde el pie de página o desde la configuración de tu navegador en cualquier momento."
+          ]
+        ]
+      },
+      "beneficiario": {
+        "crumb": "Legales",
+        "title": "Declaración del Beneficiario Final",
+        "updated": "Última actualización: mayo 2026",
+        "intro": "En cumplimiento de la normativa vigente, RAVENUE identifica a sus beneficiarios finales.",
+        "sections": [
+          [
+            "Definición",
+            "Se entiende por beneficiario final a la persona natural que finalmente posee o controla a la empresa titular de la plataforma."
+          ],
+          [
+            "Declaración",
+            "RAVENUE mantiene actualizada la identificación de sus beneficiarios finales conforme a la normativa de prevención de lavado de activos."
+          ],
+          [
+            "Transparencia",
+            "Esta información se encuentra a disposición de las autoridades competentes cuando sea requerida."
+          ]
+        ]
+      },
+      "clausulas": {
+        "crumb": "Legales",
+        "title": "Cláusulas de usos adicionales",
+        "updated": "Última actualización: mayo 2026",
+        "intro": "Condiciones aplicables al consentimiento para usos adicionales de tus datos.",
+        "sections": [
+          [
+            "Alcance",
+            "Al otorgar tu consentimiento para usos adicionales, autorizas el envío de beneficios, promociones y descuentos personalizados."
+          ],
+          [
+            "Carácter voluntario",
+            "Este consentimiento es opcional y no condiciona el uso de la plataforma ni la compra de entradas o reservas."
+          ],
+          [
+            "Revocación",
+            "Puedes revocar tu consentimiento en cualquier momento desde la configuración de tu cuenta o escribiéndonos al centro de ayuda."
+          ]
+        ]
+      },
+      "refund_policy": {
+        "crumb": "Legales",
+        "title": "Política de reembolsos",
+        "updated": "Última actualización: mayo 2026",
+        "intro": "Condiciones aplicables a la devolución de entradas compradas en RAVENUE.",
+        "sections": [
+          [
+            "Regla general",
+            "Salvo cancelación del evento, las entradas adquiridas en RAVENUE no son reembolsables. Antes de comprar, revisa la fecha, el local y las condiciones del evento."
+          ],
+          [
+            "Cancelación del evento",
+            "Si el organizador cancela un evento, gestionaremos la devolución del importe de la entrada según el medio de pago utilizado y los plazos del procesador."
+          ],
+          [
+            "Política de cada local",
+            "Cada local y evento puede definir condiciones adicionales de reembolso o cambio. Estas se muestran en el detalle del evento antes de la compra."
+          ],
+          [
+            "Cómo solicitarlo",
+            "Ante cualquier duda o solicitud, escríbenos desde el centro de ayuda indicando tu número de orden."
+          ]
+        ]
+      }
+    }
+  },
+  "tickets": {
+    "card": {
+      "fallbackTitle": "Tu entrada",
+      "status": {
+        "valid": "Válida",
+        "used": "Usada",
+        "cancelled": "Cancelada",
+        "expired": "Vencida"
+      },
+      "issued": "Emitida {date}",
+      "viewMenu": "Ver carta del local"
+    },
+    "qr": { "alt": "Código QR de la entrada" }
+  },
+  "screens": {
+    "metadata": {
+      "title": "Pantallas del sistema",
+      "description": "Índice visual de todas las pantallas para revisión y QA."
+    },
+    "eyebrow": "Revisión interna",
+    "title": "Pantallas del sistema",
+    "summary": "{total} rutas navegables para auditar el frontend completo.",
+    "status": {
+      "real": "Funcional",
+      "demo": "Demo",
+      "mixta": "Mixta",
+      "realDescription": "= conectada al backend real;",
+      "demoDescription": "= capa de frontend visible mientras no exista su backend. Esta página es interna y se ocultará en producción."
+    },
+    "note": "Nota: el prototipo cuenta más de 100 pantallas de diseño, pero varias son pasos de un mismo flujo o modales. Aquí cada ruta agrupa lo suyo: reserva y checkout contienen sus pasos, y los modales viven dentro de sus páginas.",
+    "storybook": "Storybook (componentes del design system): corre <code>pnpm --filter @urnight/web storybook</code> y abre localhost:6006.",
+    "groups": [
+      {
+        "title": "1 · B2C: Descubrimiento",
+        "screens": [
+          {
+            "route": "/",
+            "name": "Inicio",
+            "status": "real",
+            "note": "Hero y secciones con datos del API"
+          },
+          {
+            "route": "/events",
+            "name": "Listado de eventos",
+            "status": "real",
+            "note": "Filtros de género y búsqueda"
+          },
+          {
+            "route": "/events/calendar",
+            "name": "Calendario mensual",
+            "status": "real"
+          },
+          {
+            "route": "/events/tendencias",
+            "name": "Tendencias",
+            "status": "real"
+          },
+          {
+            "route": "/locals",
+            "name": "Listado de locales",
+            "status": "real",
+            "note": "Filtro por zona"
+          },
+          {
+            "route": "/categorias",
+            "name": "Categorías",
+            "status": "real",
+            "note": "Zonas, géneros y etiquetas"
+          },
+          { "route": "/search", "name": "Búsqueda global", "status": "real" },
+          {
+            "route": "/events",
+            "name": "Detalle de evento",
+            "status": "real",
+            "note": "Entra a cualquier tarjeta del listado"
+          },
+          {
+            "route": "/locals",
+            "name": "Detalle de local",
+            "status": "real",
+            "note": "Entra a cualquier tarjeta del listado"
+          },
+          {
+            "route": "/locals/nocturna-club",
+            "name": "Medidor de ambiente del local",
+            "status": "demo",
+            "note": "Aforo en vivo dentro del detalle"
+          }
+        ]
+      },
+      {
+        "title": "2 · Autenticación y onboarding",
+        "screens": [
+          {
+            "route": "/login",
+            "name": "Iniciar sesión",
+            "status": "real",
+            "note": "Layout dividido del prototipo"
+          },
+          { "route": "/register", "name": "Crear cuenta", "status": "real" },
+          {
+            "route": "/recover",
+            "name": "Recuperar contraseña",
+            "status": "demo"
+          },
+          {
+            "route": "/verify-email",
+            "name": "Verificar email",
+            "status": "demo"
+          },
+          { "route": "/2fa", "name": "Verificación 2FA", "status": "demo" },
+          {
+            "route": "/onboarding",
+            "name": "Preferencias iniciales",
+            "status": "real",
+            "note": "Solo aparece con una cuenta nueva"
+          }
+        ]
+      },
+      {
+        "title": "3 · Compra de entradas y reserva de mesa",
+        "screens": [
+          {
+            "route": "/events",
+            "name": "Checkout de entradas (T1–T4)",
+            "status": "real",
+            "note": "Entra a un evento, elige entradas y compra con sesión"
+          },
+          {
+            "route": "/reserva",
+            "name": "Reserva de mesa (R1–R5)",
+            "status": "demo",
+            "note": "Wizard: mesa, detalles, botellas, resumen y listo"
+          },
+          {
+            "route": "/locals/nocturna-club/carta",
+            "name": "Carta del local",
+            "status": "demo",
+            "note": "Con entrada validada: carta, pedido y recojo"
+          },
+          {
+            "route": "/locals/nocturna-club/carta",
+            "name": "Dividir cuenta",
+            "status": "demo",
+            "note": "Dentro del panel del pedido"
+          },
+          {
+            "route": "/canjear/ANDREA10",
+            "name": "Canjear código promotor",
+            "status": "real",
+            "note": "Código de datos iniciales"
+          },
+          {
+            "route": "/p/ANDREA10",
+            "name": "Landing pública de promotor",
+            "status": "real"
+          }
+        ]
+      },
+      {
+        "title": "4 · Mi cuenta",
+        "description": "Inicia sesión con el usuario de prueba indicado en los datos iniciales del repositorio.",
+        "screens": [
+          { "route": "/account", "name": "Perfil", "status": "real" },
+          {
+            "route": "/account/tickets",
+            "name": "Mis entradas (QR)",
+            "status": "real"
+          },
+          {
+            "route": "/account/guardados",
+            "name": "Guardados y favoritos",
+            "status": "real"
+          },
+          {
+            "route": "/account/reservas",
+            "name": "Mis reservas (R6)",
+            "status": "demo"
+          },
+          {
+            "route": "/account/wallet",
+            "name": "Wallet RAVENUE",
+            "status": "demo"
+          },
+          {
+            "route": "/account/niveles",
+            "name": "Niveles e insignias",
+            "status": "demo"
+          },
+          {
+            "route": "/account/puntos",
+            "name": "Historial y canje de puntos",
+            "status": "demo"
+          },
+          {
+            "route": "/account/referidos",
+            "name": "Programa de referidos",
+            "status": "demo"
+          },
+          {
+            "route": "/account/notificaciones",
+            "name": "Notificaciones",
+            "status": "real"
+          },
+          {
+            "route": "/account/invitaciones",
+            "name": "Invitaciones",
+            "status": "real"
+          },
+          {
+            "route": "/account/amigos",
+            "name": "Amigos y perfil social",
+            "status": "demo"
+          }
+        ]
+      },
+      {
+        "title": "5 · Informativas, legales y estados",
+        "screens": [
+          { "route": "/nosotros", "name": "Sobre nosotros", "status": "real" },
+          { "route": "/faq", "name": "Preguntas frecuentes", "status": "real" },
+          { "route": "/ayuda", "name": "Centro de ayuda", "status": "real" },
+          {
+            "route": "/reclamaciones",
+            "name": "Libro de Reclamaciones",
+            "status": "demo"
+          },
+          {
+            "route": "/legal/terms",
+            "name": "Términos y condiciones",
+            "status": "real"
+          },
+          {
+            "route": "/legal/privacy",
+            "name": "Políticas de privacidad",
+            "status": "real"
+          },
+          {
+            "route": "/legal/cookies",
+            "name": "Políticas de cookies",
+            "status": "real"
+          },
+          {
+            "route": "/legal/beneficiario",
+            "name": "Beneficiario Final",
+            "status": "real"
+          },
+          {
+            "route": "/legal/clausulas",
+            "name": "Cláusulas adicionales",
+            "status": "real"
+          },
+          { "route": "/afiliar", "name": "Afiliar mi local", "status": "real" },
+          {
+            "route": "/promotor/postular",
+            "name": "Postular a promotor",
+            "status": "real"
+          },
+          {
+            "route": "/pagina-inexistente",
+            "name": "Error 404",
+            "status": "real",
+            "note": "Pantalla de marca"
+          }
+        ]
+      },
+      {
+        "title": "6 · Paneles por rol",
+        "description": "Cierra sesión e ingresa con el usuario de cada rol indicado en los datos iniciales del repositorio.",
+        "screens": [
+          {
+            "route": "/panel",
+            "name": "Selector de paneles",
+            "status": "real",
+            "note": "Cualquier rol staff"
+          },
+          {
+            "route": "/panel/admin",
+            "name": "Panel de local",
+            "status": "real"
+          },
+          {
+            "route": "/panel/admin/locals",
+            "name": "Mis locales",
+            "status": "real"
+          },
+          {
+            "route": "/panel/admin/locals",
+            "name": "Wizard para crear evento",
+            "status": "mixta",
+            "note": "Entra a un local y elige Crear evento"
+          },
+          {
+            "route": "/panel/admin/promoters",
+            "name": "Promotores",
+            "status": "real"
+          },
+          {
+            "route": "/panel/admin/mesas",
+            "name": "Mesas y planta",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/admin/carta",
+            "name": "Carta del local",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/admin/pedidos",
+            "name": "Pedidos en el local",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/admin/checkin",
+            "name": "Check-in en vivo",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/superadmin",
+            "name": "Super Admin",
+            "status": "real"
+          },
+          {
+            "route": "/panel/superadmin/companies",
+            "name": "Empresas",
+            "status": "real"
+          },
+          {
+            "route": "/panel/superadmin/affiliations",
+            "name": "Afiliaciones",
+            "status": "real"
+          },
+          {
+            "route": "/panel/superadmin/reviews",
+            "name": "Reseñas y reportes",
+            "status": "real"
+          },
+          {
+            "route": "/panel/superadmin/audit",
+            "name": "Auditoría",
+            "status": "real"
+          },
+          {
+            "route": "/panel/superadmin/fidelizacion",
+            "name": "Fidelización",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/superadmin/reclamaciones",
+            "name": "Reclamaciones",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/superadmin/antifraude",
+            "name": "Antifraude",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/superadmin/salud",
+            "name": "Salud del producto",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/promoter",
+            "name": "Panel RRPP",
+            "status": "real"
+          },
+          {
+            "route": "/panel/promoter/links",
+            "name": "Mis links",
+            "status": "real"
+          },
+          {
+            "route": "/panel/promoter/ventas",
+            "name": "Ventas",
+            "status": "real"
+          },
+          {
+            "route": "/panel/promoter/liquidaciones",
+            "name": "Liquidaciones",
+            "status": "demo"
+          },
+          {
+            "route": "/panel/validator",
+            "name": "Panel validador",
+            "status": "real"
+          }
+        ]
+      }
+    ]
+  },
+  "promoterMetrics": {
+    "header": {
+      "metadataTitle": "Panel de promotor",
+      "metadataDescription": "Gestiona tu enlace de referido, códigos promocionales y comisiones.",
+      "title": "Resumen de promotor",
+      "description": "Asistencia real, hora de entrada, acompañantes y ventas atribuidas."
+    },
+    "overview": {
+      "errorTitle": "No pudimos cargar tus métricas",
+      "errorDescription": "Tus cifras siguen protegidas. Reintenta para consultar los datos de puerta.",
+      "peopleOnList": "Invitaciones emitidas",
+      "allocatedInvites": "{count, plural, one {# cupo asignado} other {# cupos asignados}}",
+      "redeemedInvites": "Invitaciones canjeadas",
+      "redemptionRateHint": "Canjes sobre códigos emitidos",
+      "validTickets": "Tickets vigentes atribuidos",
+      "realAttendance": "Asistencia real",
+      "uniqueDoorValidations": "Validaciones únicas en puerta",
+      "attributedSales": "Ventas atribuidas",
+      "estimatedCommission": "Comisión estimada",
+      "paidOrdersOnly": "Solo órdenes pagadas",
+      "commissionPending": "{count, plural, one {# comisión pendiente de snapshot} other {# comisiones pendientes de snapshot}}",
+      "conflictsTitle": "Tu atribución requiere revisión",
+      "conflictsDescription": "Estas órdenes tienen más de un promotor atribuido y están excluidas de tus totales.",
+      "promotersInConflict": "Promotores: {promoters}",
+      "arrivalTitle": "Cómo llega tu gente",
+      "noEntries": "Sin entradas registradas",
+      "entryRange": "{first} – {last}",
+      "peakHour": "hora punta {date}",
+      "identifiedCompanions": "Acompañantes identificados",
+      "noAttendeeOrders": "Aún no hay órdenes con asistentes.",
+      "knownOrders": "{count, plural, one {# orden con comprador único.} other {# órdenes con comprador único.}}",
+      "dataCoverage": "Cobertura del dato",
+      "unknownCoverage": "Órdenes sin un único comprador; sus acompañantes no se estiman.",
+      "eventsTitle": "Métricas por evento",
+      "eventsDescription": "Entrada real, no compra. Reescaneos del mismo ticket no suman dos veces.",
+      "emptyTitle": "Aún no hay eventos con métricas",
+      "emptyDescription": "Cuando tengas eventos asignados aparecerán aquí, incluso antes de la primera venta.",
+      "event": "Evento",
+      "attendance": "Asistencia",
+      "funnelInvited": "{count} emitidas",
+      "funnelRedeemed": "{count} canjeadas · {rate}%",
+      "funnelAttended": "{count} asistieron · {rate}%",
+      "entry": "Entrada",
+      "companions": "Acompañantes",
+      "sales": "Ventas",
+      "cancelledExcluded": "Cancelado · excluido",
+      "peak": "Punta: {date}",
+      "unknownOrders": "{count} sin cobertura",
+      "ticketCount": "{count, plural, one {# entrada} other {# entradas}}",
+      "referral": "Referido",
+      "saleDetail": "{count} ent. · {amount}",
+      "saleCommissionPending": "Comisión pendiente de snapshot",
+      "moreOrders": "+{count} órdenes"
+    },
+    "ranking": {
+      "title": "Ranking de promotores",
+      "description": "Ordena ventas, asistencia y porcentaje con datos validados en puerta.",
+      "eventFilter": "Evento (UUID, opcional)",
+      "from": "Desde",
+      "to": "Hasta",
+      "sortBy": "Ordenar por",
+      "order": "Orden",
+      "sales": "Ventas",
+      "attendance": "Asistencia",
+      "attendanceRate": "% asistencia",
+      "descending": "Mayor",
+      "ascending": "Menor",
+      "apply": "Aplicar",
+      "invalidEvent": "Ingresa un UUID de evento válido.",
+      "invalidRange": "La fecha final debe ser posterior a la inicial.",
+      "errorTitle": "No pudimos cargar el ranking",
+      "errorDescription": "Revisa los filtros o vuelve a intentarlo.",
+      "minimumVolume": "El porcentaje entra al ranking desde <strong>{count} invitaciones emitidas</strong>. Siempre mostramos el volumen absoluto.",
+      "rules": "Órdenes pagadas · eventos no cancelados",
+      "position": "#",
+      "promoter": "Promotor",
+      "attributedSales": "Ventas atribuidas",
+      "amount": "Importe",
+      "realAttendance": "Asistencia real",
+      "estimatedCommission": "Comisión estimada",
+      "emptyTitle": "Sin promotores para estos filtros",
+      "emptyDescription": "Prueba otro evento o rango de fechas.",
+      "ambiguousOrders": "{count, plural, one {# orden ambigua excluida} other {# órdenes ambiguas excluidas}}",
+      "eligible": "Elegible",
+      "lowVolume": "Bajo volumen",
+      "conflictsTitle": "Órdenes en conflicto",
+      "conflictsDescription": "{count, plural, one {# orden distinta excluida; revisa la atribución antes de liquidar.} other {# órdenes distintas excluidas; revisa la atribución antes de liquidar.}}",
+      "promotersInConflict": "Promotores: {promoters}",
+      "funnelInvited": "{count} emitidas",
+      "funnelRedeemed": "{count} canjeadas · {rate}%",
+      "funnelAttended": "{count} asistieron · {rate}%",
+      "commissionPending": "{count, plural, one {# pendiente} other {# pendientes}}"
+    },
+    "admin": {
+      "metadataTitle": "Promotores — Administración",
+      "title": "Promotores",
+      "description": "Crea promotores de tu empresa y sus códigos promocionales."
+    },
+    "superadmin": {
+      "metadataTitle": "Métricas de promotores — Plataforma",
+      "title": "Métricas de promotores",
+      "description": "Ranking global con asistencia validada, volumen y ventas atribuidas."
+    }
+  },
+  "verificationDocuments": {
+    "tab": "Documentos",
+    "title": "Licencias y certificados",
+    "description": "Mantén al día la documentación regulatoria del local. Cada renovación queda en revisión antes de actualizar la verificación.",
+    "types": {
+      "municipal_license": "Licencia de funcionamiento",
+      "itse_certificate": "ITSE / Defensa Civil",
+      "health_certificate": "Certificado sanitario o de fumigación",
+      "other": "Otro documento"
+    },
+    "status": {
+      "valid": "Vigente",
+      "expiring_soon": "Por vencer",
+      "expired": "Vencido",
+      "pending": "En revisión",
+      "rejected": "Rechazado"
+    },
+    "form": {
+      "file": "Archivo",
+      "fileHint": "PDF, JPG, PNG o WebP. Máximo 10 MB.",
+      "type": "Tipo de documento",
+      "issuedAt": "Fecha de emisión",
+      "expiresAt": "Fecha de vencimiento",
+      "submit": "Subir renovación",
+      "uploading": "Subiendo…",
+      "required": "Completa el archivo y las fechas.",
+      "invalidFile": "Usa un PDF o una imagen de hasta 10 MB.",
+      "uploaded": "Documento enviado a revisión.",
+      "failed": "No se pudo subir el documento."
+    },
+    "loading": "Cargando documentos…",
+    "empty": {
+      "title": "Aún no hay documentos",
+      "description": "Sube la licencia municipal y el certificado ITSE para iniciar la revisión."
+    },
+    "expires": "Vence el {date}",
+    "viewDocument": "Ver documento",
+    "review": {
+      "title": "Revisión de documentos de locales",
+      "description": "Revisa la evidencia pendiente. Aprobar o rechazar queda registrado en auditoría.",
+      "loading": "Cargando pendientes…",
+      "emptyTitle": "No hay documentos pendientes",
+      "emptyDescription": "La bandeja está al día.",
+      "expires": "vence el {date}",
+      "pending": "Pendiente",
+      "open": "Abrir documento",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "reason": "Motivo del rechazo",
+      "reasonPlaceholder": "Explica qué debe corregir el local",
+      "reasonRequired": "Indica el motivo del rechazo.",
+      "saved": "Revisión guardada."
+    },
+    "public": {
+      "title": "Verificación temporalmente no disponible",
+      "body": "El local puede estar renovando su documentación. RAVENUE volverá a mostrar la verificación cuando finalice la revisión."
+    }
+  },
+  "brand": {
+    "metadataTitle": "Laboratorio de marca",
+    "hero": {
+      "eyebrow": "Brand Lab: identidad final",
+      "tagline": "Donde la noche encuentra su lugar."
+    },
+    "logo": {
+      "eyebrow": "01 · Sistema de logo",
+      "title": "Identidad final",
+      "description": "El wordmark y la V angular forman el sistema definitivo para los puntos de contacto de RAVENUE.",
+      "darkBackground": "Sobre fondo oscuro",
+      "primary": "Principal",
+      "usage": "Uso",
+      "historyLabel": "Archivo histórico",
+      "history": "la identidad final sintetiza las direcciones elegidas D1 (wordmark) y D3 (símbolo compacto).",
+      "assets": {
+        "wordmark": {
+          "title": "Wordmark principal",
+          "description": "Uso en navegación, comunicación y superficies horizontales de marca.",
+          "usage": "Header, campañas y piezas editoriales"
+        },
+        "icon": {
+          "title": "Icon mark",
+          "description": "La V angular y su haz de luz funcionan como firma compacta de RAVENUE.",
+          "usage": "Favicon, avatar y app"
+        }
+      }
+    },
+    "color": {
+      "eyebrow": "02 · Color",
+      "title": "Obsidiana, luna y carmín",
+      "description": "Una base nocturna sobria donde el carmín se reserva para marca y acción.",
+      "composition": "Regla de composición",
+      "compositionAria": "70% oscuros, 20% blancos y grises, 10% carmín",
+      "palette": {
+        "obsidian": { "name": "Obsidian", "use": "Fondo base" },
+        "charcoal": { "name": "Charcoal Carbon", "use": "Superficies" },
+        "elevated": { "name": "Elevated", "use": "Superficies elevadas" },
+        "crimson": { "name": "Ravenue Crimson", "use": "Acciones y marca" },
+        "wine": { "name": "Deep Wine", "use": "Pressed y degradados" },
+        "white": { "name": "Moon White", "use": "Texto primario" },
+        "smoke": { "name": "Smoke Gray", "use": "Texto secundario" },
+        "steel": { "name": "Steel Border", "use": "Bordes" },
+        "soft": { "name": "Border Soft", "use": "Bordes fuertes y hover" }
+      }
+    },
+    "typography": {
+      "eyebrow": "03 · Tipografía",
+      "title": "Sora para atraer. Inter para orientar.",
+      "displaySample": "La noche encuentra su lugar.",
+      "displayUsage": "Sora 700 · titulares, campañas y momentos de marca.",
+      "bodySample": "Descubre eventos, locales y experiencias con una interfaz clara incluso cuando la noche apenas comienza.",
+      "scale": "Escala",
+      "usage": "Uso",
+      "uiReading": "UI y lectura",
+      "bodyUsage": "Inter 400–700 · navegación, datos, formularios y cuerpo."
+    },
+    "components": {
+      "eyebrow": "04 · Componentes",
+      "title": "Tokens sobre producto real",
+      "description": "Estados del design system renderizados con la nueva paleta.",
+      "actions": "Acciones y estados",
+      "default": "Default",
+      "hover": "Hover",
+      "disabled": "Disabled",
+      "secondary": "Secundaria",
+      "invitationEmail": "Correo de invitación",
+      "emailPlaceholder": "socio@ravenue.pe",
+      "tonight": "Esta noche",
+      "session": "Sesión RAVENUE",
+      "cardDescription": "Una tarjeta real para validar superficie, borde y jerarquía.",
+      "location": "Centro de Lima · 11:30 p. m.",
+      "access": "Acceso verificado y cupos limitados."
+    },
+    "semantics": {
+      "eyebrow": "05 · Semántica",
+      "title": "Carmín de marca no es error",
+      "error": "Error",
+      "description": "La acción de marca usa un carmín frío y profundo. El estado de error conserva un rojo brillante para distinguir intención de marca y alerta funcional."
+    },
+    "voice": {
+      "eyebrow": "06 · Voz",
+      "title": "Mensajes candidatos",
+      "context": "Contexto",
+      "messages": "Mensajes",
+      "rows": [
+        {
+          "context": "Eslogan principal",
+          "messages": ["Donde la noche encuentra su lugar."]
+        },
+        {
+          "context": "Alternativa",
+          "messages": ["La noche, mejor conectada."]
+        },
+        {
+          "context": "B2C",
+          "messages": [
+            "Encuentra dónde vibra la noche.",
+            "Tu noche empieza aquí."
+          ]
+        },
+        {
+          "context": "B2B",
+          "messages": [
+            "Turn venues into revenue.",
+            "Más visibilidad. Más público. Más negocio."
+          ]
+        }
+      ]
+    },
+    "atmosphere": {
+      "eyebrow": "07 · Atmósfera",
+      "title": "Gradiente institucional",
+      "depth": "Profundidad nocturna sin perder claridad.",
+      "luxury": "Lujo"
+    },
+    "motion": {
+      "eyebrow": "08 · Motion",
+      "title": "Rápido, claro y controlado",
+      "description": "Duraciones canónicas para feedback, transiciones de componentes y cambios de página.",
+      "tokens": {
+        "fast": { "name": "Fast", "use": "Hover y press" },
+        "normal": { "name": "Normal", "use": "Paneles y modales" },
+        "slow": { "name": "Slow", "use": "Transiciones de página" }
+      }
+    }
+  }
+}

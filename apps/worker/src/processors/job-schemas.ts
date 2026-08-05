@@ -25,6 +25,23 @@ export const welcomeEmailJobSchema = z.object({
   email: z.string().email(),
 });
 
+export const localDocumentExpiryWarningJobSchema = z.object({
+  documentId: z.string().uuid(),
+  userId: z.string().uuid(),
+  email: z.string().email(),
+  localName: z.string().min(1),
+  documentType: z.enum([
+    'municipal_license',
+    'itse_certificate',
+    'health_certificate',
+    'other',
+  ]),
+  expiresAt: z.string().date(),
+});
+
 export type OrderTicketsJob = z.infer<typeof orderTicketsJobSchema>;
 export type VerificationEmailJob = z.infer<typeof verificationEmailJobSchema>;
 export type WelcomeEmailJob = z.infer<typeof welcomeEmailJobSchema>;
+export type LocalDocumentExpiryWarningJob = z.infer<
+  typeof localDocumentExpiryWarningJobSchema
+>;

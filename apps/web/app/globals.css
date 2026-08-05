@@ -1,6 +1,7 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
-@import '@urnight/ui/styles.css';
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@urnight/ui/styles.css";
 
 /*
  * Tailwind v4 auto-detección ignora node_modules. Los componentes shadcn viven
@@ -17,89 +18,362 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design tokens — preset b1yPyIlRZq (style sera · base zinc · theme purple ·
- * chart fuchsia · radius small). Fuente única de color: nunca hex/rgb en JSX.
+ * RAVENUE Design System (dark-first).
+ * Lienzo Obsidian Night, Ravenue Crimson #EA0526 como ÚNICO acento hero
+ * y Smoke #A3A8B3 para texto secundario/eyebrows.
+ * Regla de composición: 70% oscuros / 20% blancos-grises / 10% carmín.
+ * Fuente única de color: nunca hex/rgb en JSX.
+ *
+ * Nota de mapeo: en shadcn `--accent` significa "fill sutil de hover" (menús,
+ * selects); aquí se mapea al tinte suave carmín. El acento SÓLIDO de marca
+ * vive en `--primary` / `--rv-crimson`.
  */
 :root {
-  --radius: 0.5rem;
+  /* Familias canónicas; el navegador usa fallbacks del sistema sin bloquear el build. */
+  --font-inter: "Inter";
+  --font-sora: "Space Grotesk"; /* display = Space Grotesk */
+  --font-jetbrains-mono: "JetBrains Mono";
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
+  /* ---- Paleta cruda RAVENUE ---- */
+  --rv-obsidian: #0a0a0d;
+  --rv-crimson: #ea0526;
+  --rv-crimson-hover: #ff1f3d;
+  --rv-wine: #7a0f1f;
+  --rv-rose: #a3a8b3;
+  --rv-moon: #f5f5f7;
+  --rv-smoke: #a3a8b3;
+  --rv-steel: #2f3440;
+  --rv-border-soft: #3a404d;
 
-  --primary: oklch(0.606 0.25 292.717);
-  --primary-foreground: oklch(0.969 0.016 293.756);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
+  /* ---- Escalera de fondos (más oscuro → más claro) ---- */
+  --bg-root: #08080a;
+  --bg-deep: #0a0a0d;
+  --bg-base: #0a0a0d;
+  --bg-surface: #16181b;
+  --bg-card: #16181b;
+  --bg-elevated: #1d2127;
 
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
+  /* ---- Texto ---- */
+  --text-primary: #f5f5f7;
+  --text-secondary: #a3a8b3;
+  --text-muted: rgba(163, 168, 179, 0.72);
+  --text-faint: rgba(163, 168, 179, 0.5);
+  --text-accent: #a3a8b3;
+  --text-accent-soft: rgba(163, 168, 179, 0.7);
+  --text-accent-glow: rgba(227, 23, 50, 0.22);
+  --text-on-accent: #ffffff;
+  --action-link: #ff6b80;
 
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.606 0.25 292.717);
+  /* ---- Acento Ravenue Crimson (extras del DS) ---- */
+  --accent-hover: #c7142d;
+  --accent-deep: #a10f28;
+  --accent-soft-faint: rgba(227, 23, 50, 0.06);
+  --accent-soft: rgba(227, 23, 50, 0.14);
+  --accent-soft-strong: rgba(227, 23, 50, 0.14);
+  --accent-border-subtle: rgba(227, 23, 50, 0.16);
+  --accent-ring: rgba(227, 23, 50, 0.24);
+  --accent-glow: rgba(227, 23, 50, 0.18);
+  --accent-border: rgba(227, 23, 50, 0.22);
+  --accent-hover-soft-faint: rgba(255, 31, 61, 0.06);
+  --accent-hover-border-subtle: rgba(255, 31, 61, 0.2);
+  --catalog-card-hover: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.025) 0%,
+    rgba(227, 23, 50, 0.055) 100%
+  );
 
-  --chart-1: oklch(0.667 0.295 322.15);
-  --chart-2: oklch(0.606 0.25 292.717);
-  --chart-3: oklch(0.541 0.281 293.009);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.558 0.288 302.321);
+  /* ---- Estados semánticos: sólido + foreground legible + tinte + borde ---- */
+  --success: #22c55e;
+  --success-fg: #86efac;
+  --success-soft: rgba(34, 197, 94, 0.14);
+  --success-border: rgba(34, 197, 94, 0.35);
 
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.606 0.25 292.717);
-  --sidebar-primary-foreground: oklch(0.969 0.016 293.756);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.606 0.25 292.717);
+  --warning: #f59e0b;
+  --warning-fg: #fcd34d;
+  --warning-soft: rgba(245, 158, 11, 0.14);
+  --warning-border: rgba(245, 158, 11, 0.35);
+
+  --error: #ef4444;
+  --error-fg: #fca5a5;
+  --error-soft: rgba(239, 68, 68, 0.14);
+  --error-border: rgba(239, 68, 68, 0.4);
+
+  --info: #60a5fa;
+  --info-fg: #93c5fd;
+  --info-soft: rgba(96, 165, 250, 0.14);
+  --info-border: rgba(96, 165, 250, 0.35);
+
+  /* ---- Atmósfera (glow controlado, nunca neón pesado) ---- */
+  --glow-hero: radial-gradient(ellipse at top, #2a0810 0%, #0a0a0d 60%);
+  --glow-spot: radial-gradient(
+    circle,
+    rgba(227, 23, 50, 0.14),
+    transparent 60%
+  );
+  --gradient-primary:
+    linear-gradient(120deg, rgba(227, 23, 50, 0.25), rgba(46, 7, 22, 0.8) 60%),
+    #2e0716;
+  --gradient-brand: linear-gradient(
+    135deg,
+    #0a0a0d 0%,
+    #16181b 55%,
+    #7a0f1f 100%
+  );
+  --gradient-luxury: linear-gradient(90deg, #0a0a0d 0%, #7a0f1f 100%);
+  --gradient-spotlight: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(245, 245, 247, 0.14) 0%,
+    rgba(10, 10, 13, 0) 70%
+  );
+
+  /* ---- Elevación: sombras profundas y suaves; glow = firma de marca ---- */
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --shadow-card-sm: var(--shadow-sm);
+  --shadow-card-md: var(--shadow-md);
+  --shadow-card-lg: var(--shadow-lg);
+  --shadow-card-xl: 0 30px 80px rgba(0, 0, 0, 0.6);
+  --glow-btn: 0 0 8px rgba(227, 23, 50, 0.14);
+  --glow-btn-lg: 0 0 12px rgba(227, 23, 50, 0.16);
+  --glow-chip: 0 0 8px rgba(227, 23, 50, 0.14);
+  --glow-text: 0 0 40px rgba(227, 23, 50, 0.5);
+  --blur-nav: blur(14px);
+  --blur-modal: blur(6px);
+  --overlay-scrim: rgba(10, 10, 13, 0.72);
+  --auth-copy-shadow: 0 1px 16px rgba(0, 0, 0, 0.55);
+  --hero-scrim: linear-gradient(
+    90deg,
+    var(--bg-root) 0%,
+    rgba(5, 5, 10, 0.96) 40%,
+    rgba(5, 5, 10, 0.78) 68%,
+    rgba(5, 5, 10, 0.6) 100%
+  );
+  --feature-scrim: linear-gradient(
+    90deg,
+    rgba(5, 5, 10, 0.96) 0%,
+    rgba(5, 5, 10, 0.84) 52%,
+    rgba(5, 5, 10, 0.28) 100%
+  );
+  --detail-scrim: linear-gradient(
+    180deg,
+    rgba(5, 5, 10, 0.2) 35%,
+    var(--bg-root) 100%
+  );
+
+  /* ---- Motion: rápido y calmado ---- */
+  --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --motion-fast: 120ms;
+  --motion-normal: 220ms;
+  --motion-slow: 360ms;
+  --dur-fast: 0.12s;
+  --dur-base: 0.18s;
+  --dur-slow: 0.25s;
+
+  /* ---- Semántica shadcn mapeada al DS ---- */
+  --radius: 12px; /* radius-md del DS: botones e inputs */
+
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+  --card: var(--bg-card);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-elevated);
+  --popover-foreground: var(--text-primary);
+
+  --primary: var(--rv-crimson);
+  --primary-foreground: var(--text-on-accent);
+  --secondary: rgba(
+    255,
+    255,
+    255,
+    0.06
+  ); /* botón secundario DS: fill blanco sutil */
+  --secondary-foreground: var(--text-primary);
+  --field: rgba(255, 255, 255, 0.04); /* fondo de inputs DS */
+  --muted: var(--bg-surface);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--accent-soft);
+  --accent-foreground: var(--text-primary);
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --border: var(--rv-steel);
+  --border-strong: var(--rv-border-soft);
+  --border-faint: rgba(255, 255, 255, 0.05);
+  --input: rgba(255, 255, 255, 0.14);
+  --ring: var(--accent-ring);
+
+  --chart-1: var(--rv-crimson);
+  --chart-2: #ff1f3d;
+  --chart-3: #a3a8b3;
+  --chart-4: #7a0f1f;
+  --chart-5: #60a5fa;
+
+  --sidebar: var(--bg-deep);
+  --sidebar-foreground: var(--text-secondary);
+  --sidebar-primary: var(--rv-crimson);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--accent-soft);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--accent-ring);
 }
 
+/* Dark es el tema por defecto; `.light` remapea superficies y texto semánticos. */
+:root,
 .dark {
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
+  color-scheme: dark;
+}
 
-  --primary: oklch(0.541 0.281 293.009);
-  --primary-foreground: oklch(0.969 0.016 293.756);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
+.light {
+  color-scheme: light;
 
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
+  --rv-rose: #4f5663;
+  --rv-smoke: #5e6470;
+  --rv-steel: #8a94a3;
+  --rv-border-soft: #aeb6c2;
 
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.541 0.281 293.009);
+  --bg-root: #f5f5f7;
+  --bg-deep: #f5f5f7;
+  --bg-base: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-elevated: #eef0f3;
 
-  --chart-1: oklch(0.667 0.295 322.15);
-  --chart-2: oklch(0.606 0.25 292.717);
-  --chart-3: oklch(0.541 0.281 293.009);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.558 0.288 302.321);
+  --text-primary: #111214;
+  --text-secondary: #5e6470;
+  --text-muted: #5e6470;
+  --text-faint: #667085;
+  --text-accent: #a10f28;
+  --text-accent-soft: #5e6470;
+  --text-accent-glow: rgba(161, 15, 40, 0.12);
+  --action-link: #a10f28;
 
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.541 0.281 293.009);
-  --sidebar-primary-foreground: oklch(0.969 0.016 293.756);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.541 0.281 293.009);
+  --success: #15803d;
+  --success-fg: #166534;
+  --success-soft: #f0fdf4;
+  --success-border: #15803d;
+  --warning: #a16207;
+  --warning-fg: #854d0e;
+  --warning-soft: #fffbeb;
+  --warning-border: #a16207;
+  --error: #b91c1c;
+  --error-fg: #991b1b;
+  --error-soft: #fef2f2;
+  --error-border: #b91c1c;
+  --info: #1d4ed8;
+  --info-fg: #1e40af;
+  --info-soft: #eff6ff;
+  --info-border: #1d4ed8;
+
+  --accent-hover: #c7142d;
+  --accent-deep: #a10f28;
+  --accent-soft-faint: rgba(161, 15, 40, 0.05);
+  --accent-soft: rgba(161, 15, 40, 0.1);
+  --accent-soft-strong: rgba(161, 15, 40, 0.1);
+  --catalog-card-hover: linear-gradient(
+    135deg,
+    rgba(17, 18, 20, 0.015) 0%,
+    rgba(161, 15, 40, 0.04) 100%
+  );
+  --accent-border-subtle: rgba(161, 15, 40, 0.16);
+  --accent-border: rgba(161, 15, 40, 0.22);
+  --accent-ring: rgba(161, 15, 40, 0.24);
+
+  --overlay-scrim: rgba(17, 18, 20, 0.55);
+  --auth-copy-shadow: none;
+  --glow-hero: radial-gradient(ellipse at top, #fde8ec 0%, #f5f5f7 60%);
+  --glow-spot: radial-gradient(
+    circle,
+    rgba(161, 15, 40, 0.06),
+    transparent 60%
+  );
+  --gradient-primary:
+    linear-gradient(
+      120deg,
+      rgba(161, 15, 40, 0.1),
+      rgba(255, 255, 255, 0.88) 60%
+    ),
+    #ffffff;
+  --gradient-brand: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #f5f5f7 58%,
+    #f7dce2 100%
+  );
+  --gradient-luxury: linear-gradient(90deg, #ffffff 0%, #f3d3da 100%);
+  --gradient-spotlight: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(161, 15, 40, 0.06) 0%,
+    rgba(245, 245, 247, 0) 68%
+  );
+
+  --shadow-sm:
+    0 1px 2px rgba(17, 18, 20, 0.06), 0 4px 12px rgba(17, 18, 20, 0.05);
+  --shadow-md:
+    0 1px 2px rgba(17, 18, 20, 0.06), 0 8px 24px rgba(17, 18, 20, 0.08);
+  --shadow-lg:
+    0 2px 6px rgba(17, 18, 20, 0.08), 0 16px 40px rgba(17, 18, 20, 0.12);
+  --shadow-card-sm: var(--shadow-sm);
+  --shadow-card-md: var(--shadow-md);
+  --shadow-card-lg: var(--shadow-lg);
+  --shadow-card-xl: 0 20px 54px rgba(17, 18, 20, 0.16);
+  --glow-btn: 0 3px 8px rgba(161, 15, 40, 0.08);
+  --glow-btn-lg: 0 5px 12px rgba(161, 15, 40, 0.1);
+  --glow-chip: 0 2px 8px rgba(161, 15, 40, 0.08);
+  --glow-text: 0 4px 16px rgba(161, 15, 40, 0.12);
+  --hero-scrim: linear-gradient(
+    90deg,
+    rgba(245, 245, 247, 0.98) 0%,
+    rgba(255, 255, 255, 0.95) 40%,
+    rgba(245, 245, 247, 0.72) 68%,
+    rgba(245, 245, 247, 0.45) 100%
+  );
+  --detail-scrim: linear-gradient(
+    180deg,
+    rgba(17, 18, 20, 0.28) 25%,
+    rgba(245, 245, 247, 0.9) 84%,
+    var(--bg-root) 100%
+  );
+
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+  --card: var(--bg-card);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--rv-crimson);
+  --primary-foreground: #ffffff;
+  --secondary: transparent;
+  --secondary-foreground: var(--text-primary);
+  --field: rgba(17, 18, 20, 0.04);
+  --muted: var(--bg-elevated);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--accent-soft);
+  --accent-foreground: var(--text-primary);
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+  --border: #858e9c;
+  --border-strong: #707887;
+  --border-faint: rgba(17, 18, 20, 0.09);
+  --input: #858e9c;
+  --ring: var(--accent-ring);
+  --chart-1: var(--rv-crimson);
+  --chart-2: #a10f28;
+  --chart-3: #4f5663;
+  --chart-4: #7a0f1f;
+  --chart-5: #1d4ed8;
+  --sidebar: var(--bg-deep);
+  --sidebar-foreground: var(--text-secondary);
+  --sidebar-primary: var(--rv-crimson);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--accent-soft);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--accent-ring);
 }
 
 @theme inline {
@@ -136,13 +410,104 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-raleway), ui-sans-serif, system-ui, sans-serif;
+  /* Escalera de fondos, paleta y extras RAVENUE como utilidades
+     (bg-root, bg-surface, text-rose, border-strong…). */
+  --color-root: var(--bg-root);
+  --color-deep: var(--bg-deep);
+  --color-surface: var(--bg-surface);
+  --color-elevated: var(--bg-elevated);
+  --color-obsidian: var(--rv-obsidian);
+  --color-crimson: var(--rv-crimson);
+  --color-wine: var(--rv-wine);
+  --color-rose: var(--rv-rose);
+  --color-moon: var(--rv-moon);
+  --color-smoke: var(--rv-smoke);
+  --color-steel: var(--rv-steel);
+  --color-border-soft: var(--rv-border-soft);
+  --color-strong: var(--border-strong);
+  --color-field: var(--field);
+  --color-primary-hover: var(--accent-hover);
+  --color-primary-active: var(--accent-deep);
+  --color-accent-border: var(--accent-border);
 
-  --radius-sm: calc(var(--radius) - 2px);
-  --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) + 2px);
-  --radius-xl: calc(var(--radius) + 6px);
+  /* Estados semánticos (pills tintados sobre oscuro) */
+  --color-success: var(--success);
+  --color-success-fg: var(--success-fg);
+  --color-success-soft: var(--success-soft);
+  --color-success-border: var(--success-border);
+  --color-warning: var(--warning);
+  --color-warning-fg: var(--warning-fg);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-border: var(--warning-border);
+  --color-error: var(--error);
+  --color-error-fg: var(--error-fg);
+  --color-error-soft: var(--error-soft);
+  --color-error-border: var(--error-border);
+  --color-info: var(--info);
+  --color-info-fg: var(--info-fg);
+  --color-info-soft: var(--info-soft);
+  --color-info-border: var(--info-border);
+
+  /* Inter para toda la UI y headings; Sora SOLO para titulares hero/marketing */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display:
+    var(--font-sora), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  /* Canonical type scale */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.04em;
+  --tracking-caps: 0.12em;
+  --size-display: 56px;
+  --line-display: 64px;
+  --size-h1: 40px;
+  --line-h1: 48px;
+  --size-h2: 32px;
+  --line-h2: 40px;
+  --size-h3: 24px;
+  --line-h3: 32px;
+  --size-h4: 20px;
+  --line-h4: 28px;
+  --size-title: 18px;
+  --line-title: 26px;
+  --size-body: 16px;
+  --line-body: 24px;
+  --size-body-sm: 14px;
+  --line-body-sm: 20px;
+  --size-label: 13px;
+  --line-label: 18px;
+  --size-caption: 12px;
+  --line-caption: 16px;
+
+  /* Base-4 spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Escala de radios del DS: 8 / 12 / 16 / 20 / 24; pill solo chips y badges */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-pill: 999px;
+
+  /* Sombras/glow como utilidades (shadow-glow, shadow-float…) */
+  --shadow-glow: var(--glow-btn);
+  --shadow-glow-lg: var(--glow-btn-lg);
+  --shadow-float: var(--shadow-card-md);
+  --shadow-overlay: var(--shadow-card-lg);
 }
 
 @layer base {
@@ -150,12 +515,568 @@
     border-color: var(--color-border);
   }
   body {
-    background-color: var(--color-background);
+    background-color: var(--bg-root);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+  }
+  ::selection {
+    background: var(--accent-soft-strong);
+    color: #fff;
+  }
+
+  /* Affordance de click. Tailwind v4 dejó los botones con `cursor: default`
+     (cambio de preflight respecto a v3); aquí lo recuperamos para todo lo
+     clickeable de una vez, y `not-allowed` cuando la lógica de negocio lo
+     apaga (agotado, mesa reservada, etc.) — la mano solo aparece si el click
+     realmente hace algo. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  input[type="submit"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  select:not(:disabled),
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  input:disabled,
+  select:disabled {
+    cursor: not-allowed;
+  }
+
+  /* Scrollbar oscuro de marca */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-base);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--rv-steel);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(163, 168, 179, 0.24);
+  }
+}
+
+@layer components {
+  /* Eyebrow rosa en mayúsculas espaciadas (labels de sección) */
+  .rv-eyebrow {
+    font-size: 11.5px;
+    color: var(--text-accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  /* Placeholder de imagen de marca: trama diagonal carmín + chip rotulado.
+     Se usa donde aún no hay fotografía real. */
+  .rv-img-ph {
+    position: relative;
+    overflow: hidden;
+    background:
+      repeating-linear-gradient(
+        135deg,
+        rgba(227, 23, 50, 0.1) 0 14px,
+        rgba(227, 23, 50, 0.04) 14px 28px
+      ),
+      var(--bg-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(163, 168, 179, 0.6);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .rv-img-ph::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at 30% 30%,
+      rgba(227, 23, 50, 0.15),
+      transparent 60%
+    );
+  }
+  .rv-img-ph > span {
+    position: relative;
+    z-index: 1;
+    padding: 4px 10px;
+    background: rgba(9, 9, 13, 0.7);
+    border: 1px solid rgba(163, 168, 179, 0.2);
+    border-radius: 6px;
+  }
+
+  /* Fondo hero con wash carmín vertical (atmósfera, no neón) */
+  .rv-hero-glow {
+    background: var(--glow-hero);
+  }
+
+  /* Chip de filtro del prototipo: pill oscura con hairline; activa = tinte carmín */
+  .rv-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease,
+      color 160ms ease,
+      transform 160ms ease;
+  }
+  /* El lift/hover solo aplica a chips REALMENTE interactivos (filtros que son
+     <a>/<button>). Los .rv-chip decorativos de las pantallas de auth son
+     <span>: no deben parecer clickeables (el cursor pointer lo dan el anchor
+     nativo y la regla global de botones, no la clase). */
+  a.rv-chip:hover,
+  button.rv-chip:hover {
+    border-color: var(--accent-border);
+    color: var(--color-foreground);
+    transform: translateY(-1px);
+  }
+  .rv-chip[data-active="true"] {
+    background: var(--accent-soft-strong);
+    border-color: var(--accent-border);
+    color: var(--text-primary);
+  }
+
+  /* Carrusel horizontal con snap (categorías, rails de cards) */
+  .rv-hscroll {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+  }
+  .rv-hscroll > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  /* Reveal on-scroll: estado oculto → visible con fade-up (JS agrega .is-visible) */
+  .rv-reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .rv-reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Glow respirando para heros (atmósfera lenta, no estroboscópica) */
+  .rv-breathe {
+    animation: rv-breathe 7s ease-in-out infinite;
+  }
+
+  /* Zoom suave de imagen dentro de cards clickeables.
+     Se transicionan `transform` Y `scale` porque son propiedades distintas y
+     conviven: `.rv-zoom-img:hover img` (aquí abajo) escribe `transform`, pero
+     las utilidades de Tailwind v4 (`group-hover:scale-105`, que usa event-card
+     porque su link estirado tapa el `:hover` del wrapper) escriben `scale`.
+     Con solo `transform` en la lista, ese segundo caso saltaría sin animar. */
+  .rv-zoom-img img {
+    transition:
+      transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
+      scale 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .rv-zoom-img:hover img {
+    transform: scale(1.05);
+  }
+
+  /* Reveal con profundidad: entra rotando en X (sensación de acercarse en 3D) */
+  .rv-reveal-3d {
+    opacity: 0;
+    transform: perspective(1000px) rotateX(8deg) translateY(28px);
+    transform-origin: center bottom;
+    transition:
+      opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .rv-reveal-3d.is-visible {
+    opacity: 1;
+    transform: perspective(1000px) rotateX(0) translateY(0);
+  }
+
+  /* Tilt 3D siguiendo el puntero (Tilt component setea --tilt-rx/ry/gx/gy) */
+  .rv-tilt {
+    transform: perspective(900px) rotateX(var(--tilt-rx, 0deg))
+      rotateY(var(--tilt-ry, 0deg));
+    transform-style: preserve-3d;
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  /* Brillo especular que sigue al puntero, encima del contenido de la card */
+  .rv-tilt[data-glare] {
+    position: relative;
+  }
+  .rv-tilt[data-glare]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      circle at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
+      rgba(255, 255, 255, 0.18),
+      transparent 45%
+    );
+    opacity: 0;
+    transition: opacity 220ms ease;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .rv-tilt[data-glare]:hover::after {
+    opacity: 1;
+  }
+
+  /* Capa con parallax por scroll (Parallax component setea --parallax-y) */
+  .rv-parallax {
+    transform: translate3d(0, var(--parallax-y, 0), 0);
+    will-change: transform;
+  }
+
+  /* ===================================================================
+     Capa 3D. Todo es CSS 3D (perspective + preserve-3d + translateZ):
+     sin WebGL, sin deps. Los componentes de components/motion/ setean
+     las variables --spot-* y --logo-* por puntero o scroll; el
+     navegador compone en GPU.
+     =================================================================== */
+
+  /* Escenario: abre un espacio con profundidad real para los hijos.
+     Sin esto, el translateZ de un descendiente no se ve. */
+  .rv-stage {
+    perspective: var(--stage-persp, 1200px);
+    perspective-origin: var(--stage-origin, 50% 50%);
+    transform-style: preserve-3d;
+  }
+
+  /* ---------- Muro de noches ---------- */
+
+  .rv-wall {
+    transform-style: preserve-3d;
+  }
+  .rv-wall__row {
+    display: flex;
+    width: max-content;
+    gap: 1.25rem;
+    will-change: transform;
+  }
+  .rv-poster {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background-image: var(--poster-bg, var(--gradient-primary));
+    background-size: cover;
+    background-position: center;
+    box-shadow: var(--shadow-card-md);
+    transition:
+      transform 320ms var(--ease-brand),
+      box-shadow 320ms var(--ease-brand);
+  }
+  /* El poster sale del plano hacia la cámara: profundidad de verdad,
+     no un scale disfrazado. */
+  .rv-poster:hover {
+    transform: translateZ(48px);
+    box-shadow: var(--shadow-card-xl);
+  }
+
+  /* ---------- Spotlight ---------- */
+
+  /* Luz de club que sigue al cursor. Va detrás del contenido (z-index -1
+     dentro de un isolation:isolate) para no lavar el texto. */
+  .rv-spotlight {
+    position: relative;
+    isolation: isolate;
+  }
+  .rv-spotlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: var(--spot-op, 0);
+    transition: opacity 500ms ease;
+    background: radial-gradient(
+      var(--spot-size, 600px) circle at var(--spot-x, 50%) var(--spot-y, 0%),
+      rgba(227, 23, 50, 0.18),
+      rgba(227, 23, 50, 0.05) 40%,
+      transparent 70%
+    );
+  }
+
+  /* ---------- Logo con luz y profundidad ---------- */
+
+  .rv-logo3d {
+    position: relative;
+    transform: perspective(600px) rotateX(var(--logo-rx, 0deg))
+      rotateY(var(--logo-ry, 0deg));
+    transform-style: preserve-3d;
+    transition: transform 320ms var(--ease-brand);
+  }
+  /* La marca flota por delante del wordmark: al inclinar, el desfase entre
+     ambos planos es lo que se lee como volumen. */
+  .rv-logo3d__mark {
+    position: relative;
+    transform: translateZ(20px);
+    transform-style: preserve-3d;
+  }
+  .rv-logo3d__word {
+    transform: translateZ(8px);
+  }
+  /* Brillo diagonal acotado al icono real; no usa la silueta heredada de la V. */
+  .rv-logo3d__sweep {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      105deg,
+      transparent 42%,
+      color-mix(in srgb, var(--foreground) 65%, transparent) 50%,
+      transparent 58%
+    );
+    background-size: 300% 100%;
+    background-position: 220% 0;
+    opacity: 0;
+    /* Recortado con la silueta real del cuervo: sin esto la banda blanca cruza
+       toda la caja del icono (incluidas las esquinas transparentes) y se lee
+       como un rectángulo en vez de un brillo sobre la marca. */
+    mask-image: url("/brand/icon-mark.png");
+    -webkit-mask-image: url("/brand/icon-mark.png");
+    mask-size: contain;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-position: center;
+  }
+  .rv-logo3d[data-sweep="true"] .rv-logo3d__sweep {
+    opacity: 1;
+    animation: rv-sweep 1100ms var(--ease-brand) both;
+  }
+
+  /* Modo claro: jerarquía por borde + sombra, no por manchas oscuras. */
+  .light .bg-card.border {
+    box-shadow: var(--shadow-card-sm);
+  }
+  .light .rv-img-ph {
+    background:
+      repeating-linear-gradient(
+        135deg,
+        rgba(161, 15, 40, 0.07) 0 14px,
+        rgba(161, 15, 40, 0.025) 14px 28px
+      ),
+      var(--bg-elevated);
+    color: var(--text-muted);
+  }
+  .light .rv-img-ph::after {
+    background: radial-gradient(
+      circle at 30% 30%,
+      rgba(161, 15, 40, 0.06),
+      transparent 60%
+    );
+  }
+  .light .rv-img-ph > span {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+  }
+  .rv-auth-copy {
+    text-shadow: var(--auth-copy-shadow);
+  }
+  .light .rv-tilt[data-glare]::after {
+    background: radial-gradient(
+      circle at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
+      rgba(161, 15, 40, 0.06),
+      transparent 48%
+    );
+  }
+  .light .rv-spotlight::before {
+    background: radial-gradient(
+      var(--spot-size, 600px) circle at var(--spot-x, 50%) var(--spot-y, 0%),
+      rgba(161, 15, 40, 0.07),
+      rgba(161, 15, 40, 0.018) 40%,
+      transparent 70%
+    );
+  }
+  .light .rv-auth-art .rv-float {
+    border-color: var(--border);
+    box-shadow: var(--shadow-card-md);
+  }
+  .light .rv-auth-art .rv-float:nth-child(1) {
+    background: linear-gradient(150deg, #f1c8d1, #ffffff);
+  }
+  .light .rv-auth-art .rv-float:nth-child(2) {
+    background: linear-gradient(150deg, #ead3d9, var(--bg-elevated));
+  }
+  .light .rv-auth-art .rv-float:nth-child(3) {
+    background: linear-gradient(150deg, #f4e5cf, #ffffff);
+  }
+}
+
+.light .bg-black\/80 {
+  background-color: var(--overlay-scrim);
+}
+
+/* Los primitivos compartidos conservan `white/5` para dark; en panel claro
+   ese fill necesita una superficie semántica visible. */
+.light [data-area="panels"] .bg-white\/5 {
+  background-color: var(--bg-elevated);
+}
+
+.light [data-area="panels"] .hover\:bg-white\/5:hover {
+  background-color: var(--accent);
+}
+
+@keyframes rv-sweep {
+  0% {
+    background-position: 220% 0;
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    background-position: -120% 0;
+    opacity: 0;
+  }
+}
+
+@keyframes rv-breathe {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+/* Transición entre páginas: fade-up corto al montar cada ruta (app/template.tsx).
+   Ease-out fuerte y <350ms: la navegación se siente viva sin estorbar. */
+@keyframes rv-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rv-page-in {
+  animation: rv-page-in 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.rv-catalog-card-hover {
+  background-image: var(--catalog-card-hover);
+}
+
+/* Deriva lenta para el collage de flyers del hero de auth: sube/baja y gira un
+   pelo, en bucle. Da la sensación de "posters flotando" del prototipo sin
+   cargar imágenes (solo transform, compone en GPU). */
+@keyframes rv-drift {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--drift-rot, 0deg));
+  }
+  50% {
+    transform: translateY(var(--drift-y, -14px)) rotate(var(--drift-rot, 0deg));
+  }
+}
+.rv-float {
+  animation: rv-drift var(--drift-dur, 9s) ease-in-out infinite;
+  will-change: transform;
+}
+
+html {
+  scroll-padding-top: var(--space-16);
+}
+
+/* Accesibilidad: sin movimiento para quien lo pide */
+@media (prefers-reduced-motion: reduce) {
+  .rv-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .rv-breathe {
+    animation: none;
+  }
+  .rv-float {
+    animation: none;
+  }
+  .rv-page-in {
+    animation: none;
+  }
+  .rv-zoom-img img {
+    transition: none;
+  }
+  .rv-reveal-3d {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .rv-tilt {
+    transform: none;
+    transition: none;
+  }
+  .rv-parallax {
+    transform: none;
+  }
+  .rv-poster {
+    transition: none;
+  }
+  .rv-poster:hover {
+    transform: none;
+  }
+  .rv-spotlight::before {
+    display: none;
+  }
+  .rv-logo3d {
+    transform: none;
+    transition: none;
+  }
+  .rv-logo3d__mark,
+  .rv-logo3d__word {
+    transform: none;
+  }
+  .rv-logo3d__sweep {
+    display: none;
+  }
+  .rv-logo3d[data-sweep="true"] .rv-logo3d__sweep {
+    animation: none;
   }
 }

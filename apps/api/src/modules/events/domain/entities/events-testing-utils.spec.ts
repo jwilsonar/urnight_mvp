@@ -37,6 +37,7 @@ describe('InMemoryEventRepository', () => {
 
     expect(await repo.listPublished()).toHaveLength(2);
     expect(await repo.listPublished({ localId: 'l1' })).toHaveLength(1);
+    expect((await repo.listPublished({ localId: 'l1' }))[0]?.event.localId).toBe('l1');
   });
 
   it('update reemplaza el evento existente', async () => {

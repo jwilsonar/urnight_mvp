@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
   buttonVariants,
   cn,
-} from '@urnight/ui';
+} from "@urnight/ui";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -36,7 +36,7 @@ export function ConfirmDialog({
   onOpenChange,
   title,
   description,
-  confirmLabel = 'Eliminar',
+  confirmLabel = "Eliminar",
   destructive = true,
   pending,
   onConfirm,
@@ -46,13 +46,17 @@ export function ConfirmDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          {description ? <AlertDialogDescription>{description}</AlertDialogDescription> : null}
+          {description ? (
+            <AlertDialogDescription>{description}</AlertDialogDescription>
+          ) : null}
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={pending}>Cancelar</AlertDialogCancel>
           <AlertDialogAction
             disabled={pending}
-            className={cn(destructive && buttonVariants({ variant: 'destructive' }))}
+            className={cn(
+              destructive && buttonVariants({ variant: "destructive" }),
+            )}
             onClick={onConfirm}
           >
             {confirmLabel}

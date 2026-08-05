@@ -9,6 +9,8 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import type { z } from 'zod';
 import {
+  DEFAULT_SESSION_IDLE_TIMEOUT_MINUTES,
+  SESSION_IDLE_TIMEOUT_SETTING_KEY,
   upsertPlatformSettingSchema,
   type PlatformSettingResponse,
   type UpsertPlatformSettingDto,
@@ -57,9 +59,9 @@ export function PlatformSettingEditor() {
   const form = useForm<z.input<typeof upsertPlatformSettingSchema>, unknown, UpsertPlatformSettingDto>({
     resolver: zodResolver(upsertPlatformSettingSchema),
     defaultValues: {
-      key: '',
-      value: '',
-      valueType: 'string',
+      key: SESSION_IDLE_TIMEOUT_SETTING_KEY,
+      value: String(DEFAULT_SESSION_IDLE_TIMEOUT_MINUTES),
+      valueType: 'number',
     },
   });
 
@@ -115,11 +117,12 @@ export function PlatformSettingEditor() {
                 <FormLabel>Clave</FormLabel>
                 <div className="flex gap-2">
                   <FormControl>
-                    <Input placeholder="p.ej. checkout.fee_percent" {...field} />
+                    <Input placeholder="p.ej. session.idle_timeout_minutes" {...field} />
                   </FormControl>
                   <Button
                     type="button"
                     variant="outline"
+                    className="text-foreground"
                     onClick={onLoad}
                     disabled={loadMutation.isPending}
                   >
@@ -173,6 +176,11 @@ export function PlatformSettingEditor() {
                     {...field}
                   />
                 </FormControl>
+                {form.watch('key') === SESSION_IDLE_TIMEOUT_SETTING_KEY ? (
+                  <FormDescription>
+                    Usa un entero entre 5 y 1440. Si no existe, el valor efectivo es 30 minutos.
+                  </FormDescription>
+                ) : null}
                 <FormDescription>
                   El valor se almacena como texto; el tipo solo indica cómo interpretarlo.
                 </FormDescription>

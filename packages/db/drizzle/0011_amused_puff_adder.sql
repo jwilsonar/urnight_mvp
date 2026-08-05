@@ -1,0 +1,6 @@
+ALTER TABLE "affiliation_request" ADD COLUMN "terms_accepted" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "affiliation_request" ADD COLUMN "terms_accepted_at" timestamp with time zone;--> statement-breakpoint
+ALTER TABLE "affiliation_request" ADD COLUMN "legal_declaration_accepted" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "affiliation_request" ADD COLUMN "legal_declaration_accepted_at" timestamp with time zone;--> statement-breakpoint
+ALTER TABLE "affiliation_request" ADD CONSTRAINT "affiliation_request_terms_acceptance_check" CHECK (("affiliation_request"."terms_accepted" = false and "affiliation_request"."terms_accepted_at" is null) or ("affiliation_request"."terms_accepted" = true and "affiliation_request"."terms_accepted_at" is not null));--> statement-breakpoint
+ALTER TABLE "affiliation_request" ADD CONSTRAINT "affiliation_request_legal_declaration_acceptance_check" CHECK (("affiliation_request"."legal_declaration_accepted" = false and "affiliation_request"."legal_declaration_accepted_at" is null) or ("affiliation_request"."legal_declaration_accepted" = true and "affiliation_request"."legal_declaration_accepted_at" is not null));

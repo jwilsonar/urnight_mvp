@@ -13,6 +13,7 @@ import {
   LOCAL_VERIFICATION_REPOSITORY,
   type LocalVerificationRepository,
 } from '../../domain/ports/local-verification.repository';
+import { GetLocalVerificationStatusUseCase } from './get-local-verification-status.use-case';
 
 /** Caso de uso: revisar verificación (super_admin). Deriva local.isVerified. */
 @Injectable()
@@ -24,6 +25,7 @@ export class ReviewVerificationUseCase {
     private readonly verifications: LocalVerificationRepository,
     @Inject(LOCAL_REPOSITORY) private readonly locals: LocalRepository,
     private readonly events: EventBus,
+    private readonly getDocumentStatus: GetLocalVerificationStatusUseCase,
   ) {}
 
   async execute(input: {
@@ -45,7 +47,8 @@ export class ReviewVerificationUseCase {
       this.log.warn({ localId: saved.localId }, 'companies.verification.local_not_found');
       throw new LocalNotFoundError();
     }
-    local.setVerified(saved.grantsVerification());
+    const documentStatus = await this.getDocumentStatus.execute(local.id);
+    local.setVerified(documentStatus?.verified ?? saved.grantsVerification());
     await this.locals.update(local);
 
     await this.events.publish(

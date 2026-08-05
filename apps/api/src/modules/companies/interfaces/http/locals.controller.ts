@@ -30,6 +30,11 @@ import { ZodValidationPipe } from '../../../../edge/pipes/zod-validation.pipe';
 import { STORAGE_PORT, type StoragePort } from '../../../../shared/adapters/storage/storage.port';
 import { CreateLocalUseCase } from '../../application/use-cases/create-local.use-case';
 import { GetLocalUseCase } from '../../application/use-cases/get-local.use-case';
+import { GetLocalVerificationUseCase } from '../../application/use-cases/get-local-verification.use-case';
+import {
+  GetLocalVerificationStatusUseCase,
+  type LocalVerificationStatusResult,
+} from '../../application/use-cases/get-local-verification-status.use-case';
 import { ListLocalsUseCase } from '../../application/use-cases/list-locals.use-case';
 import { ListMyLocalsUseCase } from '../../application/use-cases/list-my-locals.use-case';
 import { PublishLocalUseCase } from '../../application/use-cases/publish-local.use-case';
@@ -45,6 +50,8 @@ export class LocalsController {
     private readonly listLocals: ListLocalsUseCase,
     private readonly listMyLocals: ListMyLocalsUseCase,
     private readonly getLocal: GetLocalUseCase,
+    private readonly getLocalVerification: GetLocalVerificationUseCase,
+    private readonly getLocalVerificationStatus: GetLocalVerificationStatusUseCase,
     private readonly createLocal: CreateLocalUseCase,
     private readonly publishLocal: PublishLocalUseCase,
     private readonly suspendLocal: SuspendLocalUseCase,
@@ -73,7 +80,12 @@ export class LocalsController {
   @Public()
   @Get(':slug')
   async detail(@Param('slug') slug: string): Promise<LocalResponse> {
-    return this.toResponse(await this.getLocal.execute(slug));
+    const local = await this.getLocal.execute(slug);
+    const [verification, documentStatus] = await Promise.all([
+      this.getLocalVerification.execute(local.id),
+      this.getLocalVerificationStatus.execute(local.id),
+    ]);
+    return toLocalResponse(local, this.storage, verification, documentStatus);
   }
 
   @Roles('admin_local')
@@ -131,7 +143,8 @@ export class LocalsController {
   async verify(
     @CurrentUser() actor: AuthUser,
     @Param('id', ParseUUIDPipe) id: string,
-    @Body(new ZodValidationPipe(requestVerificationSchema)) dto: RequestVerificationDto,
+    @Body(new ZodValidationPipe(requestVerificationSchema))
+    dto: RequestVerificationDto,
   ): Promise<VerificationResponse> {
     const scope = tenantScopeOf(actor);
     return toVerificationResponse(
@@ -148,7 +161,10 @@ export class LocalsController {
 export function toLocalResponse(
   l: Local,
   storage: Pick<StoragePort, 'resolveUrl'>,
+  verification?: LocalVerification | null,
+  documentStatus?: LocalVerificationStatusResult | null,
 ): LocalResponse {
+  const derivedVerified = documentStatus?.verified ?? l.isVerified;
   return {
     id: l.id,
     companyId: l.companyId,
@@ -162,7 +178,16 @@ export function toLocalResponse(
     // La portada se persiste como key/ref; se resuelve a URL pública aquí.
     mainImageUrl: l.mainImageKey ? storage.resolveUrl(l.mainImageKey) : null,
     status: l.status,
-    isVerified: l.isVerified,
+    isVerified: derivedVerified,
+    verificationStatus: documentStatus
+      ? documentStatus.verified
+        ? 'approved'
+        : 'unverified'
+      : (verification?.status ?? (l.isVerified ? 'approved' : 'unverified')),
+    verificationReviewedAt:
+      documentStatus?.reviewedAt?.toISOString() ??
+      verification?.reviewedAt?.toISOString() ??
+      null,
     createdAt: l.createdAt.toISOString(),
   };
 }
@@ -174,6 +199,7 @@ export function toVerificationResponse(v: LocalVerification): VerificationRespon
     status: v.status,
     licenseReference: v.licenseReference,
     validUntil: v.validUntil,
+    reviewedAt: v.reviewedAt?.toISOString() ?? null,
     createdAt: v.createdAt.toISOString(),
   };
 }

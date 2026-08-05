@@ -2,8 +2,9 @@
 
 import { PanelPageHeader } from '@/components/panels/panel-page-header';
 import { AssignedEventsTable } from '@/components/promoter/assigned-events-table';
+import { LinkInvitadosCard } from '@/components/promoter/link-invitados-card';
+import { PersonalizableReferralLinkCard } from '@/components/promoter/personalizable-referral-link-card';
 import { PromoterGate } from '@/components/promoter/promoter-gate';
-import { ReferralLinkCard } from '@/components/promoter/referral-link-card';
 
 /** Links y códigos del promotor: enlace de referido + códigos por evento. */
 export default function PromoterLinksPage() {
@@ -16,7 +17,16 @@ export default function PromoterLinksPage() {
       <PromoterGate>
         {(promoter) => (
           <div className="space-y-6">
-            {promoter.referralLink ? <ReferralLinkCard link={promoter.referralLink} /> : null}
+            {promoter.referralLink ? (
+              <PersonalizableReferralLinkCard
+                promoterId={promoter.id}
+                promoterName={promoter.name}
+                link={promoter.referralLink}
+              />
+            ) : null}
+            <div className="[&_button]:text-foreground [&_button_svg]:text-foreground">
+              <LinkInvitadosCard />
+            </div>
             <AssignedEventsTable />
           </div>
         )}

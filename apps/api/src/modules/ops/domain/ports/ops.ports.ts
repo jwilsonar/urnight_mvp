@@ -1,31 +1,34 @@
-import type { PlatformSetting } from '../entities/platform-setting.entity';
-import type { SupportTicket } from '../entities/support-ticket.entity';
+import type { PlatformSetting } from "../entities/platform-setting.entity";
+import type { SupportTicket } from "../entities/support-ticket.entity";
 
 export interface PlatformSettingRepository {
   findByKey(key: string): Promise<PlatformSetting | null>;
+  findByKeys(keys: readonly string[]): Promise<PlatformSetting[]>;
   upsert(setting: PlatformSetting): Promise<PlatformSetting>;
 }
-export const PLATFORM_SETTING_REPOSITORY = Symbol('PLATFORM_SETTING_REPOSITORY');
+export const PLATFORM_SETTING_REPOSITORY = Symbol(
+  "PLATFORM_SETTING_REPOSITORY",
+);
 
 export interface SupportTicketRepository {
   create(ticket: SupportTicket): Promise<SupportTicket>;
   findById(id: string): Promise<SupportTicket | null>;
   update(ticket: SupportTicket): Promise<SupportTicket>;
 }
-export const SUPPORT_TICKET_REPOSITORY = Symbol('SUPPORT_TICKET_REPOSITORY');
+export const SUPPORT_TICKET_REPOSITORY = Symbol("SUPPORT_TICKET_REPOSITORY");
 
 export interface NotificationRecord {
   id: string;
-  channel: 'email' | 'push';
+  channel: "email" | "push";
   type: string;
   subject: string | null;
-  status: 'queued' | 'sent' | 'failed';
+  status: "queued" | "sent" | "failed";
   createdAt: Date;
 }
 export interface NotificationRepository {
   listByUser(userId: string): Promise<NotificationRecord[]>;
 }
-export const NOTIFICATION_REPOSITORY = Symbol('NOTIFICATION_REPOSITORY');
+export const NOTIFICATION_REPOSITORY = Symbol("NOTIFICATION_REPOSITORY");
 
 export interface AnalyticsEventInput {
   id: string;
@@ -40,7 +43,7 @@ export interface AnalyticsEventInput {
 export interface AnalyticsEventRepository {
   record(event: AnalyticsEventInput): Promise<void>;
 }
-export const ANALYTICS_EVENT_REPOSITORY = Symbol('ANALYTICS_EVENT_REPOSITORY');
+export const ANALYTICS_EVENT_REPOSITORY = Symbol("ANALYTICS_EVENT_REPOSITORY");
 
 export interface AuditLogEntry {
   id: string;
@@ -58,4 +61,4 @@ export interface AuditLogRepository {
   record(entry: AuditLogEntry): Promise<void>;
   list(limit: number): Promise<AuditLogRecord[]>;
 }
-export const AUDIT_LOG_REPOSITORY = Symbol('AUDIT_LOG_REPOSITORY');
+export const AUDIT_LOG_REPOSITORY = Symbol("AUDIT_LOG_REPOSITORY");

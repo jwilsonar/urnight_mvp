@@ -5,11 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
-import {
-  reviewAffiliationSchema,
-  type AffiliationResponse,
-  type ReviewAffiliationDto,
-} from '@urnight/contracts';
+import { reviewAffiliationSchema, type AffiliationResponse, type ReviewAffiliationDto } from '@urnight/contracts';
 import {
   Badge,
   Button,
@@ -61,8 +57,7 @@ export function ReviewAffiliationForm() {
   });
 
   const mutation = useApiMutation({
-    mutationFn: (values: ReviewAffiliationDto) =>
-      reviewAffiliation(affiliationId.trim(), values, token),
+    mutationFn: (values: ReviewAffiliationDto) => reviewAffiliation(affiliationId.trim(), values, token),
     setError: form.setError,
     successMessage: (affiliation) => `Afiliación → ${STATUS_LABELS[affiliation.status]}.`,
     onSuccess: (affiliation) => {
@@ -86,76 +81,76 @@ export function ReviewAffiliationForm() {
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="affiliation-id">ID de la solicitud</Label>
-        <Input
-          id="affiliation-id"
-          placeholder="UUID de la solicitud de afiliación"
-          value={affiliationId}
-          onChange={(event) => {
-            setAffiliationId(event.target.value);
-            if (idError) setIdError(null);
-          }}
-        />
-        {idError ? <p className="text-sm text-destructive">{idError}</p> : null}
-      </div>
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+        <div className="space-y-2">
+          <Label htmlFor="affiliation-id">ID de la solicitud</Label>
+          <Input
+            id="affiliation-id"
+            placeholder="UUID de la solicitud de afiliación"
+            value={affiliationId}
+            onChange={(event) => {
+              setAffiliationId(event.target.value);
+              if (idError) setIdError(null);
+            }}
+          />
+          <p className="text-xs text-muted-foreground">Copia el identificador recibido con la solicitud pendiente.</p>
+          {idError ? <p className="text-sm text-destructive">{idError}</p> : null}
+        </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          <FormField
-            control={form.control}
-            name="decision"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Decisión</FormLabel>
-                <Select value={field.value} onValueChange={field.onChange}>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            <FormField
+              control={form.control}
+              name="decision"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Decisión</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Decisión" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="approved">Aprobar (crea empresa + local)</SelectItem>
+                      <SelectItem value="rejected">Rechazar</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="rejectionReason"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Motivo de rechazo <span className="text-muted-foreground">(requerido al rechazar)</span>
+                  </FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Decisión" />
-                    </SelectTrigger>
+                    <Textarea
+                      rows={3}
+                      placeholder="Explica por qué se rechaza la solicitud"
+                      value={field.value ?? ''}
+                      onChange={(event) => field.onChange(event.target.value === '' ? undefined : event.target.value)}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      ref={field.ref}
+                    />
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="approved">Aprobar (crea empresa + local)</SelectItem>
-                    <SelectItem value="rejected">Rechazar</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="rejectionReason"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Motivo de rechazo{' '}
-                  <span className="text-muted-foreground">(requerido al rechazar)</span>
-                </FormLabel>
-                <FormControl>
-                  <Textarea
-                    rows={3}
-                    placeholder="Explica por qué se rechaza la solicitud"
-                    value={field.value ?? ''}
-                    onChange={(event) =>
-                      field.onChange(event.target.value === '' ? undefined : event.target.value)
-                    }
-                    onBlur={field.onBlur}
-                    name={field.name}
-                    ref={field.ref}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? 'Aplicando…' : 'Aplicar revisión'}
-          </Button>
-        </form>
-      </Form>
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? 'Aplicando…' : 'Aplicar revisión'}
+            </Button>
+          </form>
+        </Form>
+      </div>
 
       {reviewed ? (
         <div className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/40 p-3 text-sm">

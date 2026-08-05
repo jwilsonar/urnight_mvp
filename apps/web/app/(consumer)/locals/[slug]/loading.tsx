@@ -1,4 +1,4 @@
-import { Skeleton } from '@urnight/ui';
+import { Skeleton } from "@urnight/ui";
 
 export default function LocalDetailLoading() {
   return (

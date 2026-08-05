@@ -19,6 +19,7 @@ export interface SaleTicketType {
   currency: string;
   stock: number;
   sold: number;
+  available: number;
   maxPerUser: number | null;
   status: string;
 }
@@ -27,6 +28,8 @@ export interface InventoryPort {
   getEvent(eventId: string): Promise<SaleEvent | null>;
   /** Lee un tipo de entrada. `tx`: dentro de la Tx de checkout (re-verificación M2). */
   getTicketType(id: string, tx?: unknown): Promise<SaleTicketType | null>;
+  /** Serializa operaciones concurrentes por tipo de entrada mediante row locks de Postgres. */
+  lockTicketTypes(ids: string[], tx: unknown): Promise<void>;
   /** Incrementa sold; la CHECK (sold<=stock) revierte la Tx si hay sobreventa. */
   incrementSold(ticketTypeId: string, qty: number, tx: unknown): Promise<void>;
   incrementEventTicketsSold(eventId: string, qty: number, tx: unknown): Promise<void>;

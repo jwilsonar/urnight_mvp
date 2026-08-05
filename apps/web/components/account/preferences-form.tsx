@@ -1,127 +1,172 @@
-'use client';
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useSession } from 'next-auth/react';
-import { useForm } from 'react-hook-form';
-import { updatePreferenceSchema, type UpdatePreferenceDto } from '@urnight/contracts';
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import {
   Button,
   Checkbox,
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@urnight/ui';
-import { updatePreferences } from '@/lib/api/identity';
-import { queryKeys } from '@/lib/api/query-keys';
-import { useApiMutation } from '@/lib/api/use-api-mutation';
+} from "@urnight/ui";
+import { LocaleSwitcher } from "@/components/shared/locale-switcher";
+import { updatePreferences } from "@/lib/api/identity";
+import { queryKeys } from "@/lib/api/query-keys";
+import { useApiMutation } from "@/lib/api/use-api-mutation";
 
-const LOCALES = [
-  { value: 'es-PE', label: 'Español (Perú)' },
-  { value: 'en-US', label: 'English (US)' },
-];
+const STORAGE_KEY = "ravenue:notification-preferences";
 
-/**
- * Edita las preferencias del usuario (PATCH /me/preferences). El backend no
- * expone GET de preferencias, por lo que partimos de valores por defecto; el
- * guardado persiste e invalida el perfil (`queryKeys.me`).
- */
+type NotificationType = "reminders" | "eventUpdates" | "promotions" | "social";
+
+interface NotificationSettings {
+  channel: "email" | "push";
+  scope: "all" | "favorites";
+  types: Record<NotificationType, boolean>;
+}
+
+const DEFAULT_SETTINGS: NotificationSettings = {
+  channel: "push",
+  scope: "favorites",
+  types: {
+    reminders: true,
+    eventUpdates: true,
+    promotions: false,
+    social: true,
+  },
+};
+
 export function PreferencesForm() {
+  const t = useTranslations("account.preferences");
   const { data: session } = useSession();
-  const token = session?.accessToken ?? '';
+  const token = session?.accessToken ?? "";
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
 
-  const form = useForm<UpdatePreferenceDto>({
-    resolver: zodResolver(updatePreferenceSchema),
-    defaultValues: {
-      acceptsMarketing: false,
-      acceptsReminders: true,
-      preferredLocale: 'es-PE',
-    },
-  });
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      if (!stored) return;
+      const parsed = JSON.parse(stored) as Partial<NotificationSettings>;
+      setSettings({
+        channel: parsed.channel === "email" ? "email" : "push",
+        scope: parsed.scope === "all" ? "all" : "favorites",
+        types: { ...DEFAULT_SETTINGS.types, ...parsed.types },
+      });
+    } catch {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
+  }, []);
 
   const mutation = useApiMutation({
-    mutationFn: (values: UpdatePreferenceDto) => updatePreferences(values, token),
-    setError: form.setError,
-    successMessage: 'Preferencias actualizadas.',
+    mutationFn: () =>
+      updatePreferences(
+        {
+          acceptsMarketing: settings.types.promotions,
+          acceptsReminders: settings.types.reminders,
+        },
+        token,
+      ),
+    successMessage: t("success"),
     invalidateKeys: [queryKeys.me],
   });
 
-  function onSubmit(values: UpdatePreferenceDto) {
-    mutation.mutate(values);
+  function save() {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    mutation.mutate(undefined);
+  }
+
+  function setType(key: NotificationType, checked: boolean) {
+    setSettings((current) => ({
+      ...current,
+      types: { ...current.types, [key]: checked },
+    }));
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
-        <FormField
-          control={form.control}
-          name="preferredLocale"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Idioma</FormLabel>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Idioma" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {LOCALES.map((locale) => (
-                    <SelectItem key={locale.value} value={locale.value}>
-                      {locale.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <div className="space-y-6">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <LocaleSwitcher id="account-language" showLabel />
+        <div className="space-y-2">
+          <Label htmlFor="notification-channel">{t("channel.label")}</Label>
+          <Select
+            value={settings.channel}
+            onValueChange={(value) =>
+              setSettings((current) => ({
+                ...current,
+                channel: value as NotificationSettings["channel"],
+              }))
+            }
+          >
+            <SelectTrigger id="notification-channel">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="email">{t("channel.email")}</SelectItem>
+              <SelectItem value="push">{t("channel.push")}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="notification-scope">{t("scope.label")}</Label>
+          <Select
+            value={settings.scope}
+            onValueChange={(value) =>
+              setSettings((current) => ({
+                ...current,
+                scope: value as NotificationSettings["scope"],
+              }))
+            }
+          >
+            <SelectTrigger id="notification-scope">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("scope.all")}</SelectItem>
+              <SelectItem value="favorites">{t("scope.favorites")}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-        <FormField
-          control={form.control}
-          name="acceptsReminders"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start gap-3 space-y-0">
-              <FormControl>
-                <Checkbox checked={field.value ?? false} onCheckedChange={(checked) => field.onChange(checked === true)} />
-              </FormControl>
-              <div className="space-y-1 leading-snug">
-                <FormLabel className="font-normal">Recordatorios de eventos</FormLabel>
-                <FormDescription>Avisos previos a los eventos para los que tengas entradas.</FormDescription>
-              </div>
-            </FormItem>
-          )}
-        />
+      <fieldset className="space-y-3">
+        <legend className="text-sm font-semibold text-foreground">
+          {t("types.label")}
+        </legend>
+        {(["reminders", "eventUpdates", "promotions", "social"] as const).map(
+          (key) => (
+            <label
+              key={key}
+              htmlFor={`notification-${key}`}
+              className="flex cursor-pointer items-start gap-3 rounded-md border bg-white/[0.02] p-3.5"
+            >
+              <Checkbox
+                id={`notification-${key}`}
+                checked={settings.types[key]}
+                onCheckedChange={(checked) => setType(key, checked === true)}
+              />
+              <span className="space-y-1 leading-snug">
+                <span className="block text-sm font-medium text-foreground">
+                  {t(`types.${key}.label`)}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {t(`types.${key}.description`)}
+                </span>
+              </span>
+            </label>
+          ),
+        )}
+      </fieldset>
 
-        <FormField
-          control={form.control}
-          name="acceptsMarketing"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start gap-3 space-y-0">
-              <FormControl>
-                <Checkbox checked={field.value ?? false} onCheckedChange={(checked) => field.onChange(checked === true)} />
-              </FormControl>
-              <div className="space-y-1 leading-snug">
-                <FormLabel className="font-normal">Novedades y promociones</FormLabel>
-                <FormDescription>Recibe ofertas y novedades por correo.</FormDescription>
-              </div>
-            </FormItem>
-          )}
-        />
-
-        <Button type="submit" disabled={mutation.isPending}>
-          {mutation.isPending ? 'Guardando…' : 'Guardar preferencias'}
-        </Button>
-      </form>
-    </Form>
+      <Button
+        type="button"
+        onClick={save}
+        disabled={!token || mutation.isPending}
+      >
+        {mutation.isPending ? t("saving") : t("save")}
+      </Button>
+    </div>
   );
 }

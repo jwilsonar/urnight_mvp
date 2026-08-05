@@ -20,10 +20,20 @@ import {
 } from '../../domain/errors/identity.errors';
 import type { GoogleProfile } from '../../domain/ports/google-verifier.port';
 import { InMemoryRefreshTokenStore } from '../services/__testing__/in-memory-refresh-token-store';
+import { InMemoryMfaRepository } from '../services/__testing__/in-memory-mfa-repository';
+import { MfaLoginService } from '../services/mfa-login.service';
 import { RoleResolver } from '../services/role-resolver.service';
 import { TokenIssuer } from '../services/token-issuer.service';
 import { UserProvisioningService } from '../services/user-provisioning.service';
 import { GoogleLoginUseCase } from './google-login.use-case';
+
+type GoogleOutcome = Awaited<ReturnType<GoogleLoginUseCase['execute']>>;
+
+function sessionOf(outcome: GoogleOutcome) {
+  expect(outcome.kind).toBe('session');
+  if (outcome.kind !== 'session') throw new Error('Se esperaba una sesión');
+  return outcome.result;
+}
 
 const profile: GoogleProfile = {
   sub: 'google-sub-1',
@@ -55,8 +65,14 @@ function build(googleProfile: GoogleProfile | null = profile) {
     new RoleResolver(assignments, roles),
     tokens,
     new InMemoryRefreshTokenStore(),
+    new InMemoryMfaRepository(),
   );
-  const useCase = new GoogleLoginUseCase(users, google, issuer, provisioning);
+  const useCase = new GoogleLoginUseCase(
+    users,
+    google,
+    new MfaLoginService(new InMemoryMfaRepository(), issuer),
+    provisioning,
+  );
   return { users, preferences, assignments, roles, events, outbox, useCase };
 }
 
@@ -65,7 +81,7 @@ describe('GoogleLoginUseCase', () => {
     const { users, preferences, assignments, outbox, events, useCase } = build();
     const captured = captureEvents(events, 'identity.user_registered');
 
-    const result = await useCase.execute({ idToken: 'valid-token' });
+    const result = sessionOf(await useCase.execute({ idToken: 'valid-token' }));
 
     expect(users.size).toBe(1);
     expect(preferences.size).toBe(1);
@@ -86,7 +102,7 @@ describe('GoogleLoginUseCase', () => {
     await users.create(existing);
     const captured = captureEvents(events, 'identity.user_registered');
 
-    const result = await useCase.execute({ idToken: 'valid-token' });
+    const result = sessionOf(await useCase.execute({ idToken: 'valid-token' }));
 
     expect(result.user.id).toBe('u1');
     expect(users.size).toBe(1);
@@ -99,7 +115,7 @@ describe('GoogleLoginUseCase', () => {
     const existing = new UserBuilder().withId('u2').withEmail('grace@example.com').build();
     await users.create(existing);
 
-    const result = await useCase.execute({ idToken: 'valid-token' });
+    const result = sessionOf(await useCase.execute({ idToken: 'valid-token' }));
 
     expect(result.user.id).toBe('u2');
     expect((await users.findById('u2'))?.googleSub).toBe('google-sub-1');

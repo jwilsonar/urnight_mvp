@@ -28,7 +28,7 @@ import {
   Label,
   Textarea,
 } from '@urnight/ui';
-import { ChipSelect } from '@/components/shared/chip-select';
+import { ChipSelect, toggleChipSelection } from '@/components/shared/chip-select';
 import { StagedImageField } from '@/components/shared/staged-image-field';
 import { updateEvent } from '@/lib/api/admin';
 import { getMusicGenres, getTags } from '@/lib/api/catalog';
@@ -72,11 +72,6 @@ function fromEvent(event: EventResponse): FormValues {
     tagIds: event.tagIds ?? [],
     customTags: event.customTags ?? [],
   };
-}
-
-/** Alterna la pertenencia de `id` en una lista de selección (chips). */
-function toggleId(list: string[], id: string): string[] {
-  return list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
 }
 
 interface EditEventDialogProps {
@@ -342,11 +337,13 @@ export function EditEventDialog({
               options={genres}
               selected={form.watch('genreIds')}
               onToggle={(id) =>
-                form.setValue('genreIds', toggleId(form.getValues('genreIds'), id), {
+                form.setValue('genreIds', toggleChipSelection(form.getValues('genreIds'), id), {
                   shouldDirty: true,
                 })
               }
               emptyHint="Aún no hay categorías en el catálogo."
+              selectAllLabel="Todos los géneros"
+              onSelectAll={(ids) => form.setValue('genreIds', ids, { shouldDirty: true })}
             />
 
             <ChipSelect
@@ -355,7 +352,7 @@ export function EditEventDialog({
               options={tags}
               selected={form.watch('tagIds')}
               onToggle={(id) =>
-                form.setValue('tagIds', toggleId(form.getValues('tagIds'), id), {
+                form.setValue('tagIds', toggleChipSelection(form.getValues('tagIds'), id), {
                   shouldDirty: true,
                 })
               }
@@ -390,7 +387,7 @@ export function EditEventDialog({
                   {customTags.map((t) => (
                     <span
                       key={t}
-                      className="inline-flex items-center gap-1 rounded-full border border-primary bg-primary/10 px-3 py-1 text-sm text-foreground"
+                      className="inline-flex items-center gap-1 rounded-full border border-accent-border bg-primary/10 px-3 py-1 text-sm font-semibold text-foreground"
                     >
                       {t}
                       <button

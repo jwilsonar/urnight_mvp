@@ -1,19 +1,11 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { type ColumnDef } from '@tanstack/react-table';
 import { useSession } from 'next-auth/react';
-import {
-  Badge,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@urnight/ui';
 import type { CompanyResponse } from '@urnight/contracts';
-import { ErrorState } from '@/components/shared/error-state';
+import { Badge, Button } from '@urnight/ui';
+import { DataTable, SortableHeader } from '@/components/panels/data-table';
 import { activateCompany, listCompanies, suspendCompany } from '@/lib/api/companies';
 import { queryKeys } from '@/lib/api/query-keys';
 import { useApiMutation } from '@/lib/api/use-api-mutation';
@@ -25,12 +17,17 @@ const COMPANY_STATUS_LABEL: Record<CompanyResponse['status'], string> = {
   suspended: 'Suspendida',
 };
 
+const COMPANY_STATUS_FILTER = Object.entries(COMPANY_STATUS_LABEL).map(([value, label]) => ({
+  label,
+  value,
+}));
+
 /** Lista de empresas con suspender/activar (#16). super_admin. */
 export function CompaniesManager() {
   const { data: session } = useSession();
   const token = session?.accessToken ?? '';
 
-  const { data: companies, isLoading, isError, refetch } = useQuery({
+  const { data: companies, isPending, isError, refetch } = useQuery({
     queryKey: queryKeys.companies,
     queryFn: () => listCompanies(token),
     enabled: Boolean(token),
@@ -47,65 +44,68 @@ export function CompaniesManager() {
     invalidateKeys: [queryKeys.companies],
   });
 
-  if (isLoading) return <p className="text-sm text-muted-foreground">Cargando empresas…</p>;
-  // Distingue error de vacío (M9): un fallo del API no es "no hay empresas".
-  if (isError) {
-    return (
-      <ErrorState
-        title="No pudimos cargar las empresas"
-        description="Inténtalo de nuevo en unos minutos."
-        onRetry={() => void refetch()}
-      />
-    );
-  }
-  if (!companies || companies.length === 0) {
-    return <p className="text-sm text-muted-foreground">No hay empresas registradas.</p>;
-  }
+  const columns: ColumnDef<CompanyResponse>[] = [
+    {
+      accessorKey: 'commercialName',
+      header: ({ column }) => <SortableHeader column={column}>Empresa</SortableHeader>,
+      cell: ({ row }) => <span className="font-medium">{row.original.commercialName}</span>,
+    },
+    {
+      accessorKey: 'ruc',
+      header: 'RUC',
+      cell: ({ row }) => <span className="font-mono text-muted-foreground">{row.original.ruc}</span>,
+    },
+    {
+      accessorKey: 'status',
+      header: 'Estado',
+      filterFn: 'equalsString',
+      cell: ({ row }) => (
+        <Badge variant={row.original.status === 'active' ? 'secondary' : 'outline'}>
+          {COMPANY_STATUS_LABEL[row.original.status] ?? row.original.status}
+        </Badge>
+      ),
+    },
+    {
+      id: 'actions',
+      header: 'Acciones',
+      cell: ({ row }) => (
+        <div className="flex min-w-28 justify-start">
+          {row.original.status === 'suspended' ? (
+            <Button
+              size="sm"
+              variant="outline"
+              className="min-w-24 text-foreground"
+              disabled={activate.isPending}
+              onClick={() => activate.mutate(row.original.id)}
+            >
+              Activar
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="outline"
+              className="min-w-24 text-foreground"
+              disabled={suspend.isPending}
+              onClick={() => suspend.mutate(row.original.id)}
+            >
+              Suspender
+            </Button>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Empresa</TableHead>
-          <TableHead>RUC</TableHead>
-          <TableHead>Estado</TableHead>
-          <TableHead className="text-right">Acción</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {companies.map((company) => (
-          <TableRow key={company.id}>
-            <TableCell className="font-medium">{company.commercialName}</TableCell>
-            <TableCell className="text-muted-foreground">{company.ruc}</TableCell>
-            <TableCell>
-              <Badge variant={company.status === 'active' ? 'secondary' : 'outline'}>
-                {COMPANY_STATUS_LABEL[company.status] ?? company.status}
-              </Badge>
-            </TableCell>
-            <TableCell className="text-right">
-              {company.status === 'suspended' ? (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={activate.isPending}
-                  onClick={() => activate.mutate(company.id)}
-                >
-                  Activar
-                </Button>
-              ) : (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={suspend.isPending}
-                  onClick={() => suspend.mutate(company.id)}
-                >
-                  Suspender
-                </Button>
-              )}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <DataTable
+      columns={columns}
+      data={companies ?? []}
+      isLoading={isPending}
+      isError={isError}
+      onRetry={() => refetch()}
+      searchColumn="commercialName"
+      searchPlaceholder="Buscar empresa…"
+      filters={[{ columnId: 'status', title: 'Estado', options: COMPANY_STATUS_FILTER }]}
+    />
   );
 }

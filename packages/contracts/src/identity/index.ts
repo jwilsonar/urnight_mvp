@@ -4,3 +4,4 @@ export * from './preference';
 export * from './favorite';
 export * from './legal';
 export * from './errors';
+export * from './mfa';

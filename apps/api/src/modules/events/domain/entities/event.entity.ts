@@ -32,6 +32,7 @@ export interface EventProps {
   flyerUrl: string | null;
   totalCapacity: number;
   ticketsSold: number;
+  availableCapacity: number | null;
   checkinsCount: number;
   status: EventStatus;
   minAgeNote: string;
@@ -79,6 +80,10 @@ export class Event {
       flyerUrl: input.flyerUrl ?? null,
       totalCapacity: input.totalCapacity ?? 0,
       ticketsSold: 0,
+      availableCapacity:
+        input.totalCapacity && input.totalCapacity > 0
+          ? input.totalCapacity
+          : null,
       checkinsCount: 0,
       status: 'draft',
       minAgeNote: input.minAgeNote ?? '+18',
@@ -154,7 +159,10 @@ export class Event {
   }
 
   hasCapacityFor(qty: number): boolean {
-    return this.props.totalCapacity === 0 || this.props.ticketsSold + qty <= this.props.totalCapacity;
+    return (
+      this.props.availableCapacity === null ||
+      this.props.availableCapacity >= qty
+    );
   }
 
   private touch(): void {
@@ -190,6 +198,9 @@ export class Event {
   }
   get ticketsSold(): number {
     return this.props.ticketsSold;
+  }
+  get availableCapacity(): number | null {
+    return this.props.availableCapacity;
   }
   get checkinsCount(): number {
     return this.props.checkinsCount;

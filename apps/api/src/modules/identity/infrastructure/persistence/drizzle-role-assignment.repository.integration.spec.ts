@@ -1,10 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { type DbClient, role as roleTable } from '@urnight/db';
+import { company as companyTable, type DbClient, role as roleTable } from '@urnight/db';
 import type { Role } from '../../domain/entities/role.entity';
 import type { User } from '../../domain/entities/user.entity';
 import { RoleAssignmentBuilder, RoleMother, UserBuilder } from '../../../../shared/testing';
-import { createTestDb, truncateIdentity } from '../../../../shared/testing/integration/test-db';
+import { createTestDb, truncateAll } from '../../../../shared/testing/integration/test-db';
 import { DrizzleRoleAssignmentRepository } from './drizzle-role-assignment.repository';
 import { DrizzleUserRepository } from './drizzle-user.repository';
 
@@ -18,7 +18,7 @@ beforeAll(() => {
   users = new DrizzleUserRepository(client.db);
 });
 afterEach(async () => {
-  await truncateIdentity(client);
+  await truncateAll(client);
 });
 afterAll(async () => {
   await client.sql.end({ timeout: 5 });
@@ -39,6 +39,18 @@ async function seedUserAndRole(): Promise<{ user: User; role: Role }> {
   return { user, role };
 }
 
+async function seedCompany(name: string): Promise<string> {
+  const companyId = randomUUID();
+  await client.db.insert(companyTable).values({
+    id: companyId,
+    legalName: `Empresa ${name}`,
+    commercialName: name,
+    ruc: Math.random().toString().slice(2, 13).padEnd(11, '0'),
+    status: 'active',
+  });
+  return companyId;
+}
+
 describe('DrizzleRoleAssignmentRepository (integration)', () => {
   it('round-trip: create + findById', async () => {
     const { user, role } = await seedUserAndRole();
@@ -53,11 +65,12 @@ describe('DrizzleRoleAssignmentRepository (integration)', () => {
 
   it('findActiveByUser devuelve solo las asignaciones activas del usuario', async () => {
     const { user, role } = await seedUserAndRole();
+    const companyId = await seedCompany('Revocada');
     const active = new RoleAssignmentBuilder().withUserId(user.id).withRoleId(role.id).build();
     const revoked = new RoleAssignmentBuilder()
       .withUserId(user.id)
       .withRoleId(role.id)
-      .withScope(randomUUID(), null)
+      .withScope(companyId, null)
       .build();
     revoked.revoke();
     await repo.create(active);
@@ -70,8 +83,8 @@ describe('DrizzleRoleAssignmentRepository (integration)', () => {
 
   it('exists aísla el scope multi-tenant (company A no es visible desde company B)', async () => {
     const { user, role } = await seedUserAndRole();
-    const companyA = randomUUID();
-    const companyB = randomUUID();
+    const companyA = await seedCompany('A');
+    const companyB = await seedCompany('B');
     await repo.create(
       new RoleAssignmentBuilder().withUserId(user.id).withRoleId(role.id).withScope(companyA, null).build(),
     );

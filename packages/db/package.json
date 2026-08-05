@@ -14,7 +14,10 @@
       "default": "./dist/schema/index.js"
     }
   },
-  "files": ["dist", "drizzle"],
+  "files": [
+    "dist",
+    "drizzle"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",
@@ -33,6 +36,7 @@
     "postgres": "catalog:"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.5.0",
     "@urnight/config": "workspace:*",
     "dotenv": "^16.4.7",
     "drizzle-kit": "catalog:",

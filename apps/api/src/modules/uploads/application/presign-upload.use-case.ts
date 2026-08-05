@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import {
-  IMAGE_EXTENSION_BY_TYPE,
-  type AcceptedImageType,
+  DOCUMENT_EXTENSION_BY_TYPE,
+  type AcceptedDocumentType,
   type PresignRequestDto,
   type PresignResponseDto,
 } from '@urnight/contracts';
@@ -25,7 +25,7 @@ export class PresignUploadUseCase {
   constructor(@Inject(STORAGE_PORT) private readonly storage: StoragePort) {}
 
   async execute(input: PresignRequestDto): Promise<PresignResponseDto> {
-    const ext = IMAGE_EXTENSION_BY_TYPE[input.contentType as AcceptedImageType];
+    const ext = DOCUMENT_EXTENSION_BY_TYPE[input.contentType as AcceptedDocumentType];
     const key = `tmp/${randomUUID()}.${ext}`;
     const uploadUrl = await this.storage.getUploadUrl(key, input.contentType, UPLOAD_URL_TTL);
     this.log.info({ key, contentType: input.contentType }, 'uploads.presign.created');

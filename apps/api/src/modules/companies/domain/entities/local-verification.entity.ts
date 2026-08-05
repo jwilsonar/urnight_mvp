@@ -8,6 +8,7 @@ export interface LocalVerificationProps {
   documentUrl: string | null;
   notes: string | null;
   verifiedBy: string | null;
+  reviewedAt: Date | null;
   validUntil: string | null;
   createdAt: Date;
 }
@@ -32,6 +33,7 @@ export class LocalVerification {
       documentUrl: input.documentUrl ?? null,
       notes: input.notes ?? null,
       verifiedBy: null,
+      reviewedAt: null,
       validUntil: input.validUntil ?? null,
       createdAt: new Date(),
     });
@@ -44,6 +46,7 @@ export class LocalVerification {
   review(decision: 'approved' | 'observed' | 'expired', verifiedBy: string, notes?: string): void {
     this.props.status = decision;
     this.props.verifiedBy = verifiedBy;
+    this.props.reviewedAt = new Date();
     if (notes !== undefined) this.props.notes = notes;
   }
 
@@ -64,8 +67,20 @@ export class LocalVerification {
   get licenseReference(): string | null {
     return this.props.licenseReference;
   }
+  get documentUrl(): string | null {
+    return this.props.documentUrl;
+  }
+  get notes(): string | null {
+    return this.props.notes;
+  }
+  get verifiedBy(): string | null {
+    return this.props.verifiedBy;
+  }
   get validUntil(): string | null {
     return this.props.validUntil;
+  }
+  get reviewedAt(): Date | null {
+    return this.props.reviewedAt;
   }
   get createdAt(): Date {
     return this.props.createdAt;

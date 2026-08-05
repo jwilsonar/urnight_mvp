@@ -1,8 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { createLogger } from '../../../../shared/logging/logger';
 import type { RoleCode } from '../../domain/entities/role.entity';
 import type { User } from '../../domain/entities/user.entity';
+import {
+  MFA_REPOSITORY,
+  type MfaRepository,
+} from '../../domain/ports/mfa.repository';
 import { RefreshTokenStore } from '../../domain/ports/refresh-token-store.port';
 import { TokenService, type IssuedToken } from '../../domain/ports/token.port';
 import { RoleResolver } from './role-resolver.service';
@@ -29,6 +33,7 @@ export class TokenIssuer {
     private readonly roleResolver: RoleResolver,
     private readonly tokens: TokenService,
     private readonly refreshStore: RefreshTokenStore,
+    @Inject(MFA_REPOSITORY) private readonly mfa: MfaRepository,
   ) {}
 
   async issueFor(user: User): Promise<AuthResult> {
@@ -36,6 +41,10 @@ export class TokenIssuer {
 
     // Scope multi-tenant: primera asignación con company/local (MVP: scope único por token).
     const scoped = assignments.find((a) => a.companyId !== null || a.localId !== null);
+    const requiresMfa = roleCodes.some(
+      (role) => role === 'super_admin' || role === 'admin_local',
+    );
+    const mfaPending = requiresMfa && !(await this.mfa.hasActiveFactor(user.id));
 
     const access = await this.tokens.signAccess({
       sub: user.id,
@@ -43,6 +52,7 @@ export class TokenIssuer {
       roles: roleCodes,
       companyId: scoped?.companyId ?? null,
       localId: scoped?.localId ?? null,
+      mfaPending,
     });
 
     // Refresh con jti único → se registra en el store para rotación/revocación (A2).

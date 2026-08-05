@@ -6,6 +6,7 @@ import { EventBus } from '../../../../shared/event-bus/event-bus';
 import { LockPort, LockUnavailableError } from '../../../../shared/locking/lock.port';
 import { OutboxPort } from '../../../../shared/outbox/outbox.port';
 import { PromoRedemptionPort } from '../../../../shared/ports/promo-redemption.port';
+import type { TenantScope } from '../../../../shared/tenant/tenant-scope';
 import { UnitOfWork } from '../../../../shared/unit-of-work/unit-of-work';
 import { Attendee } from '../../domain/entities/attendee.entity';
 import { Order } from '../../domain/entities/order.entity';
@@ -31,6 +32,7 @@ import {
   type IssuedTicket,
   type TicketRepository,
 } from '../../domain/ports/ticket.repository';
+import { ConvertTicketHoldUseCase } from './convert-ticket-hold.use-case';
 
 /** Comisión de plataforma (snapshot). MVP: constante; futuro: PLATFORM_SETTING. */
 const COMMISSION_RATE = 0.1;
@@ -53,6 +55,7 @@ interface CheckoutSpec {
   qty: number;
   unitPrice: number;
   currency: string;
+  holdId?: string;
 }
 
 /**
@@ -76,25 +79,34 @@ export class CheckoutUseCase {
     private readonly outbox: OutboxPort,
     private readonly promo: PromoRedemptionPort,
     @Inject(IDEMPOTENCY_STORE) private readonly idempotency: IdempotencyStore,
+    private readonly convertHold: ConvertTicketHoldUseCase,
   ) {}
 
   async execute(input: {
     userId: string;
     dto: CreateOrderDto;
+    scope?: TenantScope;
     idempotencyKey?: string;
   }): Promise<CheckoutResult> {
+    const scope = input.scope ?? { isSuperAdmin: false, companyId: null };
     // M3: idempotencia — misma key + mismo usuario ⇒ devuelve la orden ya creada
     // (no crea otra ni cobra dos veces).
     if (input.idempotencyKey) {
-      return this.executeIdempotent(input.userId, input.dto, input.idempotencyKey);
+      return this.executeIdempotent(
+        input.userId,
+        input.dto,
+        scope,
+        input.idempotencyKey,
+      );
     }
-    return this.runCheckout(input.userId, input.dto);
+    return this.runCheckout(input.userId, input.dto, scope);
   }
 
   /** M3: envuelve el checkout con dedupe por `Idempotency-Key` (lock + store Redis). */
   private async executeIdempotent(
     userId: string,
     dto: CreateOrderDto,
+    scope: TenantScope,
     key: string,
   ): Promise<CheckoutResult> {
     const existing = await this.idempotency.recall(userId, key);
@@ -106,7 +118,7 @@ export class CheckoutUseCase {
         const again = await this.idempotency.recall(userId, key);
         if (again) return this.replay(userId, again);
 
-        const result = await this.runCheckout(userId, dto);
+        const result = await this.runCheckout(userId, dto, scope);
         await this.idempotency.remember(userId, key, result.order.id);
         return result;
       });
@@ -133,7 +145,11 @@ export class CheckoutUseCase {
     return { order, tickets };
   }
 
-  private async runCheckout(userId: string, dto: CreateOrderDto): Promise<CheckoutResult> {
+  private async runCheckout(
+    userId: string,
+    dto: CreateOrderDto,
+    scope: TenantScope,
+  ): Promise<CheckoutResult> {
     this.log.debug(
       { userId, eventId: dto.eventId, items: dto.items.length },
       'ticketing.checkout.started',
@@ -149,24 +165,31 @@ export class CheckoutUseCase {
       if (!tt || tt.eventId !== dto.eventId) throw new TicketTypeNotFoundError();
       if (tt.status !== 'active') throw new TicketTypeUnavailableError();
       if (tt.maxPerUser !== null && qty > tt.maxPerUser) throw new MaxPerUserExceededError();
-      if (tt.stock - tt.sold < qty) throw new InsufficientStockError();
-      specs.push({ item, qty, unitPrice: tt.price, currency: tt.currency });
+      if (item.holdId) {
+        await this.convertHold.validateForCheckout({
+          holdId: item.holdId,
+          userId,
+          scope,
+          eventId: dto.eventId,
+          ticketTypeId: item.ticketTypeId,
+          quantity: qty,
+        });
+      } else if (tt.available < qty) {
+        throw new InsufficientStockError();
+      }
+      specs.push({
+        item,
+        qty,
+        unitPrice: tt.price,
+        currency: tt.currency,
+        holdId: item.holdId,
+      });
     }
     const currency = specs[0]?.currency ?? 'PEN';
 
-    try {
-      // El rendering del PNG del QR + subida a S3 ya NO vive aquí (A8): lo hace el
-      // QrImageSubscriber al reaccionar a TicketIssuedEvent (SRP).
-      return await this.lock.withLock(`event:${dto.eventId}`, LOCK_TTL_MS, () =>
-        this.process(userId, dto, specs, currency),
-      );
-    } catch (err) {
-      if (err instanceof LockUnavailableError) {
-        this.log.warn({ userId, eventId: dto.eventId }, 'ticketing.checkout.stock_locked');
-        throw new StockLockedError();
-      }
-      throw err;
-    }
+    // La exclusión mutua de inventario vive en Postgres. Redis queda reservado
+    // exclusivamente para deduplicar reintentos con Idempotency-Key.
+    return this.process(userId, dto, specs, currency, scope);
   }
 
   private async process(
@@ -174,9 +197,9 @@ export class CheckoutUseCase {
     dto: CreateOrderDto,
     specs: CheckoutSpec[],
     currency: string,
+    scope: TenantScope,
   ): Promise<CheckoutResult> {
     const orderId = randomUUID();
-    const totalQty = specs.reduce((acc, s) => acc + s.qty, 0);
     const issued: IssuedTicket[] = [];
 
     // Código promocional (#21): valida y calcula el descuento (lanza si inválido).
@@ -217,15 +240,18 @@ export class CheckoutUseCase {
     });
 
     await this.uow.run(async (tx) => {
-      // Reserva atómica de stock (CHECK sold<=stock revierte si hay sobreventa).
-      // M2: la re-verificación lee CON la conexión transaccional (`tx`), no el pool.
+      await this.inventory.lockTicketTypes(
+        specs.map((spec) => spec.item.ticketTypeId),
+        tx,
+      );
+
+      // Re-verificación de compras antiguas que todavía no envían holdId.
       for (const s of specs) {
+        if (s.holdId) continue;
         const fresh = await this.inventory.getTicketType(s.item.ticketTypeId, tx);
         if (!fresh) throw new TicketTypeNotFoundError();
-        if (fresh.stock - fresh.sold < s.qty) throw new InsufficientStockError();
-        await this.inventory.incrementSold(s.item.ticketTypeId, s.qty, tx);
+        if (fresh.available < s.qty) throw new InsufficientStockError();
       }
-      await this.inventory.incrementEventTicketsSold(dto.eventId, totalQty, tx);
 
       // Cobro (mock). Si rechaza, lanza → rollback (stock liberado).
       const charge = await this.paymentPort.charge({
@@ -252,6 +278,31 @@ export class CheckoutUseCase {
 
       await this.orders.create(order, tx);
       await this.payments.create(payment, tx);
+
+      let directQuantity = 0;
+      for (const s of specs) {
+        if (s.holdId) {
+          await this.convertHold.executeInTransaction(
+            {
+              holdId: s.holdId,
+              orderId: order.id,
+              userId,
+              scope,
+            },
+            tx,
+          );
+        } else {
+          await this.inventory.incrementSold(s.item.ticketTypeId, s.qty, tx);
+          directQuantity += s.qty;
+        }
+      }
+      if (directQuantity > 0) {
+        await this.inventory.incrementEventTicketsSold(
+          dto.eventId,
+          directQuantity,
+          tx,
+        );
+      }
 
       // Registra el canje del promo (#13) en la misma Tx (entrega fiable).
       if (promoApplication) {
@@ -314,6 +365,9 @@ export class CheckoutUseCase {
         currency,
         paidAt: (order.paidAt ?? new Date()).toISOString(),
         referralCode: dto.referralCode ?? null,
+        holdIds: specs.flatMap((spec) =>
+          spec.holdId ? [spec.holdId] : [],
+        ),
       }),
     );
     for (const t of issued) {

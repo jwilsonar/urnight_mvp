@@ -1,8 +1,18 @@
-'use client';
+"use client";
 
-import { Bell, Envelope, Gauge, Heart, SignOut, Ticket, UserCircle } from '@phosphor-icons/react';
-import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import {
+  Envelope,
+  Gauge,
+  Heart,
+  SignOut,
+  Ticket,
+  UserCircle,
+} from "@phosphor-icons/react";
+import { useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
 import {
   Avatar,
   AvatarFallback,
@@ -15,35 +25,53 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   Skeleton,
-} from '@urnight/ui';
-import { signOutAction } from '@/lib/auth-actions';
-import { ROLE_PANEL_LABEL, canAccessPanels, primaryRole, roleHomePath } from '@/lib/utils/rbac';
+} from "@urnight/ui";
+import { clearCacheAndSignOut } from "@/lib/auth/client-sign-out";
+import {
+  ROLE_PANEL_LABEL,
+  canAccessPanels,
+  primaryRole,
+  roleHomePath,
+} from "@/lib/utils/rbac";
 
 function initials(name?: string | null): string {
-  if (!name) return 'U';
+  if (!name) return "U";
   return name
-    .split(' ')
+    .split(" ")
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
-    .join('');
+    .join("");
 }
 
 /** Avatar + menú de cuenta cuando hay sesión; botones de acceso si no. */
 export function UserMenu() {
+  const t = useTranslations("nav");
   const { data: session, status } = useSession();
+  const queryClient = useQueryClient();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
-  if (status === 'loading') {
+  async function handleSignOut() {
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+    try {
+      await clearCacheAndSignOut(queryClient);
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
+
+  if (status === "loading") {
     return <Skeleton className="h-9 w-9 rounded-full" />;
   }
 
   if (!session?.user) {
     return (
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/login">Ingresar</Link>
+      <div className="flex items-center gap-1 xl:gap-2">
+        <Button variant="ghost" size="sm" className="lg:max-xl:px-2.5" asChild>
+          <Link href="/login">{t("signIn")}</Link>
         </Button>
-        <Button size="sm" asChild>
-          <Link href="/register">Crear cuenta</Link>
+        <Button size="sm" className="lg:max-xl:px-2.5" asChild>
+          <Link href="/register">{t("createAccount")}</Link>
         </Button>
       </div>
     );
@@ -57,7 +85,12 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full" aria-label="Menú de usuario">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full"
+          aria-label={t("userMenu")}
+        >
           <Avatar className="h-9 w-9">
             {user.image ? <AvatarImage src={user.image} alt="" /> : null}
             <AvatarFallback>{initials(user.name)}</AvatarFallback>
@@ -67,7 +100,9 @@ export function UserMenu() {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="flex flex-col">
           <span className="truncate">{user.name}</span>
-          <span className="truncate text-xs font-normal text-muted-foreground">{user.email}</span>
+          <span className="truncate text-xs font-normal text-muted-foreground">
+            {user.email}
+          </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {showPanel ? (
@@ -79,37 +114,33 @@ export function UserMenu() {
         ) : null}
         <DropdownMenuItem asChild>
           <Link href="/account">
-            <UserCircle className="h-4 w-4" /> Mi perfil
+            <UserCircle className="h-4 w-4" /> {t("profile")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/account/tickets">
-            <Ticket className="h-4 w-4" /> Mis entradas
+            <Ticket className="h-4 w-4" /> {t("myTickets")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/account/guardados">
-            <Heart className="h-4 w-4" /> Guardados
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/account/notificaciones">
-            <Bell className="h-4 w-4" /> Notificaciones
+            <Heart className="h-4 w-4" /> {t("saved")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/account/invitaciones">
-            <Envelope className="h-4 w-4" /> Invitaciones
+            <Envelope className="h-4 w-4" /> {t("invitations")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
+          disabled={isSigningOut}
           onSelect={(event) => {
             event.preventDefault();
-            void signOutAction();
+            void handleSignOut();
           }}
         >
-          <SignOut className="h-4 w-4" /> Cerrar sesión
+          <SignOut className="h-4 w-4" /> {t("signOut")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

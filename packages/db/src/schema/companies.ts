@@ -104,6 +104,7 @@ export const localVerification = pgTable(
     documentUrl: varchar('document_url', { length: 512 }),
     notes: varchar('notes', { length: 500 }),
     verifiedBy: uuid('verified_by').references(() => user.id, { onDelete: 'set null' }),
+    reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
     validUntil: date('valid_until'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
@@ -112,6 +113,47 @@ export const localVerification = pgTable(
     check(
       'local_verification_status_check',
       sql`${t.status} in ('pending','approved','observed','expired')`,
+    ),
+  ],
+);
+
+export const localVerificationDocument = pgTable(
+  'local_verification_document',
+  {
+    id: id(),
+    localVerificationId: uuid('local_verification_id')
+      .notNull()
+      .references(() => localVerification.id, { onDelete: 'cascade' }),
+    documentType: varchar('document_type', { length: 32 }).notNull(),
+    /** Clave S3 estable; la URL se resuelve únicamente en presentación. */
+    storageKey: varchar('storage_key', { length: 512 }).notNull(),
+    issuedAt: date('issued_at').notNull(),
+    expiresAt: date('expires_at').notNull(),
+    reviewStatus: varchar('review_status', { length: 12 })
+      .notNull()
+      .default('pending'),
+    reviewedBy: uuid('reviewed_by').references(() => user.id, {
+      onDelete: 'set null',
+    }),
+    reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
+    reviewNotes: varchar('review_notes', { length: 500 }),
+    expiryWarningSentAt: timestamp('expiry_warning_sent_at', { withTimezone: true }),
+    ...timestamps(),
+  },
+  (t) => [
+    index('idx_local_verification_document_local_verification').on(
+      t.localVerificationId,
+    ),
+    index('idx_local_verification_document_expires_at').on(t.expiresAt),
+    index('idx_local_verification_document_review_status').on(t.reviewStatus),
+    index('idx_local_verification_document_expiry_warning').on(t.expiryWarningSentAt),
+    check(
+      'local_verification_document_type_check',
+      sql`${t.documentType} in ('municipal_license','itse_certificate','health_certificate','other')`,
+    ),
+    check(
+      'local_verification_document_review_status_check',
+      sql`${t.reviewStatus} in ('pending','approved','rejected')`,
     ),
   ],
 );
@@ -129,6 +171,12 @@ export const affiliationRequest = pgTable(
     contactName: varchar('contact_name', { length: 160 }),
     contactEmail: varchar('contact_email', { length: 160 }),
     contactPhone: varchar('contact_phone', { length: 20 }),
+    termsAccepted: boolean('terms_accepted').notNull().default(false),
+    termsAcceptedAt: timestamp('terms_accepted_at', { withTimezone: true }),
+    legalDeclarationAccepted: boolean('legal_declaration_accepted').notNull().default(false),
+    legalDeclarationAcceptedAt: timestamp('legal_declaration_accepted_at', {
+      withTimezone: true,
+    }),
     status: varchar('status', { length: 12 }).notNull().default('pending'),
     rejectionReason: varchar('rejection_reason', { length: 255 }),
     submittedBy: uuid('submitted_by').references(() => user.id, { onDelete: 'set null' }),
@@ -142,6 +190,14 @@ export const affiliationRequest = pgTable(
     check(
       'affiliation_request_status_check',
       sql`${t.status} in ('pending','approved','rejected')`,
+    ),
+    check(
+      'affiliation_request_terms_acceptance_check',
+      sql`(${t.termsAccepted} = false and ${t.termsAcceptedAt} is null) or (${t.termsAccepted} = true and ${t.termsAcceptedAt} is not null)`,
+    ),
+    check(
+      'affiliation_request_legal_declaration_acceptance_check',
+      sql`(${t.legalDeclarationAccepted} = false and ${t.legalDeclarationAcceptedAt} is null) or (${t.legalDeclarationAccepted} = true and ${t.legalDeclarationAcceptedAt} is not null)`,
     ),
   ],
 );
@@ -192,4 +248,6 @@ export const localTag = pgTable(
 export type Company = typeof company.$inferSelect;
 export type Local = typeof local.$inferSelect;
 export type LocalVerification = typeof localVerification.$inferSelect;
+export type LocalVerificationDocument =
+  typeof localVerificationDocument.$inferSelect;
 export type AffiliationRequest = typeof affiliationRequest.$inferSelect;

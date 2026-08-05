@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { logger } from '@/lib/logger';
-import { ErrorState } from './error-state';
+import { useEffect } from "react";
+import { logger } from "@/lib/logger";
+import { ErrorState } from "./error-state";
 
 interface ErrorBoundaryProps {
   error: Error & { digest?: string };
@@ -19,7 +19,7 @@ export function makeErrorBoundary(title?: string) {
     useEffect(() => {
       logger.error(
         { title, digest: error.digest, err: error.message },
-        'web.boundary.error',
+        "web.boundary.error",
       );
     }, [error]);
 

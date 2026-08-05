@@ -44,6 +44,7 @@ export class JwtTokenService extends TokenService {
         roles: claims.roles,
         companyId: claims.companyId ?? null,
         localId: claims.localId ?? null,
+        mfaPending: claims.mfaPending ?? false,
       },
       { subject: claims.sub },
     );

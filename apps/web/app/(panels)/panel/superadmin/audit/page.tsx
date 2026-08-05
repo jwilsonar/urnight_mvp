@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@urnight/ui';
+import { AuditTable } from '@/components/superadmin/audit-table';
 import { listAuditLogs } from '@/lib/api/ops';
 import { requireAccessToken } from '@/lib/auth-helpers';
-import { formatDate } from '@/lib/utils';
 
 export const metadata: Metadata = { title: 'Auditoría y logs' };
 
@@ -19,37 +18,7 @@ export default async function AuditPage() {
         </p>
       </header>
 
-      {logs.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Sin registros todavía.</p>
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Fecha</TableHead>
-              <TableHead>Acción</TableHead>
-              <TableHead>Entidad</TableHead>
-              <TableHead>Actor</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {logs.map((log) => (
-              <TableRow key={log.id}>
-                <TableCell className="whitespace-nowrap text-muted-foreground">
-                  {formatDate(log.createdAt)}
-                </TableCell>
-                <TableCell className="font-medium">{log.action}</TableCell>
-                <TableCell>
-                  {log.entityType}
-                  {log.entityId ? ` · ${log.entityId.slice(0, 8)}` : ''}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {log.actorUserId ? log.actorUserId.slice(0, 8) : '—'}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+      <AuditTable logs={logs} />
     </div>
   );
 }

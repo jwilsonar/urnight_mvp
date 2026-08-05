@@ -24,7 +24,7 @@ let client: DbClient;
 const REGISTER = {
   fullName: 'Ada Lovelace',
   email: 'ada@example.com',
-  password: 'supersecret',
+  password: 'Urnight2026!',
   birthDate: '2000-01-01',
   documentType: 'dni',
   documentNumber: '12345678',
@@ -78,13 +78,22 @@ describe('Identity HTTP (e2e)', () => {
       expect(res.body.errors).toBeDefined();
     });
 
+    it('POST /auth/register → 422 con contraseña que no cumple la política', async () => {
+      const res = await http()
+        .post('/api/v1/auth/register')
+        .send({ ...REGISTER, password: 'supersecret' });
+      expect(res.status).toBe(422);
+      expect(res.body.errors).toBeDefined();
+    });
+
     it('POST /auth/login → 200 con credenciales válidas', async () => {
       await http().post('/api/v1/auth/register').send(REGISTER);
       const res = await http()
         .post('/api/v1/auth/login')
         .send({ email: REGISTER.email, password: REGISTER.password });
       expect(res.status).toBe(200);
-      expect(typeof res.body.accessToken).toBe('string');
+      expect(res.body.kind).toBe('session');
+      expect(typeof res.body.result.accessToken).toBe('string');
     });
 
     it('POST /auth/login → 401 Problem+JSON con contraseña incorrecta', async () => {

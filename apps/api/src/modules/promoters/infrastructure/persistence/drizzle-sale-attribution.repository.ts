@@ -28,6 +28,9 @@ export class DrizzleSaleAttributionRepository implements SaleAttributionReposito
       referralLinkId: entity.referralLinkId,
       commissionRate: entity.commissionRate.toFixed(4),
       commissionAmount: entity.commissionAmount.toFixed(2),
+      headPromoterId: entity.headPromoterId,
+      headCommissionRate: entity.headCommissionRate?.toFixed(4) ?? null,
+      headCommissionAmount: entity.headCommissionAmount?.toFixed(2) ?? null,
       status: entity.status,
     });
   }
@@ -49,6 +52,10 @@ export class DrizzleSaleAttributionRepository implements SaleAttributionReposito
       referralLinkId: row.referralLinkId,
       commissionRate: Number(row.commissionRate),
       commissionAmount: Number(row.commissionAmount),
+      headPromoterId: row.headPromoterId,
+      headCommissionRate: row.headCommissionRate === null ? null : Number(row.headCommissionRate),
+      headCommissionAmount:
+        row.headCommissionAmount === null ? null : Number(row.headCommissionAmount),
       status: row.status as SaleStatus,
       attributedAt: row.attributedAt,
     });

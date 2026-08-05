@@ -1,0 +1,13 @@
+:root{
+--shadow-sm:0 2px 6px rgba(0,0,0,0.35);
+--shadow-md:0 8px 24px rgba(0,0,0,0.45);
+--shadow-lg:0 16px 48px rgba(0,0,0,0.55);
+--motion-fast:120ms; /* @kind other */
+--motion-normal:220ms; /* @kind other */
+--motion-slow:360ms; /* @kind other */
+--ease-standard:cubic-bezier(0.4,0,0.2,1); /* @kind other */
+--ease-out:cubic-bezier(0,0,0.2,1); /* @kind other */
+--stroke-icon:1.5px;
+--size-icon-sm:20px;
+--size-icon-md:24px;
+}

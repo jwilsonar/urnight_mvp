@@ -16,7 +16,8 @@ export const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
+      // Patrón .field del DS (mismo tratamiento que Input).
+      'flex h-[46px] w-full items-center justify-between rounded-md border border-border bg-field px-3.5 py-2 text-sm transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground/70 focus:outline-none focus:border-accent-border focus:ring-[3px] focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
       className,
     )}
     {...props}
@@ -37,7 +38,8 @@ export const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out',
+        // Popover DS: bg-elevated + sombra profunda al flotar.
+        'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-overlay data-[state=open]:animate-in data-[state=closed]:animate-out',
         position === 'popper' && 'data-[side=bottom]:translate-y-1',
         className,
       )}

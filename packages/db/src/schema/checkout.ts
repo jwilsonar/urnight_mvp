@@ -49,6 +49,38 @@ export const order = pgTable(
   ],
 );
 
+export const ticketHold = pgTable(
+  'ticket_hold',
+  {
+    id: id(),
+    eventId: uuid('event_id')
+      .notNull()
+      .references(() => event.id, { onDelete: 'cascade' }),
+    ticketTypeId: uuid('ticket_type_id')
+      .notNull()
+      .references(() => ticketType.id, { onDelete: 'cascade' }),
+    orderId: uuid('order_id').references(() => order.id, { onDelete: 'set null' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    quantity: integer('quantity').notNull(),
+    status: varchar('status', { length: 12 }).notNull().default('active'),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    ...timestamps(),
+  },
+  (t) => [
+    index('idx_ticket_hold_event').on(t.eventId),
+    index('idx_ticket_hold_ticket_type').on(t.ticketTypeId),
+    index('idx_ticket_hold_expires_at').on(t.expiresAt),
+    index('idx_ticket_hold_status').on(t.status),
+    check('ticket_hold_quantity_check', sql`${t.quantity} > 0`),
+    check(
+      'ticket_hold_status_check',
+      sql`${t.status} in ('active','converted','expired','released')`,
+    ),
+  ],
+);
+
 export const orderItem = pgTable(
   'order_item',
   {
@@ -114,6 +146,8 @@ export const ticket = pgTable(
   (t) => [
     uniqueIndex('idx_ticket_qr').on(t.qrCode),
     index('idx_ticket_event').on(t.eventId),
+    index('idx_ticket_order_item').on(t.orderItemId),
+    index('idx_ticket_event_status_used_at').on(t.eventId, t.status, t.usedAt),
     check('ticket_status_check', sql`${t.status} in ('valid','used','cancelled','expired')`),
   ],
 );
@@ -164,6 +198,7 @@ export const qrValidation = pgTable(
 );
 
 export type Order = typeof order.$inferSelect;
+export type TicketHold = typeof ticketHold.$inferSelect;
 export type OrderItem = typeof orderItem.$inferSelect;
 export type Payment = typeof payment.$inferSelect;
 export type Ticket = typeof ticket.$inferSelect;

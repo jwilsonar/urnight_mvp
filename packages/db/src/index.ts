@@ -4,6 +4,7 @@ import * as schema from './schema';
 
 export { schema };
 export * from './schema';
+export * from './availability';
 
 /**
  * Factory ÚNICA de conexión (DRY). La usan api y worker.

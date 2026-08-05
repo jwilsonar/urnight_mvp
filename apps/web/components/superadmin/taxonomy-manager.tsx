@@ -1,42 +1,37 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery, type QueryKey } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useForm, type Resolver } from 'react-hook-form';
-import { createZoneSchema, type CreateZoneDto, type ZoneResponse } from '@urnight/contracts';
-import {
-  Badge,
-  Button,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-} from '@urnight/ui';
+import { createZoneSchema, type CreateZoneDto } from '@urnight/contracts';
+import { Badge, Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input } from '@urnight/ui';
+import { createMusicGenre, createTag, createZone, getMusicGenres, getTags, getZones } from '@/lib/api/catalog';
+import { queryKeys } from '@/lib/api/query-keys';
 import { useApiMutation } from '@/lib/api/use-api-mutation';
+
+type TaxonomyKind = 'zones' | 'musicGenres' | 'tags';
 
 interface TaxonomyManagerProps {
   title: string;
-  queryKey: QueryKey;
-  list: (token?: string) => Promise<ZoneResponse[]>;
-  create: (dto: CreateZoneDto, token?: string) => Promise<ZoneResponse>;
+  kind: TaxonomyKind;
 }
+
+const TAXONOMY_CONFIG = {
+  zones: { queryKey: queryKeys.zones, list: getZones, create: createZone },
+  musicGenres: { queryKey: queryKeys.musicGenres, list: getMusicGenres, create: createMusicGenre },
+  tags: { queryKey: queryKeys.tags, list: getTags, create: createTag },
+} satisfies Record<TaxonomyKind, object>;
 
 const EMPTY: CreateZoneDto = { name: '', slug: '', displayOrder: 0, isActive: true };
 
 /** Lista + alta de un recurso de taxonomía (zonas/géneros/etiquetas, #6/7/8). */
-export function TaxonomyManager({ title, queryKey, list, create }: TaxonomyManagerProps) {
+export function TaxonomyManager({ title, kind }: TaxonomyManagerProps) {
   const { data: session } = useSession();
   const token = session?.accessToken ?? '';
+  const config = TAXONOMY_CONFIG[kind];
 
-  const { data: items } = useQuery({
-    queryKey,
-    queryFn: () => list(token),
-    enabled: Boolean(token),
-  });
+  const { data: items, isPending, isError, refetch } = useQuery({ queryKey: config.queryKey, queryFn: config.list });
 
   const form = useForm<CreateZoneDto>({
     // createZoneSchema tiene defaults → input ≠ output; el form usa el tipo de salida.
@@ -45,26 +40,39 @@ export function TaxonomyManager({ title, queryKey, list, create }: TaxonomyManag
   });
 
   const mutation = useApiMutation({
-    mutationFn: (values: CreateZoneDto) => create(values, token),
+    mutationFn: (values: CreateZoneDto) => config.create(values, token),
     setError: form.setError,
     successMessage: `${title}: elemento creado.`,
-    invalidateKeys: [queryKey],
+    invalidateKeys: [config.queryKey],
     onSuccess: () => form.reset(EMPTY),
   });
 
   return (
     <div className="space-y-4">
       <h3 className="font-heading text-lg font-semibold">{title}</h3>
-      <div className="flex flex-wrap gap-2">
-        {(items ?? []).map((item) => (
-          <Badge key={item.id} variant="secondary">
-            {item.name}
-          </Badge>
-        ))}
-        {items && items.length === 0 ? (
-          <span className="text-sm text-muted-foreground">Sin elementos.</span>
-        ) : null}
-      </div>
+      {isError ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-destructive/40 bg-destructive/5 p-3">
+          <p className="text-sm text-muted-foreground">No pudimos cargar {title.toLowerCase()}.</p>
+          <Button type="button" variant="outline" size="sm" className="text-foreground" onClick={() => void refetch()}>
+            Reintentar
+          </Button>
+        </div>
+      ) : (
+        <div className="flex min-h-6 flex-wrap gap-2" aria-busy={isPending}>
+          {isPending ? (
+            <span className="text-sm text-muted-foreground">Cargando…</span>
+          ) : (
+            items?.map((item) => (
+              <Badge key={item.id} variant="secondary">
+                {item.name}
+              </Badge>
+            ))
+          )}
+          {!isPending && items?.length === 0 ? (
+            <span className="text-sm text-muted-foreground">Sin elementos.</span>
+          ) : null}
+        </div>
+      )}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit((values) => mutation.mutate(values))}

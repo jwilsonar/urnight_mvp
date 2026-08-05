@@ -1,25 +1,34 @@
-import type { Metadata } from 'next';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@urnight/ui';
-import { FavoritesList } from '@/components/account/favorites-list';
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@urnight/ui";
+import { FavoritesList } from "@/components/account/favorites-list";
 
-export const metadata: Metadata = { title: 'Guardados' };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("account.saved");
+  return { title: t("title") };
+}
 
 /**
  * Guardados del usuario, separados por tipo (eventos / locales) con pestañas.
  * Reutiliza FavoritesList con su nuevo prop `filter`.
  */
-export default function SavedPage() {
+export default async function SavedPage() {
+  const t = await getTranslations("account.saved");
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="font-heading text-lg font-semibold">Guardados</h2>
-        <p className="text-sm text-muted-foreground">Eventos y locales que marcaste como favoritos.</p>
+        <h2 className="font-heading text-lg font-semibold">{t("title")}</h2>
+        <p className="text-sm text-muted-foreground">{t("description")}</p>
       </div>
 
       <Tabs defaultValue="events">
         <TabsList>
-          <TabsTrigger value="events">Eventos</TabsTrigger>
-          <TabsTrigger value="locals">Locales</TabsTrigger>
+          <TabsTrigger value="events" className="min-w-28 justify-center">
+            {t("events")}
+          </TabsTrigger>
+          <TabsTrigger value="locals" className="min-w-28 justify-center">
+            {t("venues")}
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="events" className="pt-4">
           <FavoritesList filter="event" />

@@ -8,9 +8,34 @@ on:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: urnight
+          POSTGRES_PASSWORD: urnight
+          POSTGRES_DB: urnight_dev
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U urnight -d urnight_dev"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
+      # Sin `version`: pnpm/action-setup lee `packageManager` del package.json
+      # (declarar ambos hace fallar la action con "Multiple versions of pnpm").
       - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
@@ -32,6 +57,15 @@ jobs:
 
       - name: Test
         run: pnpm -r --if-present test
+
+      - name: API E2E
+        run: pnpm --filter @urnight/api test:e2e
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://urnight:urnight@localhost:5433/urnight_dev
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: ci-access-secret-at-least-32-characters
+          JWT_REFRESH_SECRET: ci-refresh-secret-at-least-32-characters
 
       - name: Build
         run: pnpm -r --if-present build

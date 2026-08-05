@@ -111,6 +111,28 @@ async function seedChain(): Promise<SeedIds> {
   return { userId, companyId, localId, eventId, ticketTypeId, orderId, orderItemId, ticketId };
 }
 
+async function seedAdditionalTicket(seed: SeedIds): Promise<string> {
+  const orderItemId = randomUUID();
+  const ticketId = randomUUID();
+  await client.db.insert(orderItem).values({
+    id: orderItemId,
+    orderId: seed.orderId,
+    ticketTypeId: seed.ticketTypeId,
+    quantity: 1,
+    unitPrice: '50.00',
+    lineTotal: '50.00',
+  });
+  await client.db.insert(ticket).values({
+    id: ticketId,
+    orderItemId,
+    eventId: seed.eventId,
+    ticketTypeId: seed.ticketTypeId,
+    qrCode: `QR-${ticketId}`.slice(0, 64),
+    status: 'used',
+  });
+  return ticketId;
+}
+
 describe('DrizzleReviewRepository (integration)', () => {
   it('round-trip: create persiste y listByTarget devuelve la reseña fiel', async () => {
     const seed = await seedChain();
@@ -148,12 +170,13 @@ describe('DrizzleReviewRepository (integration)', () => {
 
   it('listByTarget devuelve solo reseñas publicadas (oculta las hidden)', async () => {
     const seed = await seedChain();
+    const hiddenTicketId = await seedAdditionalTicket(seed);
     const published = Review.create({
       id: randomUUID(),
       userId: seed.userId,
       targetType: 'local',
       localId: seed.localId,
-      ticketId: seed.ticketId,
+      ticketId: hiddenTicketId,
       rating: 4,
       isVerified: true,
     });
@@ -178,6 +201,7 @@ describe('DrizzleReviewRepository (integration)', () => {
 
   it('listByTarget filtra por local vs evento (no mezcla targets)', async () => {
     const seed = await seedChain();
+    const eventTicketId = await seedAdditionalTicket(seed);
     const byLocal = Review.create({
       id: randomUUID(),
       userId: seed.userId,
@@ -192,7 +216,7 @@ describe('DrizzleReviewRepository (integration)', () => {
       userId: seed.userId,
       targetType: 'event',
       eventId: seed.eventId,
-      ticketId: seed.ticketId,
+      ticketId: eventTicketId,
       rating: 3,
       isVerified: true,
     });

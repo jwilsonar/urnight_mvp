@@ -1,0 +1,23 @@
+:root{
+--font-display:'Sora',-apple-system,sans-serif;
+--font-body:'Inter',-apple-system,sans-serif;
+--font-mono:'JetBrains Mono',ui-monospace,monospace;
+--weight-regular:400;
+--weight-medium:500;
+--weight-semibold:600;
+--weight-bold:700;
+--tracking-tight:-0.02em;
+--tracking-normal:0em;
+--tracking-wide:0.04em;
+--tracking-caps:0.12em;
+--size-display:56px;--line-display:64px;
+--size-h1:40px;--line-h1:48px;
+--size-h2:32px;--line-h2:40px;
+--size-h3:24px;--line-h3:32px;
+--size-h4:20px;--line-h4:28px;
+--size-title:18px;--line-title:26px;
+--size-body:16px;--line-body:24px;
+--size-body-sm:14px;--line-body-sm:20px;
+--size-label:13px;--line-label:18px;
+--size-caption:12px;--line-caption:16px;
+}

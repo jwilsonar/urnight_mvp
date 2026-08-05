@@ -5,6 +5,7 @@ import type { Redis } from 'ioredis';
 import { describe, expect, it } from 'vitest';
 import type { RateLimitConfig } from '../decorators/rate-limit.decorator';
 import { RateLimitGuard } from './rate-limit.guard';
+import { MfaLockedError } from '../../modules/identity/domain/errors/identity.errors';
 
 /** Redis in-memory con conteo real (incr/expire/get/del). */
 function fakeRedis(overrides: Partial<Redis> = {}): Redis {
@@ -57,7 +58,7 @@ function makeReq(opts: Partial<{ method: string; url: string; ip: string; body: 
   };
 }
 
-function makeContext(req: unknown, res: unknown, meta?: RateLimitConfig): ExecutionContext {
+function makeContext(req: unknown, res: unknown, _meta?: RateLimitConfig): ExecutionContext {
   return {
     switchToHttp: () => ({ getRequest: () => req, getResponse: () => res }),
     getHandler: () => function handler() {},
@@ -97,6 +98,27 @@ describe('RateLimitGuard', () => {
     await expect(guard.canActivate(makeContext(req, fakeRes(), meta))).resolves.toBe(true);
     await expect(guard.canActivate(makeContext(req, fakeRes(), meta))).resolves.toBe(true);
     await expect(guard.canActivate(makeContext(req, fakeRes(), meta))).rejects.toBeInstanceOf(HttpException);
+  });
+
+  it('limita MFA a cinco intentos por challengeId y devuelve identity/mfa-locked', async () => {
+    const meta: RateLimitConfig = {
+      limit: 5,
+      windowSec: 300,
+      keyBy: ['challenge'],
+      failClosed: true,
+    };
+    const guard = new RateLimitGuard(fakeRedis(), reflectorWith(meta));
+    const req = makeReq({
+      url: '/api/v1/auth/mfa/verify',
+      body: { challengeId: 'challenge-1', code: '000000' },
+    });
+
+    for (let i = 0; i < 5; i += 1) {
+      await expect(guard.canActivate(makeContext(req, fakeRes(), meta))).resolves.toBe(true);
+    }
+    await expect(guard.canActivate(makeContext(req, fakeRes(), meta))).rejects.toBeInstanceOf(
+      MfaLockedError,
+    );
   });
 
   it('FAIL-CLOSED en ruta sensible cuando Redis cae (deniega 503)', async () => {

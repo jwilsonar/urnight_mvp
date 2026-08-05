@@ -10,9 +10,11 @@ import {
   order as orderTable,
   orderItem as orderItemTable,
   ticket as ticketTable,
+  ticketHold as ticketHoldTable,
   ticketType as ticketTypeTable,
   user as userTable,
 } from '@urnight/db';
+import { eq } from 'drizzle-orm';
 import request from 'supertest';
 import {
   createE2EApp,
@@ -235,6 +237,38 @@ async function seedValidatorToken(
 }
 
 describe('Ticketing HTTP (e2e)', () => {
+  describe('TicketHoldsController', () => {
+    it('POST crea el hold y DELETE lo libera explícitamente', async () => {
+      const seed = await seedInventory({ stock: 1 });
+      const token = await signAccessToken(app, seed.userId, ['user']);
+
+      const created = await http()
+        .post('/api/v1/ticket-holds')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          eventId: seed.eventId,
+          ticketTypeId: seed.ticketTypeId,
+          quantity: 1,
+        });
+
+      expect(created.status).toBe(201);
+      expect(created.body.status).toBe('active');
+      expect(created.body.ticketTypeId).toBe(seed.ticketTypeId);
+
+      const released = await http()
+        .delete(`/api/v1/ticket-holds/${created.body.id as string}`)
+        .set('Authorization', `Bearer ${token}`);
+      expect(released.status).toBe(204);
+
+      const [row] = await client.db
+        .select({ status: ticketHoldTable.status })
+        .from(ticketHoldTable)
+        .where(eq(ticketHoldTable.id, created.body.id as string))
+        .limit(1);
+      expect(row?.status).toBe('released');
+    });
+  });
+
   describe('OrdersController — POST /orders/checkout', () => {
     it('→ 401 sin token', async () => {
       const seed = await seedInventory();
@@ -275,6 +309,46 @@ describe('Ticketing HTTP (e2e)', () => {
       expect(res.body.tickets[0]?.status).toBe('valid');
       expect(typeof res.body.tickets[0]?.qrCode).toBe('string');
       expect(res.body.tickets[0]?.eventId).toBe(seed.eventId);
+    });
+
+    it('convierte el hold al confirmar el pago', async () => {
+      const seed = await seedInventory({ stock: 1 });
+      const token = await signAccessToken(app, seed.userId, ['user']);
+      const held = await http()
+        .post('/api/v1/ticket-holds')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          eventId: seed.eventId,
+          ticketTypeId: seed.ticketTypeId,
+          quantity: 1,
+        });
+      const body = checkoutBody(seed) as {
+        eventId: string;
+        method: string;
+        items: Array<{
+          ticketTypeId: string;
+          holdId?: string;
+          attendees: Record<string, unknown>[];
+        }>;
+      };
+      body.items[0]!.holdId = held.body.id as string;
+
+      const paid = await http()
+        .post('/api/v1/orders/checkout')
+        .set('Authorization', `Bearer ${token}`)
+        .send(body);
+      expect(paid.status).toBe(201);
+
+      const [hold] = await client.db
+        .select({
+          status: ticketHoldTable.status,
+          orderId: ticketHoldTable.orderId,
+        })
+        .from(ticketHoldTable)
+        .where(eq(ticketHoldTable.id, held.body.id as string))
+        .limit(1);
+      expect(hold?.status).toBe('converted');
+      expect(hold?.orderId).toBe(paid.body.order.id);
     });
 
     it('→ 409 Problem+JSON si no hay stock suficiente', async () => {

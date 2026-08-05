@@ -1,10 +1,17 @@
-'use client';
+"use client";
 
-import { CaretLeft, CaretRight, Images, MapPin, SquaresFour } from '@phosphor-icons/react';
-import { useCallback, useEffect, useState } from 'react';
-import type { LocalImageResponse } from '@urnight/contracts';
-import { Button, Dialog, DialogContent, DialogTitle } from '@urnight/ui';
-import { StorageImage } from '@/lib/storage/storage-context';
+import {
+  CaretLeft,
+  CaretRight,
+  Images,
+  MapPin,
+  SquaresFour,
+} from "@phosphor-icons/react";
+import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import type { LocalImageResponse } from "@urnight/contracts";
+import { Button, Dialog, DialogContent, DialogTitle } from "@urnight/ui";
+import { StorageImage } from "@/lib/storage/storage-context";
 
 interface LocalGalleryProps {
   images: LocalImageResponse[];
@@ -18,7 +25,12 @@ interface LocalGalleryProps {
  * El lightbox abre en vista individual (clic en una foto) o en "vista general"
  * — un mosaico con todas las fotos (botón "Ver galería (N)").
  */
-export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalleryProps) {
+export function LocalGallery({
+  images,
+  localName,
+  fallbackImageUrl,
+}: LocalGalleryProps) {
+  const t = useTranslations("locals.gallery");
   // Ordenadas por sort_order (la API ya las entrega así; reforzamos por si acaso).
   const photos = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
 
@@ -28,7 +40,10 @@ export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalle
 
   const count = photos.length;
   const next = useCallback(() => setIndex((i) => (i + 1) % count), [count]);
-  const prev = useCallback(() => setIndex((i) => (i - 1 + count) % count), [count]);
+  const prev = useCallback(
+    () => setIndex((i) => (i - 1 + count) % count),
+    [count],
+  );
 
   const openAt = (i: number) => {
     setIndex(i);
@@ -44,11 +59,11 @@ export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalle
   useEffect(() => {
     if (!open || overview) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') next();
-      else if (e.key === 'ArrowLeft') prev();
+      if (e.key === "ArrowRight") next();
+      else if (e.key === "ArrowLeft") prev();
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [open, overview, next, prev]);
 
   // Sin galería: portada de respaldo o placeholder (no se abre lightbox).
@@ -87,12 +102,12 @@ export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalle
             type="button"
             onClick={() => openAt(0)}
             className={`group relative aspect-[16/9] bg-muted sm:aspect-auto sm:row-span-2 ${
-              side.length ? 'sm:col-span-2' : 'sm:col-span-4'
+              side.length ? "sm:col-span-2" : "sm:col-span-4"
             }`}
           >
             <StorageImage
               src={hero.url}
-              alt={`${localName} — foto 1`}
+              alt={t("photoAlt", { name: localName, number: 1 })}
               fill
               priority
               sizes="(max-width: 640px) 100vw, 50vw"
@@ -111,7 +126,7 @@ export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalle
             >
               <StorageImage
                 src={photo.url}
-                alt={`${localName} — foto ${i + 2}`}
+                alt={t("photoAlt", { name: localName, number: i + 2 })}
                 fill
                 sizes="25vw"
                 className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
@@ -129,33 +144,38 @@ export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalle
           className="absolute bottom-3 right-3 gap-2 bg-background/90 shadow-md backdrop-blur hover:bg-background"
         >
           <Images className="h-4 w-4" weight="fill" />
-          Ver galería ({count})
+          {t("viewGallery", { count })}
         </Button>
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="flex h-[100dvh] w-screen max-w-none flex-col gap-0 border-0 bg-background/95 p-0 backdrop-blur sm:rounded-none">
-          <DialogTitle className="sr-only">Galería de {localName}</DialogTitle>
+          <DialogTitle className="sr-only">
+            {t("title", { name: localName })}
+          </DialogTitle>
 
           {/* Barra superior: contador + alternar vista. */}
           <div className="flex items-center justify-between border-b border-border/50 px-4 py-3 sm:px-6">
             <span className="text-sm text-muted-foreground">
-              {overview ? `${count} fotos` : `${index + 1} / ${count}`}
+              {overview
+                ? t("photoCount", { count })
+                : `${index + 1} / ${count}`}
             </span>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={() => setOverview((v) => !v)}
-              className="mr-10 gap-2"
+              // Outline en vez de ghost: el toggle tenía límites invisibles.
+              className="mr-10 gap-2 text-foreground"
             >
               {overview ? (
                 <>
-                  <Images className="h-4 w-4" /> Ver foto
+                  <Images className="h-4 w-4" /> {t("viewPhoto")}
                 </>
               ) : (
                 <>
-                  <SquaresFour className="h-4 w-4" /> Vista general
+                  <SquaresFour className="h-4 w-4" /> {t("overview")}
                 </>
               )}
             </Button>
@@ -176,7 +196,7 @@ export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalle
                 >
                   <StorageImage
                     src={photo.url}
-                    alt={`${localName} — foto ${i + 1}`}
+                    alt={t("photoAlt", { name: localName, number: i + 1 })}
                     fill
                     sizes="(max-width: 640px) 50vw, 33vw"
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -190,7 +210,7 @@ export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalle
               <div className="relative flex-1">
                 <StorageImage
                   src={current.url}
-                  alt={`${localName} — foto ${index + 1}`}
+                  alt={t("photoAlt", { name: localName, number: index + 1 })}
                   fill
                   priority
                   sizes="100vw"
@@ -201,7 +221,7 @@ export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalle
                     <button
                       type="button"
                       onClick={prev}
-                      aria-label="Foto anterior"
+                      aria-label={t("previous")}
                       className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-background/80 p-2 text-foreground shadow-md backdrop-blur transition-colors hover:bg-background"
                     >
                       <CaretLeft className="h-5 w-5" weight="bold" />
@@ -209,7 +229,7 @@ export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalle
                     <button
                       type="button"
                       onClick={next}
-                      aria-label="Foto siguiente"
+                      aria-label={t("next")}
                       className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-background/80 p-2 text-foreground shadow-md backdrop-blur transition-colors hover:bg-background"
                     >
                       <CaretRight className="h-5 w-5" weight="bold" />
@@ -225,9 +245,11 @@ export function LocalGallery({ images, localName, fallbackImageUrl }: LocalGalle
                       key={photo.id}
                       type="button"
                       onClick={() => setIndex(i)}
-                      aria-label={`Ir a la foto ${i + 1}`}
+                      aria-label={t("goTo", { number: i + 1 })}
                       className={`relative h-14 w-20 shrink-0 overflow-hidden rounded-md bg-muted transition-opacity ${
-                        i === index ? 'ring-2 ring-primary' : 'opacity-60 hover:opacity-100'
+                        i === index
+                          ? "ring-2 ring-ring"
+                          : "opacity-60 hover:opacity-100"
                       }`}
                     >
                       <StorageImage

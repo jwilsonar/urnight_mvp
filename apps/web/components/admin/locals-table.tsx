@@ -5,10 +5,11 @@ import { useQuery } from '@tanstack/react-query';
 import { type ColumnDef } from '@tanstack/react-table';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import type { LocalResponse } from '@urnight/contracts';
 import {
+  Badge,
   Button,
   Dialog,
   DialogContent,
@@ -25,20 +26,43 @@ import {
   Textarea,
 } from '@urnight/ui';
 import { DataTable, SortableHeader } from '@/components/panels/data-table';
-import { listMyLocals, publishLocal, requestLocalVerification, suspendLocal } from '@/lib/api/admin';
+import {
+  listMyLocals,
+  publishLocal,
+  requestLocalVerification,
+  suspendLocal,
+} from '@/lib/api/admin';
 import { queryKeys } from '@/lib/api/query-keys';
 import { useApiMutation } from '@/lib/api/use-api-mutation';
 import { formatDateOnly } from '@/lib/utils';
+import {
+  getLocalApprovalStatus,
+  LOCAL_APPROVAL_UPDATED_EVENT,
+  type LocalApprovalStatus,
+} from './local-approval-mock';
 import { LocalStatusBadge, VerifiedBadge } from './status-badges';
 
 const STATUS_FILTER = [
+  { label: 'Pendiente de aprobación', value: 'approval_pending' },
   { label: 'Borrador', value: 'draft' },
   { label: 'Activo', value: 'active' },
   { label: 'Inactivo', value: 'inactive' },
   { label: 'Suspendido', value: 'suspended' },
 ];
+const VERIFICATION_FILTER = [
+  { label: 'Verificados', value: 'true' },
+  { label: 'Pendientes', value: 'false' },
+];
 
-function LocalRowActions({ local, token }: { local: LocalResponse; token: string }) {
+function LocalRowActions({
+  local,
+  token,
+  approvalStatus,
+}: {
+  local: LocalResponse;
+  token: string;
+  approvalStatus: LocalApprovalStatus | null;
+}) {
   const [suspendOpen, setSuspendOpen] = useState(false);
   const [reason, setReason] = useState('');
 
@@ -62,7 +86,8 @@ function LocalRowActions({ local, token }: { local: LocalResponse; token: string
     },
   });
 
-  const canPublish = local.status === 'draft' || local.status === 'inactive';
+  const canPublish =
+    approvalStatus !== 'pending' && (local.status === 'draft' || local.status === 'inactive');
   const canSuspend = local.status !== 'suspended';
 
   return (
@@ -125,7 +150,11 @@ function LocalRowActions({ local, token }: { local: LocalResponse; token: string
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSuspendOpen(false)} disabled={suspend.isPending}>
+            <Button
+              variant="outline"
+              onClick={() => setSuspendOpen(false)}
+              disabled={suspend.isPending}
+            >
               Cancelar
             </Button>
             <Button
@@ -152,6 +181,17 @@ function LocalRowActions({ local, token }: { local: LocalResponse; token: string
 export function LocalsTable() {
   const { data: session, status } = useSession();
   const token = session?.accessToken ?? '';
+  const [, refreshApprovals] = useState(0);
+
+  useEffect(() => {
+    const refresh = () => refreshApprovals((version) => version + 1);
+    window.addEventListener('storage', refresh);
+    window.addEventListener(LOCAL_APPROVAL_UPDATED_EVENT, refresh);
+    return () => {
+      window.removeEventListener('storage', refresh);
+      window.removeEventListener(LOCAL_APPROVAL_UPDATED_EVENT, refresh);
+    };
+  }, []);
 
   const query = useQuery({
     queryKey: queryKeys.myLocals,
@@ -164,27 +204,40 @@ export function LocalsTable() {
       accessorKey: 'name',
       header: ({ column }) => <SortableHeader column={column}>Nombre</SortableHeader>,
       cell: ({ row }) => (
-        <Link href={`/panel/admin/locals/${row.original.id}`} className="font-medium hover:underline">
+        <Link
+          href={`/panel/admin/locals/${row.original.id}`}
+          className="font-medium hover:underline"
+        >
           {row.original.name}
         </Link>
       ),
     },
     {
-      accessorKey: 'status',
+      id: 'status',
+      accessorFn: (local) =>
+        getLocalApprovalStatus(local.id) === 'pending' ? 'approval_pending' : local.status,
       header: 'Estado',
       filterFn: 'equalsString',
-      cell: ({ row }) => <LocalStatusBadge status={row.original.status} />,
+      cell: ({ row }) =>
+        getLocalApprovalStatus(row.original.id) === 'pending' ? (
+          <Badge variant="warning">Pendiente de aprobación</Badge>
+        ) : (
+          <LocalStatusBadge status={row.original.status} />
+        ),
     },
     {
       accessorKey: 'isVerified',
       header: 'Verificación',
+      filterFn: (row, columnId, value) => String(row.getValue<boolean>(columnId)) === value,
       cell: ({ row }) => <VerifiedBadge isVerified={row.original.isVerified} />,
     },
     {
       accessorKey: 'createdAt',
       header: ({ column }) => <SortableHeader column={column}>Creado</SortableHeader>,
       cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground">{formatDateOnly(row.original.createdAt)}</span>
+        <span className="text-sm text-muted-foreground">
+          {formatDateOnly(row.original.createdAt)}
+        </span>
       ),
     },
     {
@@ -192,7 +245,11 @@ export function LocalsTable() {
       header: '',
       cell: ({ row }) => (
         <div className="text-right">
-          <LocalRowActions local={row.original} token={token} />
+          <LocalRowActions
+            local={row.original}
+            token={token}
+            approvalStatus={getLocalApprovalStatus(row.original.id)}
+          />
         </div>
       ),
     },
@@ -207,7 +264,14 @@ export function LocalsTable() {
       onRetry={() => query.refetch()}
       searchColumn="name"
       searchPlaceholder="Buscar local…"
-      filters={[{ columnId: 'status', title: 'Estado', options: STATUS_FILTER }]}
+      filters={[
+        { columnId: 'status', title: 'Estado', options: STATUS_FILTER },
+        {
+          columnId: 'isVerified',
+          title: 'Verificación',
+          options: VERIFICATION_FILTER,
+        },
+      ]}
     />
   );
 }

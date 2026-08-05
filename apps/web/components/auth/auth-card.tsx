@@ -12,7 +12,8 @@ interface AuthCardProps {
 /** Tarjeta centrada para las pantallas de autenticación. */
 export function AuthCard({ title, description, children, footer }: AuthCardProps) {
   return (
-    <Card className="w-full max-w-md">
+    // Card de auth DS: radio 20, sombra profunda flotando sobre el glow.
+    <Card className="w-full max-w-md rounded-xl shadow-overlay">
       <CardHeader className="space-y-2 text-center">
         <Logo className="mx-auto text-2xl" />
         <CardTitle>{title}</CardTitle>

@@ -10,6 +10,7 @@ export interface PromoterProps {
   companyId: string;
   localId: string | null;
   userId: string | null;
+  parentPromoterId: string | null;
   name: string;
   contactEmail: string | null;
   contactPhone: string | null;
@@ -37,6 +38,7 @@ export class Promoter {
       companyId: input.companyId,
       localId: input.localId ?? null,
       userId: input.userId ?? null,
+      parentPromoterId: null,
       name: input.name.trim(),
       contactEmail: input.contactEmail ?? null,
       contactPhone: input.contactPhone ?? null,
@@ -65,6 +67,7 @@ export class Promoter {
       companyId: input.companyId,
       localId: input.localId ?? null,
       userId: null,
+      parentPromoterId: null,
       name: input.name.trim(),
       contactEmail: email,
       contactPhone: input.contactPhone ?? null,
@@ -74,8 +77,12 @@ export class Promoter {
     });
   }
 
-  static fromPersistence(props: PromoterProps): Promoter {
-    return new Promoter(props);
+  static fromPersistence(
+    props: Omit<PromoterProps, 'parentPromoterId'> & {
+      parentPromoterId?: string | null;
+    },
+  ): Promoter {
+    return new Promoter({ ...props, parentPromoterId: props.parentPromoterId ?? null });
   }
 
   isActive(): boolean {
@@ -118,6 +125,10 @@ export class Promoter {
     this.props.status = 'inactive';
   }
 
+  assignParent(parentPromoterId: string | null): void {
+    this.props.parentPromoterId = parentPromoterId;
+  }
+
   get id(): string {
     return this.props.id;
   }
@@ -129,6 +140,9 @@ export class Promoter {
   }
   get userId(): string | null {
     return this.props.userId;
+  }
+  get parentPromoterId(): string | null {
+    return this.props.parentPromoterId;
   }
   get name(): string {
     return this.props.name;

@@ -17,6 +17,7 @@ import {
 } from '@urnight/contracts';
 import { CurrentUser, type AuthUser } from '../../../../edge/decorators/current-user.decorator';
 import { ZodValidationPipe } from '../../../../edge/pipes/zod-validation.pipe';
+import { tenantScopeOf } from '../../../../edge/tenant/tenant-scope.helper';
 import { CheckoutUseCase } from '../../application/use-cases/checkout.use-case';
 import { GetOrderUseCase } from '../../application/use-cases/get-order.use-case';
 import type { Order } from '../../domain/entities/order.entity';
@@ -47,6 +48,7 @@ export class OrdersController {
     const result = await this.checkout.execute({
       userId: user.id,
       dto,
+      scope: tenantScopeOf(user),
       idempotencyKey: idempotencyKey?.trim() || undefined,
     });
     return {

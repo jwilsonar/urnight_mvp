@@ -3,11 +3,13 @@ import type {
   CreateSupportTicketDto,
   LegalDocType,
   LegalDocumentResponse,
+  LocalVerificationDocumentResponse,
   NotificationResponse,
   PlatformSettingResponse,
   PublishLegalDocumentDto,
   ResolveSupportTicketDto,
   ReviewVerificationDto,
+  ReviewLocalVerificationDocumentDto,
   SupportTicketResponse,
   UpsertPlatformSettingDto,
   VerificationResponse,
@@ -32,9 +34,14 @@ import { apiFetch } from './client';
 /* ---------------------------------------------------------------- Ajustes -- */
 
 /** Lee un ajuste de plataforma por clave (GET /platform-settings/:key). Público. */
-export function getPlatformSetting(key: string, token?: string) {
+export function getPlatformSetting(
+  key: string,
+  token?: string,
+  opts?: { timeoutMs?: number },
+) {
   return apiFetch<PlatformSettingResponse>(`/platform-settings/${encodeURIComponent(key)}`, {
     token,
+    ...(opts?.timeoutMs !== undefined ? { timeoutMs: opts.timeoutMs } : {}),
   });
 }
 
@@ -118,4 +125,22 @@ export function reviewLocalVerification(id: string, dto: ReviewVerificationDto, 
     json: dto,
     token,
   });
+}
+
+export function listPendingLocalVerificationDocuments(token?: string) {
+  return apiFetch<LocalVerificationDocumentResponse[]>(
+    '/local-verification-documents/pending',
+    { token },
+  );
+}
+
+export function reviewLocalVerificationDocument(
+  id: string,
+  dto: ReviewLocalVerificationDocumentDto,
+  token?: string,
+) {
+  return apiFetch<LocalVerificationDocumentResponse>(
+    `/local-verification-documents/${id}/review`,
+    { method: 'POST', json: dto, token },
+  );
 }

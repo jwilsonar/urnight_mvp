@@ -2,6 +2,7 @@
 
 import { List } from '@phosphor-icons/react';
 import { Button } from '@urnight/ui';
+import { LocaleSwitcher } from '@/components/shared/locale-switcher';
 import { Logo } from '@/components/shared/logo';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
 import { roleHomePath } from '@/lib/utils/rbac';
@@ -26,7 +27,8 @@ export function PanelNavbar({
   onMenuClick?: () => void;
 }) {
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    /* Navbar DS: fill oscuro translúcido + blur, hairline inferior. */
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-xl">
       <div className="flex h-16 items-center gap-3 px-4 sm:px-6">
         {showMenu ? (
           <Button
@@ -41,8 +43,11 @@ export function PanelNavbar({
         ) : null}
         <Logo href={roleHomePath(user.roles)} />
         <div className="ml-auto flex items-center gap-1">
+          <div className="hidden items-center gap-1 md:flex">
+            <ThemeToggle />
+            <LocaleSwitcher id="panel-navbar-language" />
+          </div>
           <NotificationBell />
-          <ThemeToggle />
           <ProfileMenu user={user} />
         </div>
       </div>

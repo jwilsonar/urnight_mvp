@@ -1,29 +1,47 @@
-import type { Metadata } from 'next';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@urnight/ui';
-import { ApplyPromoterForm } from '@/components/promoter/apply-promoter-form';
-import { requireAccessToken } from '@/lib/auth-helpers';
+import {
+  CurrencyCircleDollar,
+  LinkSimple,
+  Receipt,
+  Target,
+} from "@phosphor-icons/react/dist/ssr";
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { ApplyPromoterForm } from "@/components/promoter/apply-promoter-form";
+import { ConversionSplit } from "@/components/shared/conversion-split";
+import { requireAccessToken } from "@/lib/auth-helpers";
 
-export const metadata: Metadata = { title: 'Postular a promotor' };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("promoterApplication");
+  return { title: t("metadataTitle") };
+}
 
 /** Postulación pública (autenticada) a promotor. Reusa ApplyPromoterForm. */
 export default async function ApplyPromoterPage() {
   // Requiere sesión: la postulación se asocia al usuario actual.
-  await requireAccessToken('/promotor/postular');
+  await requireAccessToken("/promotor/postular");
+  const t = await getTranslations("promoterApplication");
+  const stats = ["events", "venues", "nightOwls"].map((key, index) => ({
+    value: ["320+", "85+", "12k"][index]!,
+    label: t(`stats.${key}`),
+  }));
+  const benefits = [LinkSimple, Target, CurrencyCircleDollar, Receipt].map(
+    (Icon, index) => ({
+      icon: <Icon className="size-5" weight="duotone" aria-hidden />,
+      label: t(`benefits.${index + 1}`),
+    }),
+  );
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-heading text-2xl">Conviértete en promotor</CardTitle>
-          <CardDescription>
-            Postula para vender entradas y ganar comisiones por tus referidos. Un local revisará tu
-            solicitud.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ApplyPromoterForm />
-        </CardContent>
-      </Card>
-    </div>
+    <ConversionSplit
+      eyebrow={t("eyebrow")}
+      title={t("title")}
+      description={t("description")}
+      stats={stats}
+      benefits={benefits}
+      formTitle={t("formTitle")}
+      formDescription={<>{t("formDescription")}</>}
+    >
+      <ApplyPromoterForm />
+    </ConversionSplit>
   );
 }

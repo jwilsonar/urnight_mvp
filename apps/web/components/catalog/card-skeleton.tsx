@@ -1,7 +1,13 @@
-import { Skeleton } from '@urnight/ui';
+import { Skeleton } from "@urnight/ui";
 
 /** Grilla de skeletons para listados de catálogo. */
-export function CatalogGridSkeleton({ count = 6, aspect = 'aspect-[4/3]' }: { count?: number; aspect?: string }) {
+export function CatalogGridSkeleton({
+  count = 6,
+  aspect = "aspect-[4/3]",
+}: {
+  count?: number;
+  aspect?: string;
+}) {
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: count }).map((_, index) => (

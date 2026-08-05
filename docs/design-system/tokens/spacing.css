@@ -1,0 +1,7 @@
+:root{
+--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px;--space-12:48px;--space-16:64px;
+--radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-xl:20px;--radius-pill:999px;
+--grid-desktop-max:1440px;--grid-desktop-gutter:24px;--grid-desktop-margin:48px;--grid-desktop-cols:12; /* @kind other */
+--grid-tablet-max:1024px;--grid-tablet-gutter:20px;--grid-tablet-margin:32px;--grid-tablet-cols:8; /* @kind other */
+--grid-mobile-max:375px;--grid-mobile-gutter:16px;--grid-mobile-margin:20px;--grid-mobile-cols:4; /* @kind other */
+}

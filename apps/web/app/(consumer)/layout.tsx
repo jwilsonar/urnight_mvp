@@ -1,14 +1,29 @@
-import type { ReactNode } from 'react';
-import { SiteFooter } from '@/components/shared/site-footer';
-import { SiteHeader } from '@/components/shared/site-header';
+import type { ReactNode } from "react";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
+import { ConditionalFooter } from "@/components/shared/conditional-footer";
+import { SiteHeader } from "@/components/shared/site-header";
 
 /** Zona consumidor (público + autenticado): cabecera, contenido y pie. */
-export default function ConsumerLayout({ children }: { children: ReactNode }) {
+export default async function ConsumerLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const [locale, messages] = await Promise.all([getLocale(), getMessages()]);
+
   return (
-    <div className="flex min-h-dvh flex-col" data-area="consumer">
-      <SiteHeader />
-      <main className="flex-1">{children}</main>
-      <SiteFooter />
-    </div>
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      <div
+        lang={locale === "es" ? "es-PE" : "en"}
+        className="flex min-h-dvh flex-col"
+        data-area="consumer"
+      >
+        <SiteHeader />
+        <main className="flex-1">{children}</main>
+        {/* Pie completo en descubrimiento, slim en flujos transaccionales. */}
+        <ConditionalFooter />
+      </div>
+    </NextIntlClientProvider>
   );
 }

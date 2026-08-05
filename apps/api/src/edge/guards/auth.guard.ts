@@ -1,4 +1,5 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import type { CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
@@ -13,6 +14,7 @@ interface AccessClaims {
   roles?: Role[];
   companyId?: string | null;
   localId?: string | null;
+  mfaPending?: boolean;
 }
 
 /**
@@ -54,6 +56,7 @@ export class AuthGuard implements CanActivate {
         roles: claims.roles ?? [],
         companyId: claims.companyId ?? undefined,
         localId: claims.localId ?? undefined,
+        mfaPending: claims.mfaPending ?? false,
       };
       this.log.debug({ userId: claims.sub, roles: claims.roles ?? [] }, 'auth.authenticated');
       return true;

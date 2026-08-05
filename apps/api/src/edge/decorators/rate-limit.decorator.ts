@@ -7,8 +7,9 @@ export const RATE_LIMIT_KEY = 'rateLimit';
  * - `ip`    → IP del cliente (siempre incluida por defecto).
  * - `email` → `req.body.email` (rutas de login/credenciales).
  * - `user`  → id del principal (JWT `sub`); útil en rutas autenticadas.
+ * - `challenge` → challengeId opaco del body (verificación/recovery MFA).
  */
-export type RateLimitKeyBy = 'ip' | 'email' | 'user';
+export type RateLimitKeyBy = 'ip' | 'email' | 'user' | 'challenge';
 
 /** Bloqueo temporal por credenciales inválidas (solo login). */
 export interface RateLimitLockout {

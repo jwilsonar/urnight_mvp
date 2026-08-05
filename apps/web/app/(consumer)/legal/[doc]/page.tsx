@@ -1,35 +1,43 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { LEGAL_DOC_TYPES, type LegalDocType } from '@urnight/contracts';
-import { Button } from '@urnight/ui';
-import { getCurrentLegalDocument } from '@/lib/api/ops';
-import { formatDateOnly } from '@/lib/utils';
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getFormatter, getTranslations } from "next-intl/server";
+import { LEGAL_DOC_TYPES, type LegalDocType } from "@urnight/contracts";
+import { Button } from "@urnight/ui";
+import { Reveal } from "@/components/shared/reveal";
+import { getCurrentLegalDocument } from "@/lib/api/ops";
 
-// ISR: los documentos legales cambian rara vez; cacheamos por 1 hora.
 export const revalidate = 3600;
 
-/**
- * Copia de respaldo (fallback) por si el endpoint público de documentos legales
- * no responde: garantiza que las páginas legales nunca queden en blanco.
- */
-const FALLBACK: Record<LegalDocType, { title: string; body: string }> = {
-  terms: {
-    title: 'Términos y condiciones',
-    body: 'El uso de UrNight implica la aceptación de estos términos. El servicio está disponible solo para mayores de 18 años. La compra de entradas está sujeta a la disponibilidad y a las políticas de cada local y evento.',
-  },
-  privacy: {
-    title: 'Política de privacidad',
-    body: 'Tratamos tus datos personales conforme a la Ley de Protección de Datos Personales del Perú. Usamos tu información para procesar compras, emitir entradas y mejorar el servicio. Puedes solicitar el acceso o la eliminación de tus datos en cualquier momento.',
-  },
-  refund_policy: {
-    title: 'Política de reembolsos',
-    body: 'Las entradas adquiridas en UrNight están sujetas a la política de reembolsos de cada local y evento. Salvo cancelación del evento, las compras no son reembolsables. Ante cualquier duda, contáctanos antes de comprar.',
-  },
+const DOC_CONFIG = {
+  terms: "https://cdn.ravenue.pe/legal/terminos-y-condiciones.pdf",
+  privacy: "https://cdn.ravenue.pe/legal/politica-de-privacidad.pdf",
+  cookies: "https://cdn.ravenue.pe/legal/politica-de-cookies.pdf",
+  beneficiario:
+    "https://cdn.ravenue.pe/legal/declaracion-beneficiario-final.pdf",
+  clausulas: "https://cdn.ravenue.pe/legal/clausulas-usos-adicionales.pdf",
+  refund_policy: "https://cdn.ravenue.pe/legal/politica-de-reembolsos.pdf",
+} as const;
+
+type DocKey = keyof typeof DOC_CONFIG;
+type LegalCopy = {
+  crumb: string;
+  title: string;
+  updated: string;
+  intro: string;
+  sections: [string, string][];
 };
+
+function isDocKey(value: string): value is DocKey {
+  return Object.prototype.hasOwnProperty.call(DOC_CONFIG, value);
+}
 
 function isLegalDocType(value: string): value is LegalDocType {
   return (LEGAL_DOC_TYPES as readonly string[]).includes(value);
+}
+
+export function generateStaticParams() {
+  return Object.keys(DOC_CONFIG).map((doc) => ({ doc }));
 }
 
 export async function generateMetadata({
@@ -38,39 +46,68 @@ export async function generateMetadata({
   params: Promise<{ doc: string }>;
 }): Promise<Metadata> {
   const { doc } = await params;
-  return { title: isLegalDocType(doc) ? FALLBACK[doc].title : 'Legal' };
+  const t = await getTranslations("legal");
+  if (!isDocKey(doc)) return { title: t("fallbackTitle") };
+  const entry = t.raw(`docs.${doc}`) as LegalCopy;
+  return { title: entry.title, description: entry.intro };
 }
 
-export default async function LegalPage({ params }: { params: Promise<{ doc: string }> }) {
+export default async function LegalPage({
+  params,
+}: {
+  params: Promise<{ doc: string }>;
+}) {
   const { doc } = await params;
-  if (!isLegalDocType(doc)) notFound();
+  if (!isDocKey(doc)) notFound();
 
-  const fallback = FALLBACK[doc];
-
-  // Documento vigente real (publicado por el superadmin). Si falla, seguimos con el
-  // texto de respaldo para no dejar la página legal vacía.
-  const current = await getCurrentLegalDocument(doc, undefined, { revalidate }).catch(() => null);
+  const t = await getTranslations("legal");
+  const format = await getFormatter();
+  const entry = t.raw(`docs.${doc}`) as LegalCopy;
+  const current = isLegalDocType(doc)
+    ? await getCurrentLegalDocument(doc, undefined, { revalidate }).catch(
+        () => null,
+      )
+    : null;
+  const documentUrl = current?.contentUrl ?? DOC_CONFIG[doc];
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-      <h1 className="mb-2 font-heading text-3xl font-bold tracking-tight">{fallback.title}</h1>
-      {current ? (
-        <p className="mb-6 text-sm text-muted-foreground">
-          Versión {current.version} · vigente desde {formatDateOnly(current.publishedAt)}
+      <Reveal>
+        <p className="rv-eyebrow">{entry.crumb}</p>
+        <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
+          {entry.title}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {current
+            ? t("publishedVersion", {
+                version: current.version,
+                date: format.dateTime(new Date(current.publishedAt), {
+                  dateStyle: "long",
+                }),
+              })
+            : entry.updated}
         </p>
-      ) : null}
-
-      <p className="leading-relaxed text-muted-foreground">{fallback.body}</p>
-
-      {current ? (
-        <div className="mt-8">
-          <Button asChild>
-            <Link href={current.contentUrl} target="_blank" rel="noopener noreferrer">
-              Ver documento completo
-            </Link>
-          </Button>
-        </div>
-      ) : null}
+        <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          {entry.intro}
+        </p>
+      </Reveal>
+      <div className="mt-10 space-y-8">
+        {entry.sections.map(([title, body], index) => (
+          <Reveal key={title} delay={index * 50}>
+            <section>
+              <h2 className="mb-2.5 font-heading text-xl font-bold">{title}</h2>
+              <p className="leading-relaxed text-muted-foreground">{body}</p>
+            </section>
+          </Reveal>
+        ))}
+      </div>
+      <div className="mt-10">
+        <Button asChild>
+          <Link href={documentUrl} target="_blank" rel="noopener noreferrer">
+            {t("viewDocument")}
+          </Link>
+        </Button>
+      </div>
     </article>
   );
 }

@@ -1,25 +1,73 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, desc, eq, gte, inArray, lte, or, sql, type SQL } from 'drizzle-orm';
-import { event, eventGenre, eventTag, local, musicGenre, tag } from '@urnight/db';
-import { DRIZZLE, type DrizzleDb } from '../../../../shared/database/drizzle.constants';
-import { Event, type EventStatus } from '../../domain/entities/event.entity';
-import type { EventListFilter, EventRepository } from '../../domain/ports/event.repository';
-import { normalizeSearch, normalizedColumn } from '../../../../shared/database/search-normalize';
+import { Inject, Injectable } from "@nestjs/common";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  getTableColumns,
+  gte,
+  gt,
+  inArray,
+  lte,
+  or,
+  sql,
+  type SQL,
+} from "drizzle-orm";
+import {
+  activeEventHoldQuantitySql,
+  availableCapacity,
+  availableCapacitySql,
+  event,
+  eventGenre,
+  eventTag,
+  local,
+  musicGenre,
+  order,
+  orderItem,
+  tag,
+  ticketType,
+} from "@urnight/db";
+import {
+  DRIZZLE,
+  type DrizzleDb,
+} from "../../../../shared/database/drizzle.constants";
+import { Event, type EventStatus } from "../../domain/entities/event.entity";
+import type { TrendingConfig } from "../../domain/services/trending-score";
+import type {
+  EventCatalogOrder,
+  EventListFilter,
+  EventListItem,
+  EventRepository,
+} from "../../domain/ports/event.repository";
+import {
+  normalizeSearch,
+  normalizedColumn,
+} from "../../../../shared/database/search-normalize";
 
 type Row = typeof event.$inferSelect;
+type RowWithAvailability = Row & { availableCapacity?: number };
 
 @Injectable()
 export class DrizzleEventRepository implements EventRepository {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDb) {}
 
   async findById(id: string): Promise<Event | null> {
-    const [row] = await this.db.select().from(event).where(eq(event.id, id)).limit(1);
+    const [row] = await this.db
+      .select(this.eventSelection())
+      .from(event)
+      .where(eq(event.id, id))
+      .limit(1);
     if (!row) return null;
     return this.withTaxonomy(this.toDomain(row));
   }
 
   async findBySlug(slug: string): Promise<Event | null> {
-    const [row] = await this.db.select().from(event).where(eq(event.slug, slug)).limit(1);
+    const [row] = await this.db
+      .select(this.eventSelection())
+      .from(event)
+      .where(eq(event.slug, slug))
+      .limit(1);
     if (!row) return null;
     return this.withTaxonomy(this.toDomain(row));
   }
@@ -31,7 +79,10 @@ export class DrizzleEventRepository implements EventRepository {
         .select({ id: eventGenre.genreId })
         .from(eventGenre)
         .where(eq(eventGenre.eventId, entity.id)),
-      this.db.select({ id: eventTag.tagId }).from(eventTag).where(eq(eventTag.eventId, entity.id)),
+      this.db
+        .select({ id: eventTag.tagId })
+        .from(eventTag)
+        .where(eq(eventTag.eventId, entity.id)),
     ]);
     entity.setTaxonomy(
       genres.map((g) => g.id),
@@ -41,50 +92,96 @@ export class DrizzleEventRepository implements EventRepository {
   }
 
   async existsBySlug(slug: string): Promise<boolean> {
-    const [row] = await this.db.select({ id: event.id }).from(event).where(eq(event.slug, slug)).limit(1);
+    const [row] = await this.db
+      .select({ id: event.id })
+      .from(event)
+      .where(eq(event.slug, slug))
+      .limit(1);
     return Boolean(row);
   }
 
-  async listPublished(filter?: EventListFilter): Promise<Event[]> {
-    const conditions: SQL[] = [eq(event.status, 'published')];
+  private taxonomyMatch(filter?: EventListFilter): {
+    matchScore: SQL<number>;
+    matchesAll: SQL<boolean>;
+    requestedCount: number;
+  } {
+    const genreIds = [...new Set(filter?.genreIds ?? [])];
+    const tagIds = [...new Set(filter?.tagIds ?? [])];
+    const requestedCount = genreIds.length + tagIds.length;
+    if (requestedCount === 0) {
+      return {
+        matchScore: sql<number>`0`,
+        matchesAll: sql<boolean>`true`,
+        requestedCount,
+      };
+    }
+
+    const genreMatches =
+      genreIds.length === 0
+        ? sql<number>`0`
+        : sql<number>`(
+            select count(*)::int
+            from ${eventGenre}
+            where ${eventGenre.eventId} = ${event.id}
+              and ${inArray(eventGenre.genreId, genreIds)}
+          )`;
+    const tagMatches =
+      tagIds.length === 0
+        ? sql<number>`0`
+        : sql<number>`(
+            select count(*)::int
+            from ${eventTag}
+            where ${eventTag.eventId} = ${event.id}
+              and ${inArray(eventTag.tagId, tagIds)}
+          )`;
+    const matchScore = sql<number>`(${genreMatches} + ${tagMatches})::int`;
+
+    return {
+      matchScore,
+      matchesAll: sql<boolean>`${matchScore} = ${requestedCount}`,
+      requestedCount,
+    };
+  }
+
+  private publishedConditions(filter?: EventListFilter): SQL[] {
+    const at = filter?.availableAt ?? new Date();
+    const activeHolds = activeEventHoldQuantitySql(event.id, at);
+    const conditions: SQL[] = [
+      eq(event.status, "published"),
+      // startsAt es timestamptz: comparar instantes evita crear otra convención
+      // de zona horaria distinta a la que ya usan los presets de Lima.
+      gte(event.startsAt, at),
+      or(
+        eq(event.totalCapacity, 0),
+        gt(
+          availableCapacitySql(
+            event.totalCapacity,
+            event.ticketsSold,
+            activeHolds,
+          ),
+          0,
+        ),
+      ) as SQL,
+    ];
     if (filter?.localId) conditions.push(eq(event.localId, filter.localId));
     if (filter?.zoneId) {
       conditions.push(
         inArray(
           event.localId,
-          this.db.select({ id: local.id }).from(local).where(eq(local.zoneId, filter.zoneId)),
-        ),
-      );
-    }
-    if (filter?.genreId) {
-      conditions.push(
-        inArray(
-          event.id,
           this.db
-            .select({ id: eventGenre.eventId })
-            .from(eventGenre)
-            .where(eq(eventGenre.genreId, filter.genreId)),
+            .select({ id: local.id })
+            .from(local)
+            .where(eq(local.zoneId, filter.zoneId)),
         ),
       );
     }
-    if (filter?.tagId) {
-      conditions.push(
-        inArray(
-          event.id,
-          this.db
-            .select({ id: eventTag.eventId })
-            .from(eventTag)
-            .where(eq(eventTag.tagId, filter.tagId)),
-        ),
-      );
-    }
+    const taxonomyMatch = this.taxonomyMatch(filter);
+    if (taxonomyMatch.requestedCount > 0)
+      conditions.push(gt(taxonomyMatch.matchScore, 0));
     if (filter?.q) {
-      // Búsqueda inteligente (#3): normaliza acentos/espacios/mayúsculas y matchea
-      // contra nombre, descripción Y los nombres de categorías/géneros y etiquetas
-      // asociados. Así "DJ Peligro" se encuentra con "djpeligro", "dj" o "DJ".
-      const nq = normalizeSearch(filter.q);
-      if (nq) {
-        const pattern = `%${nq}%`;
+      const normalized = normalizeSearch(filter.q);
+      if (normalized) {
+        const pattern = `%${normalized}%`;
         const tagMatch = this.db
           .select({ id: eventTag.eventId })
           .from(eventTag)
@@ -95,7 +192,6 @@ export class DrizzleEventRepository implements EventRepository {
           .from(eventGenre)
           .innerJoin(musicGenre, eq(eventGenre.genreId, musicGenre.id))
           .where(sql`${normalizedColumn(musicGenre.name)} like ${pattern}`);
-        // Etiquetas libres (JSON): matchea cada elemento del array normalizado.
         const customTagMatch = sql`exists (select 1 from jsonb_array_elements_text(${event.customTags}) as ct(v) where ${normalizedColumn(sql`ct.v`)} like ${pattern})`;
         conditions.push(
           or(
@@ -110,42 +206,153 @@ export class DrizzleEventRepository implements EventRepository {
     }
     if (filter?.from) conditions.push(gte(event.startsAt, filter.from));
     if (filter?.to) conditions.push(lte(event.startsAt, filter.to));
+    if (filter?.minPrice !== undefined || filter?.maxPrice !== undefined) {
+      const priceConditions: SQL[] = [];
+      if (filter.minPrice !== undefined) {
+        priceConditions.push(gte(ticketType.price, filter.minPrice.toFixed(2)));
+      }
+      if (filter.maxPrice !== undefined) {
+        priceConditions.push(lte(ticketType.price, filter.maxPrice.toFixed(2)));
+      }
+      conditions.push(
+        inArray(
+          event.id,
+          this.db
+            .select({ id: ticketType.eventId })
+            .from(ticketType)
+            .where(and(...priceConditions)),
+        ),
+      );
+    }
+    return conditions;
+  }
 
+  private publishedOrder(order: EventCatalogOrder = "soonest"): SQL[] {
+    const strategies: Record<EventCatalogOrder, SQL[]> = {
+      soonest: [asc(event.startsAt), asc(event.id)],
+    };
+    return strategies[order];
+  }
+
+  async listPublished(filter?: EventListFilter): Promise<EventListItem[]> {
+    const taxonomyMatch = this.taxonomyMatch(filter);
+    const rankingOrder =
+      taxonomyMatch.requestedCount > 0
+        ? [desc(taxonomyMatch.matchesAll), desc(taxonomyMatch.matchScore)]
+        : [];
     let query = this.db
-      .select()
+      .select({
+        ...this.eventSelection(filter?.availableAt),
+        matchScore: taxonomyMatch.matchScore,
+        matchesAll: taxonomyMatch.matchesAll,
+      })
       .from(event)
-      .where(and(...conditions))
-      .orderBy(desc(event.startsAt))
+      .where(and(...this.publishedConditions(filter)))
+      .orderBy(...rankingOrder, ...this.publishedOrder(filter?.order))
       .$dynamic();
     if (filter?.limit !== undefined) query = query.limit(filter.limit);
     if (filter?.offset !== undefined) query = query.offset(filter.offset);
     const rows = await query;
-    return rows.map((r) => this.toDomain(r));
+    return rows.map((row) => ({
+      event: this.toDomain(row),
+      matchScore: Number(row.matchScore),
+      matchesAll: Boolean(row.matchesAll),
+    }));
   }
 
-  async listTrending(limit: number): Promise<Event[]> {
-    const rows = await this.db
-      .select()
+  async countPublished(filter?: EventListFilter): Promise<number> {
+    const [row] = await this.db
+      .select({ total: count() })
       .from(event)
-      .where(eq(event.status, 'published'))
-      .orderBy(desc(event.ticketsSold), desc(event.checkinsCount))
+      .where(and(...this.publishedConditions(filter)));
+    return Number(row?.total ?? 0);
+  }
+
+  async listTrending(
+    limit: number,
+    config: TrendingConfig,
+    availableAt: Date = new Date(),
+  ): Promise<Event[]> {
+    const filter = { availableAt };
+    const windowStart = new Date(
+      availableAt.getTime() - config.velocityWindowDays * 86_400_000,
+    );
+    const recentSales = sql<number>`coalesce((
+      select sum(${orderItem.quantity})::double precision
+      from ${orderItem}
+      inner join ${order} on ${order.id} = ${orderItem.orderId}
+      inner join ${ticketType} on ${ticketType.id} = ${orderItem.ticketTypeId}
+      where ${ticketType.eventId} = ${event.id}
+        and ${order.status} = 'paid'
+        and ${order.paidAt} >= ${windowStart}
+        and ${order.paidAt} <= ${availableAt}
+    ), 0::double precision)`;
+    const ticketCapacity = sql<number>`coalesce((
+      select sum(${ticketType.stock})::double precision
+      from ${ticketType}
+      where ${ticketType.eventId} = ${event.id}
+    ), 0::double precision)`;
+    const ticketSales = sql<number>`coalesce((
+      select sum(${ticketType.sold})::double precision
+      from ${ticketType}
+      where ${ticketType.eventId} = ${event.id}
+    ), 0::double precision)`;
+    const maxRecentSales = sql<number>`max(${recentSales}) over ()`;
+
+    // Formula normalizada (0..1):
+    // - velocidad logaritmica: premia el impulso de la ventana reciente sin que
+    //   el volumen absoluto de un local grande aplaste por si solo al resto;
+    // - cercania: 1 / (1 + dias/30), un decaimiento suave con valor 0.5 a 30 dias;
+    // - intensidad: vendidos/stock, para comparar demanda relativa entre aforos.
+    const velocity = sql<number>`case
+      when ${maxRecentSales} > 0
+        then ln(1 + ${recentSales}) / ln(1 + ${maxRecentSales})
+      else 0
+    end`;
+    const proximity = sql<number>`1.0 / (
+      1.0 + greatest(
+        0.0,
+        extract(epoch from (${event.startsAt} - ${availableAt})) / 86400.0
+      ) / 30.0
+    )`;
+    const intensity = sql<number>`case
+      when ${ticketCapacity} > 0
+        then least(1.0, greatest(0.0, ${ticketSales} / ${ticketCapacity}))
+      else 0
+    end`;
+    const totalWeight =
+      config.weightVelocity + config.weightProximity + config.weightIntensity;
+    const trendingScore = sql<number>`(
+      ${velocity} * ${config.weightVelocity}
+      + ${proximity} * ${config.weightProximity}
+      + ${intensity} * ${config.weightIntensity}
+    ) / ${totalWeight}`;
+    const rows = await this.db
+      .select({
+        ...this.eventSelection(filter.availableAt),
+        trendingScore,
+      })
+      .from(event)
+      .where(and(...this.publishedConditions(filter)))
+      .orderBy(desc(trendingScore), asc(event.startsAt), asc(event.id))
       .limit(limit);
     return rows.map((r) => this.toDomain(r));
   }
 
   async listUpcoming(limit: number): Promise<Event[]> {
+    const filter = { availableAt: new Date() };
     const rows = await this.db
-      .select()
+      .select(this.eventSelection(filter.availableAt))
       .from(event)
-      .where(and(eq(event.status, 'published'), gte(event.startsAt, new Date())))
-      .orderBy(asc(event.startsAt))
+      .where(and(...this.publishedConditions(filter)))
+      .orderBy(...this.publishedOrder())
       .limit(limit);
     return rows.map((r) => this.toDomain(r));
   }
 
   async listByLocal(localId: string): Promise<Event[]> {
     const rows = await this.db
-      .select()
+      .select(this.eventSelection())
       .from(event)
       .where(eq(event.localId, localId))
       .orderBy(desc(event.startsAt));
@@ -172,7 +379,7 @@ export class DrizzleEventRepository implements EventRepository {
         createdBy: entity.createdBy,
       })
       .returning();
-    if (!row) throw new Error('No se pudo crear el evento');
+    if (!row) throw new Error("No se pudo crear el evento");
     return this.toDomain(row);
   }
 
@@ -195,7 +402,7 @@ export class DrizzleEventRepository implements EventRepository {
       })
       .where(eq(event.id, entity.id))
       .returning();
-    if (!row) throw new Error('No se pudo actualizar el evento');
+    if (!row) throw new Error("No se pudo actualizar el evento");
     return this.toDomain(row);
   }
 
@@ -204,7 +411,9 @@ export class DrizzleEventRepository implements EventRepository {
       await tx.delete(eventGenre).where(eq(eventGenre.eventId, eventId));
       const unique = [...new Set(genreIds)];
       if (unique.length > 0) {
-        await tx.insert(eventGenre).values(unique.map((genreId) => ({ eventId, genreId })));
+        await tx
+          .insert(eventGenre)
+          .values(unique.map((genreId) => ({ eventId, genreId })));
       }
     });
   }
@@ -214,12 +423,26 @@ export class DrizzleEventRepository implements EventRepository {
       await tx.delete(eventTag).where(eq(eventTag.eventId, eventId));
       const unique = [...new Set(tagIds)];
       if (unique.length > 0) {
-        await tx.insert(eventTag).values(unique.map((tagId) => ({ eventId, tagId })));
+        await tx
+          .insert(eventTag)
+          .values(unique.map((tagId) => ({ eventId, tagId })));
       }
     });
   }
 
-  private toDomain(row: Row): Event {
+  private eventSelection(at: Date = new Date()) {
+    const activeHolds = activeEventHoldQuantitySql(event.id, at);
+    return {
+      ...getTableColumns(event),
+      availableCapacity: availableCapacitySql(
+        event.totalCapacity,
+        event.ticketsSold,
+        activeHolds,
+      ),
+    };
+  }
+
+  private toDomain(row: RowWithAvailability): Event {
     return Event.fromPersistence({
       id: row.id,
       localId: row.localId,
@@ -231,6 +454,12 @@ export class DrizzleEventRepository implements EventRepository {
       flyerUrl: row.flyerUrl,
       totalCapacity: row.totalCapacity,
       ticketsSold: row.ticketsSold,
+      availableCapacity:
+        row.totalCapacity === 0
+          ? null
+          : row.availableCapacity === undefined
+            ? availableCapacity(row.totalCapacity, row.ticketsSold, 0)
+            : Number(row.availableCapacity),
       checkinsCount: row.checkinsCount,
       status: row.status as EventStatus,
       minAgeNote: row.minAgeNote,

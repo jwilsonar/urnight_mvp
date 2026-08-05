@@ -5,17 +5,25 @@ export const envSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     PORT: z.coerce.number().int().positive().default(3001),
-    // Nivel de logging (pino, §6). Vacío => derivado del entorno en logger.ts.
-    LOG_LEVEL: z
-      .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
-      .optional(),
+    // Nivel de logging (pino, §6). Vacío/ausente => derivado del entorno en logger.ts.
+    // El preprocess normaliza '' (variable declarada sin valor en .env) a undefined.
+    LOG_LEVEL: z.preprocess(
+      (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
+      z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).optional(),
+    ),
     DATABASE_URL: z.string().url(),
     REDIS_URL: z.string().url(),
+    TICKET_HOLD_TTL_SECONDS: z.coerce.number().int().positive().default(600),
     // Secretos JWT: min 32 chars para HS256 (B5). Firmado/verificado con HS256 (algorithms allowlist).
     JWT_SECRET: z.string().min(32, 'JWT_SECRET debe tener al menos 32 caracteres'),
     JWT_ACCESS_TTL: z.coerce.number().int().positive().default(900), // 15 min (segundos)
     JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET debe tener al menos 32 caracteres'),
     JWT_REFRESH_TTL: z.coerce.number().int().positive().default(604800), // 7 días (segundos)
+    // AES-256-GCM para secretos TOTP: 32 bytes codificados en Base64.
+    MFA_ENCRYPTION_KEY: z.preprocess(
+      (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
+      z.string().optional(),
+    ),
     GOOGLE_CLIENT_ID: z.string().default(''), // vacío = login con Google deshabilitado
     // CORS (M6): allowlist de orígenes separados por coma. Dev por defecto = web local.
     // En prod debe definirse explícitamente; '' ⇒ ningún origen cross-site permitido.
@@ -34,6 +42,16 @@ export const envSchema = z
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== 'production') return;
+    const mfaKey = env.MFA_ENCRYPTION_KEY
+      ? Buffer.from(env.MFA_ENCRYPTION_KEY, 'base64')
+      : null;
+    if (!mfaKey || mfaKey.length !== 32) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['MFA_ENCRYPTION_KEY'],
+        message: 'MFA_ENCRYPTION_KEY debe contener 32 bytes codificados en Base64.',
+      });
+    }
     // En producción, las credenciales AWS reales son obligatorias (no 'test').
     for (const key of ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'] as const) {
       const value = env[key];

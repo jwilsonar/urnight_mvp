@@ -17,6 +17,8 @@ declare module 'next-auth' {
       /** Scope multi-tenant del actor (de los claims del access token). */
       companyId?: string | null;
       localId?: string | null;
+      /** El backend restringe el panel hasta completar el enrolamiento MFA. */
+      mfaPending?: boolean;
     } & DefaultSession['user'];
   }
 }

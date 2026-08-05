@@ -44,7 +44,7 @@ export default async function PanelHomePage() {
           const Icon = panel.icon;
           return (
             <Link key={panel.href} href={panel.href} className="rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              <Card className="h-full transition-colors hover:border-primary">
+              <Card className="h-full transition-colors hover:border-[var(--accent-border-subtle)] hover:bg-[var(--accent-soft-faint)]">
                 <CardHeader>
                   <Icon className="h-8 w-8 text-primary" weight="duotone" />
                   <CardTitle className="text-lg">{panel.title}</CardTitle>

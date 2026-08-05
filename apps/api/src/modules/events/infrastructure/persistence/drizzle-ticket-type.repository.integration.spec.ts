@@ -129,6 +129,7 @@ describe('DrizzleTicketTypeRepository (integration)', () => {
       currency: ticket.currency,
       stock: ticket.stock,
       sold: 5,
+      available: 5,
       maxPerUser: ticket.maxPerUser,
       saleStartsAt: null,
       saleEndsAt: null,

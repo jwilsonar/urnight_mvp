@@ -2,12 +2,13 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { type ColumnDef } from '@tanstack/react-table';
-import { Gear } from '@phosphor-icons/react';
+import { CalendarBlank, Gear } from '@phosphor-icons/react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import type { AssignmentResponse } from '@urnight/contracts';
 import { Button } from '@urnight/ui';
 import { DataTable, SortableHeader } from '@/components/panels/data-table';
+import { EmptyState } from '@/components/shared/empty-state';
 import { listMyAssignments } from '@/lib/api/promoters';
 import { queryKeys } from '@/lib/api/query-keys';
 import { formatDate } from '@/lib/utils';
@@ -83,9 +84,11 @@ export function AssignedEventsTable() {
       searchColumn="name"
       searchPlaceholder="Buscar evento…"
       emptyState={
-        <p className="text-sm text-muted-foreground">
-          Aún no tienes eventos asignados. El administrador del local te asignará eventos a promocionar.
-        </p>
+        <EmptyState
+          icon={<CalendarBlank weight="duotone" />}
+          title="Aún no tienes eventos asignados"
+          description="Cuando un local te asigne un evento aparecerá aquí."
+        />
       }
     />
   );

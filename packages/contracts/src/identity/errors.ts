@@ -21,6 +21,12 @@ export const IDENTITY_ERROR_CODES = {
   GOOGLE_TOKEN_INVALID: 'identity/google-token-invalid',
   GOOGLE_EMAIL_NOT_VERIFIED: 'identity/google-email-not-verified',
   INVALID_TOKEN: 'identity/invalid-token',
+  MFA_REQUIRED: 'identity/mfa-required',
+  MFA_ALREADY_ENROLLED: 'identity/mfa-already-enrolled',
+  MFA_NOT_ENROLLED: 'identity/mfa-not-enrolled',
+  INVALID_MFA_CODE: 'identity/invalid-mfa-code',
+  MFA_CHALLENGE_EXPIRED: 'identity/mfa-challenge-expired',
+  MFA_LOCKED: 'identity/mfa-locked',
 } as const;
 
 export type IdentityErrorCode =

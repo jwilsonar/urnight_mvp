@@ -166,7 +166,7 @@ export function DataTable<TData, TValue>({
               ))
             ) : table.getRowModel().rows.length > 0 ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} className="even:bg-muted/30 hover:bg-accent">
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -177,7 +177,13 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={columns.length} className="p-0">
-                  {emptyState ?? <EmptyState title="Sin resultados" />}
+                  {emptyState ?? (
+                    <EmptyState
+                      icon={<MagnifyingGlass weight="duotone" />}
+                      title="Sin resultados"
+                      description="Ajusta los filtros o vuelve a intentarlo más tarde."
+                    />
+                  )}
                 </TableCell>
               </TableRow>
             )}
@@ -194,6 +200,7 @@ export function DataTable<TData, TValue>({
             <Button
               variant="outline"
               size="sm"
+              className="text-foreground"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
@@ -202,6 +209,7 @@ export function DataTable<TData, TValue>({
             <Button
               variant="outline"
               size="sm"
+              className="text-foreground"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >

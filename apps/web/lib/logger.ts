@@ -52,7 +52,7 @@ function emit(level: Level, fields: Fields, msg: string, context?: string): void
     const record = {
       level,
       time: new Date().toISOString(),
-      app: 'urnight-web',
+      app: 'ravenue-web',
       side: 'server',
       ...(context ? { context } : {}),
       ...safe,

@@ -1,9 +1,11 @@
 import {
   createOrderSchema,
+  createTicketHoldSchema,
   orderResponseSchema,
   qrValidationResponseSchema,
   ticketListResponseSchema,
   ticketResponseSchema,
+  ticketHoldResponseSchema,
   validateQrSchema,
 } from '@urnight/contracts';
 import { z } from 'zod';
@@ -15,6 +17,14 @@ const problem = (description: string) => ({ description, ...json(problemSchema) 
 /** Definiciones OpenAPI del bounded context Checkout, Payments & Tickets. */
 export function registerCheckoutDocs(): void {
   const CreateOrder = registry.register('CreateOrderDto', createOrderSchema);
+  const CreateTicketHold = registry.register(
+    'CreateTicketHoldDto',
+    createTicketHoldSchema,
+  );
+  const TicketHold = registry.register(
+    'TicketHoldResponse',
+    ticketHoldResponseSchema,
+  );
   const OrderR = registry.register('OrderResponse', orderResponseSchema);
   registry.register('TicketResponse', ticketResponseSchema);
   const ValidateQr = registry.register('ValidateQrDto', validateQrSchema);
@@ -23,6 +33,32 @@ export function registerCheckoutDocs(): void {
     'CheckoutResponse',
     z.object({ order: orderResponseSchema, tickets: ticketListResponseSchema }),
   );
+
+  registry.registerPath({
+    method: 'post',
+    path: '/ticket-holds',
+    tags: ['Checkout'],
+    summary: 'Reservar temporalmente cupos de un tipo de entrada',
+    security: bearer,
+    request: { body: json(CreateTicketHold) },
+    responses: {
+      201: { description: 'Hold activo', ...json(TicketHold) },
+      409: problem('Capacidad insuficiente o evento no disponible'),
+    },
+  });
+
+  registry.registerPath({
+    method: 'delete',
+    path: '/ticket-holds/{id}',
+    tags: ['Checkout'],
+    summary: 'Liberar un hold propio',
+    security: bearer,
+    request: { params: z.object({ id: z.string().uuid() }) },
+    responses: {
+      204: { description: 'Hold liberado' },
+      404: problem('Hold no encontrado'),
+    },
+  });
 
   registry.registerPath({
     method: 'post',

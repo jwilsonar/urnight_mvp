@@ -44,6 +44,7 @@ describe('Promoter (aggregate)', () => {
       companyId: 'c9',
       localId: null,
       userId: 'u1',
+      parentPromoterId: null,
       name: 'Hidratado',
       contactEmail: 'a@b.com',
       contactPhone: '+51999999999',

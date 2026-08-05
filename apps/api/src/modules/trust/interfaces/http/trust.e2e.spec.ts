@@ -146,7 +146,7 @@ async function seedChain(
 }
 
 /** Siembra solo un local (con su company) para reportes sin cadena de asistencia. */
-async function seedLocal(): Promise<string> {
+async function seedLocal(): Promise<{ companyId: string; localId: string }> {
   const companyId = randomUUID();
   const localId = randomUUID();
   await client.db.insert(company).values({
@@ -161,7 +161,7 @@ async function seedLocal(): Promise<string> {
     name: 'Local Reporte',
     slug: `local-${localId}`,
   });
-  return localId;
+  return { companyId, localId };
 }
 
 describe('Trust HTTP (e2e)', () => {
@@ -288,7 +288,7 @@ describe('Trust HTTP (e2e)', () => {
     it('POST /reviews → 403 si el local no coincide con el del ticket', async () => {
       const userId = await seedUser();
       const chain = await seedChain({ userId, ticketStatus: 'used' });
-      const otherLocalId = await seedLocal();
+      const { localId: otherLocalId } = await seedLocal();
       const token = await signAccessToken(app, userId, ['user']);
       const res = await http()
         .post('/api/v1/reviews')
@@ -341,7 +341,7 @@ describe('Trust HTTP (e2e)', () => {
 
     it('POST /reports → 201 usuario autenticado reporta un local (+shape)', async () => {
       const reporterId = await seedUser();
-      const localId = await seedLocal();
+      const { localId } = await seedLocal();
       const token = await signAccessToken(app, reporterId, ['user']);
       const res = await http()
         .post('/api/v1/reports')
@@ -398,7 +398,7 @@ describe('Trust HTTP (e2e)', () => {
 
     it('POST /reports/:id/resolve → 200 admin_local resuelve el reporte (+shape)', async () => {
       const reporterId = await seedUser();
-      const localId = await seedLocal();
+      const { companyId, localId } = await seedLocal();
       const reporterToken = await signAccessToken(app, reporterId, ['user']);
       const created = await http()
         .post('/api/v1/reports')
@@ -406,7 +406,9 @@ describe('Trust HTTP (e2e)', () => {
         .send(REPORT(localId));
 
       const adminId = await seedUser();
-      const adminToken = await signAccessToken(app, adminId, ['admin_local']);
+      const adminToken = await signAccessToken(app, adminId, ['admin_local'], {
+        companyId,
+      });
       const res = await http()
         .post(`/api/v1/reports/${created.body.id}/resolve`)
         .set('Authorization', `Bearer ${adminToken}`)
@@ -418,7 +420,7 @@ describe('Trust HTTP (e2e)', () => {
 
     it('POST /reports/:id/resolve → 200 super_admin también puede resolver', async () => {
       const reporterId = await seedUser();
-      const localId = await seedLocal();
+      const { localId } = await seedLocal();
       const reporterToken = await signAccessToken(app, reporterId, ['user']);
       const created = await http()
         .post('/api/v1/reports')

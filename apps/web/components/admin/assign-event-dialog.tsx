@@ -74,7 +74,10 @@ export function AssignEventDialog({
 
   const localName = new Map(locals.map((l) => [l.id, l.name]));
   const rows: EventRow[] = eventsQueries.flatMap((q) =>
-    (q.data ?? []).map((e) => ({ ...e, localName: localName.get(e.localId) ?? '—' })),
+    (q.data ?? []).map((e) => ({
+      ...e,
+      localName: localName.get(e.localId) ?? '—',
+    })),
   );
   const isLoading =
     localsQuery.isPending || eventsQueries.some((q) => q.isPending) || assignmentsQuery.isPending;
@@ -135,7 +138,12 @@ export function AssignEventDialog({
         const a = assignmentByEvent.get(row.original.id);
         return (
           <div className="flex items-center justify-end gap-2">
-            <Button size="sm" variant="outline" onClick={() => setSelected(row.original)}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-foreground"
+              onClick={() => setSelected(row.original)}
+            >
               {a ? 'Editar' : 'Asignar'}
             </Button>
             {a ? (

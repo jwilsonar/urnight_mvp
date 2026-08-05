@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "UrNight",
-    "slug": "urnight-mobile",
-    "scheme": "urnight",
+    "name": "Ravenue",
+    "slug": "ravenue-mobile",
+    "scheme": "ravenue",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
@@ -14,11 +14,20 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "pe.urnight.mobile"
+      "bundleIdentifier": "pe.ravenue.mobile",
+      "associatedDomains": ["applinks:ravenue.pe"]
     },
     "android": {
-      "package": "pe.urnight.mobile",
-      "edgeToEdgeEnabled": true
+      "package": "pe.ravenue.mobile",
+      "edgeToEdgeEnabled": true,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [{ "scheme": "https", "host": "ravenue.pe", "pathPrefix": "/p" }],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "experiments": {
       "typedRoutes": true

@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import { MagnifyingGlass } from '@phosphor-icons/react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
-import { Input } from '@urnight/ui';
+import { MagnifyingGlass } from "@phosphor-icons/react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
+import { Input } from "@urnight/ui";
 
 /**
  * Búsqueda por texto (#3) que sincroniza `q` con la query string.
@@ -12,20 +13,27 @@ import { Input } from '@urnight/ui';
  * - Con `target` (p. ej. barra global del header): navega a esa ruta con `q`
  *   limpio, sin arrastrar filtros de la página de origen.
  */
-export function SearchBar({ placeholder, target }: { placeholder?: string; target?: string }) {
+export function SearchBar({
+  placeholder,
+  target,
+}: {
+  placeholder?: string;
+  target?: string;
+}) {
+  const t = useTranslations("search");
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
-  const [value, setValue] = useState(params.get('q') ?? '');
+  const [value, setValue] = useState(params.get("q") ?? "");
 
   function submit(event: FormEvent) {
     event.preventDefault();
     const base = target ?? pathname;
     const next = target ? new URLSearchParams() : new URLSearchParams(params);
     const trimmed = value.trim();
-    if (trimmed) next.set('q', trimmed);
-    else next.delete('q');
-    router.push(`${base}${next.toString() ? `?${next.toString()}` : ''}`);
+    if (trimmed) next.set("q", trimmed);
+    else next.delete("q");
+    router.push(`${base}${next.toString() ? `?${next.toString()}` : ""}`);
   }
 
   return (
@@ -38,9 +46,9 @@ export function SearchBar({ placeholder, target }: { placeholder?: string; targe
         type="search"
         value={value}
         onChange={(event) => setValue(event.target.value)}
-        placeholder={placeholder ?? 'Buscar…'}
-        className="pl-9"
-        aria-label="Buscar"
+        placeholder={placeholder ?? t("shortPlaceholder")}
+        className="h-10 pl-9"
+        aria-label={t("label")}
       />
     </form>
   );

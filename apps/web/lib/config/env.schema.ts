@@ -5,7 +5,7 @@ const log = createLogger('env');
 
 /** Placeholders/valores conocidos débiles que jamás deben firmar sesiones en prod. */
 const WEAK_SECRETS = new Set([
-  'urnight-secret',
+  'ravenue-secret',
   'change-me-web-session-secret-min-32-chars',
 ]);
 

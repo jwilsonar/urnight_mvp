@@ -20,6 +20,7 @@ import {
   InMemoryInventoryRepository,
   InMemoryOrderRepository,
   InMemoryPaymentRepository,
+  InMemoryTicketHoldRepository,
   InMemoryTicketRepository,
 } from '../../../../shared/testing/in-memory/ticketing';
 import {
@@ -33,6 +34,7 @@ import {
 } from '../../domain/errors/checkout.errors';
 import { AttendeeUnderageError } from '../../domain/errors/checkout.errors';
 import type { IdempotencyStore } from '../../domain/ports/idempotency.port';
+import { ConvertTicketHoldUseCase } from './convert-ticket-hold.use-case';
 import { CheckoutUseCase } from './checkout.use-case';
 
 /** Store de idempotencia en memoria (M3): mapea (userId,key) → orderId. */
@@ -57,6 +59,7 @@ function build(options: { lock?: FakeLockPort; payment?: FakePaymentPort } = {})
   const tickets = new InMemoryTicketRepository();
   const payments = new InMemoryPaymentRepository();
   const inventory = new InMemoryInventoryRepository();
+  const holds = new InMemoryTicketHoldRepository();
   const paymentPort = options.payment ?? new FakePaymentPort();
   const lock = options.lock ?? new FakeLockPort();
   const uow = fakeUnitOfWork();
@@ -64,6 +67,7 @@ function build(options: { lock?: FakeLockPort; payment?: FakePaymentPort } = {})
   const outbox = new RecordingOutbox();
   const promo = new FakePromoRedemption();
   const idempotency = new FakeIdempotencyStore();
+  const convertHold = new ConvertTicketHoldUseCase(holds, inventory, uow);
 
   inventory.seedEvent(new SaleEventBuilder().withId(EVENT_ID).build());
   inventory.seedTicketType(
@@ -82,8 +86,21 @@ function build(options: { lock?: FakeLockPort; payment?: FakePaymentPort } = {})
     outbox,
     promo,
     idempotency,
+    convertHold,
   );
-  return { useCase, orders, tickets, payments, inventory, paymentPort, lock, events, outbox, idempotency };
+  return {
+    useCase,
+    orders,
+    tickets,
+    payments,
+    inventory,
+    holds,
+    paymentPort,
+    lock,
+    events,
+    outbox,
+    idempotency,
+  };
 }
 
 const dto = () =>
@@ -111,6 +128,32 @@ describe('CheckoutUseCase', () => {
     expect(outbox.byName('send-order-tickets')).toBeDefined();
   });
 
+  it('convierte el hold asociado al item cuando el pago se confirma', async () => {
+    const { useCase, holds, inventory } = build();
+    const holdId = '33333333-3333-3333-3333-333333333333';
+    holds.seedActive({
+      id: holdId,
+      eventId: EVENT_ID,
+      ticketTypeId: TT_ID,
+      userId: 'user-1',
+      quantity: 2,
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+    });
+    const input = dto();
+    input.items[0]!.holdId = holdId;
+
+    const result = await useCase.execute({
+      userId: 'user-1',
+      scope: { isSuperAdmin: false, companyId: null },
+      dto: input,
+    });
+
+    expect(result.order.status).toBe('paid');
+    expect(holds.byId(holdId)?.status).toBe('converted');
+    expect(holds.byId(holdId)?.orderId).toBe(result.order.id);
+    expect(inventory.soldOf(TT_ID)).toBe(2);
+  });
+
   it('emite OrderPaid y un TicketIssued por entrada (EventBus real + captureEvents)', async () => {
     const { useCase, events } = build();
     const captured = captureEvents(events, 'checkout.order_paid', 'checkout.ticket_issued');
@@ -123,14 +166,14 @@ describe('CheckoutUseCase', () => {
     expect(paid.referralCode).toBe('REF12345');
   });
 
-  it('pasa los datos correctos al cobro y al lock (repo args)', async () => {
+  it('pasa los datos correctos al cobro y deja el inventario fuera del lock Redis', async () => {
     const payment = new FakePaymentPort();
     const lock = new FakeLockPort();
     const { useCase } = build({ payment, lock });
 
     await useCase.execute({ userId: 'user-1', dto: dto() });
 
-    expect(lock.keys).toContain(`event:${EVENT_ID}`);
+    expect(lock.keys).not.toContain(`event:${EVENT_ID}`);
     expect(payment.lastCharge()?.amount).toBe(100);
     expect(payment.lastCharge()?.currency).toBe('PEN');
     expect(payment.lastCharge()?.method).toBe('card');
@@ -229,12 +272,16 @@ describe('CheckoutUseCase', () => {
     );
   });
 
-  it('traduce el lock no disponible a StockLockedError (doble barrera)', async () => {
+  it('traduce el lock de idempotencia no disponible a StockLockedError', async () => {
     const lock = new FakeLockPort().unavailable();
     const { useCase } = build({ lock });
-    await expect(useCase.execute({ userId: 'u', dto: dto() })).rejects.toBeInstanceOf(
-      StockLockedError,
-    );
+    await expect(
+      useCase.execute({
+        userId: 'u',
+        dto: dto(),
+        idempotencyKey: 'same-request',
+      }),
+    ).rejects.toBeInstanceOf(StockLockedError);
   });
 
   it('M3: idempotencia — misma key + mismo usuario devuelve la orden ya creada (no cobra dos veces)', async () => {

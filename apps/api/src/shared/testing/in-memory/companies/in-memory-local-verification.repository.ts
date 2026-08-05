@@ -16,6 +16,14 @@ export class InMemoryLocalVerificationRepository
     return this.getById(id);
   }
 
+  async findLatestByLocalId(localId: string): Promise<LocalVerification | null> {
+    return (
+      this.values()
+        .filter((verification) => verification.localId === localId)
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0] ?? null
+    );
+  }
+
   async update(verification: LocalVerification): Promise<LocalVerification> {
     this.put(verification);
     return verification;

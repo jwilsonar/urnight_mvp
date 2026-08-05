@@ -5,7 +5,12 @@ export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('rounded-lg border bg-card text-card-foreground shadow-sm', className)}
+      className={cn(
+        // DS: cards sin sombra en reposo; hairline + radio 16. El lift/borde
+        // carmín de hover lo aplica cada uso clickeable.
+        'rounded-lg border bg-card text-card-foreground transition-[border-color,box-shadow,transform]',
+        className,
+      )}
       {...props}
     />
   ),
@@ -21,7 +26,7 @@ CardHeader.displayName = 'CardHeader';
 
 export const CardTitle = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('font-heading text-2xl font-semibold leading-none tracking-tight', className)} {...props} />
+    <div ref={ref} className={cn('font-heading text-[22px] font-bold leading-none tracking-tight', className)} {...props} />
   ),
 );
 CardTitle.displayName = 'CardTitle';

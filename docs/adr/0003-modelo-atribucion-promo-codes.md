@@ -7,7 +7,7 @@
 `PROJECT_SPECS.md` §4.3 describe la atribución de ventas a promotores como una
 **"ventana de 7 días"**: el asistente hace clic en el link de referido del
 promotor, y toda compra suya dentro de los 7 días siguientes se le atribuye al
-promotor (modelo *last-click con expiración temporal*).
+promotor (modelo _last-click con expiración temporal_).
 
 La auditoría 2026-07-02 (hallazgo **A1**) constató que ese modelo **no está
 implementado y su cadena está muerta de extremo a extremo**:
@@ -30,7 +30,7 @@ implementado y su cadena está muerta de extremo a extremo**:
   checkout, con `PromoRedemptionPort`). El vínculo promotor↔código es directo:
   `promo_code.promoter_id`.
 
-Persistir un modelo documentado que no se ejecuta genera *spec-drift* silencioso.
+Persistir un modelo documentado que no se ejecuta genera _spec-drift_ silencioso.
 El monorepo exige que toda desviación respecto a SPECS se registre como ADR
 (`CLAUDE.md`, SPECS §8).
 
@@ -43,8 +43,8 @@ El monorepo exige que toda desviación respecto a SPECS se registre como ADR
    apunta a un promotor, esa compra queda ligada a ese promotor vía la fila
    `promo_code_redemption`. No hay ventana temporal ni cookie de last-click.
 
-2. **Los referral links se conservan** como artefacto de *compartir + tracking de
-   clics* (`referral_link`, endpoint público `POST /promoters/referrals/:code/click`,
+2. **Los referral links se conservan** como artefacto de _compartir + tracking de
+   clics_ (`referral_link`, endpoint público `POST /promoters/referrals/:code/click`,
    tarjeta en el panel del promotor). **No** son el mecanismo de atribución de
    comisiones: su clic no abre ninguna ventana ni credita ventas por sí solo.
 
@@ -83,14 +83,14 @@ El monorepo exige que toda desviación respecto a SPECS se registre como ADR
 
 ## Deuda / TODOs de seguimiento (fuera del alcance del módulo `promoters`)
 
-- **TODO(ticketing):** retirar el campo muerto `referralCode` de
-  `CreateOrderDto` (`packages/contracts/src/checkout/order.ts`), del
-  `OrderPaidEvent` (`ticketing/domain/events/checkout.events.ts`) y del
-  `OrderPaidSubscriber`; o bien re-cablearlo para que `OrderPaid` transporte el
-  `promoterId` del código canjeado y `AttributeSaleUseCase` credite comisiones
-  desde `promo_code_redemption` en lugar de desde `referral_code`.
+- **Implementado:** `OrderPaidSubscriber` resuelve primero un referral activo y,
+  si no existe, el promotor del código canjeado mediante
+  `promo_code_redemption`. La atribución persiste `commission_rate` y
+  `commission_amount` como snapshot al pagar.
 - **TODO(promoters):** cuando lo anterior ocurra, reconectar
   `ListPromoterSalesUseCase` a los canjes reales (`promo_code_redemption` →
   `promo_code.promoter_id`) para que el panel de ventas del promotor refleje sus
   comisiones efectivas.
-- **TODO(#M19):** mover `PROMOTER_COMMISSION_RATE` a `PLATFORM_SETTING`.
+- **Implementado (#M19):** la tasa se lee de
+  `PLATFORM_SETTING.default_commission_rate`, con validación estricta `0..1`;
+  las ventas históricas nunca se recalculan con la tasa vigente.

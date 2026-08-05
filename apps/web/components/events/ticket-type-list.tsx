@@ -1,9 +1,9 @@
-import { Ticket } from '@phosphor-icons/react/dist/ssr';
-import Link from 'next/link';
-import type { TicketTypeResponse } from '@urnight/contracts';
-import { Badge, Button, Card, CardContent } from '@urnight/ui';
-import { tierLabel } from '@/components/admin/status-badges';
-import { formatPEN } from '@/lib/utils';
+import { Ticket } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
+import { useFormatter, useTranslations } from "next-intl";
+import type { TicketTypeResponse } from "@urnight/contracts";
+import { Button, Card, CardContent } from "@urnight/ui";
+import { EmptyState } from "@/components/shared/empty-state";
 
 /** Lista de tipos de entrada. Regla: no se muestra precio sin stock disponible. */
 export function TicketTypeList({
@@ -15,30 +15,45 @@ export function TicketTypeList({
   eventSlug: string;
   canBuy: boolean;
 }) {
+  const t = useTranslations("events.tickets");
+  const format = useFormatter();
   if (ticketTypes.length === 0) {
-    return <p className="text-sm text-muted-foreground">Aún no hay entradas a la venta.</p>;
+    return (
+      <EmptyState
+        compact
+        icon={<Ticket weight="duotone" />}
+        title={t("empty.title")}
+        description={t("empty.description")}
+      />
+    );
   }
 
   return (
     <div className="space-y-3">
       {ticketTypes.map((tt) => {
-        const soldOut = tt.status === 'sold_out' || tt.remaining <= 0;
+        const soldOut = tt.status === "sold_out" || tt.remaining <= 0;
         return (
           <Card key={tt.id}>
             <CardContent className="flex items-center justify-between gap-4 p-4">
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{tt.name}</span>
-                  <Badge variant="outline">{tierLabel(tt.tierCode)}</Badge>
-                </div>
+                <span className="font-medium">{tt.name}</span>
                 {soldOut ? (
-                  <span className="text-sm text-destructive">Agotado</span>
+                  <span className="text-sm text-destructive">
+                    {t("soldOut")}
+                  </span>
                 ) : (
-                  <span className="text-sm font-semibold text-foreground">{formatPEN(tt.price)}</span>
+                  <span className="text-sm font-semibold text-foreground">
+                    {format.number(tt.price, {
+                      style: "currency",
+                      currency: "PEN",
+                    })}
+                  </span>
                 )}
               </div>
               {!soldOut && canBuy ? (
-                <span className="text-xs text-muted-foreground">{tt.remaining} disponibles</span>
+                <span className="text-xs text-muted-foreground">
+                  {t("available", { count: tt.remaining })}
+                </span>
               ) : null}
             </CardContent>
           </Card>
@@ -48,11 +63,13 @@ export function TicketTypeList({
       {canBuy ? (
         <Button asChild className="w-full" size="lg">
           <Link href={`/checkout?event=${eventSlug}`}>
-            <Ticket className="h-4 w-4" /> Comprar entradas
+            <Ticket className="h-4 w-4" /> {t("buy")}
           </Link>
         </Button>
       ) : (
-        <p className="text-center text-sm text-muted-foreground">Las entradas no están disponibles por ahora.</p>
+        <p className="text-center text-sm text-muted-foreground">
+          {t("unavailable")}
+        </p>
       )}
     </div>
   );

@@ -122,3 +122,35 @@ export class AssignmentForbiddenError extends DomainError {
     super('Esta asignación no corresponde a tu cuenta.');
   }
 }
+
+export class PromoterHierarchyCycleError extends DomainError {
+  readonly status = 409;
+  readonly code = PROMOTERS_ERROR_CODES.HIERARCHY_CYCLE;
+  constructor() {
+    super('La jerarquia de promotores no puede contener ciclos.');
+  }
+}
+
+export class PromoterHierarchyCompanyMismatchError extends DomainError {
+  readonly status = 422;
+  readonly code = PROMOTERS_ERROR_CODES.HIERARCHY_COMPANY_MISMATCH;
+  constructor() {
+    super('El cabeza y el promotor deben pertenecer a la misma empresa.');
+  }
+}
+
+export class PromoterHierarchyDepthExceededError extends DomainError {
+  readonly status = 422;
+  readonly code = PROMOTERS_ERROR_CODES.HIERARCHY_DEPTH_EXCEEDED;
+  constructor() {
+    super('El MVP permite solo un cabeza y un nivel de promotores a cargo.');
+  }
+}
+
+export class PromoterCascadePolicyLocalNotFoundError extends DomainError {
+  readonly status = 404;
+  readonly code = PROMOTERS_ERROR_CODES.CASCADE_POLICY_LOCAL_NOT_FOUND;
+  constructor() {
+    super('Local no encontrado para configurar la comision en cascada.');
+  }
+}

@@ -13,7 +13,14 @@ export type AuthProvider = z.infer<typeof authProviderSchema>;
 
 const email = z.string().trim().toLowerCase().email().max(160);
 /** bcrypt trunca a 72 bytes → cota superior explícita. */
-const password = z.string().min(8).max(72);
+const password = z
+  .string()
+  .min(8, 'La contraseña debe tener al menos 8 caracteres')
+  .max(72, 'La contraseña no puede superar los 72 caracteres')
+  .regex(/[A-Z]/, 'La contraseña debe incluir al menos una letra mayúscula')
+  .regex(/[a-z]/, 'La contraseña debe incluir al menos una letra minúscula')
+  .regex(/\d/, 'La contraseña debe incluir al menos un número')
+  .regex(/[^A-Za-z0-9\s]/, 'La contraseña debe incluir al menos un símbolo');
 const fullName = z.string().trim().min(2).max(120);
 const phone = z.string().trim().min(6).max(20).optional();
 

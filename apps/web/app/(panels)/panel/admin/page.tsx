@@ -1,4 +1,10 @@
-import { Buildings } from '@phosphor-icons/react/dist/ssr';
+import {
+  Buildings,
+  CalendarBlank,
+  DoorOpen,
+  Megaphone,
+  Ticket,
+} from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@urnight/ui';
@@ -7,6 +13,7 @@ import { LocalStatusBadge } from '@/components/admin/status-badges';
 import { PanelPageHeader } from '@/components/panels/panel-page-header';
 import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
+import { StatCard } from '@/components/shared/stat-card';
 import { getLocalStats, listMyLocals } from '@/lib/api/admin';
 import { requireAccessToken } from '@/lib/auth-helpers';
 
@@ -63,13 +70,29 @@ export default async function AdminDashboardPage() {
         <CreateLocalDialog />
       </PanelPageHeader>
 
-      <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-        <Kpi label="Locales" value={locals.length} />
-        <Kpi label="Eventos" value={totals.eventsCount} />
-        <Kpi label="Publicados" value={totals.publishedCount} />
-        <Kpi label="Entradas vendidas" value={totals.ticketsSold} />
-        <Kpi label="Check-ins" value={totals.checkins} />
-      </dl>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <StatCard label="Locales" value={locals.length} icon={<Buildings weight="duotone" />} />
+        <StatCard
+          label="Eventos"
+          value={totals.eventsCount}
+          icon={<CalendarBlank weight="duotone" />}
+        />
+        <StatCard
+          label="Publicados"
+          value={totals.publishedCount}
+          icon={<Megaphone weight="duotone" />}
+        />
+        <StatCard
+          label="Entradas vendidas"
+          value={totals.ticketsSold}
+          icon={<Ticket weight="duotone" />}
+        />
+        <StatCard
+          label="Check-ins"
+          value={totals.checkins}
+          icon={<DoorOpen weight="duotone" />}
+        />
+      </div>
 
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
@@ -106,16 +129,5 @@ export default async function AdminDashboardPage() {
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-function Kpi({ label, value }: { label: string; value: number }) {
-  return (
-    <Card>
-      <CardContent className="py-4">
-        <dt className="text-sm text-muted-foreground">{label}</dt>
-        <dd className="font-heading text-2xl font-bold">{value}</dd>
-      </CardContent>
-    </Card>
   );
 }

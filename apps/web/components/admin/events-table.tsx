@@ -25,6 +25,7 @@ import {
   Textarea,
 } from '@urnight/ui';
 import { DataTable, SortableHeader } from '@/components/panels/data-table';
+import { ProgressCell } from '@/components/panels/progress-cell';
 import { cancelEvent, listMyEvents, publishEvent } from '@/lib/api/admin';
 import { queryKeys } from '@/lib/api/query-keys';
 import { useApiMutation } from '@/lib/api/use-api-mutation';
@@ -192,11 +193,20 @@ export function EventsTable({ localId }: { localId: string }) {
     {
       id: 'sold',
       header: 'Vendidas',
-      cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground">
-          {row.original.ticketsSold}/{row.original.totalCapacity}
-        </span>
-      ),
+      cell: ({ row }) => {
+        const { ticketsSold, totalCapacity } = row.original;
+        const occupancy = totalCapacity > 0 ? ticketsSold / totalCapacity : 0;
+        const tone = occupancy >= 1 ? 'error' : occupancy >= 0.8 ? 'warning' : 'primary';
+
+        return (
+          <ProgressCell
+            value={ticketsSold}
+            max={totalCapacity}
+            tone={tone}
+            ariaLabel={`Entradas vendidas: ${ticketsSold} de ${totalCapacity}`}
+          />
+        );
+      },
     },
     {
       id: 'actions',

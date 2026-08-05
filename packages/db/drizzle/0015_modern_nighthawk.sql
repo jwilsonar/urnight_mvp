@@ -1,0 +1,2 @@
+ALTER TABLE "local_verification_document" ADD COLUMN "expiry_warning_sent_at" timestamp with time zone;--> statement-breakpoint
+CREATE INDEX "idx_local_verification_document_expiry_warning" ON "local_verification_document" USING btree ("expiry_warning_sent_at");

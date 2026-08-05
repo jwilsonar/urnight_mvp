@@ -10,6 +10,8 @@ import type { RoleRepository } from '../../domain/ports/role.repository';
 import type { TokenService } from '../../domain/ports/token.port';
 import type { UserRepository } from '../../domain/ports/user.repository';
 import { InMemoryRefreshTokenStore } from '../services/__testing__/in-memory-refresh-token-store';
+import { InMemoryMfaRepository } from '../services/__testing__/in-memory-mfa-repository';
+import { MfaLoginService } from '../services/mfa-login.service';
 import { RoleResolver } from '../services/role-resolver.service';
 import { TokenIssuer } from '../services/token-issuer.service';
 import { LoginUseCase } from './login.use-case';
@@ -67,25 +69,50 @@ const roles: RoleRepository = {
   ],
 };
 
-const useCase = new LoginUseCase(
-  users,
-  hasher,
-  new TokenIssuer(new RoleResolver(assignments, roles), tokens, new InMemoryRefreshTokenStore()),
-);
+function build() {
+  const refreshStore = new InMemoryRefreshTokenStore();
+  const mfa = new InMemoryMfaRepository();
+  const issuer = new TokenIssuer(
+    new RoleResolver(assignments, roles),
+    tokens,
+    refreshStore,
+    mfa,
+  );
+  const useCase = new LoginUseCase(users, hasher, new MfaLoginService(mfa, issuer));
+  return { mfa, refreshStore, useCase };
+}
 
 describe('LoginUseCase', () => {
   it('autentica con credenciales válidas y emite tokens', async () => {
+    const { useCase } = build();
     const result = await useCase.execute({ email: 'ada@example.com', password: 'supersecret' });
-    expect(result.access.token).toBe('access');
+    expect(result.kind).toBe('session');
+    if (result.kind === 'session') expect(result.result.access.token).toBe('access');
+  });
+
+  it('con factor activo devuelve desafío y no emite sesión', async () => {
+    const { mfa, refreshStore, useCase } = build();
+    mfa.seedActiveFactor(existing.id, 'TESTSECRET');
+
+    const result = await useCase.execute({ email: 'ada@example.com', password: 'supersecret' });
+
+    expect(result.kind).toBe('mfa_challenge');
+    if (result.kind === 'mfa_challenge') {
+      expect(result.challengeId).toMatch(/^[0-9a-f-]{36}$/i);
+      expect(new Date(result.expiresAt).getTime()).toBeGreaterThan(Date.now());
+    }
+    expect(refreshStore.countFor(existing.id)).toBe(0);
   });
 
   it('rechaza contraseña incorrecta', async () => {
+    const { useCase } = build();
     await expect(
       useCase.execute({ email: 'ada@example.com', password: 'wrong' }),
     ).rejects.toBeInstanceOf(InvalidCredentialsError);
   });
 
   it('rechaza email inexistente con el mismo error genérico', async () => {
+    const { useCase } = build();
     await expect(
       useCase.execute({ email: 'nobody@example.com', password: 'x' }),
     ).rejects.toBeInstanceOf(InvalidCredentialsError);

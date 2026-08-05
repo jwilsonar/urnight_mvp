@@ -11,6 +11,10 @@ export interface AffiliationRequestProps {
   contactName: string | null;
   contactEmail: string | null;
   contactPhone: string | null;
+  termsAccepted: boolean;
+  termsAcceptedAt: Date | null;
+  legalDeclarationAccepted: boolean;
+  legalDeclarationAcceptedAt: Date | null;
   status: AffiliationStatus;
   rejectionReason: string | null;
   submittedBy: string | null;
@@ -36,8 +40,11 @@ export class AffiliationRequest {
     contactName?: string | null;
     contactEmail?: string | null;
     contactPhone?: string | null;
+    termsAccepted: true;
+    legalDeclarationAccepted: true;
     submittedBy?: string | null;
   }): AffiliationRequest {
+    const acceptedAt = new Date();
     return new AffiliationRequest({
       id: input.id,
       legalName: input.legalName.trim(),
@@ -49,13 +56,17 @@ export class AffiliationRequest {
       contactName: input.contactName ?? null,
       contactEmail: input.contactEmail ?? null,
       contactPhone: input.contactPhone ?? null,
+      termsAccepted: input.termsAccepted,
+      termsAcceptedAt: acceptedAt,
+      legalDeclarationAccepted: input.legalDeclarationAccepted,
+      legalDeclarationAcceptedAt: acceptedAt,
       status: 'pending',
       rejectionReason: null,
       submittedBy: input.submittedBy ?? null,
       reviewedBy: null,
       companyId: null,
       localId: null,
-      createdAt: new Date(),
+      createdAt: acceptedAt,
       reviewedAt: null,
     });
   }
@@ -103,6 +114,18 @@ export class AffiliationRequest {
   }
   get contactPhone(): string | null {
     return this.props.contactPhone;
+  }
+  get termsAccepted(): boolean {
+    return this.props.termsAccepted;
+  }
+  get termsAcceptedAt(): Date | null {
+    return this.props.termsAcceptedAt;
+  }
+  get legalDeclarationAccepted(): boolean {
+    return this.props.legalDeclarationAccepted;
+  }
+  get legalDeclarationAcceptedAt(): Date | null {
+    return this.props.legalDeclarationAcceptedAt;
   }
   get status(): AffiliationStatus {
     return this.props.status;

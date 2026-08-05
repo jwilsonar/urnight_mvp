@@ -9,6 +9,10 @@ build/
 out/
 *.tsbuildinfo
 
+# storybook
+storybook-static/
+*storybook.log
+
 # env / secrets
 .env
 .env.*
@@ -42,3 +46,18 @@ coverage/
 *.tfstate.*
 *.tfvars
 !*.tfvars.example
+
+# skills instaladas localmente (npx skills) - no versionar
+.agents/
+.claude/*
+!.claude/skills/
+# hooks del proyecto: sincronizacion automatica de docs/diagramas-secuencia/
+!.claude/settings.json
+!.claude/hooks/
+skills-lock.json
+
+# graphify: grafo de conocimiento local (se regenera con "graphify update .")
+graphify-out/
+
+# artefactos temporales del companion de Codex (perfiles de Chrome, capturas)
+.codex-tmp/

@@ -2,9 +2,11 @@ import { z } from 'zod';
 
 export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  LOG_LEVEL: z
-    .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
-    .optional(),
+  // '' (variable declarada sin valor en .env) se normaliza a undefined => nivel derivado del entorno.
+  LOG_LEVEL: z.preprocess(
+    (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
+    z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).optional(),
+  ),
   REDIS_URL: z.string().url(),
   DATABASE_URL: z.string().url(),
   // Object Storage S3 (§1.4 / §5). Mismos nombres/vars que la API (A5): el PDF de
@@ -18,6 +20,16 @@ export const envSchema = z.object({
   // Umbral de reintentos del relay outbox antes de marcar la fila 'failed' (A4):
   // evita el loop infinito de una fila envenenada que nunca logra encolarse.
   OUTBOX_MAX_ATTEMPTS: z.coerce.number().int().positive().default(10),
+  TICKET_HOLD_CLEANUP_INTERVAL_SECONDS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(60),
+  LOCAL_VERIFICATION_MAINTENANCE_INTERVAL_SECONDS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(3600),
 });
 
 export type Env = z.infer<typeof envSchema>;

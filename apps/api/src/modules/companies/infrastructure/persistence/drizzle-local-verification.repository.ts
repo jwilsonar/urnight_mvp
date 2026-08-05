@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { localVerification } from '@urnight/db';
 import { DRIZZLE, type DrizzleDb } from '../../../../shared/database/drizzle.constants';
 import {
@@ -22,6 +22,10 @@ export class DrizzleLocalVerificationRepository implements LocalVerificationRepo
         localId: entity.localId,
         status: entity.status,
         licenseReference: entity.licenseReference,
+        documentUrl: entity.documentUrl,
+        notes: entity.notes,
+        verifiedBy: entity.verifiedBy,
+        reviewedAt: entity.reviewedAt,
         validUntil: entity.validUntil,
       })
       .returning();
@@ -38,10 +42,25 @@ export class DrizzleLocalVerificationRepository implements LocalVerificationRepo
     return row ? this.toDomain(row) : null;
   }
 
+  async findLatestByLocalId(localId: string): Promise<LocalVerification | null> {
+    const [row] = await this.db
+      .select()
+      .from(localVerification)
+      .where(eq(localVerification.localId, localId))
+      .orderBy(desc(localVerification.createdAt))
+      .limit(1);
+    return row ? this.toDomain(row) : null;
+  }
+
   async update(entity: LocalVerification): Promise<LocalVerification> {
     const [row] = await this.db
       .update(localVerification)
-      .set({ status: entity.status })
+      .set({
+        status: entity.status,
+        notes: entity.notes,
+        verifiedBy: entity.verifiedBy,
+        reviewedAt: entity.reviewedAt,
+      })
       .where(eq(localVerification.id, entity.id))
       .returning();
     if (!row) throw new Error('No se pudo actualizar la verificación');
@@ -57,6 +76,7 @@ export class DrizzleLocalVerificationRepository implements LocalVerificationRepo
       documentUrl: row.documentUrl,
       notes: row.notes,
       verifiedBy: row.verifiedBy,
+      reviewedAt: row.reviewedAt,
       validUntil: row.validUntil,
       createdAt: row.createdAt,
     });

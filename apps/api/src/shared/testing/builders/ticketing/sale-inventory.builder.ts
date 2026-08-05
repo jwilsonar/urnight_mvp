@@ -2,6 +2,7 @@ import type {
   SaleEvent,
   SaleTicketType,
 } from '../../../../modules/ticketing/domain/ports/inventory.repository';
+import { availableCapacity } from '@urnight/db';
 
 /** Builder para el snapshot de inventario `SaleEvent` (puerto de inventario). */
 export class SaleEventBuilder {
@@ -112,6 +113,7 @@ export class SaleTicketTypeBuilder {
       currency: this.currency,
       stock: this.stock,
       sold: this.sold,
+      available: availableCapacity(this.stock, this.sold, 0),
       maxPerUser: this.maxPerUser,
       status: this.status,
     };

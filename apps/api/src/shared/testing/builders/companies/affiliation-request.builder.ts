@@ -82,6 +82,8 @@ export class AffiliationRequestBuilder {
       contactName: this.contactName,
       contactEmail: this.contactEmail,
       contactPhone: this.contactPhone,
+      termsAccepted: true,
+      legalDeclarationAccepted: true,
       submittedBy: this.submittedBy,
     });
     if (this.decision === 'approved') {
