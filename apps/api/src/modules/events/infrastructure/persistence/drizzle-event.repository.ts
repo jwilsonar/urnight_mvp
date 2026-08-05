@@ -23,6 +23,8 @@ import {
   eventTag,
   local,
   musicGenre,
+  order,
+  orderItem,
   tag,
   ticketType,
 } from "@urnight/db";
@@ -31,6 +33,7 @@ import {
   type DrizzleDb,
 } from "../../../../shared/database/drizzle.constants";
 import { Event, type EventStatus } from "../../domain/entities/event.entity";
+import type { TrendingConfig } from "../../domain/services/trending-score";
 import type {
   EventCatalogOrder,
   EventListFilter,
@@ -265,13 +268,73 @@ export class DrizzleEventRepository implements EventRepository {
     return Number(row?.total ?? 0);
   }
 
-  async listTrending(limit: number): Promise<Event[]> {
-    const filter = { availableAt: new Date() };
+  async listTrending(
+    limit: number,
+    config: TrendingConfig,
+    availableAt: Date = new Date(),
+  ): Promise<Event[]> {
+    const filter = { availableAt };
+    const windowStart = new Date(
+      availableAt.getTime() - config.velocityWindowDays * 86_400_000,
+    );
+    const recentSales = sql<number>`coalesce((
+      select sum(${orderItem.quantity})::double precision
+      from ${orderItem}
+      inner join ${order} on ${order.id} = ${orderItem.orderId}
+      inner join ${ticketType} on ${ticketType.id} = ${orderItem.ticketTypeId}
+      where ${ticketType.eventId} = ${event.id}
+        and ${order.status} = 'paid'
+        and ${order.paidAt} >= ${windowStart}
+        and ${order.paidAt} <= ${availableAt}
+    ), 0::double precision)`;
+    const ticketCapacity = sql<number>`coalesce((
+      select sum(${ticketType.stock})::double precision
+      from ${ticketType}
+      where ${ticketType.eventId} = ${event.id}
+    ), 0::double precision)`;
+    const ticketSales = sql<number>`coalesce((
+      select sum(${ticketType.sold})::double precision
+      from ${ticketType}
+      where ${ticketType.eventId} = ${event.id}
+    ), 0::double precision)`;
+    const maxRecentSales = sql<number>`max(${recentSales}) over ()`;
+
+    // Formula normalizada (0..1):
+    // - velocidad logaritmica: premia el impulso de la ventana reciente sin que
+    //   el volumen absoluto de un local grande aplaste por si solo al resto;
+    // - cercania: 1 / (1 + dias/30), un decaimiento suave con valor 0.5 a 30 dias;
+    // - intensidad: vendidos/stock, para comparar demanda relativa entre aforos.
+    const velocity = sql<number>`case
+      when ${maxRecentSales} > 0
+        then ln(1 + ${recentSales}) / ln(1 + ${maxRecentSales})
+      else 0
+    end`;
+    const proximity = sql<number>`1.0 / (
+      1.0 + greatest(
+        0.0,
+        extract(epoch from (${event.startsAt} - ${availableAt})) / 86400.0
+      ) / 30.0
+    )`;
+    const intensity = sql<number>`case
+      when ${ticketCapacity} > 0
+        then least(1.0, greatest(0.0, ${ticketSales} / ${ticketCapacity}))
+      else 0
+    end`;
+    const totalWeight =
+      config.weightVelocity + config.weightProximity + config.weightIntensity;
+    const trendingScore = sql<number>`(
+      ${velocity} * ${config.weightVelocity}
+      + ${proximity} * ${config.weightProximity}
+      + ${intensity} * ${config.weightIntensity}
+    ) / ${totalWeight}`;
     const rows = await this.db
-      .select(this.eventSelection(filter.availableAt))
+      .select({
+        ...this.eventSelection(filter.availableAt),
+        trendingScore,
+      })
       .from(event)
       .where(and(...this.publishedConditions(filter)))
-      .orderBy(desc(event.ticketsSold), desc(event.checkinsCount))
+      .orderBy(desc(trendingScore), asc(event.startsAt), asc(event.id))
       .limit(limit);
     return rows.map((r) => this.toDomain(r));
   }

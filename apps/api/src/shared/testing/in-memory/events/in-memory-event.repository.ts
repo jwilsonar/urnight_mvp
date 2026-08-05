@@ -4,6 +4,11 @@ import type {
   EventListItem,
   EventRepository,
 } from "../../../../modules/events/domain/ports/event.repository";
+import {
+  calculateTrendingScore,
+  compareTrendingCandidates,
+  type TrendingConfig,
+} from "../../../../modules/events/domain/services/trending-score";
 import { InMemoryRepository } from "../in-memory.repository";
 
 /** EventRepository en memoria. Replica las búsquedas del adapter Drizzle. */
@@ -14,9 +19,14 @@ export class InMemoryEventRepository
   private readonly genresByEvent = new Map<string, string[]>();
   private readonly tagsByEvent = new Map<string, string[]>();
   private readonly ticketPricesByEvent = new Map<string, number[]>();
+  private readonly recentSalesByEvent = new Map<string, number>();
 
   setTicketPrices(eventId: string, prices: number[]): void {
     this.ticketPricesByEvent.set(eventId, [...prices]);
+  }
+
+  setRecentSales(eventId: string, quantity: number): void {
+    this.recentSalesByEvent.set(eventId, quantity);
   }
 
   async findById(id: string): Promise<Event | null> {
@@ -81,9 +91,7 @@ export class InMemoryEventRepository
       if (a.matchesAll !== b.matchesAll) return a.matchesAll ? -1 : 1;
       if (a.matchScore !== b.matchScore) return b.matchScore - a.matchScore;
       const byDate = a.event.startsAt.getTime() - b.event.startsAt.getTime();
-      return byDate !== 0
-        ? byDate
-        : a.event.id.localeCompare(b.event.id);
+      return byDate !== 0 ? byDate : a.event.id.localeCompare(b.event.id);
     });
     const offset = filter?.offset ?? 0;
     const end = filter?.limit !== undefined ? offset + filter.limit : undefined;
@@ -105,17 +113,41 @@ export class InMemoryEventRepository
     ).length;
   }
 
-  async listTrending(limit: number): Promise<Event[]> {
-    const now = new Date();
-    return this.values()
-      .filter(
-        (e) =>
-          e.status === "published" &&
-          e.startsAt >= now &&
-          (e.totalCapacity === 0 || e.ticketsSold < e.totalCapacity),
-      )
-      .sort((a, b) => b.ticketsSold - a.ticketsSold)
-      .slice(0, limit);
+  async listTrending(
+    limit: number,
+    config: TrendingConfig,
+    availableAt: Date = new Date(),
+  ): Promise<Event[]> {
+    const candidates = this.values().filter(
+      (e) =>
+        e.status === "published" &&
+        e.startsAt >= availableAt &&
+        (e.totalCapacity === 0 || e.ticketsSold < e.totalCapacity),
+    );
+    const maxRecentSales = candidates.reduce(
+      (max, event) => Math.max(max, this.recentSalesByEvent.get(event.id) ?? 0),
+      0,
+    );
+    return candidates
+      .map((event) => ({
+        event,
+        id: event.id,
+        startsAt: event.startsAt,
+        score: calculateTrendingScore(
+          {
+            recentSales: this.recentSalesByEvent.get(event.id) ?? 0,
+            maxRecentSales,
+            startsAt: event.startsAt,
+            ticketsSold: event.ticketsSold,
+            capacity: event.totalCapacity,
+          },
+          config,
+          availableAt,
+        ),
+      }))
+      .sort(compareTrendingCandidates)
+      .slice(0, limit)
+      .map(({ event }) => event);
   }
 
   async listUpcoming(limit: number): Promise<Event[]> {

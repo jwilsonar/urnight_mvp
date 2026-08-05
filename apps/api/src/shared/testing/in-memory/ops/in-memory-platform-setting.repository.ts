@@ -1,5 +1,5 @@
-import type { PlatformSetting } from '../../../../modules/ops/domain/entities/platform-setting.entity';
-import type { PlatformSettingRepository } from '../../../../modules/ops/domain/ports/ops.ports';
+import type { PlatformSetting } from "../../../../modules/ops/domain/entities/platform-setting.entity";
+import type { PlatformSettingRepository } from "../../../../modules/ops/domain/ports/ops.ports";
 
 /**
  * PlatformSettingRepository en memoria. Replica el adapter Drizzle: el `upsert`
@@ -19,6 +19,13 @@ export class InMemoryPlatformSettingRepository implements PlatformSettingReposit
 
   async findByKey(key: string): Promise<PlatformSetting | null> {
     return this.byKey.get(key) ?? null;
+  }
+
+  async findByKeys(keys: readonly string[]): Promise<PlatformSetting[]> {
+    return keys.flatMap((key) => {
+      const setting = this.byKey.get(key);
+      return setting ? [setting] : [];
+    });
   }
 
   async upsert(setting: PlatformSetting): Promise<PlatformSetting> {

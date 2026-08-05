@@ -1,4 +1,5 @@
 import type { Event } from "../entities/event.entity";
+import type { TrendingConfig } from "../services/trending-score";
 
 /**
  * Punto de extensión del catálogo: hoy el producto exige vencimiento cercano.
@@ -41,8 +42,12 @@ export interface EventRepository {
   listPublished(filter?: EventListFilter): Promise<EventListItem[]>;
   /** Total exacto con los mismos filtros, ignorando limit/offset. */
   countPublished(filter?: EventListFilter): Promise<number>;
-  /** Eventos más populares (tickets vendidos), para tendencia (#9). */
-  listTrending(limit: number): Promise<Event[]>;
+  /** Eventos futuros ordenados por velocidad, cercanía e intensidad (#9). */
+  listTrending(
+    limit: number,
+    config: TrendingConfig,
+    availableAt?: Date,
+  ): Promise<Event[]>;
   /** Próximos eventos publicados (startsAt >= ahora), recomendados/calendario (#10/#18). */
   listUpcoming(limit: number): Promise<Event[]>;
   /** Lectura admin: TODOS los eventos de un local (cualquier estado). */

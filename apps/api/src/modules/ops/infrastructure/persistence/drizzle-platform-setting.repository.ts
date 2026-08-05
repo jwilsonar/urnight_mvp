@@ -1,12 +1,15 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
-import { platformSetting } from '@urnight/db';
-import { DRIZZLE, type DrizzleDb } from '../../../../shared/database/drizzle.constants';
+import { Inject, Injectable } from "@nestjs/common";
+import { eq, inArray } from "drizzle-orm";
+import { platformSetting } from "@urnight/db";
+import {
+  DRIZZLE,
+  type DrizzleDb,
+} from "../../../../shared/database/drizzle.constants";
 import {
   PlatformSetting,
   type SettingValueType,
-} from '../../domain/entities/platform-setting.entity';
-import type { PlatformSettingRepository } from '../../domain/ports/ops.ports';
+} from "../../domain/entities/platform-setting.entity";
+import type { PlatformSettingRepository } from "../../domain/ports/ops.ports";
 
 type Row = typeof platformSetting.$inferSelect;
 
@@ -23,6 +26,15 @@ export class DrizzlePlatformSettingRepository implements PlatformSettingReposito
     return row ? this.toDomain(row) : null;
   }
 
+  async findByKeys(keys: readonly string[]): Promise<PlatformSetting[]> {
+    if (keys.length === 0) return [];
+    const rows = await this.db
+      .select()
+      .from(platformSetting)
+      .where(inArray(platformSetting.key, [...keys]));
+    return rows.map((row) => this.toDomain(row));
+  }
+
   async upsert(entity: PlatformSetting): Promise<PlatformSetting> {
     const [row] = await this.db
       .insert(platformSetting)
@@ -33,10 +45,14 @@ export class DrizzlePlatformSettingRepository implements PlatformSettingReposito
       })
       .onConflictDoUpdate({
         target: platformSetting.key,
-        set: { value: entity.value, valueType: entity.valueType, updatedAt: new Date() },
+        set: {
+          value: entity.value,
+          valueType: entity.valueType,
+          updatedAt: new Date(),
+        },
       })
       .returning();
-    if (!row) throw new Error('No se pudo guardar el ajuste');
+    if (!row) throw new Error("No se pudo guardar el ajuste");
     return this.toDomain(row);
   }
 
