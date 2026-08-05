@@ -48,3 +48,12 @@ sesión solo se emitirá tras completar el desafío cuando la cuenta lo requiera
 La ruta `/2fa` seguirá marcada como demo hasta que el API emita y valide
 desafíos reales. Este ADR no autoriza una implementación parcial ni almacenar
 secretos o códigos en el navegador.
+
+## Contrato de implementación
+
+El **cómo** derivado de esta decisión —tablas, puertos, casos de uso, endpoints,
+errores y límites— vive en [`docs/spec-mfa-identity.md`](../spec-mfa-identity.md),
+pendiente de revisión. Dos preguntas quedan abiertas ahí y necesitan decisión
+antes de implementar: qué ocurre con las cuentas de panel ya existentes que aún
+no tienen MFA, y quién puede desbloquear a alguien que perdió el dispositivo y
+sus códigos de recuperación.
