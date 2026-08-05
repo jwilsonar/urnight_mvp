@@ -178,8 +178,15 @@ describe('MFA HTTP (e2e)', () => {
     expect(adminLogin.body.kind).toBe('session');
     const pendingToken = adminLogin.body.result.accessToken;
 
-    const panel = await http()
+    // El arranque de sesión debe seguir disponible: sin `/auth/me` el cliente
+    // no llega a construir sesión y la cuenta no alcanza ni el enrolamiento.
+    const me = await http()
       .get('/api/v1/auth/me')
+      .set('Authorization', `Bearer ${pendingToken}`);
+    expect(me.status).toBe(200);
+
+    const panel = await http()
+      .get('/api/v1/locals/mine')
       .set('Authorization', `Bearer ${pendingToken}`);
     expect(panel.status).toBe(401);
     expect(panel.body.code).toBe('identity/mfa-required');

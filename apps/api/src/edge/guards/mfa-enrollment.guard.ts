@@ -3,7 +3,21 @@ import type { Request } from 'express';
 import { MfaRequiredError } from '../../modules/identity/domain/errors/identity.errors';
 import type { AuthUser } from '../decorators/current-user.decorator';
 
-const MFA_PENDING_ALLOWLIST = ['/mfa/enroll', '/mfa/enroll/confirm'] as const;
+/**
+ * Rutas alcanzables con el enrolamiento pendiente. Además del enrolamiento en
+ * sí, el arranque de sesión del cliente necesita `/auth/me`: sin él la sesión
+ * no llega a construirse y la cuenta no puede ni entrar a enrolar.
+ * `/auth/refresh` es lo que limpia el flag tras confirmar el factor, y
+ * `/auth/logout` debe poder ejecutarse siempre.
+ */
+const MFA_PENDING_ALLOWLIST = [
+  '/mfa/enroll',
+  '/mfa/enroll/confirm',
+  '/mfa/status',
+  '/auth/me',
+  '/auth/refresh',
+  '/auth/logout',
+] as const;
 
 /** Estado único del edge para sesiones admin que aún deben enrolar MFA. */
 @Injectable()
