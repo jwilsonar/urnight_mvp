@@ -17,6 +17,7 @@ import {
   FormMessage,
   Input,
 } from "@urnight/ui";
+import { PasswordInput } from "@/components/auth/password-input";
 import { loginAction } from "@/lib/auth-actions";
 import { toBaseLocale } from "@/lib/i18n/config";
 import { zodErrorMapEn } from "@/lib/validation/zod-en";
@@ -101,8 +102,7 @@ export function LoginForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
             <FormItem>
               <FormLabel>{t("password")}</FormLabel>
               <FormControl>
-                <Input
-                  type="password"
+                <PasswordInput
                   autoComplete="current-password"
                   placeholder="••••••••"
                   {...field}

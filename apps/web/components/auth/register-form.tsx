@@ -34,6 +34,7 @@ import {
   SelectValue,
   cn,
 } from "@urnight/ui";
+import { PasswordInput } from "@/components/auth/password-input";
 import { registerAction } from "@/lib/auth-actions";
 
 /** Deja solo dígitos y quita el prefijo país 51 si viene pegado. */
@@ -259,7 +260,7 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
             <FormItem>
               <FormLabel>{t("password")}</FormLabel>
               <FormControl>
-                <Input type="password" autoComplete="new-password" {...field} />
+                <PasswordInput autoComplete="new-password" {...field} />
               </FormControl>
               <FormDescription>{t("passwordHelper")}</FormDescription>
               <FormMessage role="alert" aria-live="polite" />

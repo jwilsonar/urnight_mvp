@@ -2,6 +2,10 @@
   "common": {
     "benefits": "Beneficios",
     "demo": "Demo",
+    "password": {
+      "show": "Mostrar contraseña",
+      "hide": "Ocultar contraseña"
+    },
     "error": {
       "title": "Algo salió mal",
       "description": "No pudimos cargar esta sección. Inténtalo de nuevo.",

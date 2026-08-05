@@ -2,6 +2,10 @@
   "common": {
     "benefits": "Benefits",
     "demo": "Demo",
+    "password": {
+      "show": "Show password",
+      "hide": "Hide password"
+    },
     "error": {
       "title": "Something went wrong",
       "description": "We couldn't load this section. Please try again.",
