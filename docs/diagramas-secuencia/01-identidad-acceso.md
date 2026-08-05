@@ -1090,10 +1090,16 @@ sequenceDiagram
     SEC->>EDGE: POST /api/v1/mfa/enroll
     note over EDGE: Permitido pese a mfaPending: está en la allowlist del<br/>MfaEnrollmentGuard.
     EDGE->>SU: execute(userId)
-    SU->>CI: encrypt(secret)
-    note over CI: AES-256-GCM con MFA_ENCRYPTION_KEY. El secreto se cifra, no<br/>se hashea: hay que descifrarlo en cada verificación.
-    SU->>DB: INSERT INTO user_mfa_factor · status pending
-    SU-->>EDGE: otpauthUri + secret
+    SU->>DB: findCurrentFactor(userId)
+    alt ya existe un factor pending
+        SU-->>EDGE: otpauthUri + secret del factor vigente
+        note over SU: Idempotente. Rotar el secreto en cada visita invalidaba en<br/>silencio un QR ya escaneado y dejaba a la persona en un bucle<br/>de código inválido. Para cambiarlo hay que revocar primero.
+    else sin factor previo
+        SU->>CI: encrypt(secret)
+        note over CI: AES-256-GCM con MFA_ENCRYPTION_KEY. El secreto se cifra, no<br/>se hashea: hay que descifrarlo en cada verificación.
+        SU->>DB: replacePendingFactor · INSERT INTO user_mfa_factor · status pending
+        SU-->>EDGE: otpauthUri + secret
+    end
     EDGE-->>SEC: 200 OK
     note over SEC: El QR se genera en el cliente desde el otpauthUri con BrandQr.<br/>El secreto nunca viaja como imagen y solo se entrega esta vez.
 
