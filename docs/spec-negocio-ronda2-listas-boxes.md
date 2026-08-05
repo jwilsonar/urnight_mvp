@@ -115,7 +115,7 @@ Decisiones:
 |---|------|-------|-------|---------------|
 | 1 | Aviso de intermediación en footer y términos | Alto (legal) | Bajo | **Hacer ya** — en ejecución |
 | 2 | "Tomar bebidas alcohólicas en exceso es dañino" en la carta | Alto (legal PE) | Bajo | **Hacer ya** — en ejecución |
-| 3 | Licencias vencidas → el local pasa a *Sin verificar* | Alto (confianza) | Medio | **Siguiente**. La infraestructura ya existe: `local_verification_document` tiene fecha de vencimiento y `expiry_warning_sent_at`. Falta un job en el worker que degrade el estado al vencer y avise al admin con antelación (30/7/0 días) |
+| 3 | Licencias vencidas → el local pasa a *Sin verificar* | Alto (confianza) | — | **Ya implementado.** El worker corre `maintain-local-verifications`, que degrada el local cuando caducan sus documentos; `LocalVerificationDocument` calcula `valid` / `expiring_soon` / `expired` y los días de aviso salen del ajuste `verification_expiry_warning_days`. La cadena está completa en la web: gestor de documentos del admin, cola de revisión de superadmin y sello en la ficha pública del local |
 | 4 | MFA (TOTP) para super_admin y admin_local | Alto (seguridad) | Medio | **Siguiente**. Obligatorio para los dos roles con panel; opcional para usuarios finales. Va en el módulo identity, no en el edge |
 | 5 | Algoritmo de eventos en tendencia en el home | Medio | Medio | Después. Empezar con una fórmula simple y explicable (ventas recientes + vistas + proximidad de fecha, con decaimiento), no un ranking opaco |
 | 6 | Temáticas estacionales (Halloween, Navidad, 14 feb) | Medio (marca) | Bajo–Medio | Después. Si el DS está tokenizado, son *theme packs* con fecha de activación, no ramas por temática. Una rama por temática se vuelve inmantenible |
@@ -123,9 +123,9 @@ Decisiones:
 
 ## 5. Orden de trabajo sugerido
 
-1. Fixes de UX de esta ronda (en curso).
-2. Pulseras por zona + búsqueda por DNI en puerta (barato, resuelve operación real).
-3. Licencias vencidas → *Sin verificar* + MFA de paneles.
+1. ~~Fixes de UX de esta ronda~~ — hecho.
+2. ~~Pulseras por zona + búsqueda por documento en puerta~~ — hecho en frontend sobre mocks; falta el backend.
+3. MFA de paneles (`super_admin` y `admin_local`).
 4. Cupos y jerarquía de promotores (requiere decisión previa sobre comisión en cascada).
 5. Lista de boxes como vista de puerta.
 6. Todo lo demás.
