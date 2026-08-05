@@ -7,6 +7,8 @@ export interface AccessTokenClaims {
   roles: RoleCode[];
   companyId?: string | null;
   localId?: string | null;
+  /** Admin obligatorio aún restringido al enrolamiento de MFA. */
+  mfaPending?: boolean;
 }
 
 /** Token firmado + su TTL en segundos. */

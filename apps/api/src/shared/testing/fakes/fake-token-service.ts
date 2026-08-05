@@ -12,8 +12,10 @@ import {
  */
 export class FakeTokenService extends TokenService {
   failVerify = false;
+  accessClaims: AccessTokenClaims[] = [];
 
   async signAccess(claims: AccessTokenClaims): Promise<IssuedToken> {
+    this.accessClaims.push(claims);
     return { token: `access:${claims.sub}`, expiresIn: 900 };
   }
 

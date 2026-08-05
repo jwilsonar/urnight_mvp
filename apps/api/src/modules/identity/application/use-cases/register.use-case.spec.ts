@@ -22,6 +22,7 @@ import type { UserPreferenceRepository } from '../../domain/ports/user-preferenc
 import type { UserRepository } from '../../domain/ports/user.repository';
 import type { AccessTokenClaims, IssuedToken, TokenService } from '../../domain/ports/token.port';
 import { InMemoryRefreshTokenStore } from '../services/__testing__/in-memory-refresh-token-store';
+import { InMemoryMfaRepository } from '../services/__testing__/in-memory-mfa-repository';
 import { RoleResolver } from '../services/role-resolver.service';
 import { TokenIssuer } from '../services/token-issuer.service';
 import { UserProvisioningService } from '../services/user-provisioning.service';
@@ -153,6 +154,7 @@ function build() {
     new RoleResolver(assignments, roles),
     tokens,
     new InMemoryRefreshTokenStore(),
+    new InMemoryMfaRepository(),
   );
   const useCase = new RegisterUseCase(users, hasher, tokens, issuer, provisioning);
   return { useCase, users, preferences, assignments, outbox, events };

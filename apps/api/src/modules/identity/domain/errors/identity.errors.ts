@@ -145,3 +145,51 @@ export class GoogleEmailNotVerifiedError extends DomainError {
     super('El email de la cuenta de Google no está verificado.');
   }
 }
+
+export class MfaRequiredError extends DomainError {
+  readonly status = 401;
+  readonly code = IDENTITY_ERROR_CODES.MFA_REQUIRED;
+  constructor() {
+    super('Debes completar el enrolamiento MFA para continuar.');
+  }
+}
+
+export class MfaAlreadyEnrolledError extends DomainError {
+  readonly status = 409;
+  readonly code = IDENTITY_ERROR_CODES.MFA_ALREADY_ENROLLED;
+  constructor() {
+    super('El usuario ya tiene MFA activo.');
+  }
+}
+
+export class MfaNotEnrolledError extends DomainError {
+  readonly status = 409;
+  readonly code = IDENTITY_ERROR_CODES.MFA_NOT_ENROLLED;
+  constructor() {
+    super('El usuario no tiene MFA activo.');
+  }
+}
+
+export class InvalidMfaCodeError extends DomainError {
+  readonly status = 401;
+  readonly code = IDENTITY_ERROR_CODES.INVALID_MFA_CODE;
+  constructor() {
+    super('El código MFA es inválido.');
+  }
+}
+
+export class MfaChallengeExpiredError extends DomainError {
+  readonly status = 401;
+  readonly code = IDENTITY_ERROR_CODES.MFA_CHALLENGE_EXPIRED;
+  constructor() {
+    super('El desafío MFA expiró o ya fue utilizado.');
+  }
+}
+
+export class MfaLockedError extends DomainError {
+  readonly status = 429;
+  readonly code = IDENTITY_ERROR_CODES.MFA_LOCKED;
+  constructor() {
+    super('El desafío MFA fue bloqueado por demasiados intentos.');
+  }
+}

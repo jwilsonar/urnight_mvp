@@ -3,6 +3,7 @@ export * from './common/rules';
 export * from './common/pagination';
 export * from './catalog';
 export * from './identity';
+export * from './identity/mfa';
 export * from './companies';
 export * from './events';
 export * from './checkout';

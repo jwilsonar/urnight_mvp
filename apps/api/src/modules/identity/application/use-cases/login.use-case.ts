@@ -4,7 +4,7 @@ import { createLogger } from '../../../../shared/logging/logger';
 import { AccountDisabledError, InvalidCredentialsError } from '../../domain/errors/identity.errors';
 import { PasswordHasher } from '../../domain/ports/password-hasher.port';
 import { USER_REPOSITORY, type UserRepository } from '../../domain/ports/user.repository';
-import { TokenIssuer, type AuthResult } from '../services/token-issuer.service';
+import { MfaLoginService, type LoginOutcome } from '../services/mfa-login.service';
 
 /** Caso de uso: login email + contraseña. Mensaje genérico para no filtrar existencia. */
 @Injectable()
@@ -14,10 +14,10 @@ export class LoginUseCase {
   constructor(
     @Inject(USER_REPOSITORY) private readonly users: UserRepository,
     private readonly hasher: PasswordHasher,
-    private readonly issuer: TokenIssuer,
+    private readonly mfaLogin: MfaLoginService,
   ) {}
 
-  async execute(dto: LoginDto): Promise<AuthResult> {
+  async execute(dto: LoginDto): Promise<LoginOutcome> {
     const user = await this.users.findByEmail(dto.email);
     if (!user || !user.passwordHash) {
       // Credenciales: mismo path para "no existe" y "clave mala" (no filtrar).
@@ -39,6 +39,6 @@ export class LoginUseCase {
     await this.users.update(user);
 
     this.log.info({ userId: user.id, provider: 'password' }, 'identity.login.success');
-    return this.issuer.issueFor(user);
+    return this.mfaLogin.complete(user);
   }
 }

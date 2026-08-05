@@ -13,6 +13,7 @@ import {
   type IssuedToken,
 } from '../../domain/ports/token.port';
 import { InMemoryRefreshTokenStore } from '../services/__testing__/in-memory-refresh-token-store';
+import { InMemoryMfaRepository } from '../services/__testing__/in-memory-mfa-repository';
 import { RoleResolver } from '../services/role-resolver.service';
 import { TokenIssuer } from '../services/token-issuer.service';
 import { RefreshTokenUseCase } from './refresh-token.use-case';
@@ -50,7 +51,12 @@ function build() {
   const assignments = new InMemoryRoleAssignmentRepository();
   const roles = new InMemoryRoleRepository().seed(RoleMother.user());
   const store = new InMemoryRefreshTokenStore();
-  const issuer = new TokenIssuer(new RoleResolver(assignments, roles), tokens, store);
+  const issuer = new TokenIssuer(
+    new RoleResolver(assignments, roles),
+    tokens,
+    store,
+    new InMemoryMfaRepository(),
+  );
   const useCase = new RefreshTokenUseCase(users, tokens, issuer, store);
   return { users, tokens, assignments, roles, store, issuer, useCase };
 }

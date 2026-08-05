@@ -92,7 +92,8 @@ describe('Identity HTTP (e2e)', () => {
         .post('/api/v1/auth/login')
         .send({ email: REGISTER.email, password: REGISTER.password });
       expect(res.status).toBe(200);
-      expect(typeof res.body.accessToken).toBe('string');
+      expect(res.body.kind).toBe('session');
+      expect(typeof res.body.result.accessToken).toBe('string');
     });
 
     it('POST /auth/login → 401 Problem+JSON con contraseña incorrecta', async () => {

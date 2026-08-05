@@ -6,6 +6,7 @@ import { validateEnv } from './config/env.schema';
 import { buildPinoOptions } from './shared/logging/logging.config';
 import { ProblemJsonFilter } from './edge/filters/problem-json.filter';
 import { AuthGuard } from './edge/guards/auth.guard';
+import { MfaEnrollmentGuard } from './edge/guards/mfa-enrollment.guard';
 import { RateLimitGuard } from './edge/guards/rate-limit.guard';
 import { RolesGuard } from './edge/guards/roles.guard';
 import { AuditInterceptor } from './edge/interceptors/audit.interceptor';
@@ -48,9 +49,10 @@ import { SharedModule } from './shared/shared.module';
     UploadsModule,
   ],
   providers: [
-    // Pipeline transversal (§2.2): orden de guards RateLimit → Auth → Roles.
+    // Pipeline transversal (§2.2): RateLimit → Auth → MFA pendiente → Roles.
     { provide: APP_GUARD, useClass: RateLimitGuard },
     { provide: APP_GUARD, useClass: AuthGuard },
+    { provide: APP_GUARD, useClass: MfaEnrollmentGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
     { provide: APP_FILTER, useClass: ProblemJsonFilter },

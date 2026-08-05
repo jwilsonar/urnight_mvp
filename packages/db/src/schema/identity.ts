@@ -60,6 +60,61 @@ export const user = pgTable(
   ],
 );
 
+export const userMfaFactor = pgTable(
+  'user_mfa_factor',
+  {
+    id: id(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    type: varchar('type', { length: 10 }).notNull(),
+    secretEncrypted: varchar('secret_encrypted', { length: 255 }).notNull(),
+    status: varchar('status', { length: 10 }).notNull(),
+    confirmedAt: timestamp('confirmed_at', { withTimezone: true }),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
+    ...timestamps(),
+  },
+  (t) => [
+    index('idx_user_mfa_factor_user').on(t.userId),
+    uniqueIndex('idx_user_mfa_factor_user_type_current')
+      .on(t.userId, t.type)
+      .where(sql`${t.status} <> 'revoked'`),
+    check('user_mfa_factor_type_check', sql`${t.type} in ('totp')`),
+    check(
+      'user_mfa_factor_status_check',
+      sql`${t.status} in ('pending','active','revoked')`,
+    ),
+  ],
+);
+
+export const userRecoveryCode = pgTable(
+  'user_recovery_code',
+  {
+    id: id(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    codeHash: varchar('code_hash', { length: 100 }).notNull(),
+    usedAt: timestamp('used_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('idx_user_recovery_code_user').on(t.userId)],
+);
+
+export const mfaUnlockOperator = pgTable(
+  'mfa_unlock_operator',
+  {
+    userId: uuid('user_id')
+      .primaryKey()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    grantedBy: uuid('granted_by')
+      .notNull()
+      .references(() => user.id, { onDelete: 'restrict' }),
+    grantedAt: timestamp('granted_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('idx_mfa_unlock_operator_granted_by').on(t.grantedBy)],
+);
+
 export const role = pgTable(
   'role',
   {
@@ -191,6 +246,11 @@ export const userFavorite = pgTable(
 
 export type User = typeof user.$inferSelect;
 export type NewUser = typeof user.$inferInsert;
+export type UserMfaFactor = typeof userMfaFactor.$inferSelect;
+export type NewUserMfaFactor = typeof userMfaFactor.$inferInsert;
+export type UserRecoveryCode = typeof userRecoveryCode.$inferSelect;
+export type NewUserRecoveryCode = typeof userRecoveryCode.$inferInsert;
+export type MfaUnlockOperator = typeof mfaUnlockOperator.$inferSelect;
 export type Role = typeof role.$inferSelect;
 export type UserRole = typeof userRole.$inferSelect;
 export type UserPreference = typeof userPreference.$inferSelect;

@@ -174,3 +174,23 @@ Mientras tanto `/2fa` sigue marcada como demo, según el ADR 0008.
 - Un `admin_local` sin MFA no alcanza endpoints de su panel.
 - El secreto no aparece en ninguna respuesta después de confirmar.
 - e2e del flujo completo en `interfaces/http/*.e2e.spec.ts`.
+
+## Estado de implementación
+
+Implementado en el lote Q backend:
+
+- Persistencia de factores TOTP, códigos de recuperación y operadores autorizados, incluida la migración `0016_chilly_arachne.sql`.
+- Contratos y códigos de error públicos de MFA.
+- Cifrado AES-256-GCM del secreto TOTP, verificación TOTP con ventana de ±1 paso y códigos de recuperación almacenados con bcrypt.
+- Enrolamiento, confirmación, estado, verificación de challenge, recuperación, revocación, regeneración y desbloqueo administrativo.
+- Login por contraseña y Google bifurcado: una cuenta con MFA activo recibe un challenge opaco de 5 minutos en Redis y no recibe tokens hasta completar MFA.
+- `mfaPending` para `super_admin` y `admin_local` sin factor activo, con bloqueo global salvo las rutas de enrolamiento.
+- Rate limit de 5 intentos por challenge e IP, consumo atómico del challenge y doble autorización del desbloqueo (`super_admin` y allowlist).
+- Pruebas unitarias, criptográficas, de guards y E2E sobre PostgreSQL aislado.
+
+Fuera de este lote o pendiente de una decisión posterior:
+
+- La interfaz web de MFA; `apps/web` está expresamente fuera de alcance.
+- **Trampa para quien construya el cliente:** `POST /mfa/enroll/confirm` devuelve solo los códigos de recuperación, **no** reemite tokens. El JWT en curso sigue llevando `mfaPending: true`, así que un admin que acaba de enrolar seguiría viendo `identity/mfa-required` hasta que el token se renueve. El flujo web **debe** llamar a `/auth/refresh` inmediatamente después de confirmar. La alternativa —que el endpoint devuelva sesión nueva— se descartó para no duplicar la emisión de tokens fuera del flujo de autenticación, pero exige esta disciplina en el cliente.
+- Aplicar la migración a una base de desarrollo o producción; el lote solo genera y valida la migración en la base E2E aislada.
+- El bloqueo exponencial por usuario y exigir MFA al operador de desbloqueo, descritos en esta especificación como propuesta/recomendación y no como contrato cerrado.

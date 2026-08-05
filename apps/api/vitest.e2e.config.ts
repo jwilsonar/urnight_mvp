@@ -16,6 +16,10 @@ export default defineConfig({
     // (CI). El TRUNCATE por test dejó de ser el cuello de botella al desactivar
     // fsync en el Postgres local de docker-compose.
     hookTimeout: 15_000,
+    // Los flujos de MFA hashean diez códigos de recuperación con el mismo coste
+    // de bcrypt que las contraseñas, así que superan de largo los 5s por defecto
+    // de Vitest. No es lentitud accidental: bajar el coste debilitaría el hash.
+    testTimeout: 45_000,
   },
   plugins: [swc.vite({ module: { type: 'es6' } })],
 });

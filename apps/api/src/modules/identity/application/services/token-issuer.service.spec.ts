@@ -9,6 +9,7 @@ import {
 } from '../../../../shared/testing';
 import type { AccessTokenClaims } from '../../domain/ports/token.port';
 import { InMemoryRefreshTokenStore } from './__testing__/in-memory-refresh-token-store';
+import { InMemoryMfaRepository } from './__testing__/in-memory-mfa-repository';
 import { RoleResolver } from './role-resolver.service';
 import { TokenIssuer } from './token-issuer.service';
 
@@ -17,8 +18,14 @@ function build() {
   const roles = new InMemoryRoleRepository();
   const tokens = new FakeTokenService();
   const refreshStore = new InMemoryRefreshTokenStore();
-  const issuer = new TokenIssuer(new RoleResolver(assignments, roles), tokens, refreshStore);
-  return { assignments, roles, tokens, refreshStore, issuer };
+  const mfa = new InMemoryMfaRepository();
+  const issuer = new TokenIssuer(
+    new RoleResolver(assignments, roles),
+    tokens,
+    refreshStore,
+    mfa,
+  );
+  return { assignments, roles, tokens, refreshStore, mfa, issuer };
 }
 
 describe('TokenIssuer', () => {
@@ -88,5 +95,33 @@ describe('TokenIssuer', () => {
     await issuer.issueFor(user);
 
     expect(refreshStore.countFor('u4')).toBe(1);
+  });
+
+  it('marca mfaPending para admin_local sin factor activo', async () => {
+    const { assignments, roles, tokens, issuer } = build();
+    const user = new UserBuilder().withId('u5').build();
+    const role = RoleMother.adminLocal();
+    roles.seed(role);
+    await assignments.create(
+      new RoleAssignmentBuilder().withUserId(user.id).withRoleId(role.id).build(),
+    );
+
+    await issuer.issueFor(user);
+
+    expect(tokens.accessClaims.at(-1)?.mfaPending).toBe(true);
+  });
+
+  it('no bloquea a promoter sin factor activo', async () => {
+    const { assignments, roles, tokens, issuer } = build();
+    const user = new UserBuilder().withId('u6').build();
+    const role = RoleMother.promoter();
+    roles.seed(role);
+    await assignments.create(
+      new RoleAssignmentBuilder().withUserId(user.id).withRoleId(role.id).build(),
+    );
+
+    await issuer.issueFor(user);
+
+    expect(tokens.accessClaims.at(-1)?.mfaPending).toBe(false);
   });
 });

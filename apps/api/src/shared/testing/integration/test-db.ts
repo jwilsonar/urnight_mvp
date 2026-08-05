@@ -91,6 +91,9 @@ const IDENTITY_TABLES = [
   'user_preference',
   'legal_document',
   'legal_acceptance',
+  'user_mfa_factor',
+  'user_recovery_code',
+  'mfa_unlock_operator',
 ] as const;
 
 /** Limpia las tablas del módulo entre tests (truncate, no drop). CASCADE por las FK. */

@@ -11,6 +11,7 @@ import type { Redis } from 'ioredis';
 import type { Request, Response } from 'express';
 import { REDIS } from '../../shared/redis/redis.module';
 import { createLogger } from '../../shared/logging/logger';
+import { MfaLockedError } from '../../modules/identity/domain/errors/identity.errors';
 import {
   RATE_LIMIT_KEY,
   type RateLimitConfig,
@@ -96,7 +97,7 @@ export class RateLimitGuard implements CanActivate {
         await this.hit(res, cfg, `ratelimit:${routeId}:${dim}:${principal}`, dim);
       }
     } catch (err) {
-      if (err instanceof HttpException) throw err; // 429 / 503 legítimo
+      if (err instanceof HttpException || err instanceof MfaLockedError) throw err; // errores legítimos
       // Redis inaccesible: fail-closed en rutas sensibles, fail-open en el resto.
       if (cfg.failClosed) {
         this.log.error({ err: (err as Error).message, path: req.url }, 'ratelimit.fail_closed');
@@ -115,6 +116,7 @@ export class RateLimitGuard implements CanActivate {
     if (count > cfg.limit) {
       this.log.warn({ key, count, limit: cfg.limit, dim }, 'ratelimit.exceeded');
       res.setHeader('Retry-After', String(cfg.windowSec));
+      if (dim === 'challenge') throw new MfaLockedError();
       throw new HttpException('Demasiadas peticiones', HttpStatus.TOO_MANY_REQUESTS);
     }
   }
@@ -189,6 +191,10 @@ export class RateLimitGuard implements CanActivate {
     if (dim === 'email') {
       const email = (req.body as { email?: unknown } | undefined)?.email;
       return typeof email === 'string' && email.length > 0 ? email.toLowerCase() : null;
+    }
+    if (dim === 'challenge') {
+      const challengeId = (req.body as { challengeId?: unknown } | undefined)?.challengeId;
+      return typeof challengeId === 'string' && challengeId.length > 0 ? challengeId : null;
     }
     // dim === 'user': req.user aún no existe (RateLimit corre ANTES de Auth);
     // se deriva el `sub` del bearer SIN verificar — solo para bucketing, no authz.

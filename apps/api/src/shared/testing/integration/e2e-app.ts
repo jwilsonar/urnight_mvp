@@ -6,6 +6,8 @@ import { DrizzleService } from '../../database/drizzle.service';
 import { REDIS } from '../../redis/redis.module';
 import type { RoleCode } from '../../../modules/identity/domain/entities/role.entity';
 import { TokenService } from '../../../modules/identity/domain/ports/token.port';
+import { TOTP_PORT, type TotpPort } from '../../../modules/identity/domain/ports/totp.port';
+import { AesGcmSecretCipher } from '../../../modules/identity/infrastructure/auth/aes-gcm-secret-cipher';
 import {
   STORAGE_PORT,
   type StoragePort,
@@ -20,7 +22,11 @@ import {
  */
 export async function createE2EApp(
   client: DbClient,
-  overrides: { storage?: StoragePort } = {},
+  overrides: {
+    storage?: StoragePort;
+    totp?: TotpPort;
+    mfaCipher?: AesGcmSecretCipher;
+  } = {},
 ): Promise<INestApplication> {
   const drizzleStub = {
     db: client.db,
@@ -38,6 +44,12 @@ export async function createE2EApp(
     .useValue(createFakeRedis());
   if (overrides.storage) {
     builder = builder.overrideProvider(STORAGE_PORT).useValue(overrides.storage);
+  }
+  if (overrides.totp) {
+    builder = builder.overrideProvider(TOTP_PORT).useValue(overrides.totp);
+  }
+  if (overrides.mfaCipher) {
+    builder = builder.overrideProvider(AesGcmSecretCipher).useValue(overrides.mfaCipher);
   }
   const moduleRef = await builder.compile();
 

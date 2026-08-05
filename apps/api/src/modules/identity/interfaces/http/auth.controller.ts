@@ -3,6 +3,8 @@ import {
   googleLoginSchema,
   loginSchema,
   logoutSchema,
+  useRecoveryCodeSchema,
+  verifyMfaChallengeSchema,
   refreshSchema,
   registerSchema,
   verifyEmailSchema,
@@ -10,13 +12,17 @@ import {
   type GoogleLoginDto,
   type LoginDto,
   type LogoutDto,
+  type LoginOutcomeResponse,
   type RefreshDto,
   type RegisterDto,
   type UserProfileResponse,
+  type UseRecoveryCodeDto,
+  type VerifyMfaChallengeDto,
   type VerifyEmailDto,
 } from '@urnight/contracts';
 import { CurrentUser, type AuthUser } from '../../../../edge/decorators/current-user.decorator';
 import { Public } from '../../../../edge/decorators/public.decorator';
+import { RateLimit } from '../../../../edge/decorators/rate-limit.decorator';
 import { ZodValidationPipe } from '../../../../edge/pipes/zod-validation.pipe';
 import { GoogleLoginUseCase } from '../../application/use-cases/google-login.use-case';
 import { GetMeUseCase, type GetMeResult } from '../../application/use-cases/get-me.use-case';
@@ -24,7 +30,10 @@ import { LoginUseCase } from '../../application/use-cases/login.use-case';
 import { LogoutUseCase } from '../../application/use-cases/logout.use-case';
 import { RefreshTokenUseCase } from '../../application/use-cases/refresh-token.use-case';
 import { RegisterUseCase } from '../../application/use-cases/register.use-case';
+import { UseRecoveryCodeUseCase } from '../../application/use-cases/use-recovery-code.use-case';
 import { VerifyEmailUseCase } from '../../application/use-cases/verify-email.use-case';
+import { VerifyMfaChallengeUseCase } from '../../application/use-cases/verify-mfa-challenge.use-case';
+import type { LoginOutcome } from '../../application/services/mfa-login.service';
 import type { AuthResult } from '../../application/services/token-issuer.service';
 
 /** Adapter driving (REST) — autenticación e identidad. /api/v1/auth. */
@@ -38,6 +47,8 @@ export class AuthController {
     private readonly logoutUser: LogoutUseCase,
     private readonly verifyEmail: VerifyEmailUseCase,
     private readonly getMe: GetMeUseCase,
+    private readonly verifyMfa: VerifyMfaChallengeUseCase,
+    private readonly recoveryMfa: UseRecoveryCodeUseCase,
   ) {}
 
   @Public()
@@ -54,8 +65,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async loginUser(
     @Body(new ZodValidationPipe(loginSchema)) dto: LoginDto,
-  ): Promise<AuthTokensResponse> {
-    return toTokens(await this.login.execute(dto));
+  ): Promise<LoginOutcomeResponse> {
+    return toLoginOutcome(await this.login.execute(dto));
   }
 
   @Public()
@@ -63,8 +74,28 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async google(
     @Body(new ZodValidationPipe(googleLoginSchema)) dto: GoogleLoginDto,
+  ): Promise<LoginOutcomeResponse> {
+    return toLoginOutcome(await this.googleLogin.execute(dto));
+  }
+
+  @Public()
+  @RateLimit({ limit: 5, windowSec: 300, keyBy: ['ip', 'challenge'], failClosed: true })
+  @Post('mfa/verify')
+  @HttpCode(HttpStatus.OK)
+  async verifyMfaChallenge(
+    @Body(new ZodValidationPipe(verifyMfaChallengeSchema)) dto: VerifyMfaChallengeDto,
   ): Promise<AuthTokensResponse> {
-    return toTokens(await this.googleLogin.execute(dto));
+    return toTokens(await this.verifyMfa.execute(dto));
+  }
+
+  @Public()
+  @RateLimit({ limit: 5, windowSec: 300, keyBy: ['ip', 'challenge'], failClosed: true })
+  @Post('mfa/recovery')
+  @HttpCode(HttpStatus.OK)
+  async useRecoveryCode(
+    @Body(new ZodValidationPipe(useRecoveryCodeSchema)) dto: UseRecoveryCodeDto,
+  ): Promise<AuthTokensResponse> {
+    return toTokens(await this.recoveryMfa.execute(dto));
   }
 
   @Public()
@@ -108,6 +139,11 @@ function toTokens(result: AuthResult): AuthTokensResponse {
     tokenType: 'Bearer',
     expiresIn: result.access.expiresIn,
   };
+}
+
+function toLoginOutcome(outcome: LoginOutcome): LoginOutcomeResponse {
+  if (outcome.kind === 'mfa_challenge') return outcome;
+  return { kind: 'session', result: toTokens(outcome.result) };
 }
 
 function toProfile(result: GetMeResult): UserProfileResponse {
