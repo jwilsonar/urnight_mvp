@@ -45,7 +45,7 @@ docs/diagramas-secuencia/
 
 | Dominio §4.1 | Entidades núcleo | Documento | Diagramas | Módulos de código |
 |---|---|---|---|---|
-| **1 · Identity, Access & Legal** | `USER`, `ROLE`, `USER_ROLE`, `USER_PREFERENCE`, `LEGAL_*` | [`01-identidad-acceso.md`](./01-identidad-acceso.md) | 16 | `api/identity`, `edge/`, `web/(auth)` |
+| **1 · Identity, Access & Legal** | `USER`, `ROLE`, `USER_ROLE`, `USER_PREFERENCE`, `LEGAL_*` | [`01-identidad-acceso.md`](./01-identidad-acceso.md) | 17 | `api/identity`, `edge/`, `web/(auth)` |
 | **2 · Taxonomy & Catalogs**<br>**7 · Trust** | `ZONE`, `LOCAL_TYPE`, `MUSIC_GENRE`, `TAG`, `REVIEW`, `REPORT` | [`02-descubrimiento-confianza.md`](./02-descubrimiento-confianza.md) | 12 | `api/catalog`, `api/trust`, `api/identity/favorites`, `web/(consumer)` |
 | **3 · Companies & Locals** | `COMPANY`, `LOCAL`, `LOCAL_VERIFICATION`, `AFFILIATION_REQUEST` | [`03-empresas-locales.md`](./03-empresas-locales.md) | 14 | `api/companies`, `api/uploads`, `web/(panels)` |
 | **4 · Events & Ticket Types** | `EVENT`, `TICKET_TYPE`, `EVENT_IMAGE` | [`04-eventos-inventario.md`](./04-eventos-inventario.md) | 14 | `api/events`, `InventoryPort` de `ticketing`, `web/(panels)` |
@@ -62,7 +62,7 @@ tiene levantamiento.
 
 ## 3. Qué hay dentro de cada documento
 
-### [`01-identidad-acceso.md`](./01-identidad-acceso.md) — 13 procesos, 16 diagramas
+### [`01-identidad-acceso.md`](./01-identidad-acceso.md) — 14 procesos, 17 diagramas
 Bloque 0 sub-flujos compartidos (emisión del par de tokens, handoff de sesión web) · Bloque 1 alta y
 credenciales (registro, verificación de email, login, Google OIDC, recuperación `AS-IS`/`TO-BE`) ·
 Bloque 2 ciclo de vida de la sesión (refresh con rotación, logout) · Bloque 3 cuenta del usuario ·

@@ -32,6 +32,7 @@
 | SD-10 | [Preferencias](#sd-10--preferencias) | Preferencias |
 | SD-11 | [Roles: otorgar y revocar](#sd-11--roles-otorgar-y-revocar) | Roles |
 | SD-12 | [Invitaciones de promotor](#sd-12--invitaciones-de-promotor) | Invitaciones |
+| SD-14 | [Enrolamiento de MFA](#sd-14--enrolamiento-de-mfa) | MFA |
 | SD-13 | [Acceso a paneles](#sd-13--acceso-a-paneles) | Acceso a paneles |
 
 ---
@@ -1050,7 +1051,13 @@ sequenceDiagram
                 note over U, EDGE: Fase 4 · Capa 3, autorización autoritativa en el backend
                 U->>EDGE: GET /api/v1/... · Authorization Bearer {accessToken}
                 EDGE->>EDGE: AuthGuard · verifica el JWT y adjunta roles + scope
-                EDGE->>EDGE: RolesGuard · aplica el @Roles del controlador
+                EDGE->>EDGE: MfaEnrollmentGuard · lee mfaPending del JWT
+                alt mfaPending y ruta fuera de la allowlist
+                    EDGE-->>U: 401 · identity/mfa-required
+                    note over EDGE: Allowlist: /mfa/enroll, /mfa/enroll/confirm, /mfa/status,<br/>/auth/me, /auth/refresh y /auth/logout. Las tres últimas son<br/>ciclo de vida de sesión: bloquearlas dejaba a la cuenta sin<br/>poder construir sesión ni llegar al enrolamiento.
+                else sin enrolamiento pendiente
+                    EDGE->>EDGE: RolesGuard · aplica el @Roles del controlador
+                end
                 EDGE->>EDGE: caso de uso · tenantScopeOf(actor) + assertTenant(scope, companyId)
                 note over EDGE: Única capa autoritativa. Una empresa nunca ve recursos<br/>de otra, aunque las dos capas del front fallaran.
                 EDGE-->>U: 200 OK · datos aislados por empresa
@@ -1061,6 +1068,54 @@ sequenceDiagram
 
 > `/panel` sin sufijo lista los paneles disponibles del usuario; si solo tiene uno, redirige
 > directamente a él (`app/(panels)/panel/page.tsx`).
+
+### SD-14 · Enrolamiento de MFA
+
+Cierra el bucle que abre SD-13: cómo sale una cuenta del estado `mfaPending`. El secreto se
+devuelve una sola vez y los códigos de recuperación también.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Usuario
+    participant SEC as /account/seguridad
+    participant EDGE as Edge API
+    participant SU as StartMfaEnrollmentUseCase
+    participant CU as ConfirmMfaEnrollmentUseCase
+    participant CI as AesGcmSecretCipher
+    participant DB as PostgreSQL
+
+    note over U, DB: Fase 1 · Alta del factor en estado pending
+    U->>SEC: Comenzar configuración
+    SEC->>EDGE: POST /api/v1/mfa/enroll
+    note over EDGE: Permitido pese a mfaPending: está en la allowlist del<br/>MfaEnrollmentGuard.
+    EDGE->>SU: execute(userId)
+    SU->>CI: encrypt(secret)
+    note over CI: AES-256-GCM con MFA_ENCRYPTION_KEY. El secreto se cifra, no<br/>se hashea: hay que descifrarlo en cada verificación.
+    SU->>DB: INSERT INTO user_mfa_factor · status pending
+    SU-->>EDGE: otpauthUri + secret
+    EDGE-->>SEC: 200 OK
+    note over SEC: El QR se genera en el cliente desde el otpauthUri con BrandQr.<br/>El secreto nunca viaja como imagen y solo se entrega esta vez.
+
+    note over U, DB: Fase 2 · Confirmación con el primer código
+    U->>SEC: Código de 6 dígitos
+    SEC->>EDGE: POST /api/v1/mfa/enroll/confirm
+    EDGE->>CU: execute(userId, code)
+    alt código inválido
+        CU-->>SEC: 401 · identity/invalid-mfa-code
+    else código válido
+        CU->>DB: UPDATE user_mfa_factor · status active
+        CU->>DB: INSERT INTO user_recovery_code · diez hashes
+        CU-->>SEC: 200 OK · recoveryCodes
+        note over SEC: Se muestran una sola vez, con copiar y descargar.<br/>No se guardan en localStorage ni sessionStorage.
+
+        note over SEC, EDGE: Fase 3 · Limpiar el flag de la sesión en curso
+        SEC->>SEC: update({ forceTokenRefresh: true })
+        SEC->>EDGE: POST /api/v1/auth/refresh
+        EDGE-->>SEC: par de tokens con mfaPending en false
+        note over SEC: Sin este paso el JWT seguiría diciendo mfaPending y el panel<br/>respondería identity/mfa-required a alguien recién enrolado:<br/>confirm no reemite tokens.
+    end
+```
 
 ---
 
@@ -1079,7 +1134,8 @@ sequenceDiagram
 | Preferencias | `PATCH /me/preferences` | `UpdatePreferencesUseCase`, `PreferencesForm` | ⚠️ Marketing/recordatorios/locale persisten; el resto es maqueta |
 | Roles | `POST` / `DELETE /users/{userId}/roles` | `GrantRoleUseCase`, `RevokeRoleUseCase` | ✅ Implementado |
 | Invitaciones | `POST /promoters`, `GET /promoters/me/associations`, `POST /promoters/{id}/confirm`, `POST /promoters/{id}/reject` | `ConfirmPromoterAssociationUseCase`, `PromoterConfirmedSubscriber` | ✅ Implementado |
-| Acceso a paneles | Todo `/api/v1` protegido | `proxy.ts`, `requireRole`, `AuthGuard`, `RolesGuard` | ✅ Implementado |
+| Acceso a paneles | Todo `/api/v1` protegido | `proxy.ts`, `requireRole`, `AuthGuard`, `MfaEnrollmentGuard`, `RolesGuard` | ✅ Implementado |
+| MFA | `POST /mfa/enroll`, `POST /mfa/enroll/confirm`, `GET /mfa/status`, `POST /auth/mfa/verify`, `POST /auth/mfa/recovery`, `POST /mfa/revoke`, `POST /mfa/recovery-codes`, `POST /mfa/unlock` | `StartMfaEnrollmentUseCase`, `ConfirmMfaEnrollmentUseCase`, `VerifyMfaChallengeUseCase`, `UseRecoveryCodeUseCase`, `UnlockMfaUseCase`, `AesGcmSecretCipher` | ✅ Implementado · obligatorio para `super_admin` y `admin_local` (ADR 0012) |
 | 2FA | — | `app/(auth)/2fa/page.tsx` | ❌ Maqueta; fuera del alcance solicitado, se documenta por cercanía |
 
 ---
