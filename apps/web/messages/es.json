@@ -814,7 +814,14 @@
         "confirmDescription": "Ingresa el primer código de 6 dígitos que genera tu aplicación.",
         "digitAria": "Dígito {number} del código de confirmación",
         "confirm": "Confirmar y activar",
-        "confirming": "Confirmando…"
+        "confirming": "Confirmando…",
+        "errors": {
+          "invalidCode": "El código no es válido. Revísalo e inténtalo de nuevo.",
+          "invalidPassword": "La contraseña no es correcta.",
+          "alreadyEnrolled": "Ya tienes la verificación en dos pasos activa.",
+          "notEnrolled": "Todavía no has activado la verificación en dos pasos.",
+          "generic": "No pudimos completar la operación. Inténtalo de nuevo."
+        }
       },
       "enabled": {
         "title": "Verificación en dos pasos activa",
@@ -833,7 +840,14 @@
         "cancel": "Cancelar",
         "processing": "Procesando…",
         "confirmRegenerate": "Regenerar códigos",
-        "confirmRevoke": "Desactivar"
+        "confirmRevoke": "Desactivar",
+        "errors": {
+          "invalidCode": "El código no es válido. Revísalo e inténtalo de nuevo.",
+          "invalidPassword": "La contraseña no es correcta.",
+          "alreadyEnrolled": "Ya tienes la verificación en dos pasos activa.",
+          "notEnrolled": "Todavía no has activado la verificación en dos pasos.",
+          "generic": "No pudimos completar la operación. Inténtalo de nuevo."
+        }
       },
       "recoveryCodes": {
         "title": "Guarda tus códigos de recuperación",
