@@ -66,7 +66,9 @@ export function UserMenu() {
 
   if (!session?.user) {
     return (
-      <div className="flex items-center gap-1 xl:gap-2">
+      // Bajo sm no caben: la barra se desbordaba y arrastraba la página entera
+      // en horizontal. Ahí los CTA viven en el menú lateral (MobileNav).
+      <div className="hidden items-center gap-1 sm:flex xl:gap-2">
         <Button variant="ghost" size="sm" className="lg:max-xl:px-2.5" asChild>
           <Link href="/login">{t("signIn")}</Link>
         </Button>
