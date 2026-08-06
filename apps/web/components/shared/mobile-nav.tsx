@@ -95,7 +95,23 @@ export function MobileNav() {
             );
           })}
         </nav>
-        {/* Sin sesión no se repiten Ingresar/Crear cuenta: ya están en el header. */}
+        {/*
+         * Sin sesión, Ingresar/Crear cuenta viven AQUÍ y no en la barra: los
+         * dos botones miden 237 px y, sumados al lockup y a los toggles, hacían
+         * que el header midiera 587 px sobre un viewport de 375. La página
+         * entera se desplazaba en horizontal.
+         */}
+        {!session?.user ? (
+          <div className="mt-6 flex flex-col gap-2 sm:hidden">
+            <Separator className="mb-2" />
+            <Button asChild onClick={() => setOpen(false)}>
+              <Link href="/register">{t("createAccount")}</Link>
+            </Button>
+            <Button variant="outline" asChild onClick={() => setOpen(false)}>
+              <Link href="/login">{t("signIn")}</Link>
+            </Button>
+          </div>
+        ) : null}
         {session?.user ? (
           <div className="flex flex-col gap-1">
             <Separator className="mb-4" />
