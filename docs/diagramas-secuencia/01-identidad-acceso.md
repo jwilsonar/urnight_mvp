@@ -1253,7 +1253,7 @@ sequenceDiagram
     EDGE->>CP: execute(userId, phone, currentPassword)
     CP->>DB: UPDATE user · phone
     CP-->>SEC: 204 No Content
-    note over CP: phoneSchema valida el formato. No hay SMS: el puerto queda<br/>documentado y el segundo método real es el correo.
+    note over CP: peruMobileSchema valida el formato, el mismo primitivo que exige<br/>el registro: cambiar el teléfono no puede validar más flojo que<br/>crearlo. No hay SMS, el puerto queda documentado y el segundo<br/>método real es el correo.
 ```
 
 ---
