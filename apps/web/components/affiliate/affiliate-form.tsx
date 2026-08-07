@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle } from "@phosphor-icons/react";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
@@ -28,6 +27,7 @@ import {
   Input,
   Textarea,
 } from "@urnight/ui";
+import { LegalDialog } from "@/components/legal/legal-dialog";
 import { submitAffiliation } from "@/lib/api/companies";
 import { useApiMutation } from "@/lib/api/use-api-mutation";
 
@@ -49,18 +49,32 @@ function createAffiliateFormSchema(
     legalName: z.string().trim().min(2, t("errors.legalName")).max(200),
     ruc: z.string().regex(/^\d{11}$/, t("errors.ruc")),
     address: z.string().trim().min(1, t("errors.address")).max(255),
-    contactName: z.string().trim().min(1, t("errors.contactName")).max(160),
+    // Nombre y apellido, la misma regla que en el registro: el contacto de una
+    // empresa afiliada tiene que ser una persona identificable.
+    contactName: z
+      .string()
+      .trim()
+      .min(1, t("errors.contactName"))
+      .max(160)
+      .refine(
+        (value) =>
+          value.split(/\s+/).filter((part) => part.length >= 2).length >= 2,
+        t("errors.contactNameFull"),
+      ),
     contactEmail: z
       .string()
       .trim()
       .min(1, t("errors.contactEmail"))
       .email(t("errors.email"))
       .max(160),
+    // Mismo celular que en el registro: nueve dígitos que empiezan en 9.
+    // Tener dos reglas distintas para el mismo dato solo genera solicitudes
+    // con teléfonos a los que después nadie puede llamar.
     contactPhone: z
       .string()
       .trim()
-      .min(6, t("errors.contactPhone"))
-      .max(20, t("errors.phoneLong")),
+      .min(1, t("errors.contactPhone"))
+      .regex(/^9\d{8}$/, t("errors.phone")),
     termsAccepted: z.preprocess(
       (value) => value,
       z.literal(true, {
@@ -93,6 +107,10 @@ export function AffiliateForm() {
     AffiliateFormValues
   >({
     resolver: zodResolver(affiliateFormSchema),
+    // onChange: el botón de enviar necesita saber si el formulario ya es válido
+    // ANTES del primer submit. Con el modo por defecto (onSubmit) `isValid` es
+    // false hasta que se intenta enviar, así que no sirve para gobernarlo.
+    mode: "onChange",
     defaultValues: {
       legalName: "",
       ruc: "",
@@ -109,7 +127,11 @@ export function AffiliateForm() {
   const termsAccepted = form.watch("termsAccepted") === true;
   const legalDeclarationAccepted =
     form.watch("legalDeclarationAccepted") === true;
-  const legalReady = termsAccepted && legalDeclarationAccepted;
+  // El botón deja de anunciarse disponible cuando aún faltan datos: antes solo
+  // miraba los checkboxes, así que se veía activo con el formulario vacío y solo
+  // al pulsarlo aparecía un muro de campos en rojo.
+  const legalReady =
+    termsAccepted && legalDeclarationAccepted && form.formState.isValid;
 
   const mutation = useApiMutation({
     mutationFn: (values: SubmitAffiliationDto) => submitAffiliation(values),
@@ -342,26 +364,32 @@ export function AffiliateForm() {
                   <FormLabel className="block min-h-[5.75rem] cursor-pointer font-normal leading-relaxed text-muted-foreground">
                     {t.rich("legal.termsConsent", {
                       terms: (chunks) => (
-                        <Link
-                          href="/legal/terms"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-medium text-foreground underline underline-offset-4"
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          {chunks}
-                        </Link>
+                        <LegalDialog
+                          doc="terms"
+                          trigger={
+                            <button
+                              type="button"
+                              className="font-medium text-foreground underline underline-offset-4"
+                              onClick={(event) => event.stopPropagation()}
+                            >
+                              {chunks}
+                            </button>
+                          }
+                        />
                       ),
                       privacy: (chunks) => (
-                        <Link
-                          href="/legal/privacy"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-medium text-foreground underline underline-offset-4"
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          {chunks}
-                        </Link>
+                        <LegalDialog
+                          doc="privacy"
+                          trigger={
+                            <button
+                              type="button"
+                              className="font-medium text-foreground underline underline-offset-4"
+                              onClick={(event) => event.stopPropagation()}
+                            >
+                              {chunks}
+                            </button>
+                          }
+                        />
                       ),
                     })}
                   </FormLabel>

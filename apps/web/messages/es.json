@@ -1697,6 +1697,8 @@
         "ruc": "El RUC debe tener 11 dígitos",
         "address": "Indica la dirección del local.",
         "contactName": "Indica el nombre del responsable.",
+        "contactNameFull": "Ingresa nombre y apellido del responsable.",
+        "phone": "El celular debe tener 9 dígitos y empezar en 9.",
         "contactEmail": "Indica un correo de contacto.",
         "email": "Ingresa un correo válido.",
         "contactPhone": "Indica un teléfono de contacto.",
