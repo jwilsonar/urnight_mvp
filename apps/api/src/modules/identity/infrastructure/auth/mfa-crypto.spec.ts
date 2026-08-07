@@ -1,36 +1,10 @@
 import type { ConfigService } from '@nestjs/config';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { Env } from '../../../../config/env.schema';
 import { AesGcmSecretCipher } from './aes-gcm-secret-cipher';
-import { NodeTotpAdapter } from './node-totp.adapter';
 
-afterEach(() => vi.useRealTimers());
-
-describe('NodeTotpAdapter', () => {
-  it('verifica TOTP SHA-1 de seis dígitos con ventana ±1 de 30 segundos', () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date(59_000));
-    const totp = new NodeTotpAdapter();
-    const rfcSecret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
-
-    expect(totp.verify(rfcSecret, '287082')).toBe(true);
-    vi.setSystemTime(new Date(89_000));
-    expect(totp.verify(rfcSecret, '287082')).toBe(true);
-    vi.setSystemTime(new Date(120_000));
-    expect(totp.verify(rfcSecret, '287082')).toBe(false);
-  });
-
-  it('genera secreto Base32 y URI compatible con aplicaciones autenticadoras', () => {
-    const totp = new NodeTotpAdapter();
-    const secret = totp.generateSecret();
-
-    expect(secret).toMatch(/^[A-Z2-7]{32}$/);
-    expect(totp.buildOtpAuthUri(secret, 'ada@example.com')).toContain(
-      `otpauth://totp/RAVENUE%3Aada%40example.com?secret=${secret}`,
-    );
-  });
-});
-
+// El TOTP se prueba en node-totp.adapter.spec.ts, con los vectores de la RFC
+// 6238 y los casos de reloj desfasado.
 describe('AesGcmSecretCipher', () => {
   const key = Buffer.alloc(32, 7).toString('base64');
   const config = {

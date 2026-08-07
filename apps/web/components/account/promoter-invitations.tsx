@@ -41,7 +41,10 @@ function InvitationCard({
     successMessage: t("accepted"),
     invalidateKeys: [queryKeys.promoterAssociations],
     onSuccess: () => {
-      void update();
+      // Con payload: `update()` a secas no dispara el callback jwt en NextAuth
+      // v5, así que el rol nuevo no llegaba a la sesión y el panel seguía
+      // invisible hasta volver a iniciar sesión.
+      void update({ refreshProfile: true });
     },
   });
 

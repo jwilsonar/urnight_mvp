@@ -27,6 +27,10 @@ export const IDENTITY_ERROR_CODES = {
   INVALID_MFA_CODE: 'identity/invalid-mfa-code',
   MFA_CHALLENGE_EXPIRED: 'identity/mfa-challenge-expired',
   MFA_LOCKED: 'identity/mfa-locked',
+  /** El código era correcto para otro instante: el reloj del servidor está desfasado. */
+  MFA_CLOCK_DRIFT: 'identity/mfa-clock-drift',
+  /** El secreto TOTP guardado no se puede descifrar (MFA_ENCRYPTION_KEY cambiada). */
+  MFA_FACTOR_UNREADABLE: 'identity/mfa-factor-unreadable',
 } as const;
 
 export type IdentityErrorCode =

@@ -36,7 +36,16 @@ const IDLE_SETTING_FETCH_TIMEOUT_MS = 2_000;
 const nowSeconds = (): number => Math.floor(Date.now() / 1000);
 
 type ActivityJwt = JWT & { lastActivityAt?: number };
-type SessionUpdate = { activity?: boolean; forceTokenRefresh?: boolean };
+/**
+ * Payload de `update()` desde el cliente. Siempre hay que mandar alguno: sin
+ * argumentos, NextAuth v5 no ejecuta el callback jwt con trigger 'update' y el
+ * snapshot de perfil se queda viejo.
+ */
+type SessionUpdate = {
+  activity?: boolean;
+  forceTokenRefresh?: boolean;
+  refreshProfile?: boolean;
+};
 
 let idleTimeoutCache: { minutes: number; expiresAt: number } | undefined;
 let idleTimeoutRequest: Promise<number> | undefined;
@@ -56,6 +65,15 @@ interface AuthUser extends User {
 
 function isAuthUser(user: unknown): user is AuthUser {
   return typeof user === 'object' && user !== null && 'tokens' in user && 'profile' in user;
+}
+
+/** El access token todavía sirve para llamar al backend (con margen de reloj). */
+function isAccessTokenFresh(token: JWT): boolean {
+  return Boolean(
+    token.accessToken &&
+      token.accessTokenExpires &&
+      nowSeconds() < token.accessTokenExpires - SKEW_SECONDS,
+  );
 }
 
 /**
@@ -153,18 +171,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth(async () => {
           }
           return refreshed;
         }
-        if (trigger === 'update' && !activityOnly && token.accessToken) {
-          const profile = await fetchMe(token.accessToken).catch(() => null);
+        if (trigger === 'update' && !activityOnly) {
+          // El perfil se re-consulta SIEMPRE con un token vigente. Antes se
+          // llamaba a fetchMe con el token que hubiera: si estaba vencido, la
+          // API devolvía 401, el `.catch` se lo tragaba en silencio y el
+          // snapshot quedaba viejo. Como `onboardingCompleted` sale de ese
+          // snapshot, /onboarding guardaba bien en el backend pero seguía
+          // rebotando con el valor antiguo: el bucle del que no se salía.
+          const fresh = isAccessTokenFresh(token) ? token : await refreshAccess(token);
+          if (fresh.error || !fresh.accessToken) return fresh;
+          const profile = await fetchMe(fresh.accessToken).catch(() => null);
           if (profile) {
-            token.profile = profile;
-            token.roles = profile.roles;
+            fresh.profile = profile;
+            fresh.roles = profile.roles;
+          } else {
+            log.warn({ userId: token.profile?.id }, 'web.auth.session.profile_refresh_failed');
           }
+          return fresh;
         }
 
         // Token vigente.
-        if (token.accessTokenExpires && nowSeconds() < token.accessTokenExpires - SKEW_SECONDS) {
-          return token;
-        }
+        if (isAccessTokenFresh(token)) return token;
 
         // Expirado: renovar.
         return refreshAccess(token);

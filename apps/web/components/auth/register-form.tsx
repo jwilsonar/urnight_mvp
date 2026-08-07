@@ -7,7 +7,11 @@ import { useLocale, useTranslations } from "next-intl";
 import { z } from "zod";
 import {
   DOCUMENT_TYPES,
-  registerSchema,
+  MIN_BIRTH_DATE,
+  documentRuleFor,
+  maxAdultBirthDate,
+  refineDocumentPair,
+  registerObjectSchema,
   type RegisterDto,
 } from "@urnight/contracts";
 import { toBaseLocale } from "@/lib/i18n/config";
@@ -43,16 +47,20 @@ function nationalDigits(raw: string): string {
   return d.length === 11 && d.startsWith("51") ? d.slice(2) : d;
 }
 
+/**
+ * Recorta y limpia según el tipo de documento. El largo sale de DOCUMENT_RULES,
+ * así que un CE deja de admitir 20 caracteres solo porque no es DNI. Se opera
+ * sobre texto para no perder los ceros iniciales de un DNI como 04483215.
+ */
 function sanitizeDocument(
   raw: string,
   documentType: (typeof DOCUMENT_TYPES)[number],
 ): string {
-  return documentType === "dni"
-    ? raw.replace(/\D/g, "").slice(0, 8)
-    : raw
-        .replace(/[^A-Za-z0-9]/g, "")
-        .toUpperCase()
-        .slice(0, 20);
+  const rule = documentRuleFor(documentType);
+  const cleaned = rule.digitsOnly
+    ? raw.replace(/\D/g, "")
+    : raw.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+  return cleaned.slice(0, rule.maxLength);
 }
 
 /**
@@ -65,7 +73,7 @@ function sanitizeDocument(
 function createRegisterFormSchema(
   t: ReturnType<typeof useTranslations<"register.form">>,
 ) {
-  return registerSchema
+  return registerObjectSchema
     .extend({
       password: z
         .string()
@@ -83,21 +91,20 @@ function createRegisterFormSchema(
         .regex(/^9\d{8}$/, t("errors.phone")),
     })
     .superRefine((values, context) => {
-      const documentIsValid =
+      // La regla la pone el contrato (DOCUMENT_RULES), no este formulario: el
+      // largo real de un CE o un pasaporte no es el de un DNI, y tenerlo escrito
+      // en dos sitios garantizaba que se separaran.
+      const rule = documentRuleFor(values.documentType);
+      refineDocumentPair(
+        values,
+        context,
         values.documentType === "dni"
-          ? /^\d{8}$/.test(values.documentNumber)
-          : /^[A-Za-z0-9]{8,20}$/.test(values.documentNumber);
-
-      if (!documentIsValid) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["documentNumber"],
-          message:
-            values.documentType === "dni"
-              ? t("errors.dni")
-              : t("errors.document"),
-        });
-      }
+          ? t("errors.dni")
+          : t("errors.documentLength", {
+              min: rule.minLength,
+              max: rule.maxLength,
+            }),
+      );
     });
 }
 
@@ -105,6 +112,7 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
   const t = useTranslations("register.form");
   const locale = toBaseLocale(useLocale());
   const registerFormSchema = useMemo(() => createRegisterFormSchema(t), [t]);
+  const maxBirthDate = useMemo(() => maxAdultBirthDate(), []);
   const [pending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
   // Nombres y apellidos separados (feedback): permitirá comparar contra el
@@ -276,7 +284,16 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
               <FormItem className="w-full sm:max-w-[14rem]">
                 <FormLabel>{t("birthDate")}</FormLabel>
                 <FormControl>
-                  <Input type="date" autoComplete="bday" {...field} />
+                  {/* max/min bloquean en el propio calendario las fechas que
+                      el esquema rechazaría después: nada futuro y nada de
+                      menores de 18. Así el error no llega a ocurrir. */}
+                  <Input
+                    type="date"
+                    autoComplete="bday"
+                    max={maxBirthDate}
+                    min={MIN_BIRTH_DATE}
+                    {...field}
+                  />
                 </FormControl>
                 <FormDescription>{t("birthDateHint")}</FormDescription>
                 <FormMessage />
