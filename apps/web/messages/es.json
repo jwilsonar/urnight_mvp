@@ -669,6 +669,7 @@
         "phone": "El teléfono debe tener 9 dígitos y empezar con 9.",
         "dni": "El DNI debe tener 8 dígitos.",
         "document": "El documento debe tener entre 8 y 20 caracteres.",
+        "documentLength": "El documento debe tener entre {min} y {max} caracteres.",
         "fullNameRequired": "Nombres y apellidos son obligatorios.",
         "fullName": "Ingresa tus nombres y apellidos.",
         "createFailed": "No pudimos crear tu cuenta.",
