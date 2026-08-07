@@ -9,8 +9,9 @@ import {
 import type { Session } from "next-auth";
 import { SessionProvider, useSession } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Toaster } from "sonner";
+import { Toaster, toast } from "sonner";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { NavigationScrollManager } from "@/components/shared/navigation-scroll-manager";
 import {
@@ -43,6 +44,8 @@ import { StorageProvider } from "@/lib/storage/storage-context";
  * muerta en vez de volver a login.
  */
 const ACTIVITY_SYNC_INTERVAL_MS = 60_000;
+/** Cuánto antes del vencimiento se avisa que la sesión está por caerse. */
+const EXPIRY_WARNING_MS = 120_000;
 const ACTIVITY_EVENTS: (keyof WindowEventMap)[] = [
   "pointerdown",
   "keydown",
@@ -52,6 +55,7 @@ const ACTIVITY_EVENTS: (keyof WindowEventMap)[] = [
 
 function SessionExpiryWatcher() {
   const { data: session, status, update } = useSession();
+  const tWarning = useTranslations("session.expiryWarning");
   const lastActivitySync = useRef(Date.now());
 
   useEffect(() => {
@@ -86,9 +90,26 @@ function SessionExpiryWatcher() {
       handleSessionExpired();
       return;
     }
-    const timeout = window.setTimeout(handleSessionExpired, remaining);
-    return () => window.clearTimeout(timeout);
-  }, [session?.expires]);
+    // Aviso antes de expulsar. La sesión vence por inactividad, y leer una
+    // pantalla sin tocar nada cuenta como inactividad: sin este aviso la sesión
+    // se caía de golpe con la persona mirando la página.
+    const timers = [window.setTimeout(handleSessionExpired, remaining)];
+    if (remaining > EXPIRY_WARNING_MS) {
+      timers.push(
+        window.setTimeout(() => {
+          toast.warning(tWarning("title"), {
+            description: tWarning("description"),
+            duration: EXPIRY_WARNING_MS,
+            action: {
+              label: tWarning("stay"),
+              onClick: () => void update({ activity: true }),
+            },
+          });
+        }, remaining - EXPIRY_WARNING_MS),
+      );
+    }
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, [session?.expires, tWarning, update]);
 
   return null;
 }

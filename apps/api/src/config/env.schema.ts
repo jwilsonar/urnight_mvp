@@ -24,6 +24,14 @@ export const envSchema = z
       (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
       z.string().optional(),
     ),
+    // Tolerancia del TOTP en pasos de 30 s hacia atrás y hacia adelante. ±2 pasos
+    // absorbe la deriva normal de un reloj de escritorio; más que eso no se acepta
+    // (solo se reporta como desfase) para no alargar la vida útil de un código.
+    //
+    // Si el reloj del servidor se desfasa más que esta ventana, la API responde
+    // 'identity/mfa-clock-drift' con los segundos de desfase en vez de mentir con
+    // "código inválido". En Windows se sincroniza con: w32tm /resync
+    MFA_TOTP_WINDOW_STEPS: z.coerce.number().int().min(0).max(10).default(2),
     GOOGLE_CLIENT_ID: z.string().default(''), // vacío = login con Google deshabilitado
     // CORS (M6): allowlist de orígenes separados por coma. Dev por defecto = web local.
     // En prod debe definirse explícitamente; '' ⇒ ningún origen cross-site permitido.
@@ -41,17 +49,21 @@ export const envSchema = z
     S3_PUBLIC_URL: z.string().default(''), // base CDN/pública del catálogo. '' = derivar del endpoint
   })
   .superRefine((env, ctx) => {
-    if (env.NODE_ENV !== 'production') return;
+    // Una clave presente pero mal formada se valida en todos los entornos: antes
+    // solo reventaba en producción y en local dejaba el MFA a medias, fallando
+    // recién al cifrar el secreto y sin decir por qué.
     const mfaKey = env.MFA_ENCRYPTION_KEY
       ? Buffer.from(env.MFA_ENCRYPTION_KEY, 'base64')
       : null;
-    if (!mfaKey || mfaKey.length !== 32) {
+    const mfaKeyRequired = env.NODE_ENV === 'production';
+    if ((mfaKeyRequired || mfaKey) && mfaKey?.length !== 32) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['MFA_ENCRYPTION_KEY'],
         message: 'MFA_ENCRYPTION_KEY debe contener 32 bytes codificados en Base64.',
       });
     }
+    if (env.NODE_ENV !== 'production') return;
     // En producción, las credenciales AWS reales son obligatorias (no 'test').
     for (const key of ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'] as const) {
       const value = env[key];

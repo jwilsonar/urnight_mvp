@@ -486,8 +486,9 @@ sequenceDiagram
 
         note over PG, U: Fase 3 · Composición de la ficha
         PG->>PG: porcentaje vendido, agotado, y precio mínimo entre los tipos no pausados
-        PG-->>U: hero con flyer, badges de venta, edad mínima, casi lleno o agotado
-        PG-->>U: datos de fecha y horario, descripción, card del local y lista de reseñas
+        PG-->>U: hero con flyer y badges de venta, casi lleno o agotado
+        note over PG: minAgeNote ya no se pinta: el +18 es la norma de la<br/>plataforma y no distingue un evento de otro. Los customTags<br/>van debajo del nombre, describiendo en vez de anunciando.
+        PG-->>U: card con fecha, horario, local y dress code, luego descripción, card del local y reseñas
         PG-->>SB: monta FavoriteButton y ReportDialog con targetType event
         note over SB: Acciones autenticadas de la sidebar: ver SD-06 y SD-09.<br/>El flujo de compra queda fuera del alcance de este documento.
     end

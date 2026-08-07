@@ -187,10 +187,6 @@ export default async function EventsPage({
       href: dateHref(),
     });
   }
-  const restrictiveOrder = ["tag", "genre", "zone", "date", "query"];
-  const suggestedFilter = restrictiveOrder
-    .map((kind) => activeFilters.find((filter) => filter.kind === kind))
-    .find(Boolean);
   const hasActiveMultiFilters =
     selectedGenreIds.length > 0 || selectedTagIds.length > 0;
   const partialMatchIndex = hasActiveMultiFilters
@@ -357,33 +353,15 @@ export default async function EventsPage({
         ) : null}
       </div>
 
+      {/* Se listaban los filtros activos como chips, duplicando lo que los
+          propios controles ya muestran marcados en rojo. Queda solo "limpiar
+          todo", que sí ahorra trabajo: apagarlos de a uno es tedioso. */}
       {activeFilters.length > 0 ? (
-        <section
-          className="mb-6 space-y-3"
-          aria-labelledby="active-event-filters"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 id="active-event-filters" className="text-sm font-semibold">
-              {t("active.title")}
-            </h2>
-            <Link href="/events" className="rv-chip w-36 justify-center">
-              {t("active.clearAll")}
-            </Link>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {activeFilters.map((filter) => (
-              <Link
-                key={filter.key}
-                href={filter.href}
-                className="rv-chip w-44 max-w-full justify-between"
-                aria-label={t("active.remove", { filter: filter.label })}
-              >
-                <span className="truncate">{filter.label}</span>
-                <span aria-hidden="true">×</span>
-              </Link>
-            ))}
-          </div>
-        </section>
+        <div className="mb-6 flex justify-end">
+          <Link href="/events" className="rv-chip w-36 justify-center">
+            {t("active.clearAll")}
+          </Link>
+        </div>
       ) : null}
 
       {visible !== null ? (
@@ -407,17 +385,15 @@ export default async function EventsPage({
               : t("empty.title")
           }
           description={
-            suggestedFilter
-              ? t("empty.filteredDescription", {
-                  filter: suggestedFilter.label,
-                })
+            activeFilters.length > 0
+              ? t("empty.restrictiveDescription")
               : t("empty.description")
           }
           action={
             <Button asChild className="w-56 max-w-full">
-              <Link href={suggestedFilter?.href ?? "/locals"}>
-                {suggestedFilter
-                  ? t("empty.removeFilter", { filter: suggestedFilter.label })
+              <Link href={activeFilters.length > 0 ? "/events" : "/locals"}>
+                {activeFilters.length > 0
+                  ? t("active.clearAll")
                   : t("empty.action")}
               </Link>
             </Button>
