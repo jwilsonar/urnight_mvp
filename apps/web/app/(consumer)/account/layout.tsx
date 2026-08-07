@@ -16,12 +16,17 @@ export default async function AccountLayout({
     redirect("/onboarding?callbackUrl=/account");
   }
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+    /* Dos columnas desde `lg`: la navegación a la izquierda y el contenido al
+       lado, en vez de trece pestañas apiladas en tres o cuatro filas que
+       empujaban el perfil hacia abajo. */
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
       <h1 className="mb-6 font-heading text-2xl font-bold tracking-tight">
         {t("title")}
       </h1>
-      <AccountNav />
-      <div className="mt-6">{children}</div>
+      <div className="lg:grid lg:grid-cols-[14rem_minmax(0,1fr)] lg:items-start lg:gap-8">
+        <AccountNav />
+        <div className="mt-6 lg:mt-0">{children}</div>
+      </div>
     </div>
   );
 }
