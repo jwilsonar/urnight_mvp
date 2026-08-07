@@ -91,34 +91,9 @@ export default async function LocalsPage({
         />
       </div>
 
-      {activeFilters.length > 0 ? (
-        <section
-          className="mb-6 space-y-3"
-          aria-labelledby="active-local-filters"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 id="active-local-filters" className="text-sm font-semibold">
-              {t("active.title")}
-            </h2>
-            <Link href="/locals" className="rv-chip w-36 justify-center">
-              {t("active.clearAll")}
-            </Link>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {activeFilters.map((filter) => (
-              <Link
-                key={filter.kind}
-                href={filter.href}
-                className="rv-chip w-44 max-w-full justify-between"
-                aria-label={t("active.remove", { filter: filter.label })}
-              >
-                <span className="truncate">{filter.label}</span>
-                <span aria-hidden="true">×</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
+      {/* Aquí solo hay un filtro a la vez (la zona) y el propio selector la
+          muestra marcada. Listarla aparte y ofrecer "limpiar todo" para un
+          único filtro era ocupar espacio para no decir nada nuevo. */}
 
       {locals !== null ? (
         <p className="mb-5 text-sm text-muted-foreground" role="status">

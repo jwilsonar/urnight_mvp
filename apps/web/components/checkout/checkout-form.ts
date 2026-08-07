@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { attendeeInputSchema } from "@urnight/contracts";
+import {
+  DOCUMENT_TYPES,
+  MIN_AGE,
+  ageFrom,
+  attendeeInputSchema,
+  refineDocumentPair,
+} from "@urnight/contracts";
 
 /** Esquema, tipos y constantes compartidos del formulario de checkout. */
 
@@ -23,29 +29,33 @@ export function createCheckoutFormSchema(errors: {
   birthDate: string;
   adult: string;
 }) {
-  const attendeeFormSchema = z.object({
-    fullName: z.string().trim().min(2, errors.fullName).max(120),
-    documentType: z.enum(["dni", "ce", "passport"]),
-    documentNumber: z
-      .string()
-      .trim()
-      .min(8, errors.document)
-      .max(20, errors.document)
-      .regex(/^[A-Za-z0-9]+$/, errors.document),
-    birthDate: z
-      .string()
-      .date(errors.birthDate)
-      .refine((value) => {
-        const birthDate = new Date(value);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const month = today.getMonth() - birthDate.getMonth();
-        if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate()))
-          age -= 1;
-        return age >= 18;
-      }, errors.adult),
-    isBuyer: z.boolean().default(false),
-  });
+  const attendeeFormSchema = z
+    .object({
+      // Nombre y apellido, igual que al crear la cuenta: en la puerta se compara
+      // contra el documento y "Juan" a secas no sirve.
+      fullName: z
+        .string()
+        .trim()
+        .min(2, errors.fullName)
+        .max(120)
+        .refine(
+          (value) =>
+            value.split(/\s+/).filter((part) => part.length >= 2).length >= 2,
+          errors.fullName,
+        ),
+      documentType: z.enum(DOCUMENT_TYPES),
+      documentNumber: z.string().trim().min(1, errors.document),
+      birthDate: z
+        .string()
+        .date(errors.birthDate)
+        .refine((value) => ageFrom(new Date(value)) >= MIN_AGE, errors.adult),
+      isBuyer: z.boolean().default(false),
+    })
+    // El largo del documento sale del contrato, no de este formulario: un CE y
+    // un pasaporte no miden lo mismo que un DNI.
+    .superRefine((values, ctx) =>
+      refineDocumentPair(values, ctx, errors.document),
+    );
 
   return checkoutFormSchema.extend({
     ticketTypeId: z.string().uuid({ message: errors.ticketType }),

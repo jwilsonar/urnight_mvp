@@ -36,11 +36,11 @@ export default async function CheckoutPage({
   const checkoutPath = `/checkout?event=${slug}${code ? `&code=${encodeURIComponent(code)}` : ""}`;
   // requireAccessToken (no requireSession): con la sesión expirada re-autenticamos en
   // vez de dejar llenar el formulario para que el POST falle con 401.
-  const { session } = await requireAccessToken(checkoutPath);
-  // Onboarding pendiente: completarlo antes de comprar.
-  if (session.user.onboardingCompleted === false) {
-    redirect(`/onboarding?callbackUrl=${encodeURIComponent(checkoutPath)}`);
-  }
+  // Comprar NO exige onboarding. Antes se redirigía aquí a /onboarding cuando
+  // `onboardingCompleted` era false, y si el snapshot del JWT quedaba desfasado
+  // la persona rebotaba entre el checkout y las preferencias sin poder comprar
+  // nunca. Las preferencias son de marketing: no valen bloquear una venta.
+  await requireAccessToken(checkoutPath);
 
   let event;
   try {

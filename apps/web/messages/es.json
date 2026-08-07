@@ -1,4 +1,11 @@
 {
+  "session": {
+    "expiryWarning": {
+      "title": "Tu sesión está por cerrarse",
+      "description": "Por seguridad cerramos la sesión tras un rato sin actividad.",
+      "stay": "Seguir conectado"
+    }
+  },
   "common": {
     "benefits": "Beneficios",
     "demo": "Demo",
@@ -251,6 +258,7 @@
       "action": "Explorar locales",
       "filteredTitle": "No encontramos eventos",
       "filteredDescription": "La combinación es muy restrictiva. Prueba quitando {filter}.",
+      "restrictiveDescription": "La combinación de filtros es muy restrictiva. Prueba con menos filtros.",
       "removeFilter": "Quitar {filter}"
     },
     "pagination": {
@@ -364,6 +372,7 @@
       "action": "Ver todos los locales",
       "filteredTitle": "No encontramos locales",
       "filteredDescription": "La combinación es muy restrictiva. Prueba quitando {filter}.",
+      "restrictiveDescription": "La combinación de filtros es muy restrictiva. Prueba con menos filtros.",
       "removeFilter": "Quitar {filter}"
     },
     "affiliate": {
@@ -579,6 +588,8 @@
       "invalidMfaCode": "El código no es válido. Verifícalo e inténtalo de nuevo.",
       "mfaChallengeExpired": "El desafío venció. Inicia sesión nuevamente para obtener otro.",
       "mfaLocked": "Alcanzaste el límite de intentos. Inicia sesión nuevamente más tarde.",
+      "mfaClockDrift": "Tu código es correcto, pero la hora del servidor está desfasada. Avísanos: no es un problema de tu autenticador.",
+      "mfaFactorUnreadable": "No pudimos leer tu verificación en dos pasos. Hay que configurarla de nuevo desde Seguridad.",
       "unexpected": "Ocurrió un error inesperado."
     }
   },
@@ -669,6 +680,7 @@
         "phone": "El teléfono debe tener 9 dígitos y empezar con 9.",
         "dni": "El DNI debe tener 8 dígitos.",
         "document": "El documento debe tener entre 8 y 20 caracteres.",
+        "documentLength": "El documento debe tener entre {min} y {max} caracteres.",
         "fullNameRequired": "Nombres y apellidos son obligatorios.",
         "fullName": "Ingresa tus nombres y apellidos.",
         "createFailed": "No pudimos crear tu cuenta.",
@@ -740,6 +752,7 @@
     },
     "submitting": "Configurando…",
     "submit": "Empezar a explorar",
+    "skip": "Ahora no",
     "success": "¡Listo! Tu cuenta está configurada.",
     "sessionExpired": "Tu sesión expiró. Te llevamos a ingresar de nuevo."
   },
@@ -797,6 +810,8 @@
         "invalidPassword": "La contraseña es incorrecta.",
         "alreadyEnrolled": "La verificación en dos pasos ya está activa.",
         "notEnrolled": "No hay un enrolamiento pendiente para confirmar.",
+        "clockDrift": "Tu código es correcto, pero la hora del servidor está desfasada. Avísanos: no es tu autenticador.",
+        "factorUnreadable": "No pudimos leer tu configuración de dos pasos. Desactívala y vuelve a activarla.",
         "generic": "No pudimos completar la operación. Inténtalo de nuevo."
       },
       "enrollment": {
@@ -820,6 +835,8 @@
           "invalidPassword": "La contraseña no es correcta.",
           "alreadyEnrolled": "Ya tienes la verificación en dos pasos activa.",
           "notEnrolled": "Todavía no has activado la verificación en dos pasos.",
+          "clockDrift": "Tu código es correcto, pero la hora del servidor está desfasada. Avísanos: no es tu autenticador.",
+          "factorUnreadable": "No pudimos leer tu configuración de dos pasos. Desactívala y vuelve a activarla.",
           "generic": "No pudimos completar la operación. Inténtalo de nuevo."
         }
       },
@@ -846,6 +863,8 @@
           "invalidPassword": "La contraseña no es correcta.",
           "alreadyEnrolled": "Ya tienes la verificación en dos pasos activa.",
           "notEnrolled": "Todavía no has activado la verificación en dos pasos.",
+          "clockDrift": "Tu código es correcto, pero la hora del servidor está desfasada. Avísanos: no es tu autenticador.",
+          "factorUnreadable": "No pudimos leer tu configuración de dos pasos. Desactívala y vuelve a activarla.",
           "generic": "No pudimos completar la operación. Inténtalo de nuevo."
         }
       },

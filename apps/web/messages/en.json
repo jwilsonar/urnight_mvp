@@ -1,4 +1,11 @@
 {
+  "session": {
+    "expiryWarning": {
+      "title": "Your session is about to end",
+      "description": "For your security we sign you out after a while without activity.",
+      "stay": "Stay signed in"
+    }
+  },
   "common": {
     "benefits": "Benefits",
     "demo": "Demo",
@@ -251,6 +258,7 @@
       "action": "Explore venues",
       "filteredTitle": "No events found",
       "filteredDescription": "This combination is too restrictive. Try removing {filter}.",
+      "restrictiveDescription": "This filter combination is too restrictive. Try using fewer filters.",
       "removeFilter": "Remove {filter}"
     },
     "pagination": {
@@ -364,6 +372,7 @@
       "action": "View all venues",
       "filteredTitle": "No venues found",
       "filteredDescription": "This combination is too restrictive. Try removing {filter}.",
+      "restrictiveDescription": "This filter combination is too restrictive. Try using fewer filters.",
       "removeFilter": "Remove {filter}"
     },
     "affiliate": {
@@ -579,6 +588,8 @@
       "invalidMfaCode": "That code isn't valid. Check it and try again.",
       "mfaChallengeExpired": "This challenge expired. Log in again to get a new one.",
       "mfaLocked": "You've reached the attempt limit. Please log in again later.",
+      "mfaClockDrift": "Your code is correct, but the server clock is out of sync. Let us know — this isn't your authenticator's fault.",
+      "mfaFactorUnreadable": "We couldn't read your two-step verification. It needs to be set up again from Security.",
       "unexpected": "Something unexpected happened. Please try again."
     }
   },
@@ -669,6 +680,7 @@
         "phone": "The phone number must have 9 digits and start with 9.",
         "dni": "The DNI must have 8 digits.",
         "document": "The ID number must have between 8 and 20 characters.",
+        "documentLength": "The ID number must have between {min} and {max} characters.",
         "fullNameRequired": "First and last name are required.",
         "fullName": "Enter your first and last name.",
         "createFailed": "We couldn't create your account.",
@@ -740,6 +752,7 @@
     },
     "submitting": "Setting things up…",
     "submit": "Start exploring",
+    "skip": "Not now",
     "success": "You're all set! Your account is ready.",
     "sessionExpired": "Your session expired. We'll take you back to log in."
   },
@@ -797,6 +810,8 @@
         "invalidPassword": "That password is incorrect.",
         "alreadyEnrolled": "Two-step verification is already active.",
         "notEnrolled": "There isn't a pending setup to confirm.",
+        "clockDrift": "Your code is correct, but the server clock is out of sync. Let us know — this isn't your authenticator.",
+        "factorUnreadable": "We couldn't read your two-step setup. Turn it off and set it up again.",
         "generic": "We couldn't complete that action. Please try again."
       },
       "enrollment": {
@@ -820,6 +835,8 @@
           "invalidPassword": "That password isn't correct.",
           "alreadyEnrolled": "Two-step verification is already on.",
           "notEnrolled": "You haven't turned on two-step verification yet.",
+          "clockDrift": "Your code is correct, but the server clock is out of sync. Let us know — this isn't your authenticator.",
+          "factorUnreadable": "We couldn't read your two-step setup. Turn it off and set it up again.",
           "generic": "We couldn't complete the operation. Please try again."
         }
       },
@@ -846,6 +863,8 @@
           "invalidPassword": "That password isn't correct.",
           "alreadyEnrolled": "Two-step verification is already on.",
           "notEnrolled": "You haven't turned on two-step verification yet.",
+          "clockDrift": "Your code is correct, but the server clock is out of sync. Let us know — this isn't your authenticator.",
+          "factorUnreadable": "We couldn't read your two-step setup. Turn it off and set it up again.",
           "generic": "We couldn't complete the operation. Please try again."
         }
       },

@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { createLogger } from '../../../../shared/logging/logger';
 import {
-  InvalidMfaCodeError,
   MfaAlreadyEnrolledError,
   MfaNotEnrolledError,
 } from '../../domain/errors/identity.errors';
@@ -12,6 +11,7 @@ import {
 import { PasswordHasher } from '../../domain/ports/password-hasher.port';
 import { TOTP_PORT, type TotpPort } from '../../domain/ports/totp.port';
 import { generateRecoveryCodes } from '../services/recovery-codes';
+import { assertTotpCode } from '../services/totp-verification';
 
 @Injectable()
 export class ConfirmMfaEnrollmentUseCase {
@@ -27,10 +27,11 @@ export class ConfirmMfaEnrollmentUseCase {
     const factor = await this.mfa.findCurrentFactor(input.userId);
     if (factor?.status === 'active') throw new MfaAlreadyEnrolledError();
     if (!factor || factor.status !== 'pending') throw new MfaNotEnrolledError();
-    if (!this.totp.verify(factor.secret, input.code)) {
-      this.log.warn({ userId: input.userId }, 'identity.mfa.failed');
-      throw new InvalidMfaCodeError();
-    }
+    assertTotpCode(this.totp, this.log, {
+      userId: input.userId,
+      secret: factor.secret,
+      code: input.code,
+    });
 
     const recoveryCodes = generateRecoveryCodes();
     const codeHashes = await Promise.all(recoveryCodes.map((code) => this.hasher.hash(code)));
