@@ -263,7 +263,8 @@ sequenceDiagram
 
     note over U, EDGE: Fase 1 · Validación en cliente, en Server Action y en el borde
     U->>W: fullName, email, password, birthDate, documento, celular
-    W->>W: registerSchema + reglas de UI (clave fuerte, DNI 8 dígitos, celular 9)
+    W->>W: registerSchema (clave fuerte, nombre y apellido, celular 9, documento según su tipo)
+    note over W: El largo del documento sale de DOCUMENT_RULES en common/rules:<br/>DNI 8 dígitos, CE 9 a 12, pasaporte 6 a 12 alfanumérico. Se guarda<br/>como texto, nunca como número: hay DNI que empiezan en cero.
     W->>SA: registerAction(RegisterDto)
     SA->>SA: registerSchema.safeParse(values) — defensa del lado servidor
     SA->>EDGE: POST /api/v1/auth/register · application/json
@@ -1129,7 +1130,7 @@ sequenceDiagram
 
 | Proceso | Endpoint(s) | Caso de uso / componente | Estado |
 |---|---|---|---|
-| Registro | `POST /auth/register` | `RegisterUseCase`, `UserProvisioningService` | ✅ Implementado |
+| Registro | `POST /auth/register` | `RegisterUseCase`, `UserProvisioningService`, `registerSchema` + `DOCUMENT_RULES` | ✅ Implementado — el documento se valida contra su tipo (DNI 8, CE 9-12, pasaporte 6-12) |
 | Verificación de email | `POST /auth/verify-email` | `VerifyEmailUseCase`, `JwtTokenService`, `OutboxRelay` + `NotificationsProcessor` | ⚠️ API y cadena outbox→worker listos; el envío es stub (`LogEmailAdapter`, ADR 0004) y la página `/verify-email` sigue sin cablear |
 | Inicio de sesión | `POST /auth/login` | `LoginUseCase`, `MfaLoginService`, `RateLimitGuard` | ✅ Implementado · devuelve `LoginOutcome`: sesión, o desafío si la cuenta tiene MFA activo |
 | Ciclo de vida de la sesión | `POST /auth/refresh`, `POST /auth/logout` | `RefreshTokenUseCase`, `LogoutUseCase`, `RedisRefreshTokenStore` | ⚠️ Refresh completo con rotación; el front no invoca `/auth/logout` |
