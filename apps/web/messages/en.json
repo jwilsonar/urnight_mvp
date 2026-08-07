@@ -1,4 +1,11 @@
 {
+  "session": {
+    "expiryWarning": {
+      "title": "Your session is about to end",
+      "description": "For your security we sign you out after a while without activity.",
+      "stay": "Stay signed in"
+    }
+  },
   "common": {
     "benefits": "Benefits",
     "demo": "Demo",
@@ -743,6 +750,7 @@
     },
     "submitting": "Setting things up…",
     "submit": "Start exploring",
+    "skip": "Not now",
     "success": "You're all set! Your account is ready.",
     "sessionExpired": "Your session expired. We'll take you back to log in."
   },
