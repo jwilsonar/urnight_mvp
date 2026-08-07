@@ -61,7 +61,12 @@ export function OnboardingClient({
     );
   }
 
-  function finish() {
+  /**
+   * `savePreferences` en false = "Ahora no": marca el onboarding como completado
+   * con los valores por defecto y sigue de largo. Sin esa salida, cualquier
+   * fallo al guardar convertía esta pantalla en un callejón sin salida.
+   */
+  function finish(savePreferences = true) {
     const token = session?.accessToken;
     if (!token) {
       reLogin();
@@ -69,18 +74,23 @@ export function OnboardingClient({
     }
     startTransition(async () => {
       try {
-        await updatePreferences(
-          {
-            acceptsMarketing,
-            acceptsReminders,
-            preferredLocale: regionalLocale[locale],
-          },
-          token,
-        );
+        if (savePreferences) {
+          await updatePreferences(
+            {
+              acceptsMarketing,
+              acceptsReminders,
+              preferredLocale: regionalLocale[locale],
+            },
+            token,
+          );
+        }
         await completeOnboarding(token);
         // Refresca el snapshot de perfil del JWT (onboardingCompleted=true) ANTES
-        // de navegar.
-        await update();
+        // de navegar. El payload NO es decorativo: `update()` sin argumentos no
+        // dispara el callback jwt con trigger 'update' en NextAuth v5, así que el
+        // snapshot se quedaba en false y /onboarding volvía a aparecer una y otra
+        // vez aunque el backend ya lo hubiera guardado.
+        await update({ refreshProfile: true });
         toast.success(t("success"));
         // Navegación DURA, no router.replace: una nav soft de Next sirve el RSC
         // del destino con la cookie de sesión aún sin propagar, así el gate del
@@ -143,14 +153,24 @@ export function OnboardingClient({
             </div>
           </div>
 
-          <Button
-            className="w-full"
-            size="lg"
-            onClick={finish}
-            disabled={pending}
-          >
-            {pending ? t("submitting") : t("submit")}
-          </Button>
+          <div className="space-y-2">
+            <Button
+              className="w-full"
+              size="lg"
+              onClick={() => finish()}
+              disabled={pending}
+            >
+              {pending ? t("submitting") : t("submit")}
+            </Button>
+            <Button
+              className="w-full"
+              variant="ghost"
+              onClick={() => finish(false)}
+              disabled={pending}
+            >
+              {t("skip")}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

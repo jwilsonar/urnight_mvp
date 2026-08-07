@@ -1,4 +1,11 @@
 {
+  "session": {
+    "expiryWarning": {
+      "title": "Tu sesión está por cerrarse",
+      "description": "Por seguridad cerramos la sesión tras un rato sin actividad.",
+      "stay": "Seguir conectado"
+    }
+  },
   "common": {
     "benefits": "Beneficios",
     "demo": "Demo",
@@ -740,6 +747,7 @@
     },
     "submitting": "Configurando…",
     "submit": "Empezar a explorar",
+    "skip": "Ahora no",
     "success": "¡Listo! Tu cuenta está configurada.",
     "sessionExpired": "Tu sesión expiró. Te llevamos a ingresar de nuevo."
   },
