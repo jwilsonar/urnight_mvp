@@ -300,7 +300,7 @@ sequenceDiagram
 
 ### SD-01 · Acceso al checkout y precondiciones
 
-Ruta `/checkout` (Server Component). Cuatro compuertas antes de mostrar el formulario.
+Ruta `/checkout` (Server Component). Tres compuertas antes de mostrar el formulario.
 
 ```mermaid
 sequenceDiagram
@@ -326,43 +326,39 @@ sequenceDiagram
         else token vigente
             NA-->>PG: session con accessToken
 
-            note over PG, U: Fase 2 · Onboarding completado
-            alt onboardingCompleted es false
-                PG-->>U: 307 → /onboarding?callbackUrl={checkoutPath}
-            else onboarding hecho
+            note over PG, U: Comprar ya no exige onboarding. El gate que rebotaba a<br/>/onboarding cuando onboardingCompleted era false quedó fuera: si el<br/>snapshot del JWT se desincronizaba, la persona no podía comprar nunca.
 
-                note over PG, EDGE: Fase 3 · Evento vendible y entradas cargadas
-                PG->>FET: getEventBySlug(slug)
-                FET->>EDGE: GET /api/v1/events/{slug}
-                alt 404
-                    EDGE-->>FET: 404 · { code events/event_not_found }
-                    PG->>PG: notFound()
-                else evento existe
-                    EDGE-->>PG: 200 OK · EventResponse
-                    alt status distinto de published
-                        PG-->>U: aviso "el evento no está disponible"
-                    else publicado
-                        PG->>FET: getEventTicketTypes(event.id)
-                        alt error al cargar entradas
-                            FET-->>PG: throw
-                            PG-->>U: alerta destructiva "no pudimos cargar las entradas"
-                        else entradas cargadas
-                            EDGE-->>PG: 200 OK · TicketTypeResponse[]
+            note over PG, EDGE: Fase 2 · Evento vendible y entradas cargadas
+            PG->>FET: getEventBySlug(slug)
+            FET->>EDGE: GET /api/v1/events/{slug}
+            alt 404
+                EDGE-->>FET: 404 · { code events/event_not_found }
+                PG->>PG: notFound()
+            else evento existe
+                EDGE-->>PG: 200 OK · EventResponse
+                alt status distinto de published
+                    PG-->>U: aviso "el evento no está disponible"
+                else publicado
+                    PG->>FET: getEventTicketTypes(event.id)
+                    alt error al cargar entradas
+                        FET-->>PG: throw
+                        PG-->>U: alerta destructiva "no pudimos cargar las entradas"
+                    else entradas cargadas
+                        EDGE-->>PG: 200 OK · TicketTypeResponse[]
 
-                            note over PG, EDGE: Fase 4 · Código de promotor en la URL
-                            opt viene ?code=
-                                PG->>FET: resolveRedemptionCode(code)
-                                FET->>EDGE: GET del código público → SD-05
-                                alt código válido
-                                    EDGE-->>PG: ResolveRedemptionCodeResponse con isFree
-                                else inválido o API caída
-                                    PG->>PG: codeFailed = true
-                                    PG-->>U: aviso "el código ya no es válido"
-                                    note over PG: M12 · no se cae al checkout de pago en silencio<br/>como si nunca hubiera habido una entrada gratis.
-                                end
+                        note over PG, EDGE: Fase 3 · Código de promotor en la URL
+                        opt viene ?code=
+                            PG->>FET: resolveRedemptionCode(code)
+                            FET->>EDGE: GET del código público → SD-05
+                            alt código válido
+                                EDGE-->>PG: ResolveRedemptionCodeResponse con isFree
+                            else inválido o API caída
+                                PG->>PG: codeFailed = true
+                                PG-->>U: aviso "el código ya no es válido"
+                                note over PG: M12 · no se cae al checkout de pago en silencio<br/>como si nunca hubiera habido una entrada gratis.
                             end
-                            PG-->>U: CheckoutClient con evento, entradas, presetCode y freeOffer
                         end
+                        PG-->>U: CheckoutClient con evento, entradas, presetCode y freeOffer
                     end
                 end
             end
