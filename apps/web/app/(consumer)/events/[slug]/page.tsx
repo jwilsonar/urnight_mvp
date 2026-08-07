@@ -153,24 +153,29 @@ export default async function EventDetailPage({
         <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
           <div>
             <Reveal>
-              <div className="mb-4 flex flex-wrap gap-2">
-                {event.minAgeNote ? (
-                  <Badge variant="destructive">{event.minAgeNote}</Badge>
-                ) : null}
-                {event.customTags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
               <h1 className="font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl">
                 {event.name}
               </h1>
+              {/* Los tags van debajo del nombre, no encima: describen el evento,
+                  no lo anuncian. Fuera el +18, que es la norma de toda la
+                  plataforma y no distingue a un evento de otro. */}
+              {event.customTags.length > 0 ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {event.customTags.map((tag) => (
+                    <Badge key={tag} variant="secondary">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              ) : null}
             </Reveal>
 
-            {/* Info rows del prototipo */}
+            {/* Fecha, horario y dress code en tarjeta, igual que "Dónde es":
+                eran líneas sueltas flotando sobre el fondo y ahora forman un
+                bloque con el mismo peso visual que el resto de la página. */}
             <Reveal delay={80}>
-              <div className="mt-7 flex max-w-xl flex-col gap-2.5">
+              <Card className="mt-7 max-w-xl">
+                <CardContent className="flex flex-col gap-2.5 p-5">
                 <InfoRow
                   icon={<CalendarBlank weight="duotone" />}
                   label={t("date")}
@@ -200,7 +205,8 @@ export default async function EventDetailPage({
                     value={event.dressCode}
                   />
                 ) : null}
-              </div>
+                </CardContent>
+              </Card>
             </Reveal>
 
             {event.description ? (
