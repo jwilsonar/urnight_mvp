@@ -1694,6 +1694,8 @@
         "ruc": "The RUC must be 11 digits",
         "address": "Enter the venue address.",
         "contactName": "Enter the contact person's name.",
+        "contactNameFull": "Enter the contact person's first and last name.",
+        "phone": "The mobile number must have 9 digits and start with 9.",
         "contactEmail": "Enter a contact email.",
         "email": "Enter a valid email.",
         "contactPhone": "Enter a contact phone number.",
