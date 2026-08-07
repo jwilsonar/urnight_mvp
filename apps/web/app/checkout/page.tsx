@@ -8,7 +8,12 @@ import type {
 } from "@urnight/contracts";
 import { Alert, AlertDescription } from "@urnight/ui";
 import { ApiError } from "@/lib/api/client";
-import { getEventBySlug, getEventTicketTypes } from "@/lib/api/catalog";
+import { MapPin } from "@phosphor-icons/react/dist/ssr";
+import {
+  getEventBySlug,
+  getEventTicketTypes,
+  getLocals,
+} from "@/lib/api/catalog";
 import { resolveRedemptionCode } from "@/lib/api/promoters";
 import { requireAccessToken } from "@/lib/auth-helpers";
 export async function generateMetadata(): Promise<Metadata> {
@@ -64,6 +69,14 @@ export default async function CheckoutPage({
     );
   }
 
+  // Dato secundario: si falla, la compra sigue. Se resuelve listando locales
+  // por la misma deuda D1 de la ficha de evento (EventResponse no trae el
+  // local y no hay GET /locals/:id).
+  const local =
+    (await getLocals().catch(() => [])).find(
+      (item) => item.id === event.localId,
+    ) ?? null;
+
   // Código de promotor en la URL (/p/<code> → checkout?code=…): resuelve la oferta.
   // Si el código no resuelve o ya no es válido, `codeFailed` avisa (M12): NO caemos
   // al checkout de pago en silencio como si nunca hubiera habido una entrada gratis.
@@ -99,6 +112,21 @@ export default async function CheckoutPage({
               timeStyle: "short",
             })}
           </p>
+          {/* Local y dirección: antes solo se veía el nombre del evento y la
+              fecha, así que al pagar no había forma de confirmar a qué local
+              se está yendo. */}
+          {local ? (
+            <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+              <MapPin className="size-4 shrink-0" weight="duotone" />
+              <span className="font-medium text-foreground">{local.name}</span>
+              {local.address ? (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>{local.address}</span>
+                </>
+              ) : null}
+            </p>
+          ) : null}
         </div>
       ) : null}
       <CheckoutClient
