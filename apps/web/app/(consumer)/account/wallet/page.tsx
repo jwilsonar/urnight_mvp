@@ -48,6 +48,12 @@ export default async function WalletPage() {
             <Bank className="size-4" weight="duotone" /> {t("withdraw")}
           </Button>
         </div>
+        {/* El retiro no es instantáneo: lo procesa una persona y el abono
+            depende del banco. Decirlo aquí evita que alguien lo dé por caído
+            cuando el dinero no aparece en minutos. */}
+        <p className="mt-3 max-w-prose text-xs text-muted-foreground">
+          {t("withdrawNotice")}
+        </p>
       </div>
 
       <Card className="mt-5 overflow-hidden p-0">
@@ -57,7 +63,7 @@ export default async function WalletPage() {
         {WALLET_DEMO.movimientos.map((m, index) => (
           <div
             key={`${m.fecha}-${m.concepto}`}
-            className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 border-b px-5 py-3.5 text-sm last:border-b-0 sm:grid-cols-[130px_1fr_110px_100px]"
+            className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 border-b px-5 py-3.5 text-sm last:border-b-0 sm:grid-cols-[130px_1fr_120px]"
           >
             <span className="font-mono text-xs text-muted-foreground">
               {transactions[index]?.date}
@@ -65,6 +71,9 @@ export default async function WalletPage() {
             <span className="col-span-2 sm:col-span-1">
               {transactions[index]?.concept}
             </span>
+            {/* Fuera el saldo corrido en gris del extremo derecho: competía con
+                el monto del movimiento, que es el dato que se busca, y lo
+                empujaba lejos del borde. El saldo ya está arriba, en grande. */}
             <span
               className={
                 m.tipo === "in"
@@ -74,9 +83,6 @@ export default async function WalletPage() {
             >
               {m.monto > 0 ? "+" : ""}
               {money(m.monto)}
-            </span>
-            <span className="hidden text-right text-muted-foreground sm:block">
-              {money(m.saldo)}
             </span>
           </div>
         ))}

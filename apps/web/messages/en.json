@@ -1035,6 +1035,7 @@
       "equivalence": "≈ 1 premium bottle · ≈ 2 general admission tickets",
       "topUp": "Add funds",
       "withdraw": "Withdraw to bank",
+      "withdrawNotice": "Withdrawals are processed by someone on our team, so they take up to 1 business day. If the destination is another bank, the deposit may take longer depending on their timelines.",
       "recent": "Recent transactions",
       "transactions": [
         {
