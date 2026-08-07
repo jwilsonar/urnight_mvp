@@ -251,6 +251,7 @@
       "action": "Explorar locales",
       "filteredTitle": "No encontramos eventos",
       "filteredDescription": "La combinación es muy restrictiva. Prueba quitando {filter}.",
+      "restrictiveDescription": "La combinación de filtros es muy restrictiva. Prueba con menos filtros.",
       "removeFilter": "Quitar {filter}"
     },
     "pagination": {
@@ -364,6 +365,7 @@
       "action": "Ver todos los locales",
       "filteredTitle": "No encontramos locales",
       "filteredDescription": "La combinación es muy restrictiva. Prueba quitando {filter}.",
+      "restrictiveDescription": "La combinación de filtros es muy restrictiva. Prueba con menos filtros.",
       "removeFilter": "Quitar {filter}"
     },
     "affiliate": {

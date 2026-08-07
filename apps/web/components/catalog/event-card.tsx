@@ -93,12 +93,16 @@ export function EventCard({
             ) : null}
           </p>
 
+          {/* El precio y el día son lo que se compara de un vistazo, así que
+              pesan más que sus etiquetas. El día ya se explica solo ("Viernes"
+              no necesita que le antepongan "Día"), por eso su etiqueta queda
+              solo para lectores de pantalla. */}
           <dl className="mt-5 grid grid-cols-2 divide-x border-t">
             <div className="flex min-w-0 flex-col items-center justify-center py-3 pr-3 text-center">
-              <dt className="truncate text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+              <dt className="truncate text-[9px] font-bold uppercase tracking-wide text-muted-foreground">
                 {t("priceLabel")}
               </dt>
-              <dd className="mt-1 truncate text-sm font-black tabular-nums">
+              <dd className="mt-0.5 truncate font-heading text-lg font-black tabular-nums">
                 {priceFrom === null || priceFrom === undefined
                   ? t("priceUnavailable")
                   : format.number(priceFrom, {
@@ -110,10 +114,8 @@ export function EventCard({
               </dd>
             </div>
             <div className="flex min-w-0 flex-col items-center justify-center py-3 pl-3 text-center">
-              <dt className="truncate text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-                {t("dateLabel")}
-              </dt>
-              <dd className="mt-1 truncate text-sm font-black">
+              <dt className="sr-only">{t("dateLabel")}</dt>
+              <dd className="truncate font-heading text-lg font-black">
                 {weekdayLabel}
               </dd>
             </div>

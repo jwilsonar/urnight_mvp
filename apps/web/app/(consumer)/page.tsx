@@ -1,12 +1,4 @@
-import {
-  ArrowRight,
-  MicrophoneStage,
-  Moon,
-  MusicNotes,
-  Sparkle,
-  Star,
-  Waveform,
-} from "@phosphor-icons/react/dist/ssr";
+import { ArrowRight, Star } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@urnight/ui";
@@ -18,11 +10,7 @@ import { Marquee } from "@/components/motion/marquee";
 import { NightCamera } from "@/components/motion/night-camera";
 import { ScrollReveal3d } from "@/components/motion/scroll-reveal-3d";
 import { Reveal } from "@/components/shared/reveal";
-import {
-  getLocals,
-  getMusicGenres,
-  getUpcomingEvents,
-} from "@/lib/api/catalog";
+import { getLocals, getUpcomingEvents } from "@/lib/api/catalog";
 import { getEventCardPrices } from "@/lib/event-card-data";
 import { StorageImage } from "@/lib/storage/storage-context";
 
@@ -35,19 +23,6 @@ const HOME_VERIFIED_TONES = [
   "gold",
   "crimson",
 ] as const satisfies readonly VerifiedTone[];
-
-/* Icono Phosphor por nombre de género (el prototipo usa glifos por categoría). */
-function genreIcon(name: string) {
-  const n = name.toLowerCase();
-  if (n.includes("techno") || n.includes("electr"))
-    return <Waveform weight="duotone" />;
-  if (n.includes("regga")) return <MicrophoneStage weight="duotone" />;
-  if (n.includes("salsa") || n.includes("latin"))
-    return <MusicNotes weight="duotone" />;
-  if (n.includes("house")) return <Moon weight="duotone" />;
-  if (n.includes("rock")) return <Star weight="duotone" />;
-  return <Sparkle weight="duotone" />;
-}
 
 function SectionHead({
   title,
@@ -79,9 +54,8 @@ function SectionHead({
 
 export default async function HomePage() {
   const t = await getTranslations("home");
-  const [upcoming, genres, locals] = await Promise.all([
+  const [upcoming, locals] = await Promise.all([
     getUpcomingEvents().catch(() => []),
-    getMusicGenres().catch(() => []),
     getLocals().catch(() => []),
   ]);
 
@@ -170,28 +144,9 @@ export default async function HomePage() {
                 viewAll={t("viewAll")}
               />
             </Reveal>
-            {genres.length > 0 ? (
-              <Reveal delay={60}>
-                <div className="mb-7 flex flex-wrap gap-2.5">
-                  <Link
-                    href="/events"
-                    className="rv-chip w-[5.8125rem] justify-center"
-                    data-active="true"
-                  >
-                    <Sparkle className="size-4" weight="duotone" /> {t("all")}
-                  </Link>
-                  {genres.slice(0, 7).map((g) => (
-                    <Link
-                      key={g.id}
-                      href={`/events?genreId=${g.id}`}
-                      className="rv-chip"
-                    >
-                      {genreIcon(g.name)} {g.name}
-                    </Link>
-                  ))}
-                </div>
-              </Reveal>
-            ) : null}
+            {/* Los géneros viven en los filtros de /events, no aquí: en el home
+                competían con las tarjetas sin aportar nada que el buscador de
+                eventos no haga mejor. */}
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
               {featured.map((event, i) => (
                 <ScrollReveal3d key={event.id} delay={i * 70}>

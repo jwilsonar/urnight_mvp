@@ -251,6 +251,7 @@
       "action": "Explore venues",
       "filteredTitle": "No events found",
       "filteredDescription": "This combination is too restrictive. Try removing {filter}.",
+      "restrictiveDescription": "This filter combination is too restrictive. Try using fewer filters.",
       "removeFilter": "Remove {filter}"
     },
     "pagination": {
@@ -364,6 +365,7 @@
       "action": "View all venues",
       "filteredTitle": "No venues found",
       "filteredDescription": "This combination is too restrictive. Try removing {filter}.",
+      "restrictiveDescription": "This filter combination is too restrictive. Try using fewer filters.",
       "removeFilter": "Remove {filter}"
     },
     "affiliate": {
