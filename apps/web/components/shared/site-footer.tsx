@@ -70,7 +70,6 @@ export function SiteFooter({
   const aboutLinks = [
     { href: "/nosotros", label: t("about.us") },
     { href: "/faq", label: t("about.faq") },
-    { href: "/categorias", label: t("about.categories") },
     { href: "/afiliar", label: t("about.affiliate") },
   ];
   const legalLinks = [
@@ -166,19 +165,25 @@ function FooterBottomBar() {
           })}
         </p>
       </div>
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-4 px-4 py-5 sm:px-6 md:grid-cols-[minmax(0,1fr)_10rem_minmax(0,1fr)] lg:px-8">
-        <Link
-          href="/reclamaciones"
-          className="inline-flex items-center justify-self-center gap-2 rounded-sm bg-white px-4 py-2 text-sm font-bold text-neutral-900 transition-opacity hover:opacity-90 md:justify-self-start"
-          data-footer-complaints
-        >
-          📖 {t("complaintsBook")}
-        </Link>
-        <div className="justify-self-center" data-footer-locale>
-          <LocaleSwitcher id="footer-language" />
+      {/* El idioma va junto al libro de reclamaciones, no en una columna
+          central que lo separaba de todo. `pt-8` despega esta fila del aviso de
+          intermediación, que antes quedaba pegado. El copyright no se parte en
+          dos líneas: `whitespace-nowrap`. */}
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 pb-5 pt-8 sm:px-6 md:flex-row md:justify-between lg:px-8">
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/reclamaciones"
+            className="inline-flex items-center gap-2 rounded-sm bg-white px-4 py-2 text-sm font-bold text-neutral-900 transition-opacity hover:opacity-90"
+            data-footer-complaints
+          >
+            📖 {t("complaintsBook")}
+          </Link>
+          <div data-footer-locale>
+            <LocaleSwitcher id="footer-language" />
+          </div>
         </div>
         <p
-          className="justify-self-center text-center text-xs text-muted-foreground md:justify-self-end md:text-right"
+          className="whitespace-nowrap text-center text-xs text-muted-foreground md:text-right"
           data-footer-copyright
         >
           {t("copyright", { year: new Date().getFullYear() })}
