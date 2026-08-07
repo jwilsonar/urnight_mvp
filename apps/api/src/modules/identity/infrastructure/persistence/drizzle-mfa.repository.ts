@@ -7,7 +7,9 @@ import {
 import { and, count, desc, eq, isNull, ne } from 'drizzle-orm';
 import type { Redis } from 'ioredis';
 import { DRIZZLE, type DrizzleDb } from '../../../../shared/database/drizzle.constants';
+import { createLogger } from '../../../../shared/logging/logger';
 import { REDIS } from '../../../../shared/redis/redis.module';
+import { MfaFactorUnreadableError } from '../../domain/errors/identity.errors';
 import type {
   MfaChallenge,
   MfaFactor,
@@ -33,6 +35,8 @@ return 0
 /** Persistencia MFA: Drizzle para factores/códigos/operadores y Redis para desafíos. */
 @Injectable()
 export class DrizzleMfaRepository implements MfaRepository {
+  private readonly log = createLogger(DrizzleMfaRepository.name);
+
   constructor(
     @Inject(DRIZZLE) private readonly db: DrizzleDb,
     @Inject(REDIS) private readonly redis: Redis,
@@ -231,12 +235,26 @@ export class DrizzleMfaRepository implements MfaRepository {
     return Number(consumed) === 1;
   }
 
+  /**
+   * Un secreto que no descifra casi siempre significa que MFA_ENCRYPTION_KEY
+   * cambió después del enrolamiento. Se traduce a un error de dominio con
+   * instrucciones en vez de reventar como 500 anónimo.
+   */
+  private decryptSecret(row: MfaFactorRow): string {
+    try {
+      return this.cipher.decrypt(row.secretEncrypted);
+    } catch (cause) {
+      this.log.error({ userId: row.userId, factorId: row.id, cause }, 'identity.mfa.unreadable');
+      throw new MfaFactorUnreadableError();
+    }
+  }
+
   private toFactor(row: MfaFactorRow): MfaFactor {
     return {
       id: row.id,
       userId: row.userId,
       type: row.type as MfaFactor['type'],
-      secret: this.cipher.decrypt(row.secretEncrypted),
+      secret: this.decryptSecret(row),
       status: row.status as MfaFactor['status'],
       confirmedAt: row.confirmedAt,
       lastUsedAt: row.lastUsedAt,

@@ -23,6 +23,8 @@ export type ErrorMessageKey =
   | "invalidMfaCode"
   | "mfaChallengeExpired"
   | "mfaLocked"
+  | "mfaClockDrift"
+  | "mfaFactorUnreadable"
   | "unexpected";
 
 export type ErrorMessageTranslator = (key: ErrorMessageKey) => string;
@@ -38,6 +40,8 @@ const CODE_MESSAGE_KEYS: Record<string, ErrorMessageKey> = {
   [IDENTITY_ERROR_CODES.INVALID_MFA_CODE]: "invalidMfaCode",
   [IDENTITY_ERROR_CODES.MFA_CHALLENGE_EXPIRED]: "mfaChallengeExpired",
   [IDENTITY_ERROR_CODES.MFA_LOCKED]: "mfaLocked",
+  [IDENTITY_ERROR_CODES.MFA_CLOCK_DRIFT]: "mfaClockDrift",
+  [IDENTITY_ERROR_CODES.MFA_FACTOR_UNREADABLE]: "mfaFactorUnreadable",
 };
 
 const STATUS_MESSAGE_KEYS: Record<number, ErrorMessageKey> = {
@@ -57,6 +61,10 @@ const FALLBACK_ES: Record<ErrorMessageKey, string> = {
     "El desafío venció. Inicia sesión nuevamente para obtener otro.",
   mfaLocked:
     "Alcanzaste el límite de intentos. Inicia sesión nuevamente más tarde.",
+  mfaClockDrift:
+    "Tu código es correcto, pero la hora del servidor está desfasada. Avísanos: no es un problema de tu autenticador.",
+  mfaFactorUnreadable:
+    "No pudimos leer tu verificación en dos pasos. Hay que configurarla de nuevo desde Seguridad.",
   mfaChallengePending:
     "Completa la verificación en dos pasos para continuar.",
   invalidCredentials: "Correo o contraseña incorrectos.",

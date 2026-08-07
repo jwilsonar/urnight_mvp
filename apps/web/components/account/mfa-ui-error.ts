@@ -6,6 +6,8 @@ export type MfaUiErrorKey =
   | "errors.invalidPassword"
   | "errors.alreadyEnrolled"
   | "errors.notEnrolled"
+  | "errors.clockDrift"
+  | "errors.factorUnreadable"
   | "errors.generic";
 
 export function getMfaUiErrorKey(error: unknown): MfaUiErrorKey {
@@ -21,6 +23,14 @@ export function getMfaUiErrorKey(error: unknown): MfaUiErrorKey {
     }
     if (error.code === IDENTITY_ERROR_CODES.MFA_NOT_ENROLLED) {
       return "errors.notEnrolled";
+    }
+    // El código era correcto para otro instante: el problema es la hora del
+    // servidor, no lo que escribió la persona.
+    if (error.code === IDENTITY_ERROR_CODES.MFA_CLOCK_DRIFT) {
+      return "errors.clockDrift";
+    }
+    if (error.code === IDENTITY_ERROR_CODES.MFA_FACTOR_UNREADABLE) {
+      return "errors.factorUnreadable";
     }
   }
   return "errors.generic";

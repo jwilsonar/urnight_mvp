@@ -579,6 +579,8 @@
       "invalidMfaCode": "El código no es válido. Verifícalo e inténtalo de nuevo.",
       "mfaChallengeExpired": "El desafío venció. Inicia sesión nuevamente para obtener otro.",
       "mfaLocked": "Alcanzaste el límite de intentos. Inicia sesión nuevamente más tarde.",
+      "mfaClockDrift": "Tu código es correcto, pero la hora del servidor está desfasada. Avísanos: no es un problema de tu autenticador.",
+      "mfaFactorUnreadable": "No pudimos leer tu verificación en dos pasos. Hay que configurarla de nuevo desde Seguridad.",
       "unexpected": "Ocurrió un error inesperado."
     }
   },
@@ -797,6 +799,8 @@
         "invalidPassword": "La contraseña es incorrecta.",
         "alreadyEnrolled": "La verificación en dos pasos ya está activa.",
         "notEnrolled": "No hay un enrolamiento pendiente para confirmar.",
+        "clockDrift": "Tu código es correcto, pero la hora del servidor está desfasada. Avísanos: no es tu autenticador.",
+        "factorUnreadable": "No pudimos leer tu configuración de dos pasos. Desactívala y vuelve a activarla.",
         "generic": "No pudimos completar la operación. Inténtalo de nuevo."
       },
       "enrollment": {
@@ -820,6 +824,8 @@
           "invalidPassword": "La contraseña no es correcta.",
           "alreadyEnrolled": "Ya tienes la verificación en dos pasos activa.",
           "notEnrolled": "Todavía no has activado la verificación en dos pasos.",
+          "clockDrift": "Tu código es correcto, pero la hora del servidor está desfasada. Avísanos: no es tu autenticador.",
+          "factorUnreadable": "No pudimos leer tu configuración de dos pasos. Desactívala y vuelve a activarla.",
           "generic": "No pudimos completar la operación. Inténtalo de nuevo."
         }
       },
@@ -846,6 +852,8 @@
           "invalidPassword": "La contraseña no es correcta.",
           "alreadyEnrolled": "Ya tienes la verificación en dos pasos activa.",
           "notEnrolled": "Todavía no has activado la verificación en dos pasos.",
+          "clockDrift": "Tu código es correcto, pero la hora del servidor está desfasada. Avísanos: no es tu autenticador.",
+          "factorUnreadable": "No pudimos leer tu configuración de dos pasos. Desactívala y vuelve a activarla.",
           "generic": "No pudimos completar la operación. Inténtalo de nuevo."
         }
       },

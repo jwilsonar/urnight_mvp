@@ -433,6 +433,7 @@ sequenceDiagram
                     UC-->>RL: challengeId + expiresAt
                     RL-->>SA: 200 OK · { kind mfa_challenge }
                     note over SA: Sin tokens todavía. El desafío se resuelve en<br/>POST /api/v1/auth/mfa/verify → VerifyMfaChallengeUseCase.
+                    note over SA: Ese verify comparte assertTotpCode con el enrolamiento:<br/>un código correcto para otro instante responde 503<br/>identity/mfa-clock-drift y NO consume el desafío.
                 else sin MFA
                     note over MS: Emisión del par access + refresh → SD-A
                     MS-->>UC: LoginOutcome kind session
@@ -1109,6 +1110,12 @@ sequenceDiagram
     EDGE->>CU: execute(userId, code)
     alt código inválido
         CU-->>SEC: 401 · identity/invalid-mfa-code
+    else código correcto pero fuera de ventana
+        CU-->>SEC: 503 · identity/mfa-clock-drift · driftSeconds
+        note over CU: assertTotpCode busca el código hasta ±10 min. Si aparece<br/>fuera de MFA_TOTP_WINDOW_STEPS (±2 pasos) el problema es la<br/>hora del servidor, no el código: se nombra la causa en vez de<br/>responder "código inválido".
+    else secreto ilegible
+        CU-->>SEC: 409 · identity/mfa-factor-unreadable
+        note over CU: MFA_ENCRYPTION_KEY cambió después del enrolamiento.<br/>El factor quedó inservible: hay que revocarlo y volver a enrolar.
     else código válido
         CU->>DB: UPDATE user_mfa_factor · status active
         CU->>DB: INSERT INTO user_recovery_code · diez hashes

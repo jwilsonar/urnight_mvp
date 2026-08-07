@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { createLogger } from '../../../../shared/logging/logger';
 import {
   AccountDisabledError,
-  InvalidMfaCodeError,
   MfaChallengeExpiredError,
   MfaNotEnrolledError,
   UserNotFoundError,
@@ -14,6 +13,7 @@ import {
 import { TOTP_PORT, type TotpPort } from '../../domain/ports/totp.port';
 import { USER_REPOSITORY, type UserRepository } from '../../domain/ports/user.repository';
 import { TokenIssuer, type AuthResult } from '../services/token-issuer.service';
+import { assertTotpCode } from '../services/totp-verification';
 
 @Injectable()
 export class VerifyMfaChallengeUseCase {
@@ -31,10 +31,11 @@ export class VerifyMfaChallengeUseCase {
     if (!challenge) throw new MfaChallengeExpiredError();
     const factor = await this.mfa.findActiveFactor(challenge.userId);
     if (!factor) throw new MfaNotEnrolledError();
-    if (!this.totp.verify(factor.secret, input.code)) {
-      this.log.warn({ userId: challenge.userId }, 'identity.mfa.failed');
-      throw new InvalidMfaCodeError();
-    }
+    assertTotpCode(this.totp, this.log, {
+      userId: challenge.userId,
+      secret: factor.secret,
+      code: input.code,
+    });
 
     const consumed = await this.mfa.consumeChallenge(challenge.id, challenge.userId);
     if (!consumed) throw new MfaChallengeExpiredError();
