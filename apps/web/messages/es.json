@@ -1016,6 +1016,7 @@
       "equivalence": "≈ 1 botella premium · ≈ 2 entradas general",
       "topUp": "Recargar saldo",
       "withdraw": "Retirar a banco",
+      "withdrawNotice": "Los retiros los procesa una persona de nuestro equipo, así que toman hasta 1 día hábil. Si el destino es otro banco, el abono puede demorar más según sus tiempos.",
       "recent": "Movimientos recientes",
       "transactions": [
         {
