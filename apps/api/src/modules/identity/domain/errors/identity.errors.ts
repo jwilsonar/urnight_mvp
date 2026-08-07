@@ -225,3 +225,35 @@ export class MfaFactorUnreadableError extends DomainError {
     );
   }
 }
+
+export class MfaEmailUnavailableError extends DomainError {
+  readonly status = 403;
+  readonly code = IDENTITY_ERROR_CODES.MFA_EMAIL_UNAVAILABLE;
+  constructor() {
+    super('El segundo factor por correo requiere un email verificado.');
+  }
+}
+
+export class MfaEmailCodeInvalidError extends DomainError {
+  readonly status = 401;
+  readonly code = IDENTITY_ERROR_CODES.MFA_EMAIL_CODE_INVALID;
+  constructor() {
+    super('El código MFA enviado por correo es inválido.');
+  }
+}
+
+export class MfaEmailCodeExpiredError extends DomainError {
+  readonly status = 401;
+  readonly code = IDENTITY_ERROR_CODES.MFA_EMAIL_CODE_EXPIRED;
+  constructor() {
+    super('El código MFA enviado por correo expiró o ya fue utilizado.');
+  }
+}
+
+export class MfaEmailResendTooSoonError extends DomainError {
+  readonly status = 429;
+  readonly code = IDENTITY_ERROR_CODES.MFA_EMAIL_RESEND_TOO_SOON;
+  constructor() {
+    super('Debes esperar antes de solicitar otro código por correo.');
+  }
+}

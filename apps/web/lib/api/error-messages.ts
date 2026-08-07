@@ -25,6 +25,10 @@ export type ErrorMessageKey =
   | "mfaLocked"
   | "mfaClockDrift"
   | "mfaFactorUnreadable"
+  | "mfaEmailUnavailable"
+  | "invalidMfaEmailCode"
+  | "mfaEmailCodeExpired"
+  | "mfaEmailResendTooSoon"
   | "unexpected";
 
 export type ErrorMessageTranslator = (key: ErrorMessageKey) => string;
@@ -42,6 +46,10 @@ const CODE_MESSAGE_KEYS: Record<string, ErrorMessageKey> = {
   [IDENTITY_ERROR_CODES.MFA_LOCKED]: "mfaLocked",
   [IDENTITY_ERROR_CODES.MFA_CLOCK_DRIFT]: "mfaClockDrift",
   [IDENTITY_ERROR_CODES.MFA_FACTOR_UNREADABLE]: "mfaFactorUnreadable",
+  [IDENTITY_ERROR_CODES.MFA_EMAIL_UNAVAILABLE]: "mfaEmailUnavailable",
+  [IDENTITY_ERROR_CODES.MFA_EMAIL_CODE_INVALID]: "invalidMfaEmailCode",
+  [IDENTITY_ERROR_CODES.MFA_EMAIL_CODE_EXPIRED]: "mfaEmailCodeExpired",
+  [IDENTITY_ERROR_CODES.MFA_EMAIL_RESEND_TOO_SOON]: "mfaEmailResendTooSoon",
 };
 
 const STATUS_MESSAGE_KEYS: Record<number, ErrorMessageKey> = {
@@ -65,6 +73,14 @@ const FALLBACK_ES: Record<ErrorMessageKey, string> = {
     "Tu código es correcto, pero la hora del servidor está desfasada. Avísanos: no es un problema de tu autenticador.",
   mfaFactorUnreadable:
     "No pudimos leer tu verificación en dos pasos. Hay que configurarla de nuevo desde Seguridad.",
+  mfaEmailUnavailable:
+    "Verifica tu correo antes de usarlo como método de acceso.",
+  invalidMfaEmailCode:
+    "El código enviado por correo no es válido. Revísalo e inténtalo de nuevo.",
+  mfaEmailCodeExpired:
+    "El código enviado por correo venció. Solicita uno nuevo.",
+  mfaEmailResendTooSoon:
+    "Espera a que termine la cuenta regresiva antes de solicitar otro código.",
   mfaChallengePending:
     "Completa la verificación en dos pasos para continuar.",
   invalidCredentials: "Correo o contraseña incorrectos.",

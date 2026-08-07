@@ -43,6 +43,12 @@ class JtiTokenService extends TokenService {
   async verifyEmailVerification(token: string): Promise<{ sub: string }> {
     return { sub: token.split(':')[1] ?? '' };
   }
+  async signEmailChange(input: { sub: string; newEmail: string }): Promise<string> {
+    return `email-change:${input.sub}:${input.newEmail}`;
+  }
+  async verifyEmailChange(): Promise<{ sub: string; newEmail: string }> {
+    return { sub: 'x', newEmail: 'nuevo@example.test' };
+  }
 }
 
 function build() {

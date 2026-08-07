@@ -25,6 +25,13 @@ export const welcomeEmailJobSchema = z.object({
   email: z.string().email(),
 });
 
+export const emailChangeVerificationJobSchema = z.object({
+  userId: z.string().uuid(),
+  newEmail: z.string().email(),
+  // La API arma el enlace (conoce `WEB_PUBLIC_URL`); aquí solo se envía.
+  verificationUrl: z.string().url(),
+});
+
 export const localDocumentExpiryWarningJobSchema = z.object({
   documentId: z.string().uuid(),
   userId: z.string().uuid(),
@@ -41,6 +48,7 @@ export const localDocumentExpiryWarningJobSchema = z.object({
 
 export type OrderTicketsJob = z.infer<typeof orderTicketsJobSchema>;
 export type VerificationEmailJob = z.infer<typeof verificationEmailJobSchema>;
+export type EmailChangeVerificationJob = z.infer<typeof emailChangeVerificationJobSchema>;
 export type WelcomeEmailJob = z.infer<typeof welcomeEmailJobSchema>;
 export type LocalDocumentExpiryWarningJob = z.infer<
   typeof localDocumentExpiryWarningJobSchema

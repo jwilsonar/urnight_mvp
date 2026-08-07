@@ -113,6 +113,8 @@ const tokens: TokenService = {
   verifyRefresh: async () => ({ sub: 'x' }),
   signEmailVerification: async () => 'verify-token',
   verifyEmailVerification: async () => ({ sub: 'x' }),
+  signEmailChange: async ({ sub, newEmail }) => `email-change:${sub}:${newEmail}`,
+  verifyEmailChange: async () => ({ sub: 'x', newEmail: 'nuevo@example.test' }),
 };
 
 class FakeOutbox extends OutboxPort {

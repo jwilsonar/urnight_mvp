@@ -3,6 +3,7 @@ import {
   type AccessTokenClaims,
   type IssuedToken,
 } from '../../../modules/identity/domain/ports/token.port';
+import { InvalidTokenError } from '../../../modules/identity/domain/errors/identity.errors';
 
 /**
  * TokenService determinista. Los tokens codifican el `sub` (`refresh:<id>`,
@@ -12,7 +13,9 @@ import {
  */
 export class FakeTokenService extends TokenService {
   failVerify = false;
+  emailChangeExpired = false;
   accessClaims: AccessTokenClaims[] = [];
+  private readonly emailChanges = new Map<string, { sub: string; newEmail: string }>();
 
   async signAccess(claims: AccessTokenClaims): Promise<IssuedToken> {
     this.accessClaims.push(claims);
@@ -35,6 +38,18 @@ export class FakeTokenService extends TokenService {
   async verifyEmailVerification(token: string): Promise<{ sub: string }> {
     if (this.failVerify) throw new Error('FakeTokenService: token de verificación inválido');
     return { sub: this.decode(token, 'verify') };
+  }
+
+  async signEmailChange(input: { sub: string; newEmail: string }): Promise<string> {
+    const token = `email-change:${this.emailChanges.size + 1}`;
+    this.emailChanges.set(token, input);
+    return token;
+  }
+
+  async verifyEmailChange(token: string): Promise<{ sub: string; newEmail: string }> {
+    const claims = this.emailChanges.get(token);
+    if (this.emailChangeExpired || !claims) throw new InvalidTokenError();
+    return claims;
   }
 
   private decode(token: string, prefix: string): string {

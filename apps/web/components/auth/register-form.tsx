@@ -22,6 +22,12 @@ import {
   AlertDescription,
   Button,
   Checkbox,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   Form,
   FormControl,
   FormDescription,
@@ -115,6 +121,7 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
   const maxBirthDate = useMemo(() => maxAdultBirthDate(), []);
   const [pending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
   // Nombres y apellidos separados (feedback): permitirá comparar contra el
   // documento en la validación de identidad. El API recibe fullName compuesto.
   const [nombres, setNombres] = useState("");
@@ -172,14 +179,19 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
         }
         return;
       }
-      // Recarga completa: garantiza que header y SessionProvider tomen la
-      // sesión nueva (con router.push quedaba visualmente "como invitado").
-      window.location.assign(callbackUrl);
+      setRegisteredEmail(payload.email);
     });
   }
 
+  function continueAfterRegistration() {
+    // La recarga completa garantiza que header y SessionProvider tomen la
+    // sesión nueva (con router.push quedaba visualmente "como invitado").
+    window.location.assign(callbackUrl);
+  }
+
   return (
-    <Form {...form}>
+    <>
+      <Form {...form}>
       <form
         onSubmit={(event) => {
           // Compone fullName desde los dos campos antes de que valide el schema.
@@ -312,7 +324,7 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
                     type="text"
                     inputMode="tel"
                     autoComplete="tel-national"
-                    placeholder="9XX XXX XXX"
+                    placeholder={t("phonePlaceholder")}
                     value={field.value ?? ""}
                     onChange={(event) =>
                       field.onChange(
@@ -424,6 +436,29 @@ export function RegisterForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
           {pending ? t("submitting") : t("submit")}
         </Button>
       </form>
-    </Form>
+      </Form>
+      <Dialog
+        open={Boolean(registeredEmail)}
+        onOpenChange={(open) => {
+          if (!open && registeredEmail) continueAfterRegistration();
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("success.title")}</DialogTitle>
+            <DialogDescription>
+              {registeredEmail
+                ? t("success.description", { email: registeredEmail })
+                : null}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" onClick={continueAfterRegistration}>
+              {t("success.continue")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

@@ -3,7 +3,9 @@ import {
   googleLoginSchema,
   loginSchema,
   logoutSchema,
+  sendMfaEmailCodeSchema,
   useRecoveryCodeSchema,
+  verifyMfaEmailCodeSchema,
   verifyMfaChallengeSchema,
   refreshSchema,
   registerSchema,
@@ -13,10 +15,13 @@ import {
   type LoginDto,
   type LogoutDto,
   type LoginOutcomeResponse,
+  type MfaEmailCodeSentResponse,
   type RefreshDto,
   type RegisterDto,
+  type SendMfaEmailCodeDto,
   type UserProfileResponse,
   type UseRecoveryCodeDto,
+  type VerifyMfaEmailCodeDto,
   type VerifyMfaChallengeDto,
   type VerifyEmailDto,
 } from '@urnight/contracts';
@@ -30,9 +35,11 @@ import { LoginUseCase } from '../../application/use-cases/login.use-case';
 import { LogoutUseCase } from '../../application/use-cases/logout.use-case';
 import { RefreshTokenUseCase } from '../../application/use-cases/refresh-token.use-case';
 import { RegisterUseCase } from '../../application/use-cases/register.use-case';
+import { SendMfaEmailCodeUseCase } from '../../application/use-cases/send-mfa-email-code.use-case';
 import { UseRecoveryCodeUseCase } from '../../application/use-cases/use-recovery-code.use-case';
 import { VerifyEmailUseCase } from '../../application/use-cases/verify-email.use-case';
 import { VerifyMfaChallengeUseCase } from '../../application/use-cases/verify-mfa-challenge.use-case';
+import { VerifyMfaEmailCodeUseCase } from '../../application/use-cases/verify-mfa-email-code.use-case';
 import type { LoginOutcome } from '../../application/services/mfa-login.service';
 import type { AuthResult } from '../../application/services/token-issuer.service';
 
@@ -49,6 +56,8 @@ export class AuthController {
     private readonly getMe: GetMeUseCase,
     private readonly verifyMfa: VerifyMfaChallengeUseCase,
     private readonly recoveryMfa: UseRecoveryCodeUseCase,
+    private readonly sendMfaEmail: SendMfaEmailCodeUseCase,
+    private readonly verifyMfaEmail: VerifyMfaEmailCodeUseCase,
   ) {}
 
   @Public()
@@ -96,6 +105,26 @@ export class AuthController {
     @Body(new ZodValidationPipe(useRecoveryCodeSchema)) dto: UseRecoveryCodeDto,
   ): Promise<AuthTokensResponse> {
     return toTokens(await this.recoveryMfa.execute(dto));
+  }
+
+  @Public()
+  @RateLimit({ limit: 5, windowSec: 300, keyBy: ['ip', 'challenge'], failClosed: true })
+  @Post('mfa/email/send')
+  @HttpCode(HttpStatus.OK)
+  sendMfaEmailCode(
+    @Body(new ZodValidationPipe(sendMfaEmailCodeSchema)) dto: SendMfaEmailCodeDto,
+  ): Promise<MfaEmailCodeSentResponse> {
+    return this.sendMfaEmail.execute(dto);
+  }
+
+  @Public()
+  @RateLimit({ limit: 5, windowSec: 300, keyBy: ['ip', 'challenge'], failClosed: true })
+  @Post('mfa/email/verify')
+  @HttpCode(HttpStatus.OK)
+  async verifyMfaEmailCode(
+    @Body(new ZodValidationPipe(verifyMfaEmailCodeSchema)) dto: VerifyMfaEmailCodeDto,
+  ): Promise<AuthTokensResponse> {
+    return toTokens(await this.verifyMfaEmail.execute(dto));
   }
 
   @Public()

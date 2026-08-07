@@ -12,8 +12,16 @@ import {
 
 /** TTL del token de verificación de email (24h, en segundos). */
 const EMAIL_VERIFY_TTL = 60 * 60 * 24;
+/** TTL del token de cambio de email (1h, en segundos). */
+const EMAIL_CHANGE_TTL = 60 * 60;
 
-type RawClaims = { sub?: string; type?: string; purpose?: string; jti?: string };
+type RawClaims = {
+  sub?: string;
+  type?: string;
+  purpose?: string;
+  jti?: string;
+  newEmail?: string;
+};
 
 /**
  * Adapter @nestjs/jwt del puerto TokenService (ACL). El access usa el secreto +
@@ -88,6 +96,26 @@ export class JwtTokenService extends TokenService {
       return { sub: claims.sub };
     } catch {
       this.log.warn({}, 'token.email_verify.invalid');
+      throw new InvalidTokenError();
+    }
+  }
+
+  signEmailChange(input: { sub: string; newEmail: string }): Promise<string> {
+    return this.jwt.signAsync(
+      { purpose: 'email_change', newEmail: input.newEmail },
+      { subject: input.sub, expiresIn: EMAIL_CHANGE_TTL },
+    );
+  }
+
+  async verifyEmailChange(token: string): Promise<{ sub: string; newEmail: string }> {
+    try {
+      const claims = await this.jwt.verifyAsync<RawClaims>(token);
+      if (claims.purpose !== 'email_change' || !claims.sub || !claims.newEmail) {
+        throw new Error('claims invalidos');
+      }
+      return { sub: claims.sub, newEmail: claims.newEmail };
+    } catch {
+      this.log.warn({}, 'token.email_change.invalid');
       throw new InvalidTokenError();
     }
   }

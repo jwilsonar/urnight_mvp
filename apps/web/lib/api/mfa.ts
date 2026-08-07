@@ -2,11 +2,14 @@ import type {
   AuthTokensResponse,
   ConfirmMfaEnrollmentDto,
   MfaReauthenticationDto,
+  MfaEmailCodeSentResponse,
   MfaStatusResponse,
   RecoveryCodesResponse,
+  SendMfaEmailCodeDto,
   StartMfaEnrollmentResponse,
   UseRecoveryCodeDto,
   VerifyMfaChallengeDto,
+  VerifyMfaEmailCodeDto,
 } from "@urnight/contracts";
 import { apiFetch } from "./client";
 
@@ -23,6 +26,24 @@ export function useMfaRecoveryCode(
   dto: UseRecoveryCodeDto,
 ): Promise<AuthTokensResponse> {
   return apiFetch<AuthTokensResponse>("/auth/mfa/recovery", {
+    method: "POST",
+    json: dto,
+  });
+}
+
+export function sendMfaEmailCode(
+  dto: SendMfaEmailCodeDto,
+): Promise<MfaEmailCodeSentResponse> {
+  return apiFetch<MfaEmailCodeSentResponse>("/auth/mfa/email/send", {
+    method: "POST",
+    json: dto,
+  });
+}
+
+export function verifyMfaEmailCode(
+  dto: VerifyMfaEmailCodeDto,
+): Promise<AuthTokensResponse> {
+  return apiFetch<AuthTokensResponse>("/auth/mfa/email/verify", {
     method: "POST",
     json: dto,
   });

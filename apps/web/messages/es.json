@@ -590,6 +590,10 @@
       "mfaLocked": "Alcanzaste el límite de intentos. Inicia sesión nuevamente más tarde.",
       "mfaClockDrift": "Tu código es correcto, pero la hora del servidor está desfasada. Avísanos: no es un problema de tu autenticador.",
       "mfaFactorUnreadable": "No pudimos leer tu verificación en dos pasos. Hay que configurarla de nuevo desde Seguridad.",
+      "mfaEmailUnavailable": "Verifica tu correo antes de usarlo como método de acceso.",
+      "invalidMfaEmailCode": "El código enviado por correo no es válido. Revísalo e inténtalo de nuevo.",
+      "mfaEmailCodeExpired": "El código enviado por correo venció. Solicita uno nuevo.",
+      "mfaEmailResendTooSoon": "Espera a que termine la cuenta regresiva antes de solicitar otro código.",
       "unexpected": "Ocurrió un error inesperado."
     }
   },
@@ -656,6 +660,7 @@
       "birthDate": "Fecha de nacimiento",
       "birthDateHint": "Debes ser mayor de 18 años.",
       "phone": "Celular",
+      "phonePlaceholder": "9XX XXX XXX",
       "phoneHint": "9 dígitos, empieza con 9.",
       "documentType": "Documento",
       "documentTypePlaceholder": "Tipo",
@@ -669,6 +674,11 @@
       "marketing": "Quiero recibir novedades y promociones por correo.",
       "submitting": "Creando cuenta…",
       "submit": "Crear cuenta",
+      "success": {
+        "title": "Revisa tu correo",
+        "description": "Te enviamos un enlace de verificación a {email}. Cambiar tu correo o tu teléfono después te pedirá tu contraseña.",
+        "continue": "Continuar"
+      },
       "errors": {
         "passwordLength": "La contraseña debe tener al menos 8 caracteres.",
         "passwordLong": "La contraseña no puede superar los 72 caracteres.",
@@ -713,15 +723,32 @@
     "description": "Ingresa el código de 6 dígitos de tu aplicación de autenticación.",
     "recoveryDescription": "Ingresa uno de tus códigos de recuperación. Cada código funciona una sola vez.",
     "digitAria": "Dígito {number}",
-    "expiresIn": "Este desafío vence en {time}",
-    "expired": "Este desafío ya venció",
+    "expiresIn": "Tiempo restante: {time}",
+    "expired": "Se acabó el tiempo",
     "recoveryLabel": "Código de recuperación",
     "recoveryPlaceholder": "Ingresa tu código de recuperación",
     "verifying": "Verificando…",
-    "verify": "Verificar y continuar",
+    "verify": "Verificar",
     "startAgain": "Iniciar sesión de nuevo",
-    "useRecovery": "Usar un código de recuperación",
     "useAuthenticator": "Usar la aplicación de autenticación",
+    "tryAnotherMethod": "Probar otro método",
+    "methodSelector": {
+      "title": "Prueba otro método",
+      "description": "Elige cómo quieres completar la verificación.",
+      "email": "Enviar código a mi correo",
+      "emailDescription": "Recibe un código de 6 dígitos en tu correo verificado.",
+      "emailUnavailable": "Esta opción requiere un correo verificado.",
+      "sendingEmail": "Enviando código…",
+      "recovery": "Usar código de recuperación",
+      "recoveryDescription": "Usa uno de los códigos que guardaste al activar MFA."
+    },
+    "email": {
+      "description": "Ingresa el código de 6 dígitos que enviamos a {email}.",
+      "sentTo": "Código enviado a {email}.",
+      "sending": "Enviando…",
+      "resend": "Reenviar código",
+      "resendIn": "Puedes reenviar en {seconds} s"
+    },
     "errors": {
       "generic": "No pudimos verificar el código. Inténtalo de nuevo."
     },
@@ -735,7 +762,26 @@
     "resent": "Enlace reenviado",
     "resend": "Reenviar enlace",
     "demo": "Demo — la verificación real llega con el backend de emails",
-    "goToLogin": "Ir al inicio de sesión"
+    "goToLogin": "Ir al inicio de sesión",
+    "emailChange": {
+      "pending": {
+        "title": "Confirmando tu nuevo correo",
+        "description": "Estamos validando el enlace. Esto tomará solo un momento."
+      },
+      "success": {
+        "title": "Correo actualizado",
+        "description": "Tu nuevo correo quedó confirmado. Por seguridad, inicia sesión nuevamente."
+      },
+      "expired": {
+        "title": "El enlace venció",
+        "description": "Solicita otro cambio de correo desde Seguridad de la cuenta."
+      },
+      "error": {
+        "title": "No pudimos cambiar tu correo",
+        "description": "El enlace no es válido o no pudimos procesarlo. Inténtalo nuevamente desde Seguridad de la cuenta."
+      },
+      "goToLogin": "Ir al inicio de sesión"
+    }
   },
   "onboarding": {
     "metadataTitle": "Bienvenido",
@@ -805,6 +851,48 @@
         "description": "Revisa tu conexión e inténtalo de nuevo.",
         "retry": "Reintentar"
       },
+      "contact": {
+        "title": "Correo y teléfono",
+        "description": "Administra tus datos de contacto protegidos por contraseña.",
+        "loading": "Cargando correo y teléfono",
+        "loadError": "No pudimos cargar tus datos de contacto.",
+        "retry": "Reintentar",
+        "password": "Contraseña actual",
+        "cancel": "Cancelar",
+        "continue": "Continuar",
+        "back": "Volver",
+        "sending": "Enviando…",
+        "saving": "Guardando…",
+        "done": "Entendido",
+        "email": {
+          "label": "Correo actual",
+          "verified": "Verificado",
+          "unverified": "Sin verificar",
+          "change": "Cambiar correo",
+          "dialogTitle": "Cambiar correo",
+          "dialogDescription": "Ingresa tu nuevo correo y confirma con tu contraseña actual.",
+          "newEmail": "Correo nuevo",
+          "confirmation": "Vas a cambiar tu correo de {currentEmail} a {newEmail}. Te enviaremos un enlace a {newEmail}; el cambio recién se aplica cuando lo abras.",
+          "sendLink": "Enviar enlace",
+          "sentDescription": "Enviamos el enlace de confirmación a {email}. Tu correo actual seguirá activo hasta que abras ese enlace."
+        },
+        "phone": {
+          "label": "Teléfono actual",
+          "notSet": "Sin registrar",
+          "change": "Cambiar teléfono",
+          "dialogTitle": "Cambiar teléfono",
+          "dialogDescription": "Ingresa tu nuevo celular y confirma con tu contraseña actual.",
+          "newPhone": "Celular nuevo",
+          "save": "Guardar teléfono",
+          "success": "Tu teléfono se actualizó."
+        },
+        "errors": {
+          "invalidEmail": "Ingresa un correo válido.",
+          "invalidPhone": "El teléfono debe tener 9 dígitos y empezar con 9.",
+          "passwordRequired": "Ingresa tu contraseña actual.",
+          "invalidPassword": "La contraseña actual es incorrecta."
+        }
+      },
       "errors": {
         "invalidCode": "El código no es válido. Revisa tu aplicación e inténtalo de nuevo.",
         "invalidPassword": "La contraseña es incorrecta.",
@@ -828,8 +916,8 @@
         "confirmTitle": "Confirma la configuración",
         "confirmDescription": "Ingresa el primer código de 6 dígitos que genera tu aplicación.",
         "digitAria": "Dígito {number} del código de confirmación",
-        "confirm": "Confirmar y activar",
-        "confirming": "Confirmando…",
+        "verifying": "Verificando…",
+        "verified": "Verificado",
         "errors": {
           "invalidCode": "El código no es válido. Revísalo e inténtalo de nuevo.",
           "invalidPassword": "La contraseña no es correcta.",

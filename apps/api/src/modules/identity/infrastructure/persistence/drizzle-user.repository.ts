@@ -72,6 +72,8 @@ export class DrizzleUserRepository implements UserRepository {
     const [row] = await this.db
       .update(user)
       .set({
+        email: entity.email,
+        phone: entity.phone,
         emailVerified: entity.emailVerified,
         isActive: entity.isActive,
         googleSub: entity.googleSub,

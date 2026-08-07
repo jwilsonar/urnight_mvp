@@ -51,6 +51,8 @@ const tokens: TokenService = {
   verifyRefresh: async () => ({ sub: 'x' }),
   signEmailVerification: async () => 't',
   verifyEmailVerification: async () => ({ sub: 'x' }),
+  signEmailChange: async ({ sub, newEmail }) => `email-change:${sub}:${newEmail}`,
+  verifyEmailChange: async () => ({ sub: 'x', newEmail: 'nuevo@example.test' }),
 };
 
 const assignments: RoleAssignmentRepository = {

@@ -240,7 +240,7 @@ sequenceDiagram
 ### SD-B · Outbox, relay y worker
 
 Cadena de entrega asíncrona. La usa el checkout (`send-order-tickets`) y también Identidad
-(`send-verification-email`, `send-welcome-email`).
+(`send-verification-email`, `send-welcome-email`, `send-email-change-verification`).
 
 ```mermaid
 sequenceDiagram

@@ -3,6 +3,12 @@ import { z } from 'zod';
 /** Edad mínima legal del MVP (§4.3 — solo mayores de 18). */
 export const MIN_AGE = 18;
 
+/** Celular peruano: nueve digitos y prefijo movil 9. */
+export const phoneSchema = z
+  .string()
+  .trim()
+  .regex(/^9\d{8}$/, 'Telefono invalido');
+
 /** Calcula la edad en años a partir de una fecha de nacimiento. */
 export function ageFrom(birthDate: Date, now: Date = new Date()): number {
   let age = now.getFullYear() - birthDate.getFullYear();

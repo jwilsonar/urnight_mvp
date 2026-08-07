@@ -17,6 +17,11 @@ export interface IssuedToken {
   expiresIn: number;
 }
 
+export interface EmailChangeClaims {
+  sub: string;
+  newEmail: string;
+}
+
 /**
  * Puerto secundario (ACL): emisión/verificación de JWT. La implementación
  * (@nestjs/jwt) vive en infrastructure. access corto + refresh (§1.1).
@@ -33,4 +38,6 @@ export abstract class TokenService {
   abstract verifyRefresh(token: string): Promise<{ sub: string; jti?: string }>;
   abstract signEmailVerification(userId: string): Promise<string>;
   abstract verifyEmailVerification(token: string): Promise<{ sub: string }>;
+  abstract signEmailChange(claims: EmailChangeClaims): Promise<string>;
+  abstract verifyEmailChange(token: string): Promise<EmailChangeClaims>;
 }
