@@ -11,6 +11,7 @@ import {
 import {
   InvalidMfaCodeError,
   MfaChallengeExpiredError,
+  MfaClockDriftError,
   MfaNotEnrolledError,
 } from '../../domain/errors/identity.errors';
 import { InMemoryMfaRepository } from '../services/__testing__/in-memory-mfa-repository';
@@ -104,6 +105,22 @@ describe('MFA use cases', () => {
     expect(await mfa.hasActiveFactor(user.id)).toBe(false);
   });
 
+  // Regresión: con el reloj del servidor corrido, un código correcto se
+  // rechazaba como "inválido" y no había forma de saber que el problema era la
+  // hora. Ahora el error nombra la causa.
+  it('distingue el reloj desfasado de un código equivocado al confirmar', async () => {
+    const { users, user, mfa, totp, hasher } = await build();
+    await new StartMfaEnrollmentUseCase(mfa, totp, users).execute({ userId: user.id });
+
+    await expect(
+      new ConfirmMfaEnrollmentUseCase(mfa, totp, hasher).execute({
+        userId: user.id,
+        code: totp.driftedCode,
+      }),
+    ).rejects.toBeInstanceOf(MfaClockDriftError);
+    expect(await mfa.hasActiveFactor(user.id)).toBe(false);
+  });
+
   it('un código válido emite sesión y consume el desafío', async () => {
     const { users, user, mfa, totp, issuer } = await build();
     mfa.seedActiveFactor(user.id, totp.secret);
@@ -137,6 +154,25 @@ describe('MFA use cases', () => {
         code: '000000',
       }),
     ).rejects.toBeInstanceOf(InvalidMfaCodeError);
+    expect(await mfa.findChallenge(challengeId)).not.toBeNull();
+  });
+
+  it('reporta el reloj desfasado en el login sin consumir el desafío', async () => {
+    const { users, user, mfa, totp, issuer } = await build();
+    mfa.seedActiveFactor(user.id, totp.secret);
+    const challengeId = '44444444-4444-4444-8444-444444444444';
+    await mfa.storeChallenge({
+      id: challengeId,
+      userId: user.id,
+      expiresAt: new Date(Date.now() + 300_000),
+    });
+
+    await expect(
+      new VerifyMfaChallengeUseCase(mfa, totp, users, issuer).execute({
+        challengeId,
+        code: totp.driftedCode,
+      }),
+    ).rejects.toBeInstanceOf(MfaClockDriftError);
     expect(await mfa.findChallenge(challengeId)).not.toBeNull();
   });
 

@@ -193,3 +193,35 @@ export class MfaLockedError extends DomainError {
     super('El desafío MFA fue bloqueado por demasiados intentos.');
   }
 }
+
+/**
+ * El código era el correcto para otro instante: el reloj del servidor no
+ * coincide con el del autenticador. No es culpa de quien ingresa el código, así
+ * que no se responde "código inválido" — se nombra la causa y se pide arreglar
+ * la hora del servidor.
+ */
+export class MfaClockDriftError extends DomainError {
+  readonly status = 503;
+  readonly code = IDENTITY_ERROR_CODES.MFA_CLOCK_DRIFT;
+  constructor(readonly driftSeconds: number) {
+    super(
+      `El reloj del servidor está desfasado ${Math.round(driftSeconds)} s respecto al de tu ` +
+        'autenticador. El código es correcto, pero no se puede validar hasta sincronizar la hora.',
+    );
+  }
+}
+
+/**
+ * El secreto TOTP guardado no se puede descifrar (típicamente porque cambió
+ * MFA_ENCRYPTION_KEY). El factor quedó inservible y hay que volver a enrolar.
+ */
+export class MfaFactorUnreadableError extends DomainError {
+  readonly status = 409;
+  readonly code = IDENTITY_ERROR_CODES.MFA_FACTOR_UNREADABLE;
+  constructor() {
+    super(
+      'El factor MFA guardado no se puede leer con la clave actual del servidor. ' +
+        'Hay que revocarlo y volver a enrolarlo.',
+    );
+  }
+}

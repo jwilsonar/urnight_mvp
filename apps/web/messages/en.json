@@ -579,6 +579,8 @@
       "invalidMfaCode": "That code isn't valid. Check it and try again.",
       "mfaChallengeExpired": "This challenge expired. Log in again to get a new one.",
       "mfaLocked": "You've reached the attempt limit. Please log in again later.",
+      "mfaClockDrift": "Your code is correct, but the server clock is out of sync. Let us know — this isn't your authenticator's fault.",
+      "mfaFactorUnreadable": "We couldn't read your two-step verification. It needs to be set up again from Security.",
       "unexpected": "Something unexpected happened. Please try again."
     }
   },
@@ -798,6 +800,8 @@
         "invalidPassword": "That password is incorrect.",
         "alreadyEnrolled": "Two-step verification is already active.",
         "notEnrolled": "There isn't a pending setup to confirm.",
+        "clockDrift": "Your code is correct, but the server clock is out of sync. Let us know — this isn't your authenticator.",
+        "factorUnreadable": "We couldn't read your two-step setup. Turn it off and set it up again.",
         "generic": "We couldn't complete that action. Please try again."
       },
       "enrollment": {
@@ -821,6 +825,8 @@
           "invalidPassword": "That password isn't correct.",
           "alreadyEnrolled": "Two-step verification is already on.",
           "notEnrolled": "You haven't turned on two-step verification yet.",
+          "clockDrift": "Your code is correct, but the server clock is out of sync. Let us know — this isn't your authenticator.",
+          "factorUnreadable": "We couldn't read your two-step setup. Turn it off and set it up again.",
           "generic": "We couldn't complete the operation. Please try again."
         }
       },
@@ -847,6 +853,8 @@
           "invalidPassword": "That password isn't correct.",
           "alreadyEnrolled": "Two-step verification is already on.",
           "notEnrolled": "You haven't turned on two-step verification yet.",
+          "clockDrift": "Your code is correct, but the server clock is out of sync. Let us know — this isn't your authenticator.",
+          "factorUnreadable": "We couldn't read your two-step setup. Turn it off and set it up again.",
           "generic": "We couldn't complete the operation. Please try again."
         }
       },
