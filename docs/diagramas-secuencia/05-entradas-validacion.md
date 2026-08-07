@@ -345,6 +345,9 @@ sequenceDiagram
                         PG-->>U: alerta destructiva "no pudimos cargar las entradas"
                     else entradas cargadas
                         EDGE-->>PG: 200 OK · TicketTypeResponse[]
+                        PG->>FET: getLocals() con catch a lista vacía
+                        FET-->>PG: LocalResponse[] · se busca el que coincide con event.localId
+                        note over PG, FET: El nombre y la dirección del local se muestran junto al<br/>evento: al pagar no había forma de confirmar a dónde se va.<br/>Es dato secundario, si falla la compra sigue. Se resuelve<br/>listando por la misma deuda D1 de la ficha de evento.
 
                         note over PG, EDGE: Fase 3 · Código de promotor en la URL
                         opt viene ?code=
