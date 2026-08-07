@@ -1,10 +1,21 @@
 import { z } from 'zod';
-import { adultBirthDateSchema, documentNumberSchema } from '../common/rules';
+import {
+  DOCUMENT_TYPES,
+  adultBirthDateSchema,
+  documentNumberSchema,
+  fullNameSchema,
+  isValidDocumentNumber,
+  peruMobileSchema,
+} from '../common/rules';
 
-/** Tipo de documento (§4.1 DocumentType). varchar+CHECK en DB, lowercase canónico. */
-export const DOCUMENT_TYPES = ['dni', 'ce', 'passport'] as const;
+/**
+ * Tipo de documento (§4.1 DocumentType). varchar+CHECK en DB, lowercase
+ * canónico. La lista vive en `common/rules` junto al largo de cada documento,
+ * para que el tipo y su validación no puedan separarse.
+ */
+export { DOCUMENT_TYPES };
+export type { DocumentType } from '../common/rules';
 export const documentTypeSchema = z.enum(DOCUMENT_TYPES);
-export type DocumentType = z.infer<typeof documentTypeSchema>;
 
 /** Proveedor de autenticación (§4.1 AuthProvider). */
 export const AUTH_PROVIDERS = ['email', 'google'] as const;
@@ -21,20 +32,36 @@ const password = z
   .regex(/[a-z]/, 'La contraseña debe incluir al menos una letra minúscula')
   .regex(/\d/, 'La contraseña debe incluir al menos un número')
   .regex(/[^A-Za-z0-9\s]/, 'La contraseña debe incluir al menos un símbolo');
-const fullName = z.string().trim().min(2).max(120);
-const phone = z.string().trim().min(6).max(20).optional();
+const fullName = fullNameSchema;
+const phone = peruMobileSchema.optional();
 
-/** Registro con email+contraseña (§4.1 + invariante 18+). */
-export const registerSchema = z.object({
-  fullName,
-  email,
-  password,
-  birthDate: adultBirthDateSchema,
-  documentType: documentTypeSchema,
-  documentNumber: documentNumberSchema,
-  phone,
-  acceptsMarketing: z.boolean().default(false),
-});
+/**
+ * Registro con email+contraseña (§4.1 + invariante 18+).
+ *
+ * El número de documento se valida contra su propio tipo en un `superRefine`:
+ * el largo de un DNI no es el de un pasaporte, y aceptar cualquier cosa de 8 a
+ * 20 caracteres dejaba pasar documentos que en la puerta no cuadran.
+ */
+export const registerSchema = z
+  .object({
+    fullName,
+    email,
+    password,
+    birthDate: adultBirthDateSchema,
+    documentType: documentTypeSchema,
+    documentNumber: documentNumberSchema,
+    phone,
+    acceptsMarketing: z.boolean().default(false),
+  })
+  .superRefine((value, ctx) => {
+    if (!isValidDocumentNumber(value.documentType, value.documentNumber)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['documentNumber'],
+        message: 'El número no corresponde al tipo de documento',
+      });
+    }
+  });
 export type RegisterDto = z.infer<typeof registerSchema>;
 
 /** Login email+contraseña. */
