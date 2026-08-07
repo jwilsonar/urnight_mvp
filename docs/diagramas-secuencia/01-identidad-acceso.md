@@ -971,6 +971,7 @@ sequenceDiagram
     EDGE-->>AD: 201 Created · PromoterResponse { id, status pending }
 
     note over PR, UCP: Fase 2 · Bandeja de invitaciones de la persona invitada
+    note over PR, ACC: A esta ruta ya no se llega desde el menú de la cuenta: se<br/>entra por la notificación o por el correo. La invitación es un<br/>aviso puntual, no una sección que se visite.
     PR->>ACC: GET /account/invitaciones
     ACC->>EDGE: GET /api/v1/promoters/me/associations · Bearer
     EDGE->>UCP: ListPendingAssociationsUseCase.execute({ actorUserId, actorEmail })
