@@ -22,6 +22,22 @@ export const adultBirthDateSchema = z
     message: `Debe ser mayor de ${MIN_AGE} años`,
   });
 
+/** Piso razonable para un selector de fecha de nacimiento. */
+export const MIN_BIRTH_DATE = '1900-01-01';
+
+/**
+ * Última fecha de nacimiento que ya cumple los 18, en formato `YYYY-MM-DD`.
+ * Sirve como `max` de los `input[type=date]`: así el calendario no ofrece
+ * fechas futuras ni de menores de edad, en vez de aceptarlas y reprocharlas
+ * después.
+ */
+export function maxAdultBirthDate(now: Date = new Date()): string {
+  const limit = new Date(
+    Date.UTC(now.getUTCFullYear() - MIN_AGE, now.getUTCMonth(), now.getUTCDate()),
+  );
+  return limit.toISOString().slice(0, 10);
+}
+
 /**
  * Número de documento genérico: 8–20 alfanumérico. Se mantiene para los sitios
  * que aún no conocen el tipo; cuando el tipo está disponible hay que usar

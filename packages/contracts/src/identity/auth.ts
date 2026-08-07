@@ -42,26 +42,35 @@ const phone = peruMobileSchema.optional();
  * el largo de un DNI no es el de un pasaporte, y aceptar cualquier cosa de 8 a
  * 20 caracteres dejaba pasar documentos que en la puerta no cuadran.
  */
-export const registerSchema = z
-  .object({
-    fullName,
-    email,
-    password,
-    birthDate: adultBirthDateSchema,
-    documentType: documentTypeSchema,
-    documentNumber: documentNumberSchema,
-    phone,
-    acceptsMarketing: z.boolean().default(false),
-  })
-  .superRefine((value, ctx) => {
-    if (!isValidDocumentNumber(value.documentType, value.documentNumber)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['documentNumber'],
-        message: 'El número no corresponde al tipo de documento',
-      });
-    }
-  });
+export const registerObjectSchema = z.object({
+  fullName,
+  email,
+  password,
+  birthDate: adultBirthDateSchema,
+  documentType: documentTypeSchema,
+  documentNumber: documentNumberSchema,
+  phone,
+  acceptsMarketing: z.boolean().default(false),
+});
+
+/**
+ * Valida que el número corresponda a su tipo de documento. Se expone aparte del
+ * esquema para que los formularios puedan extender `registerObjectSchema` con
+ * sus propios mensajes y seguir aplicando exactamente esta regla.
+ */
+export function refineDocumentPair(
+  value: { documentType: z.infer<typeof documentTypeSchema>; documentNumber: string },
+  ctx: z.RefinementCtx,
+  message = 'El número no corresponde al tipo de documento',
+): void {
+  if (!isValidDocumentNumber(value.documentType, value.documentNumber)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['documentNumber'], message });
+  }
+}
+
+export const registerSchema = registerObjectSchema.superRefine((value, ctx) =>
+  refineDocumentPair(value, ctx),
+);
 export type RegisterDto = z.infer<typeof registerSchema>;
 
 /** Login email+contraseña. */
