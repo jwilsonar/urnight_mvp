@@ -1,7 +1,18 @@
 import { z } from 'zod';
 
-/** Códigos de rol RBAC del MVP (§4.1 RoleCode). lowercase canónico (varchar+CHECK). */
-export const ROLE_CODES = ['user', 'admin_local', 'promoter', 'validator', 'super_admin'] as const;
+/**
+ * Códigos de rol RBAC del MVP (§4.1 RoleCode). lowercase canónico (varchar+CHECK).
+ * `staff` es la barra del local: opera los pedidos in-venue y lee la carta.
+ * Debe coincidir con el CHECK `role_code_check` de `packages/db`.
+ */
+export const ROLE_CODES = [
+  'user',
+  'admin_local',
+  'promoter',
+  'validator',
+  'staff',
+  'super_admin',
+] as const;
 export const roleCodeSchema = z.enum(ROLE_CODES);
 export type RoleCode = z.infer<typeof roleCodeSchema>;
 

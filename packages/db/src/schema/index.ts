@@ -9,3 +9,4 @@ export * from './trust';
 export * from './ops';
 export * from './outbox';
 export * from './menu';
+export * from './orders-in-venue';

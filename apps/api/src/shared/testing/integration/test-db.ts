@@ -116,9 +116,15 @@ export async function truncateAll(client: DbClient): Promise<void> {
   // test y la consulta a pg_tables se pagaba cientos de veces por suite.
   let statement = truncateStatements.get(client);
   if (statement === undefined) {
+    // ORDER BY no es cosmético: TRUNCATE toma un ACCESS EXCLUSIVE por tabla en
+    // el orden de la lista, y pg_tables devuelve un orden arbitrario. Dos
+    // clientes con listas en distinto orden se bloquean en cruz y Postgres mata
+    // a uno con "deadlock detected". Ordenar por nombre da a todos el mismo
+    // orden de adquisición.
     const rows = await client.sql<{ tablename: string }[]>`
       SELECT tablename FROM pg_tables
-      WHERE schemaname = 'public' AND tablename <> '__drizzle_migrations'`;
+      WHERE schemaname = 'public' AND tablename <> '__drizzle_migrations'
+      ORDER BY tablename`;
     if (rows.length === 0) return;
     const list = rows.map((r) => `"${r.tablename}"`).join(', ');
     statement = `TRUNCATE ${list} RESTART IDENTITY CASCADE`;
