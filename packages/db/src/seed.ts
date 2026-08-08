@@ -402,6 +402,11 @@ async function main() {
     notification,
     analyticsEvent,
     pilotFeedback,
+    menuCategory,
+    menuProduct,
+    menuProductPrice,
+    localOrderWindow,
+    localPolicy,
   } = schema;
 
   // ── 1. Identity, Access & Legal ───────────────────────────────────────────
@@ -1312,6 +1317,77 @@ async function main() {
     { userId: null, localId: L.a1, source: 'local', area: 'door', score: 8, comment: 'El validador agiliza el ingreso, pero falla sin internet.', linkedIssueRef: 'JIRA-UN-142' },
     { userId: U.mateo, localId: null, source: 'user', area: 'payment', score: 6, comment: 'Me gustaría pagar con Yape directo sin redirección.', linkedIssueRef: 'JIRA-UN-150' },
     { userId: U.carlos, localId: L.a2, source: 'user', area: 'other', score: 7, comment: 'Faltan más fotos de los locales.', linkedIssueRef: null },
+  ]);
+
+  // ── 9. Carta in-venue ─────────────────────────────────────────────────────
+  // La carta de Nocturna Club (L.a1), que es el local con el que se demuestra
+  // todo. Sin esto las pantallas de carta y pedidos salen vacías.
+  console.log('→ Carta in-venue (categorías, productos, precios, horario)...');
+
+  const MC = { cocteles: uid(), botellas: uid(), cervezas: uid(), piqueos: uid() };
+  await db.insert(menuCategory).values([
+    { id: MC.cocteles, localId: L.a1, name: 'Cócteles', displayOrder: 1, isActive: true },
+    { id: MC.botellas, localId: L.a1, name: 'Botellas', displayOrder: 2, isActive: true },
+    { id: MC.cervezas, localId: L.a1, name: 'Cervezas', displayOrder: 3, isActive: true },
+    { id: MC.piqueos, localId: L.a1, name: 'Piqueos', displayOrder: 4, isActive: true },
+  ]);
+
+  // `amount` va como string: numeric(10,2) en Postgres no es un float de JS.
+  const menuSeed: {
+    categoryId: string;
+    name: string;
+    description: string;
+    amount: string;
+    isAvailable: boolean;
+    tags: string[];
+  }[] = [
+    { categoryId: MC.cocteles, name: 'Pisco Sour', description: 'Pisco quebranta, limón, jarabe y amargo de angostura.', amount: '28.00', isAvailable: true, tags: ['popular'] },
+    { categoryId: MC.cocteles, name: 'Chilcano de Maracuyá', description: 'Pisco, ginger ale y pulpa de maracuyá.', amount: '26.00', isAvailable: true, tags: ['especialidad'] },
+    { categoryId: MC.cocteles, name: 'Laguna Azul', description: 'Vodka, curaçao azul y limón.', amount: '27.00', isAvailable: false, tags: ['nuevo'] },
+    { categoryId: MC.botellas, name: 'Botella Vodka Premium', description: 'Incluye 4 energizantes e hielo para la mesa.', amount: '280.00', isAvailable: true, tags: ['popular'] },
+    { categoryId: MC.botellas, name: 'Champagne Brut', description: 'Incluye copas para toda la mesa.', amount: '420.00', isAvailable: true, tags: ['especialidad'] },
+    { categoryId: MC.cervezas, name: 'Balde de Cervezas ×6', description: 'Seis clásicas en hielo, para compartir.', amount: '70.00', isAvailable: true, tags: ['popular', '2x1'] },
+    { categoryId: MC.cervezas, name: 'Cerveza Artesanal IPA', description: 'IPA local de barril, 473 ml.', amount: '18.00', isAvailable: true, tags: ['nuevo'] },
+    { categoryId: MC.piqueos, name: 'Tequeños ×8', description: 'Rellenos de queso con guacamole de la casa.', amount: '24.00', isAvailable: true, tags: ['popular'] },
+    { categoryId: MC.piqueos, name: 'Alitas BBQ ×10', description: 'Bañadas en salsa BBQ ahumada.', amount: '32.00', isAvailable: true, tags: [] },
+  ];
+
+  const menuProductRows = menuSeed.map((item) => ({
+    id: uid(),
+    categoryId: item.categoryId,
+    name: item.name,
+    description: item.description,
+    imageKey: null,
+    isAvailable: item.isAvailable,
+    tags: item.tags,
+  }));
+  await db.insert(menuProduct).values(menuProductRows);
+
+  // Un solo precio vigente por producto (valid_to null): lo exige el índice
+  // único parcial idx_menu_product_price_product_current.
+  await db.insert(menuProductPrice).values(
+    menuProductRows.map((row, i) => ({
+      productId: row.id,
+      amount: menuSeed[i]!.amount,
+      currency: 'PEN',
+      validFrom: daysFromNow(-30),
+      validTo: null,
+    })),
+  );
+
+  // Jueves a sábado de 22:00 a 03:00: la ventana cruza medianoche a propósito,
+  // que es como cierra un local de verdad.
+  await db.insert(localOrderWindow).values(
+    [4, 5, 6].map((dayOfWeek) => ({
+      localId: L.a1,
+      dayOfWeek,
+      startsAt: '22:00',
+      endsAt: '03:00',
+    })),
+  );
+
+  await db.insert(localPolicy).values([
+    { localId: L.a1, reservationDepositPercent: 30, birthdayWindowDays: 1 },
   ]);
 
   // ── Resumen ───────────────────────────────────────────────────────────────

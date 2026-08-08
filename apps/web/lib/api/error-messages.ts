@@ -1,4 +1,8 @@
-import { IDENTITY_ERROR_CODES } from "@urnight/contracts";
+import {
+  IDENTITY_ERROR_CODES,
+  MENU_ERROR_CODES,
+  ORDERS_ERROR_CODES,
+} from "@urnight/contracts";
 import { ApiError } from "./client";
 
 export type ErrorMessageKey =
@@ -29,6 +33,22 @@ export type ErrorMessageKey =
   | "invalidMfaEmailCode"
   | "mfaEmailCodeExpired"
   | "mfaEmailResendTooSoon"
+  | "menuLocalNotFound"
+  | "menuCategoryNotFound"
+  | "menuProductNotFound"
+  | "menuPriceNotFound"
+  | "menuOrderWindowInvalid"
+  | "menuDepositPercentInvalid"
+  | "ordersLocalNotFound"
+  | "orderNotFound"
+  | "invalidOrderStatusTransition"
+  | "orderStatusAdvanceForbidden"
+  | "orderAlreadyPaid"
+  | "paymentRejected"
+  | "orderSplitNotFound"
+  | "orderSplitOverpaid"
+  | "orderWindowClosed"
+  | "orderProductUnavailable"
   | "unexpected";
 
 export type ErrorMessageTranslator = (key: ErrorMessageKey) => string;
@@ -50,9 +70,28 @@ const CODE_MESSAGE_KEYS: Record<string, ErrorMessageKey> = {
   [IDENTITY_ERROR_CODES.MFA_EMAIL_CODE_INVALID]: "invalidMfaEmailCode",
   [IDENTITY_ERROR_CODES.MFA_EMAIL_CODE_EXPIRED]: "mfaEmailCodeExpired",
   [IDENTITY_ERROR_CODES.MFA_EMAIL_RESEND_TOO_SOON]: "mfaEmailResendTooSoon",
+  [MENU_ERROR_CODES.LOCAL_NOT_FOUND]: "menuLocalNotFound",
+  [MENU_ERROR_CODES.CATEGORY_NOT_FOUND]: "menuCategoryNotFound",
+  [MENU_ERROR_CODES.PRODUCT_NOT_FOUND]: "menuProductNotFound",
+  [MENU_ERROR_CODES.PRICE_NOT_FOUND]: "menuPriceNotFound",
+  [MENU_ERROR_CODES.ORDER_WINDOW_INVALID]: "menuOrderWindowInvalid",
+  [MENU_ERROR_CODES.DEPOSIT_PERCENT_INVALID]: "menuDepositPercentInvalid",
+  [ORDERS_ERROR_CODES.LOCAL_NOT_FOUND]: "ordersLocalNotFound",
+  [ORDERS_ERROR_CODES.ORDER_NOT_FOUND]: "orderNotFound",
+  [ORDERS_ERROR_CODES.INVALID_STATUS_TRANSITION]:
+    "invalidOrderStatusTransition",
+  [ORDERS_ERROR_CODES.STATUS_ADVANCE_FORBIDDEN]:
+    "orderStatusAdvanceForbidden",
+  [ORDERS_ERROR_CODES.ORDER_ALREADY_PAID]: "orderAlreadyPaid",
+  [ORDERS_ERROR_CODES.PAYMENT_REJECTED]: "paymentRejected",
+  [ORDERS_ERROR_CODES.SPLIT_NOT_FOUND]: "orderSplitNotFound",
+  [ORDERS_ERROR_CODES.SPLIT_OVERPAID]: "orderSplitOverpaid",
+  [ORDERS_ERROR_CODES.ORDER_WINDOW_CLOSED]: "orderWindowClosed",
+  [ORDERS_ERROR_CODES.PRODUCT_UNAVAILABLE]: "orderProductUnavailable",
 };
 
 const STATUS_MESSAGE_KEYS: Record<number, ErrorMessageKey> = {
+  402: "paymentRejected",
   401: "unauthorized",
   403: "forbidden",
   404: "notFound",
@@ -83,6 +122,25 @@ const FALLBACK_ES: Record<ErrorMessageKey, string> = {
     "Espera a que termine la cuenta regresiva antes de solicitar otro código.",
   mfaChallengePending:
     "Completa la verificación en dos pasos para continuar.",
+  menuLocalNotFound: "No encontramos el local de esta carta.",
+  menuCategoryNotFound: "No encontramos esa categoría de la carta.",
+  menuProductNotFound: "No encontramos ese producto en la carta.",
+  menuPriceNotFound: "Ese producto no tiene un precio vigente.",
+  menuOrderWindowInvalid: "El horario de pedidos configurado no es válido.",
+  menuDepositPercentInvalid: "El porcentaje configurado no es válido.",
+  ordersLocalNotFound: "No encontramos el local para crear el pedido.",
+  orderNotFound: "No encontramos tu pedido.",
+  invalidOrderStatusTransition:
+    "El pedido no puede avanzar al estado solicitado.",
+  orderStatusAdvanceForbidden:
+    "No tienes permiso para cambiar el estado del pedido.",
+  orderAlreadyPaid: "Este pedido ya fue pagado.",
+  paymentRejected: "No pudimos completar el pago. Prueba otro método.",
+  orderSplitNotFound: "No encontramos la cuenta dividida.",
+  orderSplitOverpaid: "El pago supera el saldo pendiente.",
+  orderWindowClosed: "El local no acepta pedidos en este horario.",
+  orderProductUnavailable:
+    "Uno de los productos ya no está disponible. Revisa tu pedido.",
   invalidCredentials: "Correo o contraseña incorrectos.",
   underage: "Debes ser mayor de 18 años para registrarte.",
   emailAlreadyRegistered: "Ese correo ya está registrado.",
