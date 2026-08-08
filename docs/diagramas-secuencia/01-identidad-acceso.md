@@ -879,7 +879,9 @@ sequenceDiagram
 
 ## 9. Bloque 4 · RBAC, acceso y seguridad de la cuenta
 
-Roles del sistema: `super_admin`, `admin_local`, `promoter`, `validator`, `user`.
+Roles del sistema: `super_admin`, `admin_local`, `promoter`, `validator`, `staff`, `user`.
+`staff` es la barra del local: opera los pedidos in-venue y lee la carta. La lista vive en
+`ROLE_CODES` (`@urnight/contracts`) y debe coincidir con el CHECK `role_code_check` de la base.
 `super_admin` atraviesa el `RolesGuard` sin restricción; el aislamiento fino por empresa lo aplica
 cada caso de uso con `assertTenant(scope, resourceCompanyId)`.
 
