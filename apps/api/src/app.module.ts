@@ -17,6 +17,7 @@ import { EventsModule } from './modules/events/events.module';
 import { IdentityModule } from './modules/identity/identity.module';
 import { MenuModule } from './modules/menu/menu.module';
 import { OpsModule } from './modules/ops/ops.module';
+import { OrdersModule } from './modules/orders/orders.module';
 import { PromotersModule } from './modules/promoters/promoters.module';
 import { TicketingModule } from './modules/ticketing/ticketing.module';
 import { TrustModule } from './modules/trust/trust.module';
@@ -43,6 +44,7 @@ import { SharedModule } from './shared/shared.module';
     CatalogModule,
     CompaniesModule,
     MenuModule,
+    OrdersModule,
     EventsModule,
     TicketingModule,
     PromotersModule,

@@ -1,7 +1,13 @@
 import { SetMetadata } from '@nestjs/common';
 
-/** Roles RBAC del MVP (§5). */
-export type Role = 'user' | 'admin_local' | 'promoter' | 'validator' | 'super_admin';
+/** Roles RBAC del MVP (§5). Espejo de `ROLE_CODES` en `@urnight/contracts`. */
+export type Role =
+  | 'user'
+  | 'admin_local'
+  | 'promoter'
+  | 'validator'
+  | 'staff'
+  | 'super_admin';
 
 export const ROLES_KEY = 'roles';
 

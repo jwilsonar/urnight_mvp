@@ -7,6 +7,7 @@ import { registerMenuDocs } from '../modules/menu/interfaces/http/menu.openapi';
 import { registerPromotersDocs } from '../modules/promoters/interfaces/http/promoters.openapi';
 import { registerCheckoutDocs } from '../modules/ticketing/interfaces/http/checkout.openapi';
 import { registerOpsDocs } from '../modules/ops/interfaces/http/ops.openapi';
+import { registerOrdersDocs } from '../modules/orders/interfaces/http/orders.openapi';
 import { registerTrustDocs } from '../modules/trust/interfaces/http/trust.openapi';
 import { registry } from './registry';
 
@@ -26,6 +27,7 @@ export function buildOpenApiDocument() {
   registerMenuDocs();
   registerEventsDocs();
   registerCheckoutDocs();
+  registerOrdersDocs();
   registerPromotersDocs();
   registerTrustDocs();
   registerOpsDocs();

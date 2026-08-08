@@ -12,3 +12,4 @@ export * from './trust';
 export * from './ops';
 export * from './uploads';
 export * from './menu';
+export * from './orders';

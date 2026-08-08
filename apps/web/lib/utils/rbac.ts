@@ -20,15 +20,22 @@ const ROLE_PRIORITY = [
   'admin_local',
   'promoter',
   'validator',
+  'staff',
   'user',
 ] as const satisfies readonly RoleCode[];
 
-/** Ruta "home" de cada rol. `user` aterriza en el home consumidor. */
+/**
+ * Ruta "home" de cada rol. `user` aterriza en el home consumidor.
+ * `staff` (barra) todavía no tiene panel propio: su cola de pedidos llega con la
+ * parte web de pedidos in-venue y ahí pasa a `/panel/barra`. Hasta entonces va
+ * al home, que existe, en vez de a una ruta que daría 404.
+ */
 export const ROLE_HOME = {
   super_admin: '/panel/superadmin',
   admin_local: '/panel/admin',
   promoter: '/panel/promoter',
   validator: '/panel/validator',
+  staff: '/',
   user: '/',
 } as const satisfies Record<RoleCode, string>;
 
@@ -38,6 +45,7 @@ export const ROLE_PANEL_LABEL = {
   admin_local: 'Panel de local',
   promoter: 'Panel de promotor',
   validator: 'Panel de validador',
+  staff: 'Barra',
   user: 'Mi cuenta',
 } as const satisfies Record<RoleCode, string>;
 
