@@ -15,6 +15,7 @@ import { CatalogModule } from './modules/catalog/catalog.module';
 import { CompaniesModule } from './modules/companies/companies.module';
 import { EventsModule } from './modules/events/events.module';
 import { IdentityModule } from './modules/identity/identity.module';
+import { MenuModule } from './modules/menu/menu.module';
 import { OpsModule } from './modules/ops/ops.module';
 import { PromotersModule } from './modules/promoters/promoters.module';
 import { TicketingModule } from './modules/ticketing/ticketing.module';
@@ -41,6 +42,7 @@ import { SharedModule } from './shared/shared.module';
     IdentityModule,
     CatalogModule,
     CompaniesModule,
+    MenuModule,
     EventsModule,
     TicketingModule,
     PromotersModule,

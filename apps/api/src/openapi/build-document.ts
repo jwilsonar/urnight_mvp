@@ -3,6 +3,7 @@ import { registerCatalogDocs } from '../modules/catalog/interfaces/http/catalog.
 import { registerCompaniesDocs } from '../modules/companies/interfaces/http/companies.openapi';
 import { registerEventsDocs } from '../modules/events/interfaces/http/events.openapi';
 import { registerIdentityDocs } from '../modules/identity/interfaces/http/identity.openapi';
+import { registerMenuDocs } from '../modules/menu/interfaces/http/menu.openapi';
 import { registerPromotersDocs } from '../modules/promoters/interfaces/http/promoters.openapi';
 import { registerCheckoutDocs } from '../modules/ticketing/interfaces/http/checkout.openapi';
 import { registerOpsDocs } from '../modules/ops/interfaces/http/ops.openapi';
@@ -22,6 +23,7 @@ export function buildOpenApiDocument() {
   registerCatalogDocs();
   registerIdentityDocs();
   registerCompaniesDocs();
+  registerMenuDocs();
   registerEventsDocs();
   registerCheckoutDocs();
   registerPromotersDocs();

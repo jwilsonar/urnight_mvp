@@ -128,7 +128,7 @@ export const role = pgTable(
     uniqueIndex('idx_role_code').on(t.code),
     check(
       'role_code_check',
-      sql`${t.code} in ('user','admin_local','promoter','validator','super_admin')`,
+      sql`${t.code} in ('user','admin_local','promoter','validator','staff','super_admin')`,
     ),
   ],
 );

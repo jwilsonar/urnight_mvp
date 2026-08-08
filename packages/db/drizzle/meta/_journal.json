@@ -127,6 +127,13 @@
       "when": 1785931975192,
       "tag": "0017_giant_next_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1786146134340,
+      "tag": "0018_calm_pestilence",
+      "breakpoints": true
     }
   ]
 }

@@ -11,3 +11,4 @@ export * from './promoters';
 export * from './trust';
 export * from './ops';
 export * from './uploads';
+export * from './menu';
