@@ -407,12 +407,13 @@ async function main() {
   // ── 1. Identity, Access & Legal ───────────────────────────────────────────
   console.log('→ Identity (users, roles, legal)...');
 
-  // Roles (5 del RBAC, §5)
+  // Roles (6 del RBAC, §5)
   const roleId = {
     user: uid(),
     admin_local: uid(),
     promoter: uid(),
     validator: uid(),
+    staff: uid(),
     super_admin: uid(),
   };
   await db.insert(role).values([
@@ -443,6 +444,13 @@ async function main() {
       name: 'Validador de Puerta',
       description: 'Escanea QR en el ingreso del evento',
       permissions: { qr: ['validate'] },
+    },
+    {
+      id: roleId.staff,
+      code: 'staff',
+      name: 'Personal de Barra',
+      description: 'Opera la barra y la atención de pedidos del local',
+      permissions: { menu: ['read'], local_order: ['read', 'write'] },
     },
     {
       id: roleId.user,
@@ -488,6 +496,7 @@ async function main() {
     promoterA: uid(),
     promoterB: uid(),
     validatorA: uid(),
+    staffA: uid(),
     validatorB: uid(),
     sofia: uid(),
     mateo: uid(),
@@ -504,6 +513,7 @@ async function main() {
     mkUser({ id: U.promoterA, fullName: 'Andrea Flores', email: 'promoter@urnight.pe', docType: 'dni', docNumber: '40000004', birthDate: '1995-05-30', phone: '+51999000004' }),
     mkUser({ id: U.promoterB, fullName: 'Luis Quispe', email: 'promoter2@urnight.pe', docType: 'dni', docNumber: '40000010', birthDate: '1997-01-12', phone: '+51999000010' }),
     mkUser({ id: U.validatorA, fullName: 'José Ramírez', email: 'validator@urnight.pe', docType: 'dni', docNumber: '40000005', birthDate: '1993-09-08', phone: '+51999000005' }),
+    mkUser({ id: U.staffA, fullName: 'Marco Silva', email: 'staff@urnight.pe', docType: 'dni', docNumber: '40000014', birthDate: '1991-09-18', phone: '+51999000014' }),
     mkUser({ id: U.validatorB, fullName: 'María Torres', email: 'validator2@urnight.pe', docType: 'dni', docNumber: '40000011', birthDate: '1996-04-19', phone: '+51999000011' }),
     mkUser({ id: U.sofia, fullName: 'Sofía Castro', email: 'user@urnight.pe', docType: 'dni', docNumber: '40000006', birthDate: '1998-02-14', phone: '+51999000006' }),
     mkUser({ id: U.mateo, fullName: 'Mateo Rojas', email: 'user2@urnight.pe', docType: 'dni', docNumber: '40000007', birthDate: '1999-12-01', phone: '+51999000007' }),
@@ -625,6 +635,7 @@ async function main() {
     { userId: U.promoterA, roleId: roleId.promoter, companyId: C.a, localId: L.a1, grantedBy: U.ownerA },
     { userId: U.promoterB, roleId: roleId.promoter, companyId: C.b, localId: L.b1, grantedBy: U.ownerB },
     { userId: U.validatorA, roleId: roleId.validator, companyId: C.a, localId: L.a1, grantedBy: U.ownerA },
+    { userId: U.staffA, roleId: roleId.staff, companyId: C.a, localId: L.a1, grantedBy: U.ownerA },
     { userId: U.validatorB, roleId: roleId.validator, companyId: C.b, localId: L.b1, grantedBy: U.ownerB },
     // Todos los consumidores tienen el rol base 'user'.
     ...[U.sofia, U.mateo, U.valentina, U.lucia, U.carlos, U.daniela].map((id) => ({
@@ -1332,6 +1343,7 @@ async function main() {
     { rol: 'promoter', email: 'promoter@urnight.pe', nombre: 'Andrea Flores', scope: 'Nocturna Club · ANDREA10' },
     { rol: 'promoter', email: 'promoter2@urnight.pe', nombre: 'Luis Quispe', scope: 'Barranco Beats · LUISVIP' },
     { rol: 'validator', email: 'validator@urnight.pe', nombre: 'José Ramírez', scope: 'Nocturna Club' },
+    { rol: 'staff', email: 'staff@urnight.pe', nombre: 'Marco Silva', scope: 'Nocturna Club' },
     { rol: 'validator', email: 'validator2@urnight.pe', nombre: 'María Torres', scope: 'Barranco Beats' },
     { rol: 'user', email: 'user@urnight.pe', nombre: 'Sofía Castro', scope: 'consumidor (con compras+reviews)' },
     { rol: 'user', email: 'user2@urnight.pe', nombre: 'Mateo Rojas', scope: 'consumidor (con compras)' },

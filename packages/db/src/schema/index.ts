@@ -8,3 +8,4 @@ export * from './promoters';
 export * from './trust';
 export * from './ops';
 export * from './outbox';
+export * from './menu';
