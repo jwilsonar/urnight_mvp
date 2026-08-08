@@ -106,6 +106,17 @@ export class User {
     this.touch();
   }
 
+  changeEmail(email: string): void {
+    this.props.email = email.trim().toLowerCase();
+    this.props.emailVerified = true;
+    this.touch();
+  }
+
+  changePhone(phone: string): void {
+    this.props.phone = phone.trim();
+    this.touch();
+  }
+
   recordLogin(at: Date = new Date()): void {
     this.props.lastLoginAt = at;
     this.touch();

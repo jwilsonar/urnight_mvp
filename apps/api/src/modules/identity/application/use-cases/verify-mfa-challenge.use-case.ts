@@ -1,10 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { createLogger } from '../../../../shared/logging/logger';
 import {
-  AccountDisabledError,
   MfaChallengeExpiredError,
   MfaNotEnrolledError,
-  UserNotFoundError,
 } from '../../domain/errors/identity.errors';
 import {
   MFA_REPOSITORY,
@@ -12,6 +10,7 @@ import {
 } from '../../domain/ports/mfa.repository';
 import { TOTP_PORT, type TotpPort } from '../../domain/ports/totp.port';
 import { USER_REPOSITORY, type UserRepository } from '../../domain/ports/user.repository';
+import { completeMfaSession } from '../services/complete-mfa-session';
 import { TokenIssuer, type AuthResult } from '../services/token-issuer.service';
 import { assertTotpCode } from '../services/totp-verification';
 
@@ -37,14 +36,13 @@ export class VerifyMfaChallengeUseCase {
       code: input.code,
     });
 
-    const consumed = await this.mfa.consumeChallenge(challenge.id, challenge.userId);
-    if (!consumed) throw new MfaChallengeExpiredError();
-    const user = await this.users.findById(challenge.userId);
-    if (!user) throw new UserNotFoundError();
-    if (!user.isActive) throw new AccountDisabledError();
-    await this.mfa.markFactorUsed(factor.id, new Date());
-    const result = await this.issuer.issueFor(user);
-    this.log.info({ userId: user.id }, 'identity.mfa.verified');
+    const result = await completeMfaSession(challenge, {
+      mfa: this.mfa,
+      users: this.users,
+      issuer: this.issuer,
+      factorId: factor.id,
+    });
+    this.log.info({ userId: challenge.userId }, 'identity.mfa.verified');
     return result;
   }
 }

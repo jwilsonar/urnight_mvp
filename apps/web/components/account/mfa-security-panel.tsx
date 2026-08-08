@@ -19,6 +19,7 @@ import {
 } from "@urnight/ui";
 import { getMfaStatus } from "@/lib/api/mfa";
 import { queryKeys } from "@/lib/api/query-keys";
+import { ContactSecurityCard } from "./contact-security-card";
 import { MfaEnabledCard } from "./mfa-enabled-card";
 import { MfaEnrollmentFlow } from "./mfa-enrollment-flow";
 import { MfaRecoveryCodes } from "./mfa-recovery-codes";
@@ -80,6 +81,8 @@ export function MfaSecurityPanel() {
           <AlertDescription>{t("refreshFailed")}</AlertDescription>
         </Alert>
       ) : null}
+
+      <ContactSecurityCard />
 
       {sessionStatus === "loading" || statusQuery.isPending ? (
         <Card aria-busy="true" aria-label={t("loading")}>

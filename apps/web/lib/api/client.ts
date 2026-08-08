@@ -141,8 +141,8 @@ export async function apiFetchResponse<T>(
     );
     throw new ApiError(problem);
   }
-  const data =
-    res.status === 204 ? (undefined as T) : ((await res.json()) as T);
+  const body = res.status === 204 ? "" : await res.text();
+  const data = body ? (JSON.parse(body) as T) : (undefined as T);
   return { data, headers: res.headers, status: res.status };
 }
 

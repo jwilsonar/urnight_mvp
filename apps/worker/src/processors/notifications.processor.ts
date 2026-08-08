@@ -12,6 +12,7 @@ import { TicketPdfService } from '../pdf/ticket-pdf.service';
 import { StoragePort } from '../storage/storage.port';
 import {
   orderTicketsJobSchema,
+  emailChangeVerificationJobSchema,
   localDocumentExpiryWarningJobSchema,
   verificationEmailJobSchema,
   welcomeEmailJobSchema,
@@ -45,6 +46,11 @@ export class NotificationsProcessor extends WorkerHost {
         break;
       case 'send-verification-email':
         await this.handleVerificationEmail(this.parse(job, verificationEmailJobSchema));
+        break;
+      case 'send-email-change-verification':
+        await this.handleEmailChangeVerification(
+          this.parse(job, emailChangeVerificationJobSchema),
+        );
         break;
       case 'send-welcome-email':
         await this.handleWelcomeEmail(this.parse(job, welcomeEmailJobSchema));
@@ -165,6 +171,22 @@ export class NotificationsProcessor extends WorkerHost {
       body: 'Tu cuenta está lista. ¡Descubre la noche!',
     });
     await this.recordEmailNotification(data.userId, 'welcome', 'Bienvenido a UrNight');
+  }
+
+  private async handleEmailChangeVerification(
+    data: z.infer<typeof emailChangeVerificationJobSchema>,
+  ): Promise<void> {
+    const subject = 'Confirma tu nuevo correo — UrNight';
+    await this.email.send({
+      to: data.newEmail,
+      subject,
+      body:
+        `Pediste cambiar el correo de tu cuenta a esta dirección. ` +
+        `Confírmalo aquí: ${data.verificationUrl}\n\n` +
+        `El enlace vence en 1 hora. Si no fuiste tú, ignora este mensaje: ` +
+        `el correo de tu cuenta no cambia hasta que abras el enlace.`,
+    });
+    await this.recordEmailNotification(data.userId, 'email_change_verification', subject);
   }
 
   private async handleLocalDocumentExpiryWarning(

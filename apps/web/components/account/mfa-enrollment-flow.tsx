@@ -1,9 +1,15 @@
 "use client";
 
-import { Check, Copy, QrCode, ShieldCheck } from "@phosphor-icons/react";
+import {
+  Check,
+  Copy,
+  QrCode,
+  ShieldCheck,
+  SpinnerGap,
+} from "@phosphor-icons/react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { StartMfaEnrollmentResponse } from "@urnight/contracts";
 import {
   Alert,
@@ -24,6 +30,7 @@ import {
   confirmMfaEnrollment,
   startMfaEnrollment,
 } from "@/lib/api/mfa";
+import { autoSubmitOtpCode } from "@/lib/auth/otp-flow";
 import { getMfaUiErrorKey } from "./mfa-ui-error";
 
 export function MfaEnrollmentFlow({
@@ -43,6 +50,8 @@ export function MfaEnrollmentFlow({
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [pendingAction, setPendingAction] = useState<"start" | "confirm" | null>(null);
+  const [verificationComplete, setVerificationComplete] = useState(false);
+  const lastSubmittedCode = useRef<string | null>(null);
 
   async function start() {
     setPendingAction("start");
@@ -66,17 +75,15 @@ export function MfaEnrollmentFlow({
     }
   }
 
-  async function confirm() {
-    if (!setup || digits.some((digit) => !digit)) return;
+  const confirm = useCallback(async (code: string) => {
+    if (!setup) return;
     setPendingAction("confirm");
     setError(null);
     try {
       const { recoveryCodes } = await confirmMfaEnrollment(
-        { code: digits.join("") },
+        { code },
         token,
       );
-      setSetup(null);
-      setDigits([...EMPTY_OTP_DIGITS]);
 
       let sessionRefreshFailed = false;
       try {
@@ -85,14 +92,34 @@ export function MfaEnrollmentFlow({
       } catch {
         sessionRefreshFailed = true;
       }
+      setVerificationComplete(true);
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        await new Promise((resolve) => window.setTimeout(resolve, 400));
+      }
       onConfirmed(recoveryCodes, { sessionRefreshFailed });
     } catch (requestError) {
+      lastSubmittedCode.current = null;
       setDigits([...EMPTY_OTP_DIGITS]);
       setError(t(getMfaUiErrorKey(requestError)));
     } finally {
       setPendingAction(null);
     }
-  }
+  }, [onConfirmed, setup, t, token, update]);
+
+  useEffect(() => {
+    if (digits.some((digit) => !digit)) {
+      lastSubmittedCode.current = null;
+      return;
+    }
+    const code = autoSubmitOtpCode(
+      digits,
+      lastSubmittedCode.current,
+      !setup || pendingAction === "confirm" || verificationComplete,
+    );
+    if (!code) return;
+    lastSubmittedCode.current = code;
+    void confirm(code);
+  }, [confirm, digits, pendingAction, setup, verificationComplete]);
 
   if (!setup) {
     return (
@@ -165,16 +192,25 @@ export function MfaEnrollmentFlow({
             digits={digits}
             onChange={setDigits}
             digitLabel={(position) => t("digitAria", { number: position })}
-            disabled={pendingAction === "confirm"}
+            disabled={pendingAction === "confirm" || verificationComplete}
           />
-          <Button
-            type="button"
-            className="w-full sm:w-auto"
-            onClick={confirm}
-            disabled={digits.some((digit) => !digit) || pendingAction === "confirm"}
-          >
-            {pendingAction === "confirm" ? t("confirming") : t("confirm")}
-          </Button>
+          {verificationComplete ? (
+            <div
+              aria-live="polite"
+              className="flex items-center justify-center gap-2 font-semibold text-success motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-50 motion-safe:duration-[400ms] motion-reduce:animate-none"
+            >
+              <Check className="size-6" weight="bold" aria-hidden="true" />
+              {t("verified")}
+            </div>
+          ) : pendingAction === "confirm" ? (
+            <div
+              aria-live="polite"
+              className="flex items-center justify-center gap-2 text-sm font-semibold text-muted-foreground"
+            >
+              <SpinnerGap className="size-5 animate-spin" aria-hidden="true" />
+              {t("verifying")}
+            </div>
+          ) : null}
         </div>
         <span className="sr-only" aria-live="polite">
           {copied ? t("secretCopied") : ""}

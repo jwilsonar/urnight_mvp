@@ -5,3 +5,4 @@ export { InMemoryLegalDocumentRepository } from './in-memory-legal-document.repo
 export { InMemoryLegalAcceptanceRepository } from './in-memory-legal-acceptance.repository';
 export { InMemoryUserPreferenceRepository } from './in-memory-user-preference.repository';
 export { InMemoryUserFavoriteRepository } from './in-memory-user-favorite.repository';
+export { InMemoryOtpCodeStore } from './in-memory-otp-code.store';

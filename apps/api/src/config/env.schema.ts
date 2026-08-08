@@ -11,6 +11,16 @@ export const envSchema = z
       (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
       z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).optional(),
     ),
+    EMAIL_PROVIDER: z.enum(['log', 'brevo']).default('log'),
+    BREVO_API_KEY: z.preprocess(
+      (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
+      z.string().optional(),
+    ),
+    EMAIL_FROM: z.string().email().default('no-reply@urnight.pe'),
+    EMAIL_FROM_NAME: z.preprocess(
+      (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
+      z.string().optional(),
+    ),
     DATABASE_URL: z.string().url(),
     REDIS_URL: z.string().url(),
     TICKET_HOLD_TTL_SECONDS: z.coerce.number().int().positive().default(600),

@@ -6,7 +6,9 @@ import { getLocale, getTranslations } from "next-intl/server";
 import {
   loginSchema,
   registerSchema,
+  sendMfaEmailCodeSchema,
   useRecoveryCodeSchema,
+  verifyMfaEmailCodeSchema,
   verifyMfaChallengeSchema,
   type LoginDto,
   type RegisterDto,
@@ -14,8 +16,10 @@ import {
 import { ApiError } from "./api/client";
 import { loginRequest, registerRequest } from "./api/auth/requests";
 import {
+  sendMfaEmailCode,
   useMfaRecoveryCode,
   verifyMfaChallenge,
+  verifyMfaEmailCode,
 } from "./api/mfa";
 import {
   getErrorMessage,
@@ -47,6 +51,12 @@ export interface AuthActionResult {
    * que completar el desafío antes de tener sesión.
    */
   mfaChallengeId?: string;
+}
+
+export interface MfaEmailActionResult extends AuthActionResult {
+  sentTo?: string;
+  expiresAt?: string;
+  resendAvailableAt?: string;
 }
 
 /**
@@ -192,6 +202,64 @@ export async function useMfaRecoveryAction(
       translate,
     );
     return result;
+  } catch (err) {
+    return handleMfaChallengeError(err, translate);
+  }
+}
+
+export async function sendMfaEmailAction(): Promise<MfaEmailActionResult> {
+  const challenge = await readPendingMfaChallenge();
+  const { translate } = await authI18n();
+  if (!challenge || Date.parse(challenge.expiresAt) <= Date.now()) {
+    await clearPendingMfaChallenge();
+    return {
+      ok: false,
+      code: "identity/mfa-challenge-expired",
+      error: translate("mfaChallengeExpired"),
+    };
+  }
+
+  const parsed = sendMfaEmailCodeSchema.safeParse({
+    challengeId: challenge.challengeId,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: translate("invalidData") };
+  }
+
+  try {
+    return { ok: true, ...(await sendMfaEmailCode(parsed.data)) };
+  } catch (err) {
+    return handleMfaChallengeError(err, translate);
+  }
+}
+
+export async function verifyMfaEmailAction(
+  code: string,
+): Promise<AuthActionResult> {
+  const challenge = await readPendingMfaChallenge();
+  const { translate } = await authI18n();
+  if (!challenge || Date.parse(challenge.expiresAt) <= Date.now()) {
+    await clearPendingMfaChallenge();
+    return {
+      ok: false,
+      code: "identity/mfa-challenge-expired",
+      error: translate("mfaChallengeExpired"),
+    };
+  }
+
+  const parsed = verifyMfaEmailCodeSchema.safeParse({
+    challengeId: challenge.challengeId,
+    code,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: translate("invalidData") };
+  }
+
+  try {
+    return await establishSession(
+      await verifyMfaEmailCode(parsed.data),
+      translate,
+    );
   } catch (err) {
     return handleMfaChallengeError(err, translate);
   }

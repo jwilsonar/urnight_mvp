@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import type { Env } from '../../config/env.schema';
+import { EmailModule } from '../../shared/adapters/email/email.module';
 import { RoleResolver } from './application/services/role-resolver.service';
 import { MfaLoginService } from './application/services/mfa-login.service';
 import { TokenIssuer } from './application/services/token-issuer.service';
@@ -10,6 +11,8 @@ import { PromoterConfirmedSubscriber } from './application/subscribers/promoter-
 import { AcceptLegalDocumentUseCase } from './application/use-cases/accept-legal-document.use-case';
 import { AddFavoriteUseCase } from './application/use-cases/add-favorite.use-case';
 import { CompleteOnboardingUseCase } from './application/use-cases/complete-onboarding.use-case';
+import { ChangePhoneUseCase } from './application/use-cases/change-phone.use-case';
+import { ConfirmEmailChangeUseCase } from './application/use-cases/confirm-email-change.use-case';
 import { GetCurrentLegalDocumentUseCase } from './application/use-cases/get-current-legal-document.use-case';
 import { GetMeUseCase } from './application/use-cases/get-me.use-case';
 import { GoogleLoginUseCase } from './application/use-cases/google-login.use-case';
@@ -29,10 +32,13 @@ import { LoginUseCase } from './application/use-cases/login.use-case';
 import { PublishLegalDocumentUseCase } from './application/use-cases/publish-legal-document.use-case';
 import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-case';
 import { RegisterUseCase } from './application/use-cases/register.use-case';
+import { RequestEmailChangeUseCase } from './application/use-cases/request-email-change.use-case';
 import { RemoveFavoriteUseCase } from './application/use-cases/remove-favorite.use-case';
 import { RevokeRoleUseCase } from './application/use-cases/revoke-role.use-case';
 import { UpdatePreferencesUseCase } from './application/use-cases/update-preferences.use-case';
 import { VerifyEmailUseCase } from './application/use-cases/verify-email.use-case';
+import { SendMfaEmailCodeUseCase } from './application/use-cases/send-mfa-email-code.use-case';
+import { VerifyMfaEmailCodeUseCase } from './application/use-cases/verify-mfa-email-code.use-case';
 import { GoogleVerifier } from './domain/ports/google-verifier.port';
 import {
   LEGAL_ACCEPTANCE_REPOSITORY,
@@ -41,6 +47,7 @@ import {
 import { PasswordHasher } from './domain/ports/password-hasher.port';
 import { MFA_REPOSITORY } from './domain/ports/mfa.repository';
 import { RefreshTokenStore } from './domain/ports/refresh-token-store.port';
+import { OTP_CODE_STORE } from './domain/ports/otp-code.store';
 import { ROLE_ASSIGNMENT_REPOSITORY } from './domain/ports/role-assignment.repository';
 import { ROLE_REPOSITORY } from './domain/ports/role.repository';
 import { TokenService } from './domain/ports/token.port';
@@ -56,6 +63,7 @@ import { NodeTotpAdapter } from './infrastructure/auth/node-totp.adapter';
 import { RedisRefreshTokenStore } from './infrastructure/auth/redis-refresh-token-store';
 import { DrizzleLegalAcceptanceRepository } from './infrastructure/persistence/drizzle-legal-acceptance.repository';
 import { DrizzleMfaRepository } from './infrastructure/persistence/drizzle-mfa.repository';
+import { RedisOtpCodeStore } from './infrastructure/persistence/redis-otp-code.store';
 import { DrizzleLegalDocumentRepository } from './infrastructure/persistence/drizzle-legal-document.repository';
 import { DrizzleRoleAssignmentRepository } from './infrastructure/persistence/drizzle-role-assignment.repository';
 import { DrizzleRoleRepository } from './infrastructure/persistence/drizzle-role.repository';
@@ -68,6 +76,7 @@ import { LegalController } from './interfaces/http/legal.controller';
 import { MfaController } from './interfaces/http/mfa.controller';
 import { PreferencesController } from './interfaces/http/preferences.controller';
 import { RolesController } from './interfaces/http/roles.controller';
+import { UsersController } from './interfaces/http/users.controller';
 
 /**
  * Bounded context Identity, Access & Legal (§4.1). Liga puertos → adapters (DI).
@@ -76,6 +85,7 @@ import { RolesController } from './interfaces/http/roles.controller';
  */
 @Module({
   imports: [
+    EmailModule,
     JwtModule.registerAsync({
       global: true,
       inject: [ConfigService],
@@ -92,15 +102,21 @@ import { RolesController } from './interfaces/http/roles.controller';
     RolesController,
     LegalController,
     MfaController,
+    UsersController,
   ],
   providers: [
     RegisterUseCase,
+    RequestEmailChangeUseCase,
+    ConfirmEmailChangeUseCase,
+    ChangePhoneUseCase,
     LoginUseCase,
     GoogleLoginUseCase,
     StartMfaEnrollmentUseCase,
     ConfirmMfaEnrollmentUseCase,
     VerifyMfaChallengeUseCase,
     UseRecoveryCodeUseCase,
+    SendMfaEmailCodeUseCase,
+    VerifyMfaEmailCodeUseCase,
     RevokeMfaUseCase,
     RegenerateRecoveryCodesUseCase,
     GetMfaStatusUseCase,
@@ -133,6 +149,7 @@ import { RolesController } from './interfaces/http/roles.controller';
     { provide: LEGAL_DOCUMENT_REPOSITORY, useClass: DrizzleLegalDocumentRepository },
     { provide: LEGAL_ACCEPTANCE_REPOSITORY, useClass: DrizzleLegalAcceptanceRepository },
     { provide: MFA_REPOSITORY, useClass: DrizzleMfaRepository },
+    { provide: OTP_CODE_STORE, useClass: RedisOtpCodeStore },
     { provide: PasswordHasher, useClass: BcryptPasswordHasher },
     { provide: TokenService, useClass: JwtTokenService },
     { provide: RefreshTokenStore, useClass: RedisRefreshTokenStore },

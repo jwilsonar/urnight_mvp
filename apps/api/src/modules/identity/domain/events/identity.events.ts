@@ -20,6 +20,12 @@ export class EmailVerifiedEvent implements DomainEvent<{ userId: string }> {
   constructor(readonly payload: { userId: string }) {}
 }
 
+export class EmailChangedEvent implements DomainEvent<{ userId: string }> {
+  readonly name = 'identity.email.changed';
+  readonly occurredAt = new Date();
+  constructor(readonly payload: { userId: string }) {}
+}
+
 export class RoleGrantedEvent
   implements
     DomainEvent<{

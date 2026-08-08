@@ -33,6 +33,8 @@
 | SD-11 | [Roles: otorgar y revocar](#sd-11--roles-otorgar-y-revocar) | Roles |
 | SD-12 | [Invitaciones de promotor](#sd-12--invitaciones-de-promotor) | Invitaciones |
 | SD-14 | [Enrolamiento de MFA](#sd-14--enrolamiento-de-mfa) | MFA |
+| SD-15 | [Segundo factor por correo](#sd-15--segundo-factor-por-correo) | MFA |
+| SD-16 | [Cambio de correo y de teléfono](#sd-16--cambio-de-correo-y-de-teléfono) | Configuración de perfil |
 | SD-13 | [Acceso a paneles](#sd-13--acceso-a-paneles) | Acceso a paneles |
 
 ---
@@ -49,7 +51,7 @@ repetir el mismo tramo en cinco diagramas.
 | **1 · Alta y credenciales** | Registro · Verificación de email · Inicio de sesión · Inicio de sesión con Google · Recuperación de cuenta | Todos terminan (o deberían terminar) con un par de tokens emitido y una sesión establecida. |
 | **2 · Ciclo de vida de la sesión** | Ciclo de vida de la sesión | Se parte en dos diagramas porque son dos máquinas distintas: renovación con rotación (camino feliz + detección de reuso) y terminación (expiración, 401, logout). |
 | **3 · Post-login: cuenta del usuario** | Onboarding · Configuración de perfil · Preferencias | Comparten el mismo *gate* (`requireSession`) y el mismo recurso (`/api/v1/me`). |
-| **4 · RBAC y acceso** | Roles · Invitaciones · Acceso a paneles | Los tres giran sobre `role_assignment`: quién lo crea (roles, invitaciones) y quién lo consume (paneles). |
+| **4 · RBAC, acceso y seguridad de la cuenta** | Roles · Invitaciones · Acceso a paneles · MFA · Cambio de correo y de teléfono | Los tres primeros giran sobre `role_assignment`: quién lo crea (roles, invitaciones) y quién lo consume (paneles). MFA cierra el bloque porque condiciona la entrada a los paneles (SD-14, SD-15), y SD-16 comparte con él la contraseña como prueba de identidad. |
 
 ---
 
@@ -875,7 +877,7 @@ sequenceDiagram
 
 ---
 
-## 9. Bloque 4 · RBAC y acceso
+## 9. Bloque 4 · RBAC, acceso y seguridad de la cuenta
 
 Roles del sistema: `super_admin`, `admin_local`, `promoter`, `validator`, `user`.
 `super_admin` atraviesa el `RolesGuard` sin restricción; el aislamiento fino por empresa lo aplica
@@ -1132,6 +1134,129 @@ sequenceDiagram
     end
 ```
 
+### SD-15 · Segundo factor por correo
+
+Respaldo del TOTP cuando la persona no tiene el autenticador a mano. No es un factor persistido: el
+CHECK de `user_mfa_factor.type` solo admite `totp`, así que el código vive en Redis con TTL, tope de
+intentos y cooldown de reenvío.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Usuario
+    participant TFA as /2fa
+    participant EDGE as Edge API
+    participant RL as RateLimitGuard
+    participant SE as SendMfaEmailCodeUseCase
+    participant VE as VerifyMfaEmailCodeUseCase
+    participant OTP as RedisOtpCodeStore
+    participant MAIL as EmailPort
+    participant DB as PostgreSQL
+
+    note over U, DB: Fase 1 · Pedir el código al correo
+    U->>TFA: Probar otro método · Enviar código a mi correo
+    TFA->>EDGE: POST /api/v1/auth/mfa/email/send · challengeId
+    EDGE->>RL: 5 intentos por 300 s · keyBy ip y challenge
+    note over RL: Al agotarlos responde identity/mfa-locked, igual que en la<br/>verificación TOTP: el desafío queda quemado.
+    EDGE->>SE: execute(challengeId)
+    SE->>DB: findChallenge(challengeId)
+    alt sin desafío vigente
+        SE-->>TFA: 401 · identity/mfa-challenge-expired
+    else correo sin verificar
+        SE-->>TFA: 409 · identity/mfa-email-unavailable
+        note over SE: El respaldo exige email_verified en true. Sin eso el segundo<br/>factor no sería un segundo factor.
+    else desafío vigente
+        SE->>OTP: issue(challengeId, sha256 del código, 600 s)
+        note over OTP: Script Lua atómico. Si el cooldown de 60 s sigue vivo no emite.<br/>Guarda el hash, nunca el código.
+        alt reenvío antes de 60 s
+            SE-->>TFA: 429 · identity/mfa-email-resend-too-soon
+        else emitido
+            SE->>MAIL: send · código de 6 dígitos que vence en 10 minutos
+            SE-->>TFA: 200 OK · sentTo enmascarado, expiresAt, resendAvailableAt
+            note over SE: El código nunca se registra en el log y el correo del usuario<br/>vuelve enmascarado al cliente.
+        end
+    end
+
+    note over U, DB: Fase 2 · Verificar el código y abrir sesión
+    U->>TFA: Código recibido por correo
+    TFA->>EDGE: POST /api/v1/auth/mfa/email/verify · challengeId y code
+    EDGE->>VE: execute(challengeId, code)
+    VE->>OTP: consume(challengeId, sha256 del código)
+    alt código vencido o ya usado
+        VE-->>TFA: 401 · identity/mfa-email-code-expired
+    else código incorrecto
+        VE->>OTP: INCR de intentos · al sexto borra el código
+        VE-->>TFA: 401 · identity/mfa-email-code-invalid
+    else código correcto
+        VE->>DB: completeMfaSession · consumeChallenge y usuario activo
+        note over VE: Mismo cierre que SD-03 con TOTP. El tramo común vive en<br/>completeMfaSession: solo cambia cómo se probó el factor.
+        VE-->>TFA: 200 OK · par de tokens (SD-A)
+    end
+```
+
+### SD-16 · Cambio de correo y de teléfono
+
+Completa SD-09, que documentaba el perfil cuando todavía no viajaba al backend. Ambos cambios exigen
+la contraseña actual; el correo además se verifica por enlace antes de aplicarse.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Usuario
+    participant SEC as /account/seguridad
+    participant VP as /verify-email
+    participant EDGE as Edge API
+    participant RE as RequestEmailChangeUseCase
+    participant CE as ConfirmEmailChangeUseCase
+    participant CP as ChangePhoneUseCase
+    participant OB as OutboxRelay
+    participant WK as NotificationsProcessor
+    participant MAIL as EmailPort
+    participant RT as RedisRefreshTokenStore
+    participant DB as PostgreSQL
+
+    note over U, DB: Fase 1 · Pedir el cambio con la contraseña actual
+    U->>SEC: Cambiar correo · correo nuevo y contraseña actual
+    SEC->>EDGE: POST /api/v1/users/me/email/change-request
+    EDGE->>RE: execute(userId, newEmail, currentPassword)
+    RE->>DB: findById(userId) y findByEmail(newEmail)
+    alt contraseña incorrecta
+        RE-->>SEC: 401 · identity/invalid-credentials
+    else correo tomado por otra cuenta
+        RE-->>SEC: 409 · identity/email-already-registered
+    else datos válidos
+        RE->>RE: signEmailChange(sub, newEmail) · vence en 1 hora
+        note over RE: No hay columna de correo pendiente: el correo nuevo viaja<br/>firmado dentro del token. Hasta abrir el enlace nada cambia.
+        RE->>OB: enqueue en notifications · send-email-change-verification
+        RE-->>SEC: 202 Accepted
+        OB->>WK: userId, newEmail y verificationUrl
+        note over WK: La URL la arma la API con WEB_PUBLIC_URL. El worker no conoce<br/>la base pública: solo envía lo que recibe.
+        WK->>MAIL: send al correo nuevo · enlace a /verify-email con el token
+    end
+
+    note over U, DB: Fase 2 · Confirmar desde el enlace
+    U->>VP: Abre el enlace del correo
+    VP->>EDGE: POST /api/v1/users/me/email/change-confirm · token
+    note over EDGE: Endpoint público: quien abre el enlace puede no tener sesión<br/>en ese navegador.
+    EDGE->>CE: execute(token)
+    alt token vencido o alterado
+        CE-->>VP: 401 · identity/invalid-token
+    else token válido
+        CE->>DB: UPDATE user · email nuevo y email_verified en true
+        CE->>RT: revokeAllForUser(userId)
+        note over RT: Cambiar el correo cierra las sesiones abiertas: si el cambio no<br/>lo pidió el dueño, los refresh vigentes dejan de servir.
+        CE-->>VP: 204 No Content
+    end
+
+    note over U, DB: Fase 3 · Teléfono, sin verificación externa
+    U->>SEC: Cambiar teléfono · número y contraseña actual
+    SEC->>EDGE: PATCH /api/v1/users/me/phone
+    EDGE->>CP: execute(userId, phone, currentPassword)
+    CP->>DB: UPDATE user · phone
+    CP-->>SEC: 204 No Content
+    note over CP: peruMobileSchema valida el formato, el mismo primitivo que exige<br/>el registro: cambiar el teléfono no puede validar más flojo que<br/>crearlo. No hay SMS, el puerto queda documentado y el segundo<br/>método real es el correo.
+```
+
 ---
 
 ## 10. Trazabilidad: proceso → endpoint → código → estado
@@ -1145,12 +1270,12 @@ sequenceDiagram
 | Inicio de sesión con Google | `POST /auth/google` | `GoogleLoginUseCase`, `GoogleOidcVerifier` | ✅ Implementado (requiere credenciales OAuth configuradas) |
 | Recuperación de cuenta | — | `app/(auth)/recover/page.tsx` | ❌ Maqueta; sin backend (ver SD-05b) |
 | Onboarding | `PATCH /me/preferences`, `POST /me/onboarding` | `CompleteOnboardingUseCase`, `OnboardingClient` | ✅ Implementado |
-| Configuración de perfil | — (lectura vía `GET /auth/me`) | `ProfileEditForm` | ❌ Solo `localStorage`; falta `PATCH /me/profile` |
+| Configuración de perfil | `POST /users/me/email/change-request`, `POST /users/me/email/change-confirm`, `PATCH /users/me/phone` (lectura vía `GET /auth/me`) | `RequestEmailChangeUseCase`, `ConfirmEmailChangeUseCase`, `ChangePhoneUseCase`, `ProfileEditForm` | ⚠️ Correo y teléfono persisten y exigen la contraseña actual (SD-16); el resto del perfil sigue en `localStorage`, falta `PATCH /me/profile` |
 | Preferencias | `PATCH /me/preferences` | `UpdatePreferencesUseCase`, `PreferencesForm` | ⚠️ Marketing/recordatorios/locale persisten; el resto es maqueta |
 | Roles | `POST` / `DELETE /users/{userId}/roles` | `GrantRoleUseCase`, `RevokeRoleUseCase` | ✅ Implementado |
 | Invitaciones | `POST /promoters`, `GET /promoters/me/associations`, `POST /promoters/{id}/confirm`, `POST /promoters/{id}/reject` | `ConfirmPromoterAssociationUseCase`, `PromoterConfirmedSubscriber` | ✅ Implementado |
 | Acceso a paneles | Todo `/api/v1` protegido | `proxy.ts`, `requireRole`, `AuthGuard`, `MfaEnrollmentGuard`, `RolesGuard` | ✅ Implementado |
-| MFA | `POST /mfa/enroll`, `POST /mfa/enroll/confirm`, `GET /mfa/status`, `POST /auth/mfa/verify`, `POST /auth/mfa/recovery`, `POST /mfa/revoke`, `POST /mfa/recovery-codes`, `POST /mfa/unlock` | `StartMfaEnrollmentUseCase`, `ConfirmMfaEnrollmentUseCase`, `VerifyMfaChallengeUseCase`, `UseRecoveryCodeUseCase`, `UnlockMfaUseCase`, `AesGcmSecretCipher` | ✅ Implementado · obligatorio para `super_admin` y `admin_local` (ADR 0012) |
+| MFA | `POST /mfa/enroll`, `POST /mfa/enroll/confirm`, `GET /mfa/status`, `POST /auth/mfa/verify`, `POST /auth/mfa/recovery`, `POST /auth/mfa/email/send`, `POST /auth/mfa/email/verify`, `POST /mfa/revoke`, `POST /mfa/recovery-codes`, `POST /mfa/unlock` | `StartMfaEnrollmentUseCase`, `ConfirmMfaEnrollmentUseCase`, `VerifyMfaChallengeUseCase`, `UseRecoveryCodeUseCase`, `SendMfaEmailCodeUseCase`, `VerifyMfaEmailCodeUseCase`, `RedisOtpCodeStore`, `UnlockMfaUseCase`, `AesGcmSecretCipher` | ✅ Implementado · obligatorio para `super_admin` y `admin_local` (ADR 0012) · segundo método por correo en SD-15, sujeto al mismo stub de envío que la verificación de email |
 | 2FA | — | `app/(auth)/2fa/page.tsx` | ❌ Maqueta; fuera del alcance solicitado, se documenta por cercanía |
 
 ---
@@ -1170,7 +1295,11 @@ cerrada.
    funciona y la cadena outbox → relay → worker está operativa, pero `EmailPort` es
    `LogEmailAdapter` (solo escribe en el log) y la página `/verify-email` es una maqueta: en la
    práctica ninguna cuenta llega a `email_verified = true` por el flujo normal.
-4. **El perfil no se persiste.** Editar correo o teléfono en `/account` no viaja al backend.
+4. **El perfil se persiste solo a medias.** Correo y teléfono ya viajan al backend con la contraseña
+   como prueba de identidad (SD-16), pero el resto de los campos del perfil sigue muriendo en
+   `localStorage`: falta `PATCH /me/profile`. Además, mientras `EmailPort` sea `LogEmailAdapter` el
+   enlace de confirmación no llega a ningún buzón, así que el cambio de correo no se completa fuera
+   de un entorno con proveedor real (misma causa que el punto 3).
 5. **Revocar un rol no invalida los tokens vigentes.** Un `admin_local` degradado conserva su acceso
    hasta el siguiente refresh. Mitigación posible: `revokeAllForUser` en `RevokeRoleUseCase`, al mismo
    estilo que la detección de reuso.

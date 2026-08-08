@@ -2,6 +2,7 @@ export { cn } from './lib/cn';
 
 export { Button, buttonVariants, type ButtonProps } from './button';
 export { Input, type InputProps } from './input';
+export { NumericField, type NumericFieldProps } from './numeric-field';
 export { Textarea, type TextareaProps } from './textarea';
 export { Label } from './label';
 export { Checkbox } from './checkbox';

@@ -590,6 +590,10 @@
       "mfaLocked": "You've reached the attempt limit. Please log in again later.",
       "mfaClockDrift": "Your code is correct, but the server clock is out of sync. Let us know — this isn't your authenticator's fault.",
       "mfaFactorUnreadable": "We couldn't read your two-step verification. It needs to be set up again from Security.",
+      "mfaEmailUnavailable": "Verify your email before using it as a sign-in method.",
+      "invalidMfaEmailCode": "That email code isn't valid. Check it and try again.",
+      "mfaEmailCodeExpired": "That email code has expired. Request a new one.",
+      "mfaEmailResendTooSoon": "Wait for the countdown to finish before requesting another code.",
       "unexpected": "Something unexpected happened. Please try again."
     }
   },
@@ -656,6 +660,7 @@
       "birthDate": "Date of birth",
       "birthDateHint": "You must be 18 or older.",
       "phone": "Mobile number",
+      "phonePlaceholder": "9XX XXX XXX",
       "phoneHint": "9 digits, starting with 9.",
       "documentType": "ID type",
       "documentTypePlaceholder": "Type",
@@ -669,6 +674,11 @@
       "marketing": "Send me nightlife news and promotions by email.",
       "submitting": "Creating account…",
       "submit": "Create account",
+      "success": {
+        "title": "Check your email",
+        "description": "We sent a verification link to {email}. You'll need your password if you change your email or phone later.",
+        "continue": "Continue"
+      },
       "errors": {
         "passwordLength": "The password must be at least 8 characters long.",
         "passwordLong": "The password cannot exceed 72 characters.",
@@ -713,15 +723,32 @@
     "description": "Enter the 6-digit code from your authenticator app.",
     "recoveryDescription": "Enter one of your recovery codes. Each code can only be used once.",
     "digitAria": "Digit {number}",
-    "expiresIn": "This challenge expires in {time}",
-    "expired": "This challenge has expired",
+    "expiresIn": "Time remaining: {time}",
+    "expired": "Time's up",
     "recoveryLabel": "Recovery code",
     "recoveryPlaceholder": "Enter your recovery code",
     "verifying": "Verifying…",
-    "verify": "Verify and continue",
+    "verify": "Verify",
     "startAgain": "Log in again",
-    "useRecovery": "Use a recovery code",
     "useAuthenticator": "Use your authenticator app",
+    "tryAnotherMethod": "Try another method",
+    "methodSelector": {
+      "title": "Try another method",
+      "description": "Choose how you'd like to complete verification.",
+      "email": "Email me a code",
+      "emailDescription": "Get a 6-digit code at your verified email address.",
+      "emailUnavailable": "This option requires a verified email address.",
+      "sendingEmail": "Sending code…",
+      "recovery": "Use a recovery code",
+      "recoveryDescription": "Use one of the codes you saved when you turned on MFA."
+    },
+    "email": {
+      "description": "Enter the 6-digit code we sent to {email}.",
+      "sentTo": "Code sent to {email}.",
+      "sending": "Sending…",
+      "resend": "Resend code",
+      "resendIn": "You can resend in {seconds}s"
+    },
     "errors": {
       "generic": "We couldn't verify that code. Please try again."
     },
@@ -735,7 +762,26 @@
     "resent": "Link sent again",
     "resend": "Resend link",
     "demo": "Demo — email verification will be enabled with the email backend",
-    "goToLogin": "Go to log in"
+    "goToLogin": "Go to log in",
+    "emailChange": {
+      "pending": {
+        "title": "Confirming your new email",
+        "description": "We're validating the link. This will only take a moment."
+      },
+      "success": {
+        "title": "Email updated",
+        "description": "Your new email is confirmed. For your security, please log in again."
+      },
+      "expired": {
+        "title": "This link has expired",
+        "description": "Request another email change from Account security."
+      },
+      "error": {
+        "title": "We couldn't change your email",
+        "description": "The link is invalid or couldn't be processed. Try again from Account security."
+      },
+      "goToLogin": "Go to log in"
+    }
   },
   "onboarding": {
     "metadataTitle": "Welcome",
@@ -805,6 +851,48 @@
         "description": "Check your connection and try again.",
         "retry": "Try again"
       },
+      "contact": {
+        "title": "Email and phone",
+        "description": "Manage contact details protected by your password.",
+        "loading": "Loading email and phone",
+        "loadError": "We couldn't load your contact details.",
+        "retry": "Try again",
+        "password": "Current password",
+        "cancel": "Cancel",
+        "continue": "Continue",
+        "back": "Back",
+        "sending": "Sending…",
+        "saving": "Saving…",
+        "done": "Got it",
+        "email": {
+          "label": "Current email",
+          "verified": "Verified",
+          "unverified": "Unverified",
+          "change": "Change email",
+          "dialogTitle": "Change email",
+          "dialogDescription": "Enter your new email and confirm with your current password.",
+          "newEmail": "New email",
+          "confirmation": "You're changing your email from {currentEmail} to {newEmail}. We'll send a link to {newEmail}; the change only takes effect after you open it.",
+          "sendLink": "Send link",
+          "sentDescription": "We sent a confirmation link to {email}. Your current email will stay active until you open that link."
+        },
+        "phone": {
+          "label": "Current phone",
+          "notSet": "Not provided",
+          "change": "Change phone",
+          "dialogTitle": "Change phone",
+          "dialogDescription": "Enter your new mobile number and confirm with your current password.",
+          "newPhone": "New mobile number",
+          "save": "Save phone",
+          "success": "Your phone number has been updated."
+        },
+        "errors": {
+          "invalidEmail": "Enter a valid email address.",
+          "invalidPhone": "The phone number must have 9 digits and start with 9.",
+          "passwordRequired": "Enter your current password.",
+          "invalidPassword": "Your current password is incorrect."
+        }
+      },
       "errors": {
         "invalidCode": "That code isn't valid. Check your authenticator app and try again.",
         "invalidPassword": "That password is incorrect.",
@@ -828,8 +916,8 @@
         "confirmTitle": "Confirm your setup",
         "confirmDescription": "Enter the first 6-digit code generated by your app.",
         "digitAria": "Digit {number} of the confirmation code",
-        "confirm": "Confirm and activate",
-        "confirming": "Confirming…",
+        "verifying": "Verifying…",
+        "verified": "Verified",
         "errors": {
           "invalidCode": "That code isn't valid. Check it and try again.",
           "invalidPassword": "That password isn't correct.",

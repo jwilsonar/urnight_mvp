@@ -104,6 +104,43 @@ export const verifyEmailSchema = z.object({
 });
 export type VerifyEmailDto = z.infer<typeof verifyEmailSchema>;
 
+export const sendMfaEmailCodeSchema = z.object({
+  challengeId: z.string().uuid(),
+});
+export type SendMfaEmailCodeDto = z.infer<typeof sendMfaEmailCodeSchema>;
+
+export const verifyMfaEmailCodeSchema = z.object({
+  challengeId: z.string().uuid(),
+  code: z.string().trim().regex(/^\d{6}$/),
+});
+export type VerifyMfaEmailCodeDto = z.infer<typeof verifyMfaEmailCodeSchema>;
+
+export const mfaEmailCodeSentResponseSchema = z.object({
+  sentTo: z.string(),
+  expiresAt: z.string().datetime(),
+  resendAvailableAt: z.string().datetime(),
+});
+export type MfaEmailCodeSentResponse = z.infer<typeof mfaEmailCodeSentResponseSchema>;
+
+export const requestEmailChangeSchema = z.object({
+  newEmail: email,
+  currentPassword: z.string().min(1).max(72),
+});
+export type RequestEmailChangeDto = z.infer<typeof requestEmailChangeSchema>;
+
+export const confirmEmailChangeSchema = z.object({
+  token: z.string().min(10),
+});
+export type ConfirmEmailChangeDto = z.infer<typeof confirmEmailChangeSchema>;
+
+export const changePhoneSchema = z.object({
+  // Mismo primitivo que el registro: cambiar el teléfono no puede validar más
+  // flojo que crearlo.
+  phone: peruMobileSchema,
+  currentPassword: z.string().min(1).max(72),
+});
+export type ChangePhoneDto = z.infer<typeof changePhoneSchema>;
+
 /** Par de tokens emitido por la API (JWT propio: access corto + refresh). */
 export const authTokensResponseSchema = z.object({
   accessToken: z.string(),

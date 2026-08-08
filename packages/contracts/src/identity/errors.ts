@@ -31,6 +31,10 @@ export const IDENTITY_ERROR_CODES = {
   MFA_CLOCK_DRIFT: 'identity/mfa-clock-drift',
   /** El secreto TOTP guardado no se puede descifrar (MFA_ENCRYPTION_KEY cambiada). */
   MFA_FACTOR_UNREADABLE: 'identity/mfa-factor-unreadable',
+  MFA_EMAIL_UNAVAILABLE: 'identity/mfa-email-unavailable',
+  MFA_EMAIL_CODE_INVALID: 'identity/mfa-email-code-invalid',
+  MFA_EMAIL_CODE_EXPIRED: 'identity/mfa-email-code-expired',
+  MFA_EMAIL_RESEND_TOO_SOON: 'identity/mfa-email-resend-too-soon',
 } as const;
 
 export type IdentityErrorCode =
