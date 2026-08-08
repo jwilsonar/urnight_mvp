@@ -1,7 +1,6 @@
 "use client";
 
-import { Basket, Minus, Plus, Trash } from "@phosphor-icons/react";
-import { m } from "framer-motion";
+import { Basket, Minus, Plus } from "@phosphor-icons/react";
 import { useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import {
@@ -15,11 +14,10 @@ import {
 } from "@urnight/ui";
 import { useCart } from "@/components/carta/cart-provider";
 import { SplitBillDialog } from "@/components/carta/split-bill-dialog";
-import { CARTA_ITEMS_DEMO } from "@/lib/mock/carta";
 
 /**
- * FAB del pedido: visible con items en el carrito; abre el resumen para
- * ajustar cantidades y confirmar el pedido demo (pago al recoger).
+ * Resumen del pedido: vive en el flujo del documento para no cubrir el footer
+ * y abre el detalle editable antes de confirmar.
  */
 export function CartFab({
   pickupZone,
@@ -29,11 +27,10 @@ export function CartFab({
   onConfirm: () => void;
 }) {
   const t = useTranslations("carta.cart");
-  const cartaT = useTranslations("carta");
   const format = useFormatter();
-  const money = (value: number) =>
-    format.number(value, { style: "currency", currency: "PEN" });
   const cart = useCart();
+  const money = (value: number) =>
+    format.number(value, { style: "currency", currency: cart.currency });
   const [open, setOpen] = useState(false);
   const [splitOpen, setSplitOpen] = useState(false);
 
@@ -46,37 +43,24 @@ export function CartFab({
 
   return (
     <>
-      {/* FAB fijo, respeta safe-area en móvil */}
-      <m.div
-        className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
-        initial={{ y: 96, scale: 0.9, opacity: 0 }}
-        animate={{ y: 0, scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 420, damping: 30 }}
-      >
+      {/* CTA en flujo normal: el footer siempre conserva su propio espacio. */}
+      <div className="mt-8 flex justify-center">
         <Button
           size="lg"
-          className="w-full max-w-md justify-between shadow-float"
+          className="w-full max-w-md justify-between"
           onClick={() => setOpen(true)}
           aria-label={t("viewAria", {
             count: cart.count,
-            total: money(cart.totalSoles),
+            total: money(cart.totalAmount),
           })}
         >
           <span className="flex items-center gap-2">
             <Basket className="size-5" weight="duotone" />
-            {t("view")}{" "}
-            <m.span
-              key={cart.count}
-              initial={{ scale: 0.7 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 500, damping: 22 }}
-            >
-              ({cart.count})
-            </m.span>
+            {t("view")} <span>({cart.count})</span>
           </span>
-          <span className="tabular-nums">{money(cart.totalSoles)}</span>
+          <span className="tabular-nums">{money(cart.totalAmount)}</span>
         </Button>
-      </m.div>
+      </div>
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
@@ -101,7 +85,7 @@ export function CartFab({
 
           <div className="max-h-[45vh] space-y-3 overflow-y-auto py-4">
             {cart.lines.map((line) => {
-              const item = CARTA_ITEMS_DEMO.find((i) => i.id === line.itemId);
+              const item = cart.productFor(line.itemId);
               if (!item) return null;
               return (
                 <div
@@ -110,10 +94,10 @@ export function CartFab({
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold">
-                      {cartaT(`items.${item.id}.name`)}
+                      {item.name}
                     </p>
                     <p className="text-xs text-muted-foreground tabular-nums">
-                      {t("each", { amount: money(item.priceSoles) })}
+                      {t("each", { amount: money(item.priceAmount) })}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -121,18 +105,14 @@ export function CartFab({
                       variant="ghost"
                       size="icon"
                       className="size-7 rounded-full"
-                      aria-label={t("removeAria", {
-                        item: cartaT(`items.${item.id}.name`),
+                      aria-label={t("decreaseAria", {
+                        item: item.name,
                       })}
                       onClick={() =>
                         cart.setQuantity(line.itemId, line.quantity - 1)
                       }
                     >
-                      {line.quantity === 1 ? (
-                        <Trash className="size-3.5" />
-                      ) : (
-                        <Minus className="size-3.5" weight="bold" />
-                      )}
+                      <Minus className="size-3.5" weight="bold" />
                     </Button>
                     <span className="min-w-5 text-center text-sm font-bold tabular-nums">
                       {line.quantity}
@@ -142,7 +122,7 @@ export function CartFab({
                       size="icon"
                       className="size-7 rounded-full"
                       aria-label={t("addAria", {
-                        item: cartaT(`items.${item.id}.name`),
+                        item: item.name,
                       })}
                       onClick={() =>
                         cart.setQuantity(line.itemId, line.quantity + 1)
@@ -164,7 +144,7 @@ export function CartFab({
                 {t("total")}
               </span>
               <span className="font-heading text-lg font-extrabold tabular-nums">
-                {money(cart.totalSoles)}
+                {money(cart.totalAmount)}
               </span>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
@@ -189,7 +169,7 @@ export function CartFab({
       <SplitBillDialog
         open={splitOpen}
         onOpenChange={setSplitOpen}
-        totalSoles={cart.totalSoles}
+        totalSoles={cart.totalAmount}
       />
     </>
   );

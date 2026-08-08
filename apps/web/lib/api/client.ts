@@ -126,10 +126,16 @@ export async function apiFetchResponse<T>(
     // Fallo de red/DNS/timeout: el backend no respondió. `name` distingue
     // TimeoutError (backend colgado) de un fallo DNS/conexión.
     const cause = err as Error;
-    logger.error(
-      { method, path, err: cause.message, name: cause.name },
-      "web.api.network_error",
-    );
+    // Un AbortError lo pidió el propio caller (cambió de pantalla, o el sondeo
+    // del pedido reemplazó su petición en vuelo): no es una caída del backend
+    // y no tiene por qué ensuciar el log. TimeoutError sí se registra, que ese
+    // lo dispara AbortSignal.timeout y sí significa que el backend no responde.
+    if (cause.name !== "AbortError") {
+      logger.error(
+        { method, path, err: cause.message, name: cause.name },
+        "web.api.network_error",
+      );
+    }
     throw err;
   }
 

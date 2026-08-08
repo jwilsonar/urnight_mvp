@@ -23,6 +23,14 @@ export const queryKeys = {
   /** Promotores de la empresa del actor (panel admin, scoped por tenant). */
   myPromoters: ['promoters', 'mine'] as const,
   localImages: (localId: string) => ['companies', 'local-images', localId] as const,
+  menuCategories: (localId: string) =>
+    ['menu', localId, 'categories'] as const,
+  menuProducts: (localId: string) => ['menu', localId, 'products'] as const,
+  menuProduct: (localId: string, productId: string) =>
+    ['menu', localId, 'products', productId] as const,
+  localOrderWindows: (localId: string) =>
+    ['menu', localId, 'order-windows'] as const,
+  localOrder: (orderId: string) => ['orders', 'local', orderId] as const,
   localVerificationDocuments: (localId: string) =>
     ['companies', 'local-verification-documents', localId] as const,
   pendingLocalVerificationDocuments: [

@@ -1,5 +1,6 @@
 "use client";
 
+import type { MenuProductResponse } from "@urnight/contracts";
 import {
   createContext,
   useCallback,
@@ -9,13 +10,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { CARTA_ITEMS_DEMO } from "@/lib/mock/carta";
 import { consumirCreditoDemo, leerCreditoDemo } from "@/lib/mock/credito";
 
 /**
- * Carrito demo de la carta in-venue. Estado client-only persistido en
- * sessionStorage (una noche = una sesión). Cuando exista el backend de
- * pedidos, este provider se conecta a lib/api/ (crear/actualizar pedido).
+ * Carrito de la carta in-venue. Persiste solo durante la sesión de la noche y
+ * calcula sus montos con los productos vigentes que entrega el API.
  */
 
 export interface CartLine {
@@ -30,40 +29,55 @@ interface CartContextValue {
   setQuantity: (itemId: string, quantity: number) => void;
   clear: () => void;
   count: number;
-  totalSoles: number;
-  creditoDisponible: number;
-  totalTrasCredito: number;
-  canjearCredito: () => number;
+  totalAmount: number;
+  currency: string;
+  walletBalance: number;
+  productFor: (itemId: string) => MenuProductResponse | undefined;
+  debitDemoWallet: (amount: number) => number;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-const priceOf = (itemId: string) =>
-  CARTA_ITEMS_DEMO.find((i) => i.id === itemId)?.priceSoles ?? 0;
-
 export function CartProvider({
-  localSlug = "nocturna-club",
+  localSlug,
+  products,
   children,
 }: {
-  localSlug?: string;
+  localSlug: string;
+  products: readonly MenuProductResponse[];
   children: ReactNode;
 }) {
   const storageKey = `ravenue.carta.${localSlug}`;
   const [lines, setLines] = useState<CartLine[]>([]);
-  const [creditoDisponible, setCreditoDisponible] = useState(0);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const productsById = useMemo(
+    () => new Map(products.map((product) => [product.id, product])),
+    [products],
+  );
 
   // Hidratar desde sessionStorage tras montar (evita mismatch SSR).
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem(storageKey);
-      if (raw) setLines(JSON.parse(raw) as CartLine[]);
+      if (!raw) return;
+      const stored = JSON.parse(raw) as CartLine[];
+      setLines(
+        stored.filter(
+          (line) =>
+            typeof line.itemId === "string" &&
+            Number.isInteger(line.quantity) &&
+            line.quantity > 0 &&
+            productsById.has(line.itemId),
+        ),
+      );
     } catch {
       /* storage bloqueado: el carrito vive solo en memoria */
     }
-  }, [storageKey]);
+  }, [productsById, storageKey]);
 
+  // Adaptador temporal de wallet: el saldo real reemplazará solo este punto.
   useEffect(() => {
-    setCreditoDisponible(leerCreditoDemo(localSlug)?.saldo ?? 0);
+    setWalletBalance(leerCreditoDemo(localSlug)?.saldo ?? 0);
   }, [localSlug]);
 
   useEffect(() => {
@@ -79,10 +93,12 @@ export function CartProvider({
       const existing = prev.find((l) => l.itemId === itemId);
       if (existing) {
         return prev.map((l) =>
-          l.itemId === itemId ? { ...l, quantity: l.quantity + quantity } : l,
+          l.itemId === itemId
+            ? { ...l, quantity: Math.min(100, l.quantity + quantity) }
+            : l,
         );
       }
-      return [...prev, { itemId, quantity }];
+      return [...prev, { itemId, quantity: Math.min(100, quantity) }];
     });
   }, []);
 
@@ -94,24 +110,36 @@ export function CartProvider({
     setLines((prev) =>
       quantity <= 0
         ? prev.filter((l) => l.itemId !== itemId)
-        : prev.map((l) => (l.itemId === itemId ? { ...l, quantity } : l)),
+        : prev.map((l) =>
+            l.itemId === itemId
+              ? { ...l, quantity: Math.min(100, quantity) }
+              : l,
+          ),
     );
   }, []);
 
   const clear = useCallback(() => setLines([]), []);
 
   const count = lines.reduce((sum, l) => sum + l.quantity, 0);
-  const totalSoles = lines.reduce(
-    (sum, l) => sum + l.quantity * priceOf(l.itemId),
+  const totalAmount = lines.reduce(
+    (sum, line) =>
+      sum + line.quantity * (productsById.get(line.itemId)?.priceAmount ?? 0),
     0,
   );
-  const totalTrasCredito = Math.max(0, totalSoles - creditoDisponible);
+  const currency =
+    lines
+      .map((line) => productsById.get(line.itemId)?.priceCurrency)
+      .find(Boolean) ?? "PEN";
+  const productFor = useCallback(
+    (itemId: string) => productsById.get(itemId),
+    [productsById],
+  );
 
-  const canjearCredito = useCallback(() => {
-    const descontado = consumirCreditoDemo(localSlug, totalSoles);
-    setCreditoDisponible(leerCreditoDemo(localSlug)?.saldo ?? 0);
+  const debitDemoWallet = useCallback((amount: number) => {
+    const descontado = consumirCreditoDemo(localSlug, amount);
+    setWalletBalance(leerCreditoDemo(localSlug)?.saldo ?? 0);
     return descontado;
-  }, [localSlug, totalSoles]);
+  }, [localSlug]);
 
   const value = useMemo<CartContextValue>(
     () => ({
@@ -121,10 +149,11 @@ export function CartProvider({
       setQuantity,
       clear,
       count,
-      totalSoles,
-      creditoDisponible,
-      totalTrasCredito,
-      canjearCredito,
+      totalAmount,
+      currency,
+      walletBalance,
+      productFor,
+      debitDemoWallet,
     }),
     [
       lines,
@@ -133,10 +162,11 @@ export function CartProvider({
       setQuantity,
       clear,
       count,
-      totalSoles,
-      creditoDisponible,
-      totalTrasCredito,
-      canjearCredito,
+      totalAmount,
+      currency,
+      walletBalance,
+      productFor,
+      debitDemoWallet,
     ],
   );
 

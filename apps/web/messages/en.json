@@ -594,6 +594,22 @@
       "invalidMfaEmailCode": "That email code isn't valid. Check it and try again.",
       "mfaEmailCodeExpired": "That email code has expired. Request a new one.",
       "mfaEmailResendTooSoon": "Wait for the countdown to finish before requesting another code.",
+      "menuLocalNotFound": "We couldn't find the venue for this menu.",
+      "menuCategoryNotFound": "We couldn't find that menu category.",
+      "menuProductNotFound": "We couldn't find that item on the menu.",
+      "menuPriceNotFound": "That item does not have a current price.",
+      "menuOrderWindowInvalid": "The configured ordering hours are invalid.",
+      "menuDepositPercentInvalid": "The configured percentage is invalid.",
+      "ordersLocalNotFound": "We couldn't find the venue for this order.",
+      "orderNotFound": "We couldn't find your order.",
+      "invalidOrderStatusTransition": "This order cannot move to the requested status.",
+      "orderStatusAdvanceForbidden": "You don't have permission to change the order status.",
+      "orderAlreadyPaid": "This order has already been paid.",
+      "paymentRejected": "We couldn't complete the payment. Try another method.",
+      "orderSplitNotFound": "We couldn't find the split bill.",
+      "orderSplitOverpaid": "The payment is greater than the outstanding balance.",
+      "orderWindowClosed": "This venue is not taking orders right now.",
+      "orderProductUnavailable": "An item is no longer available. Review your order.",
       "unexpected": "Something unexpected happened. Please try again."
     }
   },
@@ -1567,11 +1583,20 @@
     "page": {
       "metadataTitle": "{name} menu",
       "metadataDescription": "Order drinks and bites from {name} for pickup at {zone}.",
+      "metadataFallbackTitle": "Venue menu",
+      "metadataFallbackDescription": "Browse the menu and order from the venue.",
+      "inVenue": "In-venue ordering",
+      "defaultPickupZone": "Main bar",
+      "loadErrorTitle": "We couldn't open the menu",
+      "backToLocal": "Back to venue",
       "demo": "Demo · in-venue menu",
       "verifiedTicket": "Verified ticket",
       "title": "{name} menu",
       "pickup": "Pickup: {zone}",
       "hours": "Order hours: {schedule}",
+      "noOrderHours": "No ordering hours configured",
+      "ordersOpen": "Ordering is open now",
+      "ordersClosed": "Ordering is closed right now",
       "description": "Order from your table or the dance floor. We'll let you know when it's ready for pickup.",
       "unavailable": {
         "title": "Menu unavailable",
@@ -1583,6 +1608,14 @@
         "barranco-beats": "Central bar",
         "karaoke-estelar": "Room bar"
       }
+    },
+    "load": {
+      "localLoading": "Loading the venue and its menu",
+      "productsLoading": "Loading menu items",
+      "productsErrorTitle": "We couldn't load the menu items",
+      "categoriesLoading": "Loading categories",
+      "windowsLoading": "Loading ordering hours",
+      "retry": "Try again"
     },
     "searchPlaceholder": "Search the menu…",
     "searchAria": "Search menu items",
@@ -1697,6 +1730,7 @@
       "title": "Your order",
       "each": "{amount} each",
       "removeAria": "Remove {item}",
+      "decreaseAria": "Decrease the quantity of {item}",
       "addAria": "Add {item}",
       "total": "Total",
       "split": "Split the bill",
@@ -1707,11 +1741,18 @@
       "removeOne": "Remove one",
       "addOne": "Add one",
       "addWithPrice": "Add · {amount}",
-      "soldOutTonight": "Sold out tonight"
+      "soldOutTonight": "Sold out tonight",
+      "noDescription": "No description available.",
+      "loading": "Refreshing item details",
+      "retry": "Try again"
     },
     "credit": {
       "creditAvailable": "You have {amount} in spending credit",
       "creditNote": "It will be applied automatically when you confirm your order."
+    },
+    "wallet": {
+      "available": "You have {amount} available in your wallet",
+      "note": "Wallet appears at checkout only when it covers the full order."
     },
     "order": {
       "eyebrow": "In-venue order",
@@ -1721,8 +1762,42 @@
       "credit": "Credit applied",
       "payTotal": "Balance due",
       "confirm": "Place order",
+      "submitting": "Placing order…",
       "backToMenu": "Back to menu",
+      "attendeeName": "Name for your order",
+      "attendeeNamePlaceholder": "Your name",
+      "nameRequired": "Enter the name the venue should call for your order.",
+      "loginRequired": "Log in to place and track your order.",
+      "loginAction": "Log in",
+      "windowClosedWithSchedule": "This venue is not taking orders right now. Hours: {schedule}.",
+      "unknownProduct": "Item",
+      "itemsAria": "Order items",
+      "itemQuantity": "{quantity} × {amount}",
       "pickupCode": "Pickup code",
+      "pickupQrAlt": "Order QR code for pickup code {code}",
+      "paymentStatus": "Payment",
+      "paymentState": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "refunded": "Refunded"
+      },
+      "payment": {
+        "legend": "Payment method",
+        "wallet": {
+          "label": "Wallet balance",
+          "description": "Available balance: {balance}"
+        },
+        "card": {
+          "label": "Card in the app",
+          "description": "Pay with a saved or new card."
+        },
+        "cashRegister": {
+          "label": "Pay at the register",
+          "description": "Complete payment at the venue register."
+        }
+      },
+      "retryPayment": "Try payment again",
+      "statusSessionRequired": "Log in again to refresh your order status.",
       "creditRedeemed": "You used {amount} of your spending credit",
       "remainingBalance": "You have {amount} left",
       "orderMore": "Order something else",
@@ -1741,7 +1816,17 @@
       "ready": {
         "label": "Ready for pickup",
         "hint": "Show your code at the pickup area."
-      }
+      },
+      "delivered": {
+        "label": "Delivered",
+        "hint": "Your order has been handed over."
+      },
+      "cancelled": {
+        "label": "Order cancelled",
+        "hint": "Ask the venue staff if you need help."
+      },
+      "refreshing": "Refreshing status…",
+      "retry": "Try again"
     },
     "split": {
       "title": "Split the bill",
@@ -1750,7 +1835,7 @@
       "range": "Between 2 and 8",
       "removePerson": "Remove person",
       "addPerson": "Add person",
-      "perPerson": "Each person pays {amount}",
+      "perPerson": "Each person pays",
       "paid": "Paid",
       "linkSent": "Link sent",
       "sendLink": "Send link",

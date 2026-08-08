@@ -594,6 +594,22 @@
       "invalidMfaEmailCode": "El código enviado por correo no es válido. Revísalo e inténtalo de nuevo.",
       "mfaEmailCodeExpired": "El código enviado por correo venció. Solicita uno nuevo.",
       "mfaEmailResendTooSoon": "Espera a que termine la cuenta regresiva antes de solicitar otro código.",
+      "menuLocalNotFound": "No encontramos el local de esta carta.",
+      "menuCategoryNotFound": "No encontramos esa categoría de la carta.",
+      "menuProductNotFound": "No encontramos ese producto en la carta.",
+      "menuPriceNotFound": "Ese producto no tiene un precio vigente.",
+      "menuOrderWindowInvalid": "El horario de pedidos configurado no es válido.",
+      "menuDepositPercentInvalid": "El porcentaje configurado no es válido.",
+      "ordersLocalNotFound": "No encontramos el local para crear el pedido.",
+      "orderNotFound": "No encontramos tu pedido.",
+      "invalidOrderStatusTransition": "El pedido no puede avanzar al estado solicitado.",
+      "orderStatusAdvanceForbidden": "No tienes permiso para cambiar el estado del pedido.",
+      "orderAlreadyPaid": "Este pedido ya fue pagado.",
+      "paymentRejected": "No pudimos completar el pago. Prueba otro método.",
+      "orderSplitNotFound": "No encontramos la cuenta dividida.",
+      "orderSplitOverpaid": "El pago supera el saldo pendiente.",
+      "orderWindowClosed": "El local no acepta pedidos en este horario.",
+      "orderProductUnavailable": "Uno de los productos ya no está disponible. Revisa tu pedido.",
       "unexpected": "Ocurrió un error inesperado."
     }
   },
@@ -1564,11 +1580,20 @@
     "page": {
       "metadataTitle": "Carta de {name}",
       "metadataDescription": "Pide bebidas y piqueos de {name} para recoger en {zone}.",
+      "metadataFallbackTitle": "Carta del local",
+      "metadataFallbackDescription": "Consulta la carta y pide desde el local.",
+      "inVenue": "Pedidos en el local",
+      "defaultPickupZone": "Barra principal",
+      "loadErrorTitle": "No pudimos abrir la carta",
+      "backToLocal": "Volver al local",
       "demo": "Demo · carta en el local",
       "verifiedTicket": "Entrada verificada",
       "title": "Carta de {name}",
       "pickup": "Recojo: {zone}",
       "hours": "Pedidos: {schedule}",
+      "noOrderHours": "Sin horarios configurados",
+      "ordersOpen": "Pedidos disponibles ahora",
+      "ordersClosed": "Pedidos cerrados por ahora",
       "description": "Pide desde tu mesa o la pista. Te avisamos cuando esté listo para recoger.",
       "unavailable": {
         "title": "Carta no disponible",
@@ -1580,6 +1605,14 @@
         "barranco-beats": "Barra central",
         "karaoke-estelar": "Barra de salas"
       }
+    },
+    "load": {
+      "localLoading": "Cargando el local y su carta",
+      "productsLoading": "Cargando productos de la carta",
+      "productsErrorTitle": "No pudimos cargar los productos",
+      "categoriesLoading": "Cargando categorías",
+      "windowsLoading": "Cargando horarios de pedidos",
+      "retry": "Reintentar"
     },
     "searchPlaceholder": "Buscar en la carta…",
     "searchAria": "Buscar productos en la carta",
@@ -1700,6 +1733,7 @@
       "title": "Tu pedido",
       "each": "{amount} c/u",
       "removeAria": "Quitar {item}",
+      "decreaseAria": "Disminuir la cantidad de {item}",
       "addAria": "Agregar {item}",
       "total": "Total",
       "split": "Dividir cuenta",
@@ -1710,11 +1744,18 @@
       "removeOne": "Quitar uno",
       "addOne": "Agregar uno",
       "addWithPrice": "Agregar · {amount}",
-      "soldOutTonight": "Agotado por esta noche"
+      "soldOutTonight": "Agotado por esta noche",
+      "noDescription": "Sin descripción disponible.",
+      "loading": "Actualizando el producto",
+      "retry": "Reintentar"
     },
     "credit": {
       "creditAvailable": "Tienes {amount} de crédito de consumo disponible",
       "creditNote": "Se aplicará automáticamente al confirmar tu pedido."
+    },
+    "wallet": {
+      "available": "Tienes {amount} disponibles en tu wallet",
+      "note": "La opción wallet aparece al pagar solo si cubre todo el pedido."
     },
     "order": {
       "eyebrow": "Pedido en el local",
@@ -1724,8 +1765,42 @@
       "credit": "Crédito aplicado",
       "payTotal": "Saldo por pagar",
       "confirm": "Confirmar pedido",
+      "submitting": "Confirmando pedido…",
       "backToMenu": "Volver a la carta",
+      "attendeeName": "Nombre para llamar el pedido",
+      "attendeeNamePlaceholder": "Tu nombre",
+      "nameRequired": "Ingresa el nombre que usarán para llamar tu pedido.",
+      "loginRequired": "Inicia sesión para confirmar y seguir tu pedido.",
+      "loginAction": "Iniciar sesión",
+      "windowClosedWithSchedule": "El local no acepta pedidos ahora. Horario: {schedule}.",
+      "unknownProduct": "Producto",
+      "itemsAria": "Productos del pedido",
+      "itemQuantity": "{quantity} × {amount}",
       "pickupCode": "Código de recojo",
+      "pickupQrAlt": "QR del pedido con código {code}",
+      "paymentStatus": "Pago",
+      "paymentState": {
+        "pending": "Pendiente",
+        "paid": "Pagado",
+        "refunded": "Reembolsado"
+      },
+      "payment": {
+        "legend": "Método de pago",
+        "wallet": {
+          "label": "Saldo de wallet",
+          "description": "Saldo disponible: {balance}"
+        },
+        "card": {
+          "label": "Tarjeta desde la app",
+          "description": "Paga con una tarjeta guardada o nueva."
+        },
+        "cashRegister": {
+          "label": "Pagar en caja",
+          "description": "Completa el pago en la caja del local."
+        }
+      },
+      "retryPayment": "Reintentar pago",
+      "statusSessionRequired": "Inicia sesión nuevamente para actualizar el estado del pedido.",
       "creditRedeemed": "Usaste {amount} de tu crédito de consumo",
       "remainingBalance": "Te quedan {amount} disponibles",
       "orderMore": "Pedir algo más",
@@ -1744,7 +1819,17 @@
       "ready": {
         "label": "Listo para recoger",
         "hint": "Muéstrales tu código en la zona de recojo."
-      }
+      },
+      "delivered": {
+        "label": "Entregado",
+        "hint": "Tu pedido ya fue entregado."
+      },
+      "cancelled": {
+        "label": "Pedido cancelado",
+        "hint": "Acércate al personal del local si necesitas ayuda."
+      },
+      "refreshing": "Actualizando estado…",
+      "retry": "Reintentar"
     },
     "split": {
       "title": "Dividir la cuenta",
@@ -1753,7 +1838,7 @@
       "range": "Entre 2 y 8",
       "removePerson": "Quitar persona",
       "addPerson": "Agregar persona",
-      "perPerson": "A cada uno le toca {amount}",
+      "perPerson": "A cada uno le toca",
       "paid": "Pagó",
       "linkSent": "Enlace enviado",
       "sendLink": "Enviar enlace",
